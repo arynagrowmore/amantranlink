@@ -1,0 +1,19 @@
+{
+  "name": "jharokha-wedding-template",
+  "version": "1.0.0",
+  "description": "The Jharokha - Luxury Royal Wedding Invitation Template",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 3001",
+    "dev": "npx serve -l 3001"
+  },
+  "keywords": [
+    "wedding-invitation",
+    "jharokha",
+    "royal-palace",
+    "gsap-animation",
+    "bilingual"
+  ],
+  "author": "",
+  "license": "ISC"
+}

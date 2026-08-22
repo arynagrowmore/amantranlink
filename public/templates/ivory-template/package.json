@@ -1,0 +1,19 @@
+{
+  "name": "ivory-wedding-template",
+  "version": "1.0.0",
+  "description": "The Ivory - Royal Minimalist Editorial Wedding Invitation Template",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 3005",
+    "dev": "npx serve -l 3005"
+  },
+  "keywords": [
+    "wedding-invitation",
+    "the-ivory",
+    "editorial-wedding",
+    "minimalist-luxury",
+    "bilingual"
+  ],
+  "author": "",
+  "license": "ISC"
+}

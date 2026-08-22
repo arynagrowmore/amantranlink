@@ -1,0 +1,29 @@
+﻿{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/templates/(.*)",
+      "destination": "/templates/$1"
+    },
+    {
+      "source": "/previews/(.*)",
+      "destination": "/previews/$1"
+    },
+    {
+      "source": "/i/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/invite/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/wedding/:slug",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

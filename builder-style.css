@@ -1,0 +1,104 @@
+/* ===================================================
+   SHAHI STUDIO ENGINE — LUXURY NO-CODE BUILDER STYLING
+   =================================================== */
+
+:root {
+  --bg-main: #080204;
+  --bg-panel: #120508;
+  --bg-card: #1B090E;
+  --border-gold: rgba(201, 160, 80, 0.3);
+  --gold-primary: #C9A050;
+  --gold-light: #F4E3B8;
+  --gold-dark: #8E6D29;
+  --maroon-bright: #8C182F;
+}
+
+body {
+  background-color: var(--bg-main);
+  background-image: 
+    radial-gradient(at 50% 0%, rgba(140, 24, 47, 0.35) 0px, transparent 55%),
+    radial-gradient(at 100% 100%, rgba(201, 160, 80, 0.15) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(82, 14, 28, 0.35) 0px, transparent 55%);
+  color: #FAF3E8;
+  overflow: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0D0305;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #38131B;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-primary);
+}
+
+.gold-foil-text {
+  background: linear-gradient(135deg, #FFF5DB 0%, #C9A050 35%, #F4E3B8 50%, #8E6D29 75%, #C9A050 100%);
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gold-sweep 6s linear infinite;
+}
+
+@keyframes gold-sweep {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.editor-card {
+  background: linear-gradient(145deg, rgba(27, 9, 14, 0.9) 0%, rgba(18, 5, 8, 0.98) 100%);
+  border: 1px solid var(--border-gold);
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.8);
+}
+
+.editor-input {
+  background: #0D0305;
+  border: 1px solid rgba(201, 160, 80, 0.25);
+  color: #FAF3E8;
+  transition: all 0.25s ease;
+}
+
+.editor-input:focus {
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 12px rgba(201, 160, 80, 0.3);
+  outline: none;
+}
+
+/* Phone Mockup Frame */
+.device-phone {
+  width: 375px;
+  height: 740px;
+  border-radius: 48px;
+  background: #000;
+  box-shadow: 0 0 0 12px #260D14, 0 0 0 14px #C9A050, 0 30px 80px rgba(0,0,0,0.9);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.device-desktop {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 2px solid var(--border-gold);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Tab navigation active state */
+.tab-nav-btn.active {
+  background: linear-gradient(135deg, #8C182F, #520E1C);
+  border-color: var(--gold-primary);
+  color: #FFF;
+  box-shadow: 0 4px 16px rgba(140, 24, 47, 0.4);
+}

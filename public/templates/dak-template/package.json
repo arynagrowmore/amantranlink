@@ -1,0 +1,20 @@
+{
+  "name": "dak-wedding-template",
+  "version": "1.0.0",
+  "description": "The Dâk - Vintage Royal Indian Postal Stamp Wedding Invitation Template",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 3004",
+    "dev": "npx serve -l 3004"
+  },
+  "keywords": [
+    "wedding-invitation",
+    "the-dak",
+    "vintage-postcard",
+    "postal-stamp",
+    "gsap-animation",
+    "bilingual"
+  ],
+  "author": "",
+  "license": "ISC"
+}

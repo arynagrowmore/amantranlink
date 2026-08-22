@@ -1,0 +1,276 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --base: #EDE0C8;
+    --surface: #F7F0DD;
+    --maroon: #6B1420;
+    --maroon-dark: #4A0C14;
+    --gold: #A67C3D;
+    --gold-light: #D4B37F;
+    --indigo-accent: #2C3E5C;
+    --vermillion: #C4522A;
+    --vermillion-hover: #B0431D;
+    --ink: #2B1810;
+    --ink-muted: #6B5A4A;
+    --border-hairline: #D8C7AA;
+  }
+
+  body {
+    background-color: var(--base);
+    color: var(--ink);
+    font-family: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+    /* Subtle 3.5% Rajasthani Jaali Lattice Pattern */
+    background-image: 
+      radial-gradient(#A67C3D 0.65px, transparent 0.65px), 
+      radial-gradient(#6B1420 0.65px, #EDE0C8 0.65px);
+    background-size: 28px 28px;
+    background-position: 0 0, 14px 14px;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+  }
+
+  /* Allow typing in input fields */
+  input, textarea, [contenteditable="true"], .select-all {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+  }
+
+  /* 🛡️ Block Print Scrapers & PDF Exporters */
+  @media print {
+    body {
+      display: none !important;
+    }
+  }
+
+  /* Explicit Typography Hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-optical-sizing: auto;
+    color: var(--maroon);
+  }
+
+  /* Multi-script Language Fallbacks */
+  [lang="hi"], [lang="gu"], .font-baloo {
+    font-family: 'Baloo Bhai 2', 'Mukta', cursive, sans-serif;
+  }
+
+  .font-mukta {
+    font-family: 'Mukta', 'Baloo Bhai 2', sans-serif;
+  }
+}
+
+/* 🏷️ Engraved / Stamped Utility Label (Fraunces Small-Caps Italic) */
+.stamped-label {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* 📜 Two Deliberate Card Styles */
+.shahi-card-flat {
+  background: var(--surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: 16px;
+  position: relative;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.shahi-card-flat:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.shahi-card-elevated {
+  background: var(--surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px -2px rgba(107, 20, 32, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02);
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.shahi-card-elevated:hover {
+  border-color: var(--gold);
+  box-shadow: 0 12px 28px -4px rgba(166, 124, 61, 0.18), 0 2px 6px rgba(107, 20, 32, 0.04);
+  transform: translateY(-2px);
+}
+
+/* 💌 Stamped Wax-Seal Letterpress Note (Testimonials) */
+.wax-seal-note {
+  background: #FAF3E3;
+  border: 1px solid #D5C2A3;
+  border-radius: 14px;
+  position: relative;
+  box-shadow: 0 3px 12px rgba(107, 20, 32, 0.04);
+  background-image: radial-gradient(#A67C3D 0.4px, transparent 0.4px);
+  background-size: 16px 16px;
+  transition: all 0.25s ease;
+}
+
+.wax-seal-note:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(166, 124, 61, 0.12);
+}
+
+/* 👑 Primary Vermillion Action Button */
+.btn-vermillion {
+  background: linear-gradient(135deg, #D45D33 0%, #C4522A 50%, #A83E18 100%);
+  border: 1px solid #A67C3D;
+  color: #FFFDF9;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: 0 4px 14px rgba(196, 82, 42, 0.24);
+  transition: all 0.2s ease;
+}
+
+.btn-vermillion:hover {
+  background: linear-gradient(135deg, #E0673D 0%, #CE5930 50%, #B84720 100%);
+  border-color: #D4B37F;
+  box-shadow: 0 6px 20px rgba(196, 82, 42, 0.35);
+  transform: translateY(-1px);
+}
+
+/* 👑 Secondary Maroon Button */
+.artisan-btn-gold {
+  background: linear-gradient(135deg, #7E1827 0%, #6B1420 50%, #4A0C14 100%);
+  border: 1px solid #A67C3D;
+  color: #F7F0DD;
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: 0 4px 14px rgba(107, 20, 32, 0.22);
+  transition: all 0.2s ease;
+}
+
+.artisan-btn-gold:hover {
+  background: linear-gradient(135deg, #8E1C2C 0%, #761623 50%, #520E16 100%);
+  border-color: #D4B37F;
+  box-shadow: 0 6px 20px rgba(107, 20, 32, 0.32);
+  transform: translateY(-1px);
+}
+
+/* 🖋️ Letterpress Input */
+.artisan-input {
+  background: #EDE0C8;
+  border: 1px solid var(--border-hairline);
+  color: var(--ink);
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.artisan-input:focus {
+  background: #FFFDF9;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(166, 124, 61, 0.2);
+  outline: none;
+}
+
+/* 🌟 Hero Staggered Entrance Animations */
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-animate-1 {
+  animation: heroFadeUp 0.5s ease-out forwards;
+}
+
+.hero-animate-2 {
+  animation: heroFadeUp 0.5s ease-out 0.1s forwards;
+  opacity: 0;
+}
+
+.hero-animate-3 {
+  animation: heroFadeUp 0.5s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.hero-animate-4 {
+  animation: heroFadeUp 0.5s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+/* 🔗 Animated Dashed Path for How-It-Works */
+@keyframes dashDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animated-step-path {
+  stroke-dasharray: 6 6;
+  stroke-dashoffset: 48;
+  animation: dashDraw 1.2s ease-out forwards;
+}
+
+/* 👑 Ultra-Luxury Gold Shimmer & Ambient Particle Dynamics */
+@keyframes goldShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.gold-shimmer-text {
+  background: linear-gradient(90deg, #C9A227 0%, #FFF2B2 45%, #C9A227 70%, #8A6B1A 100%);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: goldShimmer 4s linear infinite;
+}
+
+.gold-shimmer-border {
+  background: linear-gradient(90deg, #741526, #C9A227, #F7F0DF, #C9A227, #741526);
+  background-size: 300% 100%;
+  animation: goldShimmer 6s linear infinite;
+}
+
+@keyframes soundWave {
+  0%, 100% { height: 6px; }
+  50% { height: 22px; }
+}
+
+.soundwave-bar-1 { animation: soundWave 1.1s ease-in-out infinite 0.1s; }
+.soundwave-bar-2 { animation: soundWave 1.1s ease-in-out infinite 0.3s; }
+.soundwave-bar-3 { animation: soundWave 1.1s ease-in-out infinite 0.5s; }
+.soundwave-bar-4 { animation: soundWave 1.1s ease-in-out infinite 0.2s; }
+
+/* 🏯 Palace Double-Bezel Luxury Outer Shell */
+.palace-bezel {
+  background: rgba(237, 224, 200, 0.7);
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  border-radius: 28px;
+  padding: 8px;
+  box-shadow: 0 20px 50px -15px rgba(43, 23, 20, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+.palace-bezel-inner {
+  background: #FAF7F2;
+  border: 1px solid rgba(216, 199, 170, 0.8);
+  border-radius: 22px;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+

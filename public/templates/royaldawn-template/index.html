@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full antialiased" data-lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Aarav &amp; Anaya — A Royal Udaipur Wedding | The Royal Dawn Experience</title>
+  <meta name="description" content="Step through the palace gates into Aarav and Anaya's wedding at Taj Lake Palace, Udaipur on 8 December 2026." />
+  <link rel="icon" href="./public/favicon.ico" type="image/x-icon" />
+
+  <!-- Google Fonts: Cormorant Garamond & Jost -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600;700&family=Great+Vibes&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ivory: '#FAF8F5',
+            cream: '#F5EFEB',
+            champagne: '#EFE4D6',
+            rosegold: '#C98A75',
+            gold: '#D4AF37',
+            maroon: '#4A0E17',
+            deepmaroon: '#2D080E',
+            textdark: '#3A2329',
+            textmuted: '#7D6368',
+          },
+          fontFamily: {
+            display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            sans: ['"Jost"', '-apple-system', 'sans-serif'],
+            script: ['"Great Vibes"', 'cursive'],
+            deva: ['"Noto Sans Devanagari"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Core Styles -->
+  <link rel="stylesheet" href="./style.css" />
+
+  <!-- Security Shield -->
+  <script>
+    (function() {
+      window.addEventListener('contextmenu', function(e) { e.preventDefault(); e.stopPropagation(); return false; }, true);
+      window.addEventListener('keydown', function(e) {
+        if (e.keyCode === 123 || e.key === 'F12') { e.preventDefault(); e.stopPropagation(); return false; }
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P')) { e.preventDefault(); e.stopPropagation(); return false; }
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'i' || e.key === 'I' || e.key === 'j' || e.key === 'J' || e.key === 'c' || e.key === 'C')) { e.preventDefault(); e.stopPropagation(); return false; }
+      }, true);
+      window.addEventListener('selectstart', function(e) {
+        if (e.target && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); return false; }
+      }, true);
+      window.addEventListener('dragstart', function(e) { e.preventDefault(); return false; }, true);
+    })();
+  </script>
+</head>
+
+<body class="bg-ivory text-textdark font-sans selection:bg-gold/20 relative overflow-x-hidden">
+
+  <!-- 🌸 Floating Rose Petals Animation Container -->
+  <div id="petalsContainer" class="fixed inset-0 pointer-events-none z-10 overflow-hidden"></div>
+
+  <!-- 🎵 Background Shehnai Audio Element -->
+  <audio id="bgAudio" src="./public/FinalSong.mp3" loop preload="auto" class="hidden"></audio>
+
+  <!-- 🎶 Floating Royal Music Pill -->
+  <div id="audioToggleBtn" class="music-toggle-pill" title="Toggle Shehnai Music">
+    <div id="audioBars" class="flex items-center gap-1 opacity-40">
+      <span class="sound-bar"></span>
+      <span class="sound-bar"></span>
+      <span class="sound-bar"></span>
+      <span class="sound-bar"></span>
+    </div>
+    <span class="text-xs font-sans font-semibold tracking-wider text-maroon uppercase">Royal Shehnai</span>
+  </div>
+
+  <!-- ============================================================================== -->
+  <!-- 🏰 1. 3D CARVED PALACE GATE WITH MONOGRAM WAX SEAL                             -->
+  <!-- ============================================================================== -->
+  <div id="gateOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-deepmaroon select-none transition-opacity duration-1000">
+    <div class="absolute inset-0 bg-radial-gradient from-transparent to-black/80"></div>
+
+    <!-- Left Gate Leaf -->
+    <div class="absolute left-0 top-0 bottom-0 w-1/2 overflow-hidden gate-leaf-left shadow-2xl">
+      <img
+        src="./public/assets/gate.jpg"
+        alt="Palace Gate Left"
+        class="h-full w-[200%] max-w-none object-cover"
+      />
+      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black/50"></div>
+    </div>
+
+    <!-- Right Gate Leaf -->
+    <div class="absolute right-0 top-0 bottom-0 w-1/2 overflow-hidden gate-leaf-right shadow-2xl">
+      <img
+        src="./public/assets/gate.jpg"
+        alt="Palace Gate Right"
+        class="h-full w-[200%] max-w-none object-cover"
+        style="margin-left: -100%;"
+      />
+      <div class="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black/50"></div>
+    </div>
+
+    <!-- Wax Seal Center Button -->
+    <div class="relative z-30 flex flex-col items-center text-center gate-seal px-4 cursor-pointer" id="gateSealBtn">
+      <p class="text-xs font-sans font-semibold text-ivory tracking-widest uppercase mb-4 drop-shadow-md data-city">
+        Himmatnagar, Gujarat
+      </p>
+
+      <button
+        type="button"
+        class="group relative flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-full bg-gradient-to-br from-maroon via-deepmaroon to-black border-2 border-gold shadow-2xl transition-transform duration-300 hover:scale-105"
+      >
+        <div class="absolute inset-1 rounded-full border border-gold/40 border-dashed animate-spin" style="animation-duration: 20s;"></div>
+        <span class="font-display text-2xl sm:text-3xl font-semibold text-ivory drop-shadow data-monogram">
+          D · S
+        </span>
+      </button>
+
+      <p class="mt-4 font-display text-lg sm:text-xl italic text-ivory drop-shadow-md">
+        Touch seal to enter the palace
+      </p>
+    </div>
+  </div>
+
+  <!-- ============================================================================== -->
+  <!-- 👑 2. MAIN SCROLLABLE INVITATION APP                                           -->
+  <!-- ============================================================================== -->
+  <main id="mainApp" class="relative z-20 opacity-0 transition-opacity duration-1000">
+
+    <!-- HERO SECTION -->
+    <section class="min-h-screen relative flex flex-col items-center justify-center text-center px-4 py-24 bg-dawn">
+      <div class="max-w-3xl mx-auto space-y-8">
+        
+        <!-- Auspicious Tag -->
+        <div class="inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-cream border border-gold/40 shadow-sm text-xs font-deva font-semibold text-maroon">
+          <span>॥ श्री गणेशाय नमः ॥</span>
+        </div>
+
+        <div class="space-y-4">
+          <p class="text-xs font-sans tracking-[0.3em] text-textmuted uppercase">
+            THE WEDDING OF
+          </p>
+          <h1 class="font-display text-5xl sm:text-7xl md:text-8xl font-normal tracking-tight text-maroon leading-none">
+            <span class="data-groom-name">Dhruv</span>
+            <span class="font-script text-4xl sm:text-6xl text-gold mx-2">&amp;</span>
+            <span class="data-bride-name">Shreya</span>
+          </h1>
+          <p class="font-display text-xl sm:text-2xl italic text-textmuted data-template-name">
+            Royal Vivah Celebration
+          </p>
+        </div>
+
+        <!-- Arch Couple Portrait -->
+        <div class="relative mx-auto max-w-sm sm:max-w-md">
+          <div class="relative overflow-hidden rounded-t-full border-2 border-gold shadow-royal bg-cream aspect-[4/5]">
+            <img
+              src="./public/assets/couple.jpg"
+              alt="The Royal Couple"
+              class="w-full h-full object-cover object-center data-hero-img"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+          </div>
+          <!-- Decorative Corner Lotus -->
+          <div class="absolute -bottom-4 -left-4 w-12 h-12 rounded-full bg-champagne border border-gold flex items-center justify-center text-xl shadow-md">
+            🪷
+          </div>
+          <div class="absolute -bottom-4 -right-4 w-12 h-12 rounded-full bg-champagne border border-gold flex items-center justify-center text-xl shadow-md">
+            🪷
+          </div>
+        </div>
+
+        <!-- Venue & Date Pill -->
+        <div class="p-6 rounded-3xl bg-white/70 border border-gold/40 shadow-lift backdrop-blur-md max-w-lg mx-auto space-y-2">
+          <p class="font-display text-xl sm:text-2xl font-semibold text-maroon data-wedding-date">
+            3 December 2026
+          </p>
+          <p class="text-xs font-sans text-textmuted data-venue">
+            The Milestone, Himmatnagar, Gujarat
+          </p>
+          <p class="text-[11px] font-sans font-semibold text-gold tracking-widest uppercase data-hashtag">
+            #DhruvKiShreya
+          </p>
+          <div class="pt-2 flex justify-center gap-3">
+            <a
+              href="#events"
+              class="px-5 py-2.5 rounded-full bg-maroon hover:bg-deepmaroon text-ivory text-xs font-sans font-semibold tracking-wider uppercase transition-colors"
+            >
+              Ceremonies ➜
+            </a>
+            <a
+              href="#rsvp"
+              class="px-5 py-2.5 rounded-full bg-cream hover:bg-champagne border border-gold/60 text-maroon text-xs font-sans font-semibold tracking-wider uppercase transition-colors"
+            >
+              RSVP Details
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🪷 PARENTS & ELDERS BLESSINGS -->
+    <section class="py-12 px-4 bg-cream/60 border-b border-gold/30 text-center">
+      <div class="max-w-3xl mx-auto space-y-3">
+        <span class="text-xs font-sans tracking-[0.25em] text-textmuted uppercase block font-semibold">
+          ॥ मातृ-पितृ आशीर्वाद ॥
+        </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div class="p-4 rounded-2xl bg-ivory border border-gold/40 shadow-sm">
+            <span class="text-[10px] font-sans font-bold uppercase text-gold tracking-widest block mb-1">Groom's Family</span>
+            <p class="font-display text-base sm:text-lg text-maroon font-semibold data-groom-parents">
+              With Warm Blessings from Mr. Nalinkumar &amp; Mrs. Kalpuben
+            </p>
+          </div>
+          <div class="p-4 rounded-2xl bg-ivory border border-gold/40 shadow-sm">
+            <span class="text-[10px] font-sans font-bold uppercase text-gold tracking-widest block mb-1">Bride's Family</span>
+            <p class="font-display text-base sm:text-lg text-maroon font-semibold data-bride-parents">
+              With Warm Blessings from Mr. &amp; Mrs. Sharma
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ⏰ 3. LIVE COUNTDOWN -->
+    <section class="py-20 px-4 bg-cream border-y border-gold/30 text-center">
+      <div class="max-w-4xl mx-auto space-y-8">
+        <div>
+          <span class="text-xs font-sans tracking-[0.25em] text-textmuted uppercase block">
+            AUSPICIOUS MUHURAT
+          </span>
+          <h2 class="font-display text-3xl sm:text-4xl text-maroon mt-1">
+            Counting Down The Moments
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-4 gap-3 sm:gap-6 max-w-xl mx-auto">
+          <div class="p-4 sm:p-6 rounded-2xl bg-ivory border border-gold/40 shadow-sm">
+            <span id="cDays" class="font-display text-3xl sm:text-5xl font-semibold text-maroon block">00</span>
+            <span class="text-[10px] sm:text-xs font-sans tracking-widest text-textmuted uppercase">Days</span>
+          </div>
+          <div class="p-4 sm:p-6 rounded-2xl bg-ivory border border-gold/40 shadow-sm">
+            <span id="cHours" class="font-display text-3xl sm:text-5xl font-semibold text-maroon block">00</span>
+            <span class="text-[10px] sm:text-xs font-sans tracking-widest text-textmuted uppercase">Hours</span>
+          </div>
+          <div class="p-4 sm:p-6 rounded-2xl bg-ivory border border-gold/40 shadow-sm">
+            <span id="cMins" class="font-display text-3xl sm:text-5xl font-semibold text-maroon block">00</span>
+            <span class="text-[10px] sm:text-xs font-sans tracking-widest text-textmuted uppercase">Mins</span>
+          </div>
+          <div class="p-4 sm:p-6 rounded-2xl bg-ivory border border-gold/40 shadow-sm">
+            <span id="cSecs" class="font-display text-3xl sm:text-5xl font-semibold text-gold block">00</span>
+            <span class="text-[10px] sm:text-xs font-sans tracking-widest text-textmuted uppercase">Secs</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 📖 4. OUR LOVE STORY CHAPTERS -->
+    <section class="py-24 px-4 bg-ivory">
+      <div class="max-w-4xl mx-auto space-y-16">
+        <div class="text-center space-y-2">
+          <span class="text-xs font-sans tracking-[0.25em] text-textmuted uppercase block">
+            HOW OUR PATHS CROSSED
+          </span>
+          <h2 class="font-display text-4xl sm:text-5xl text-maroon">
+            The Royal Love Story
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="rounded-3xl bg-cream p-6 border border-gold/30 shadow-sm space-y-4">
+            <img id="storyImg1" src="./public/assets/courtyard.jpg" alt="First Meeting" class="w-full h-48 rounded-2xl object-cover" />
+            <div>
+              <span id="storyYear1" class="text-xs font-sans text-gold font-semibold uppercase">Chapter 1 · 2021</span>
+              <h3 id="storyTitle1" class="font-display text-2xl text-maroon">A Starlit Courtyard</h3>
+            </div>
+            <p id="storyDesc1" class="text-xs font-sans text-textmuted leading-relaxed">
+              Two souls met under the arches of a historic palace garden, starting a conversation that would last a lifetime.
+            </p>
+          </div>
+
+          <div class="rounded-3xl bg-cream p-6 border border-gold/30 shadow-sm space-y-4">
+            <img id="storyImg2" src="./public/assets/mandap.jpg" alt="The Proposal" class="w-full h-48 rounded-2xl object-cover" />
+            <div>
+              <span id="storyYear2" class="text-xs font-sans text-gold font-semibold uppercase">Chapter 2 · 2024</span>
+              <h3 id="storyTitle2" class="font-display text-2xl text-maroon">The Lakefront Vow</h3>
+            </div>
+            <p id="storyDesc2" class="text-xs font-sans text-textmuted leading-relaxed">
+              Against the shimmering waters at sunset, a timeless promise was sealed with a golden ring.
+            </p>
+          </div>
+
+          <div class="rounded-3xl bg-cream p-6 border border-gold/30 shadow-sm space-y-4">
+            <img id="storyImg3" src="./public/assets/couple.jpg" alt="The Wedding" class="w-full h-48 rounded-2xl object-cover" />
+            <div>
+              <span id="storyYear3" class="text-xs font-sans text-gold font-semibold uppercase">Chapter 3 · 2026</span>
+              <h3 id="storyTitle3" class="font-display text-2xl text-maroon">The Sacred Beginning</h3>
+            </div>
+            <p id="storyDesc3" class="text-xs font-sans text-textmuted leading-relaxed">
+              Surrounded by blessings, family, and seven sacred pheras, we step into our eternal journey as one.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🌸 5. CEREMONIES & EVENTS -->
+    <section id="events" class="py-24 px-4 bg-dawn border-t border-gold/30">
+      <div class="max-w-4xl mx-auto space-y-12 text-center">
+        <div>
+          <span class="text-xs font-sans tracking-[0.25em] text-textmuted uppercase block">
+            ROYAL ITINERARY
+          </span>
+          <h2 class="font-display text-4xl sm:text-5xl text-maroon mt-1">
+            Ceremonies of Union
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left" id="eventsContainer">
+          <!-- Haldi -->
+          <div class="p-8 rounded-3xl bg-white/80 border border-gold/40 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-sans font-semibold text-maroon tracking-wider uppercase">HALDI CEREMONY</span>
+              <span class="text-xs font-sans px-3 py-1 rounded-full bg-peach text-maroon font-semibold">10:00 AM</span>
+            </div>
+            <h3 class="font-display text-2xl text-maroon">1 December 2026</h3>
+            <p class="text-xs font-sans text-textmuted">📍 The Milestone Palace Garden</p>
+            <div class="text-[11px] font-sans text-textmuted bg-cream p-2 rounded-xl">✨ Dress Code: Sunshine Yellows &amp; Ochre Florals</div>
+          </div>
+
+          <!-- Sangeet -->
+          <div class="p-8 rounded-3xl bg-white/80 border border-gold/40 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-sans font-semibold text-maroon tracking-wider uppercase">SANGEET NIGHT</span>
+              <span class="text-xs font-sans px-3 py-1 rounded-full bg-champagne text-maroon font-semibold">07:30 PM</span>
+            </div>
+            <h3 class="font-display text-2xl text-maroon">2 December 2026</h3>
+            <p class="text-xs font-sans text-textmuted">📍 Royal Darbar Banquet</p>
+            <div class="text-[11px] font-sans text-textmuted bg-cream p-2 rounded-xl">✨ Dress Code: Regal Emeralds, Teals &amp; Shimmer</div>
+          </div>
+
+          <!-- Vivah -->
+          <div class="p-8 rounded-3xl bg-white/80 border-2 border-gold shadow-lift space-y-3 md:col-span-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-sans font-semibold text-maroon tracking-wider uppercase">SHUBH VIVAH</span>
+              <span class="text-xs font-sans px-3 py-1 rounded-full bg-gold/20 text-maroon font-bold">06:30 PM MUHURAT</span>
+            </div>
+            <h3 class="font-display text-3xl text-maroon">3 December 2026</h3>
+            <p class="text-xs font-sans text-textmuted">📍 The Milestone Palace Ground</p>
+            <div class="text-[11px] font-sans text-textmuted bg-cream p-2 rounded-xl">✨ Dress Code: Traditional Royal Attire &amp; Pastels</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🪔 6. INTERACTIVE SCRATCH DATE REVEAL CARD -->
+    <section id="date-reveal" class="py-24 px-4 bg-cream border-t border-gold/30 text-center">
+      <div class="max-w-xl mx-auto space-y-6">
+        <div>
+          <span class="text-xs font-sans tracking-[0.25em] text-textmuted uppercase block font-semibold">
+            ॥ शुभ मुहूर्त एवं विवाह तिथि ॥
+          </span>
+          <h2 class="font-display text-3xl sm:text-4xl text-maroon mt-1">
+            Scratch To Reveal The Sacred Wedding Date
+          </h2>
+          <p class="text-xs font-sans text-textmuted max-w-md mx-auto mt-2">
+            Rub over the 24K gold foil surface to uncover the auspicious wedding date &amp; muhurat.
+          </p>
+        </div>
+
+        <div class="scratch-box" id="scratchCardContainer">
+          <!-- Hidden Revealed Content -->
+          <div class="scratch-hidden-content space-y-2">
+            <!-- Top Status Badge -->
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-champagne border border-gold/40 text-[10px] font-sans font-bold uppercase tracking-widest text-maroon" id="scratchStatusBadge">
+              <span>🪔</span>
+              <span id="scratchStatusText">THE AUSPICIOUS DATE</span>
+            </div>
+
+            <!-- Date Block -->
+            <div class="space-y-0.5 my-1">
+              <span class="font-display text-5xl sm:text-6xl font-bold text-maroon tracking-tight block data-reveal-day" id="revealDay">
+                03
+              </span>
+              <span class="font-display text-lg sm:text-xl font-bold uppercase tracking-widest text-maroon block data-reveal-month-year" id="revealMonthYear">
+                DECEMBER 2026
+              </span>
+            </div>
+
+            <!-- Muhurat Time -->
+            <div class="inline-flex items-center gap-1.5 text-xs font-sans font-semibold text-gold tracking-wide data-reveal-time" id="revealTime">
+              <span>⏰ 06:30 PM MUHURAT</span>
+            </div>
+
+            <!-- Venue Details -->
+            <p class="text-[11px] font-sans text-textmuted font-medium max-w-xs mx-auto line-clamp-2 data-reveal-venue" id="revealVenue">
+              📍 The Milestone, Himmatnagar, Gujarat
+            </p>
+
+            <!-- CTA Button to Next Section (Becomes visible on reveal) -->
+            <div class="pt-2" id="scratchCtaWrap" style="opacity: 0; pointer-events: none; transition: opacity 0.5s ease;">
+              <a href="#events" class="scratch-cta-btn">
+                <span>Enter The Royal Celebration</span>
+                <span>→</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Scratch Canvas Overlay -->
+          <canvas id="scratchCanvas" class="scratch-canvas-layer"></canvas>
+        </div>
+
+        <!-- Accessible Tap-To-Reveal Fallback -->
+        <div class="flex justify-center" id="scratchFallbackWrap">
+          <button type="button" id="scratchFallbackBtn" class="scratch-tap-btn">
+            <span>✨ Tap To Reveal Auspicious Date</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 💌 7. RSVP & BLESSINGS -->
+    
+<!-- 🌅 THE ROYAL DAWN UDAIPUR LAKEFRONT RSVP SECTION -->
+<section id="rsvp" class="py-20 px-4 sm:px-8 border-t border-[#C59B4B]/30" style="background:#FAF7F2;">
+  <div class="max-w-2xl mx-auto text-center space-y-6">
+    <div class="space-y-1">
+      <span class="text-xs font-mono text-[#A67C3D] uppercase tracking-widest font-bold">॥ मंगल निमंत्रण एवं उत्तर ॥</span>
+      <h2 class="text-3xl sm:text-4xl text-[#6B1420] font-bold" style="font-family: 'Playfair Display', Georgia, serif;">
+        Join Us In Celebration
+      </h2>
+      <p class="text-xs text-[#6B5A4A]">
+        Your gracious presence &amp; blessings are our greatest wedding treasure.
+      </p>
+    </div>
+
+    <!-- RSVP Card -->
+    <div class="bg-[#FFFDF9] p-6 sm:p-10 rounded-3xl border border-[#C59B4B]/40 shadow-xl text-left">
+      <form class="shahi-rsvp-form space-y-5" data-shahi-rsvp="true">
+        <!-- Attendance Option -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-[#6B1420] mb-2 font-mono">
+            Will you attend? / क्या आप उपस्थित होंगे?
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center justify-center gap-2 p-3 rounded-2xl border-2 border-[#C59B4B] bg-[#FAF7F2] cursor-pointer text-xs font-bold text-[#6B1420] transition-all has-[:checked]:bg-[#6B1420] has-[:checked]:text-[#FFFDF9] has-[:checked]:border-[#6B1420]">
+              <input type="radio" name="attending" value="true" checked class="hidden" />
+              <span>✨ Yes, I'll Attend</span>
+            </label>
+            <label class="flex items-center justify-center gap-2 p-3 rounded-2xl border border-[#D8C7AA] bg-[#FFFDF9] cursor-pointer text-xs font-bold text-[#6B5A4A] transition-all has-[:checked]:bg-[#2B1810] has-[:checked]:text-[#FFFDF9]">
+              <input type="radio" name="attending" value="false" class="hidden" />
+              <span>🕊️ Sorry, Can't Attend</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-[#2B1810] mb-1">Your Full Name <span class="text-rose-600">*</span></label>
+            <input type="text" name="guest_name" required placeholder="e.g. Amit & Priya Patel" class="w-full px-4 py-3 rounded-xl border border-[#D8C7AA] bg-[#FAF7F2] text-xs text-[#2B1810] focus:outline-none focus:border-[#C59B4B]" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-[#2B1810] mb-1">WhatsApp Number <span class="text-rose-600">*</span></label>
+            <input type="tel" name="guest_phone" required placeholder="+91 94093 60336" class="w-full px-4 py-3 rounded-xl border border-[#D8C7AA] bg-[#FAF7F2] text-xs text-[#2B1810] focus:outline-none focus:border-[#C59B4B]" />
+          </div>
+        </div>
+
+        <div class="rsvp-attendees-group">
+          <label class="block text-xs font-semibold text-[#2B1810] mb-1">Total Attendees Count</label>
+          <select name="attendees_count" class="w-full px-4 py-3 rounded-xl border border-[#D8C7AA] bg-[#FAF7F2] text-xs text-[#2B1810] focus:outline-none focus:border-[#C59B4B]">
+            <option value="1">1 Guest (Solo)</option>
+            <option value="2" selected>2 Guests (Couple)</option>
+            <option value="3">3 Guests (Family)</option>
+            <option value="4">4 Guests (Family)</option>
+            <option value="5">5+ Guests</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#2B1810] mb-1">Personal Message &amp; Wishes</label>
+          <textarea name="wishes" rows="3" placeholder="Share your warm blessings for Dhruv & Shreya..." class="w-full px-4 py-2.5 rounded-xl border border-[#D8C7AA] bg-[#FAF7F2] text-xs text-[#2B1810] focus:outline-none focus:border-[#C59B4B] resize-none"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 px-6 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-md transition-all cursor-pointer" style="background: linear-gradient(135deg, #C59B4B 0%, #9C772F 100%); color: #140508; border: 1px solid #E2B968;">
+          Confirm RSVP &amp; Send Wishes ➜
+        </button>
+      </form>
+
+      <div class="rsvp-success-card" style="display:none; text-align:center; padding: 24px 12px;">
+        <div style="width:52px; height:52px; background:#C59B4B; color:#140508; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:24px; font-weight:bold;">
+          ✓
+        </div>
+        <h3 class="text-2xl text-[#6B1420] font-bold mb-2" style="font-family: 'Playfair Display', Georgia, serif;">
+          RSVP Confirmed!
+        </h3>
+        <p class="text-xs text-[#2B1810] max-w-md mx-auto leading-relaxed mb-4">
+          Your RSVP has been received. We look forward to celebrating with you.
+        </p>
+        <span style="font-size:11px; font-weight:700; color:#A67C3D; font-family:monospace;">
+          ॥ श्री गणेशाय नमः ॥
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+    <!-- FOOTER -->
+    <footer class="py-12 px-4 text-center bg-cream border-t border-gold/30 text-xs font-sans text-textmuted space-y-2">
+      <div class="font-deva text-sm font-semibold text-maroon">
+        ॥ शुभ विवाह · अखंड सौभाग्य ॥
+      </div>
+      <div>
+        <span class="data-couple-names">Dhruv &amp; Shreya</span> · Royal Dawn Vivah Experience
+      </div>
+    </footer>
+
+  </main>
+
+  <script src="./wedding-config.js"></script>
+  <script src="./app.js"></script>
+<script src="../shared-rsvp.js"></script>
+</body>
+</html>

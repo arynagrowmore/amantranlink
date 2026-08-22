@@ -1,0 +1,20 @@
+{
+  "name": "jodi-wedding-template",
+  "version": "1.0.0",
+  "description": "The Jodi - Royal Shubh Vivah Wedding Invitation Template",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 3003",
+    "dev": "npx serve -l 3003"
+  },
+  "keywords": [
+    "wedding-invitation",
+    "jodi",
+    "shubh-vivah",
+    "royal-caricature",
+    "gsap-animation",
+    "bilingual"
+  ],
+  "author": "",
+  "license": "ISC"
+}
