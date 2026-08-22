@@ -2,8 +2,9 @@ import React from 'react';
 import { 
   Palette, Heart, Calendar, MapPin, 
   Image as ImageIcon, Music, Users, 
-  Check, Sparkles, Globe 
+  Check, Sparkles, Globe, ShieldCheck 
 } from 'lucide-react';
+import { WeddingProjectState } from '../types/wedding';
 
 export interface StepItem {
   id: string;
@@ -28,17 +29,35 @@ interface SidebarProps {
   activeTab: string;
   completedTabs: Set<string>;
   onTabChange: (tab: string) => void;
+  state?: WeddingProjectState;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
   activeTab, 
   completedTabs, 
-  onTabChange 
+  onTabChange,
+  state,
 }) => {
   const currentStepIndex = STUDIO_STEPS.findIndex((s) => s.id === activeTab);
   const activeStepNum = currentStepIndex >= 0 ? currentStepIndex + 1 : 1;
   const totalSteps = STUDIO_STEPS.length;
-  const percentComplete = Math.round((completedTabs.size / totalSteps) * 100);
+
+  // 🎯 Calculate Dynamic Invitation Readiness Score based on real state data
+  let readinessScore = 0;
+  if (state) {
+    if (state.theme) readinessScore += 10;
+    if (state.couple?.groomEn && state.couple?.brideEn) readinessScore += 20;
+    if (state.couple?.weddingDate) readinessScore += 15;
+    if (state.events && state.events.length > 0) readinessScore += 20;
+    if (state.couple?.venueName) readinessScore += 15;
+    if (state.media?.photoSlots?.hero?.url) readinessScore += 10;
+    if (state.media?.audioUrl || state.media?.bgMusicPreset || state.media?.audioName) readinessScore += 5;
+    if (state.rsvpConfig?.enabled !== false) readinessScore += 5;
+  } else {
+    readinessScore = Math.round((completedTabs.size / totalSteps) * 100);
+  }
+
+  const finalReadiness = Math.min(100, Math.max(12, readinessScore));
 
   return (
     <div className="bg-[#FFFDF8] border-b border-[#E8D5AD] px-3 sm:px-4 py-2.5 shrink-0 font-manrope select-none">
@@ -54,16 +73,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </span>
         </div>
 
-        {/* Progress Badge */}
+        {/* Dynamic Readiness Badge */}
         <div className="flex items-center gap-2">
-          <div className="w-20 bg-[#E8D5AD]/50 h-1.5 rounded-full overflow-hidden hidden sm:block">
+          <div className="w-24 bg-[#E8D5AD]/50 h-1.5 rounded-full overflow-hidden hidden sm:block">
             <div 
               className="bg-[#C49A35] h-full rounded-full transition-all duration-300"
-              style={{ width: `${Math.max(12, percentComplete)}%` }}
+              style={{ width: `${finalReadiness}%` }}
             />
           </div>
-          <span className="text-[10px] font-mono font-bold text-[#6E1020] bg-[#F8F3E8] px-2 py-0.5 rounded-full border border-[#E8D5AD]">
-            {percentComplete}% Completed
+          <span className="text-[10px] font-mono font-bold text-[#6E1020] bg-[#F8F3E8] px-2 py-0.5 rounded-full border border-[#E8D5AD] flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-[#C49A35]" />
+            <span>Readiness: {finalReadiness}%</span>
           </span>
         </div>
       </div>
@@ -130,4 +150,3 @@ export const Sidebar: React.FC<SidebarProps> = ({
 };
 
 export default Sidebar;
-

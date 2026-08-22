@@ -699,6 +699,7 @@ function MainApp() {
             activeTab={activeTab}
             completedTabs={completedTabs}
             onTabChange={handleTabSelect}
+            state={state}
           />
 
           {/* Scrollable Form Body with Steps */}
