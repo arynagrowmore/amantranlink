@@ -81,6 +81,27 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   const [rsvpsBySite, setRsvpsBySite] = useState<Record<string, RsvpSummary>>({});
   const [rsvpSearchQuery, setRsvpSearchQuery] = useState<string>('');
   const [rsvpFilterType, setRsvpFilterType] = useState<'all' | 'attending' | 'regrets'>('all');
+  const [copiedSiteId, setCopiedSiteId] = useState<string | null>(null);
+
+  const handleCopyInvitationLink = (site: WeddingSiteItem) => {
+    const slug = site.published_url || `/i/${(site.content?.couple?.groomEn || 'groom').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(site.content?.couple?.brideEn || 'bride').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    const fullUrl = `${window.location.origin}${slug.startsWith('/') ? slug : '/' + slug}`;
+    navigator.clipboard.writeText(fullUrl);
+    setCopiedSiteId(site.id);
+    setTimeout(() => setCopiedSiteId(null), 3000);
+  };
+
+  const handleWhatsAppShare = (site: WeddingSiteItem) => {
+    const couple = site.content?.couple;
+    const groom = couple?.groomEn || 'Groom';
+    const bride = couple?.brideEn || 'Bride';
+    const date = couple?.weddingDate || 'Our Wedding Day';
+    const slug = site.published_url || `/i/${groom.toLowerCase().replace(/[^a-z0-9]/g, '')}-${bride.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    const fullUrl = `${window.location.origin}${slug.startsWith('/') ? slug : '/' + slug}`;
+    
+    const text = `👑 *SHAHI VIVAH NIMANTRAN* 👑\n\nWith immense joy, we invite you to celebrate the auspicious wedding of *${groom} & ${bride}*.\n\n📅 *Wedding Date:* ${date}\n📍 *Digital Kankotri:* ${fullUrl}\n\nKindly grace us with your presence and blessings! 🙏✨`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+  };
 
   // Sync initial user fields when user loads
   useEffect(() => {
@@ -771,36 +792,87 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                           </p>
                         </div>
 
+                        {/* Canonical Public Link & Copy Button */}
+                        {site.status === 'published' && site.published_url && (
+                          <div className="bg-[#FAF7F2] p-2.5 rounded-xl border border-[#D8C7AA]/60 flex items-center justify-between gap-2">
+                            <span className="text-[10px] font-mono text-[#8B7358] truncate select-all">
+                              {window.location.origin}{site.published_url}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyInvitationLink(site)}
+                              className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-all shrink-0 cursor-pointer ${
+                                copiedSiteId === site.id
+                                  ? 'bg-emerald-600 text-white'
+                                  : 'bg-[#EDE0C8] hover:bg-[#D8C7AA] text-[#6B1420]'
+                              }`}
+                            >
+                              {copiedSiteId === site.id ? '✓ Copied' : 'Copy Link'}
+                            </button>
+                          </div>
+                        )}
+
                         <div className="pt-3 border-t border-[#D8C7AA]/60 flex items-center justify-between text-[11px] font-mono text-[#8B7358]">
                           <span>Updated {new Date(site.updated_at).toLocaleDateString('en-IN')}</span>
+                          <span className="font-bold text-[#A67C3D]">
+                            {rsvpsBySite[site.id]?.totalRsvps || 0} RSVPs
+                          </span>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (onEditWeddingSite) {
-                                onEditWeddingSite(site);
-                              } else if (tpl?.slug) {
-                                onSelectTheme(tpl.slug);
-                              }
-                            }}
-                            className="flex-1 py-2.5 rounded-xl bg-[#6B1420] hover:bg-[#4A0C14] text-[#F7F0DD] text-xs font-fraunces font-bold flex items-center justify-center gap-1.5 shadow transition-colors cursor-pointer"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                            <span>Edit in Studio</span>
-                          </button>
-
-                          {site.published_url && (
-                            <a
-                              href={site.published_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-2.5 rounded-xl bg-[#F7F0DD] hover:bg-[#FFFDF9] border border-[#D8C7AA] text-[#6B1420] transition-colors"
-                              title="Open Live Public Invitation Link"
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (onEditWeddingSite) {
+                                  onEditWeddingSite(site);
+                                } else if (tpl?.slug) {
+                                  onSelectTheme(tpl.slug);
+                                }
+                              }}
+                              className="flex-1 py-2.5 rounded-xl bg-[#6B1420] hover:bg-[#4A0C14] text-[#F7F0DD] text-xs font-fraunces font-bold flex items-center justify-center gap-1.5 shadow transition-colors cursor-pointer"
                             >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>{site.status === 'published' ? 'Unlock & Edit' : 'Continue Editing'}</span>
+                            </button>
+
+                            {site.status === 'published' && site.published_url && (
+                              <a
+                                href={site.published_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-2.5 rounded-xl bg-[#3D6B4A] hover:bg-[#2F5238] text-white text-xs font-fraunces font-bold flex items-center gap-1 shadow transition-colors"
+                                title="Open Live Public Invitation"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                                <span>Open Live</span>
+                              </a>
+                            )}
+                          </div>
+
+                          {site.status === 'published' && (
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleWhatsAppShare(site)}
+                                className="flex-1 py-2 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white text-[11px] font-fraunces font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                              >
+                                <Share2 className="w-3.5 h-3.5" />
+                                <span>Share on WhatsApp</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedRsvpSiteId(site.id);
+                                  setActiveTab('rsvps');
+                                }}
+                                className="px-3.5 py-2 rounded-xl bg-[#F7F0DD] hover:bg-[#FFFDF9] border border-[#D8C7AA] text-[#6B1420] text-[11px] font-fraunces font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                              >
+                                <Users className="w-3.5 h-3.5 text-[#A67C3D]" />
+                                <span>RSVPs ({rsvpsBySite[site.id]?.totalRsvps || 0})</span>
+                              </button>
+                            </div>
                           )}
                         </div>
                       </div>
