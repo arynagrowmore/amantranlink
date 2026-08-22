@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, Lock, Sparkles, CheckCircle2, XCircle, ArrowRight, 
-  RotateCw, ExternalLink, X, Heart, CreditCard, ChevronRight, Tag, AlertCircle, Loader2
+  RotateCw, ExternalLink, X, Heart, CreditCard, ChevronRight, Tag, AlertCircle, Loader2, Check
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ThemeId, WeddingProjectState, PackageType } from '../types/wedding';
 import { RoyalCrestIcon, DiyaIcon, PalaceGateIcon } from './ShahiIcons';
 import { themes } from './ThemeSelector';
-import { initiateRazorpayCheckout } from '../services/razorpayClient';
+import { initiateRazorpayCheckout, getUserPurchases } from '../services/razorpayClient';
 import { useAuth } from '../context/AuthContext';
 import { OFFICIAL_PACKAGES, THEME_PACKAGE_MAP, calculatePaymentDetails } from '../config/pricing';
 
@@ -43,7 +43,7 @@ export const PACKAGES_META: Record<PackageType, { name: string; price: number; b
   },
 };
 
-type PaymentModalState = 'confirm' | 'processing' | 'success' | 'failed';
+type PaymentModalState = 'confirm' | 'processing' | 'success' | 'failed' | 'already_unlocked';
 
 export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
   isOpen,
@@ -72,11 +72,22 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      setModalState('confirm');
+      // Check if user already owns this theme
+      const existingPurchases = user?.uid ? getUserPurchases(user.uid) : {};
+      const isAlreadyUnlocked = Boolean(
+        existingPurchases[state.theme] && 
+        (existingPurchases[state.theme].status === 'unlocked' || existingPurchases[state.theme].paymentStatus === 'PAID' || existingPurchases[state.theme].paymentStatus === 'SUCCESS')
+      );
+
+      if (isAlreadyUnlocked) {
+        setModalState('already_unlocked');
+      } else {
+        setModalState('confirm');
+      }
       setErrorMessage('');
       setVerifiedPaymentRef('');
     }
-  }, [isOpen, packageType, state.theme]);
+  }, [isOpen, packageType, state.theme, user?.uid]);
 
   if (!isOpen) return null;
 
@@ -121,13 +132,13 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#1A0B0E]/80 backdrop-blur-md animate-fade-in font-hanken">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#1A0B0E]/85 backdrop-blur-md animate-fade-in font-hanken">
       <div 
-        className="relative w-full max-w-lg bg-[#FAF7F2] text-[#2B1714] rounded-3xl border-2 border-[#C9A227]/60 shadow-[0_25px_60px_-15px_rgba(43,23,20,0.4)] overflow-hidden"
+        className="relative w-full max-w-xl bg-[#FAF7F2] text-[#2B1714] rounded-3xl border-2 border-[#C9A227]/60 shadow-[0_25px_60px_-15px_rgba(43,23,20,0.5)] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 🏰 Top Royal Arch Banner */}
-        <div className="relative bg-gradient-to-r from-[#500E1A] via-[#741526] to-[#500E1A] text-[#F7F0DF] p-6 sm:p-7 text-center border-b-2 border-[#C9A227]/40">
+        <div className="relative bg-gradient-to-r from-[#500E1A] via-[#741526] to-[#500E1A] text-[#F7F0DF] p-5 sm:p-6 text-center border-b-2 border-[#C9A227]/40">
           <button
             type="button"
             onClick={onClose}
@@ -146,7 +157,9 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
 
           <h2 className="font-fraunces font-bold text-xl sm:text-2xl text-[#F7F0DF] tracking-wide mt-1">
             {modalState === 'success' 
-              ? '✦ PAYMENT SUCCESSFUL ✦'
+              ? '✦ PAYMENT VERIFIED ✦'
+              : modalState === 'already_unlocked'
+              ? '✦ ALREADY UNLOCKED ✦'
               : modalState === 'failed'
               ? 'PAYMENT NOT COMPLETED'
               : 'Complete Your Royal Invitation'}
@@ -154,84 +167,102 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
 
           <p className="text-xs text-[#F7F0DF]/80 font-serif italic max-w-sm mx-auto mt-1">
             {modalState === 'success'
-              ? 'Your Royal Kankotri is officially unlocked and cloud-bound.'
+              ? 'Your Royal Kankotri is officially unlocked and ready for customization.'
+              : modalState === 'already_unlocked'
+              ? 'This royal invitation theme is already unlocked under your account.'
               : modalState === 'failed'
-              ? 'Your Kankotri has not been unlocked.'
+              ? 'Your Kankotri has not been unlocked. Please try again.'
               : 'Secure your invitation, unlock your selected theme, and publish your kankotri.'}
           </p>
         </div>
 
         {/* 📜 Body Content Based on State */}
-        <div className="p-6 sm:p-7 space-y-5 overflow-y-auto max-h-[75vh]">
+        <div className="p-5 sm:p-7 space-y-5 overflow-y-auto max-h-[75vh]">
 
           {/* ========================================================= */}
           {/* VIEW 1: PRE-PAYMENT ROYAL CONFIRMATION SCREEN             */}
           {/* ========================================================= */}
           {modalState === 'confirm' && (
             <>
-              {/* Royal Summary Card */}
-              <div className="bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border border-[#D8C7AA] shadow-xs space-y-3">
-                <div className="flex items-center justify-between border-b border-[#D8C7AA]/50 pb-2.5">
-                  <span className="text-xs text-[#741526] font-bold uppercase tracking-wider">
-                    Couple
-                  </span>
-                  <span className="font-fraunces font-bold text-sm sm:text-base text-[#741526]">
-                    👑 {coupleTitle}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between border-b border-[#D8C7AA]/50 pb-2.5">
-                  <span className="text-xs text-[#8B7358] font-bold uppercase tracking-wider">
-                    Theme
-                  </span>
-                  <span className="font-medium text-xs text-[#2B1714] flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#C9A227]" />
-                    {currentTheme.name}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between border-b border-[#D8C7AA]/50 pb-2.5">
-                  <span className="text-xs text-[#8B7358] font-bold uppercase tracking-wider">
-                    Package
-                  </span>
-                  <span className="font-fraunces font-bold text-xs text-[#741526] bg-[#F7F0DF] px-2.5 py-1 rounded-lg border border-[#C9A227]/40">
-                    {pkg.name}
-                  </span>
-                </div>
-
-                {/* Amount Line */}
-                <div className="flex items-baseline justify-between pt-1">
-                  <div>
-                    <span className="text-xs font-bold text-[#2B1714] block">
-                      Total Payable
+              {/* Selected Theme Visual & Order Summary */}
+              <div className="bg-[#FFFDF9] rounded-2xl p-4 sm:p-5 border border-[#D8C7AA] shadow-xs space-y-4">
+                <div className="flex flex-col sm:flex-row items-center gap-4 pb-3 border-b border-[#D8C7AA]/50">
+                  {currentTheme.previewImg && (
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-neutral-900 border border-[#C9A227]/40 overflow-hidden shrink-0 shadow-sm">
+                      <img 
+                        src={currentTheme.previewImg} 
+                        alt={currentTheme.name} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="text-center sm:text-left space-y-1 flex-1">
+                    <span className="text-[10px] font-mono uppercase text-[#A67C3D] font-bold block">
+                      Selected Theme
                     </span>
-                    <span className="text-[10px] text-[#8B7358]">
-                      One-time fee · Lifetime access &amp; cloud hosting
+                    <h3 className="font-fraunces font-bold text-lg text-[#6B1420]">
+                      {currentTheme.name}
+                    </h3>
+                    <p className="text-xs text-[#8B7358] font-fraunces">
+                      👑 {coupleTitle}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Package & Pricing Breakdown */}
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#8B7358] font-bold uppercase tracking-wider">Package</span>
+                    <span className="font-fraunces font-bold text-xs text-[#741526] bg-[#F7F0DF] px-2.5 py-0.5 rounded-lg border border-[#C9A227]/40">
+                      {pkg.name}
                     </span>
                   </div>
-                  <div className="text-right">
-                    <span className="font-fraunces font-extrabold text-2xl text-[#741526]">
-                      ₹{payableAmount.toLocaleString('en-IN')}
+
+                  {/* Included Features */}
+                  <div className="pt-2 pb-1 space-y-1.5 border-t border-[#D8C7AA]/40 text-[11px] text-[#3E2612]">
+                    <span className="text-[10px] font-mono text-[#8B7358] font-bold uppercase block mb-1">
+                      Included Royal Benefits
                     </span>
+                    {pkg.features.slice(0, 4).map((f, i) => (
+                      <div key={i} className="flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                        <span>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Total Payable */}
+                  <div className="flex items-baseline justify-between pt-3 border-t border-[#D8C7AA]/60">
+                    <div>
+                      <span className="text-xs font-bold text-[#2B1714] block">
+                        Total Payable
+                      </span>
+                      <span className="text-[10px] text-[#8B7358]">
+                        One-time payment · Lifetime cloud hosting
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-fraunces font-extrabold text-2xl text-[#741526]">
+                        ₹{payableAmount.toLocaleString('en-IN')}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Razorpay Gateway Overview Box */}
+              {/* Razorpay Gateway Box */}
               <div className="p-3.5 rounded-2xl bg-[#F7F0DF] border border-[#C9A227]/40 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="font-fraunces font-bold text-xs text-[#741526] block">
-                      Secure Payment Powered by Razorpay
-                    </span>
-                    <span className="text-[9px] font-mono bg-[#3D6B4A] text-white px-2 py-0.5 rounded font-bold">
-                      ✓ Verified
-                    </span>
-                  </div>
+                  <span className="font-fraunces font-bold text-xs text-[#741526] flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                    Secure Payment Powered by Razorpay
+                  </span>
+                  <span className="text-[9px] font-mono bg-[#3D6B4A] text-white px-2 py-0.5 rounded font-bold">
+                    ✓ Verified
+                  </span>
                 </div>
 
-                {/* Razorpay Supported Modes Badges */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-center">
+                <div className="grid grid-cols-4 gap-1.5 text-center">
                   <div className="p-1.5 rounded-lg bg-[#FFFDF9] border border-[#D8C7AA]">
                     <span className="text-[10px] font-bold text-[#741526] block">⚡ UPI</span>
                     <span className="text-[8px] text-[#2B1714]">GPay, PhonePe</span>
@@ -246,12 +277,12 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
                   </div>
                   <div className="p-1.5 rounded-lg bg-[#FFFDF9] border border-[#D8C7AA]">
                     <span className="text-[10px] font-bold text-[#741526] block">🔒 Security</span>
-                    <span className="text-[8px] text-[#2B1810]">PCI-DSS Level 1</span>
+                    <span className="text-[8px] text-[#2B1810]">256-Bit SSL</span>
                   </div>
                 </div>
               </div>
 
-              {/* CTA Action */}
+              {/* Payment CTA */}
               <div className="space-y-2.5 pt-1">
                 <button
                   type="button"
@@ -262,14 +293,11 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
                   <span>PAY ₹{payableAmount.toLocaleString('en-IN')} &amp; UNLOCK ROYAL INVITATION →</span>
                 </button>
 
-                {/* Trust Badge */}
                 <div className="text-center text-[10px] text-[#8B7358] flex items-center justify-center gap-2 pt-0.5">
                   <span className="flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-                    <span>Secure Razorpay Payment</span>
+                    <span>Your payment is verified securely before your invitation is unlocked.</span>
                   </span>
-                  <span>•</span>
-                  <span>Instant Access After Confirmation</span>
                 </div>
               </div>
             </>
@@ -284,16 +312,44 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
                 <RotateCw className="w-7 h-7 animate-spin text-[#C9A227]" />
               </div>
               <h3 className="font-fraunces font-bold text-lg text-[#741526]">
-                Opening Razorpay Secure Gateway...
+                SECURING YOUR PAYMENT...
               </h3>
               <p className="text-xs text-[#8B7358] max-w-xs mx-auto">
-                Please complete your payment in the Razorpay dialog. Do not refresh or close this window.
+                Opening Razorpay secure checkout dialog. Please complete your transaction safely.
               </p>
             </div>
           )}
 
           {/* ========================================================= */}
-          {/* VIEW 3: VERIFIED SUCCESS SCREEN                           */}
+          {/* VIEW 3: ALREADY UNLOCKED SCREEN                           */}
+          {/* ========================================================= */}
+          {modalState === 'already_unlocked' && (
+            <div className="space-y-5 animate-fade-in text-center py-4">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-100 border-2 border-emerald-600 text-emerald-700">
+                <CheckCircle2 className="w-7 h-7" />
+              </div>
+
+              <div className="space-y-1">
+                <h3 className="font-fraunces font-bold text-lg text-[#6B1420]">
+                  Theme Already Unlocked
+                </h3>
+                <p className="text-xs text-[#8B7358] max-w-sm mx-auto">
+                  You already own full editing access to <strong>{currentTheme.name}</strong>. You do not need to pay again.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full py-3.5 px-6 rounded-xl bg-[#6B1420] hover:bg-[#4A0C14] text-[#F7F0DD] font-fraunces font-bold text-xs uppercase tracking-wider shadow transition-colors cursor-pointer"
+              >
+                ENTER STUDIO &amp; CUSTOMIZE →
+              </button>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* VIEW 4: VERIFIED SUCCESS SCREEN                           */}
           {/* ========================================================= */}
           {modalState === 'success' && (
             <div className="space-y-5 animate-fade-in">
@@ -352,7 +408,7 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
                   onClick={onClose}
                   className="py-3 px-4 rounded-xl bg-[#741526] hover:bg-[#500E1A] text-[#F7F0DF] font-fraunces font-bold text-xs tracking-wide shadow-md transition-all cursor-pointer text-center"
                 >
-                  START CUSTOMIZING
+                  ENTER STUDIO
                 </button>
                 <button
                   type="button"
@@ -362,14 +418,14 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
                   }}
                   className="py-3 px-4 rounded-xl bg-[#F7F0DF] hover:bg-[#EDE0C8] text-[#741526] border border-[#C9A227] font-fraunces font-bold text-xs tracking-wide transition-all cursor-pointer text-center"
                 >
-                  VIEW MY PURCHASE
+                  VIEW MY PURCHASES
                 </button>
               </div>
             </div>
           )}
 
           {/* ========================================================= */}
-          {/* VIEW 4: FAILED PAYMENT SCREEN                             */}
+          {/* VIEW 5: FAILED / CANCELLED PAYMENT SCREEN                 */}
           {/* ========================================================= */}
           {modalState === 'failed' && (
             <div className="space-y-5 animate-fade-in text-center">
@@ -399,7 +455,7 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
                   onClick={() => setModalState('confirm')}
                   className="py-3 px-4 rounded-xl bg-[#F7F0DF] hover:bg-[#EDE0C8] text-[#741526] border border-[#D8C7AA] font-fraunces font-bold text-xs tracking-wide transition-all cursor-pointer"
                 >
-                  BACK TO KANKOTRI
+                  BACK TO GALLERY
                 </button>
               </div>
             </div>
