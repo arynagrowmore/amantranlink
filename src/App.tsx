@@ -232,33 +232,10 @@ function MainApp() {
     try {
       const resolved = resolveInvitationState();
       if (resolved) {
-        let mergedCouple = { ...defaultStudioState.couple, ...(resolved.couple || {}) };
-        
-        // 🔄 Seamless migration for previously cached session states in user's browser
-        if (
-          !mergedCouple.groomEn || 
-          mergedCouple.groomEn === 'Dhruv' || 
-          mergedCouple.groomEn === 'Groom'
-        ) {
-          mergedCouple.groomEn = 'Rudra';
-          mergedCouple.groomHi = 'रुद्र';
-          mergedCouple.groomGu = 'રુદ્ર';
-          mergedCouple.brideEn = 'Ishani';
-          mergedCouple.brideHi = 'ईशानी';
-          mergedCouple.brideGu = 'ઈશાની';
-          mergedCouple.mark = 'R · I';
-          mergedCouple.hashtag = '#RudraWedsIshani';
-        }
-
-        if (mergedCouple.venueName?.includes('Himmatnagar')) {
-          mergedCouple.venueName = 'The Milestone, Modasa, Gujarat';
-          mergedCouple.venueAddress = 'The Milestone Highway, Modasa';
-        }
-
         return {
           ...defaultStudioState,
           ...resolved,
-          couple: mergedCouple,
+          couple: { ...defaultStudioState.couple, ...(resolved.couple || {}) },
           family: { ...defaultStudioState.family, ...(resolved.family || {}) },
           media: {
             ...defaultStudioState.media,

@@ -29,12 +29,12 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
       const templateUuid = tpl?.id;
 
       if (templateUuid) {
-        // 2. Check if user already has a site for this template
+        // 2. Check if a site already exists for this slug or user template
         const { data: existingSite } = await supabase
           .from('wedding_sites')
           .select('id')
-          .eq('user_id', userId)
-          .eq('template_id', templateUuid)
+          .or(`slug.eq.${slug},and(user_id.eq.${userId},template_id.eq.${templateUuid})`)
+          .limit(1)
           .maybeSingle();
 
         if (existingSite?.id) {
@@ -43,12 +43,13 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
             .from('wedding_sites')
             .update({
               slug: slug,
+              template_id: templateUuid,
               status: 'published',
-              is_locked: true, // 🔒 Mandatory automatic re-lock on publish
+              is_locked: true,
               editing_status: 'locked',
               publication_status: 'published',
               payment_status: 'paid',
-              content: state, // Live version for guests
+              content: state, // Latest customized state with new theme & names
               draft_content: state,
               published_url: publishedUrl,
               published_at: now,
@@ -56,23 +57,28 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
             })
             .eq('id', existingSite.id);
         } else {
+          const isValidUserUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+          const insertPayload: any = {
+            template_id: templateUuid,
+            slug: slug,
+            status: 'published',
+            is_locked: true,
+            editing_status: 'locked',
+            publication_status: 'published',
+            payment_status: 'paid',
+            content: state,
+            draft_content: state,
+            published_url: publishedUrl,
+            published_at: now,
+            updated_at: now,
+          };
+          if (isValidUserUuid) {
+            insertPayload.user_id = userId;
+          }
+
           const { data: newSite, error: insErr } = await supabase
             .from('wedding_sites')
-            .insert({
-              user_id: userId,
-              template_id: templateUuid,
-              slug: slug,
-              status: 'published',
-              is_locked: true, // 🔒 Mandatory automatic re-lock on publish
-              editing_status: 'locked',
-              publication_status: 'published',
-              payment_status: 'paid',
-              content: state, // Live version for guests
-              draft_content: state,
-              published_url: publishedUrl,
-              published_at: now,
-              updated_at: now,
-            })
+            .insert(insertPayload)
             .select()
             .single();
 
