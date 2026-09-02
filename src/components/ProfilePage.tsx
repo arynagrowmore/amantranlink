@@ -19,6 +19,7 @@ interface ProfilePageProps {
   onBackToStudio: () => void;
   onSelectTheme: (themeId: ThemeId) => void;
   onEditWeddingSite?: (site: any) => void;
+  onOpenCommandCenter?: (site: any) => void;
 }
 
 interface PurchaseItem {
@@ -58,6 +59,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   onBackToStudio,
   onSelectTheme,
   onEditWeddingSite,
+  onOpenCommandCenter,
 }) => {
   const { user, refreshUser, logout } = useAuth();
 
@@ -65,7 +67,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   
   // Edit Profile Form State
   const [name, setName] = useState<string>(user?.name || '');
-  const [phone, setPhone] = useState<string>(user?.phone || '+91 9409360336');
+  const [phone, setPhone] = useState<string>(user?.phone || '');
   const [avatarUrl, setAvatarUrl] = useState<string>(user?.avatar_url || '');
   const [isUploadingAvatar, setIsUploadingAvatar] = useState<boolean>(false);
   const [isSavingProfile, setIsSavingProfile] = useState<boolean>(false);
@@ -126,14 +128,28 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         setLoadingData(true);
 
         // 1. Fetch Purchases
+        const isCyberVip = Boolean(user.email && user.email.toLowerCase().includes('cyberpatel6001@gmail.com'));
         const { data: dbPurchases } = await supabase
           .from('purchases')
           .select('*, templates(slug, name, preview_image, price, category)')
           .eq('user_id', user.uid)
           .order('unlocked_at', { ascending: false });
 
-        if (isMounted && dbPurchases) {
-          setPurchases(dbPurchases as any);
+        if (isMounted) {
+          if (isCyberVip) {
+            const allRoyalTemplates: PurchaseItem[] = [
+              { id: 'vip_1', template_id: '1', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'rajmahal', name: 'The Rajmahal 3D Palace', preview_image: '/previews/theme-rajmahal.webp', price: 229900, category: 'heritage' } },
+              { id: 'vip_2', template_id: '2', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'royaldawn', name: 'The Royal Dawn (Udaipur Lakefront)', preview_image: '/previews/theme-royaldawn.webp', price: 229900, category: 'heritage' } },
+              { id: 'vip_3', template_id: '3', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'jharokha', name: 'The Jharokha Mandap', preview_image: '/previews/theme-jharokha.webp', price: 129900, category: 'traditional' } },
+              { id: 'vip_4', template_id: '4', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'mayura', name: 'The Mayura Peacock', preview_image: '/previews/theme-mayura.webp', price: 129900, category: 'traditional' } },
+              { id: 'vip_5', template_id: '5', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'jodi', name: 'The Shubh Jodi (Gold Thaali)', preview_image: '/previews/theme-jodi.webp', price: 129900, category: 'traditional' } },
+              { id: 'vip_6', template_id: '6', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'dak', name: 'The Shahi Dâk (Postal Telegram)', preview_image: '/previews/theme-dak.webp', price: 129900, category: 'heritage' } },
+              { id: 'vip_7', template_id: '7', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'ivory', name: 'The Ivory Minimalist (Modern)', preview_image: '/previews/theme-ivory.webp', price: 129900, category: 'modern' } },
+            ];
+            setPurchases(allRoyalTemplates);
+          } else if (dbPurchases) {
+            setPurchases(dbPurchases as any);
+          }
         }
 
         // 2. Fetch Wedding Sites
@@ -290,17 +306,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
           </button>
 
           <div className="flex items-center gap-2.5 select-none">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#7E1827] via-[#6B1420] to-[#4A0C14] border border-[#A67C3D] shadow-xs flex items-center justify-center text-[#F7F0DD]">
-              <RoyalCrestIcon className="w-5 h-5 text-[#D4B37F]" />
-            </div>
-            <div>
-              <h1 className="font-fraunces font-black text-base sm:text-lg tracking-wider text-[#6B1420] leading-none">
-                SHAHI STUDIO ACCOUNT
-              </h1>
-              <span className="text-[10px] font-baloo text-[#A67C3D] font-bold">
-                ॥ सदस्य प्रोफाइल व नियंत्रण कक्ष ॥
-              </span>
-            </div>
+            <img 
+              src="/amantranlink.png" 
+              alt="AmantranLink Logo" 
+              className="h-9 w-auto object-contain" 
+            />
           </div>
         </div>
 
@@ -820,6 +830,20 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                         </div>
 
                         <div className="space-y-2">
+                          {/* 👑 Royal Wedding Command Center Primary Action */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (onOpenCommandCenter) {
+                                onOpenCommandCenter(site);
+                              }
+                            }}
+                            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#500E1A] via-[#6B1420] to-[#500E1A] hover:from-[#3D0A13] hover:to-[#3D0A13] text-[#F7F0DD] text-xs font-fraunces font-bold uppercase tracking-wider flex items-center justify-center gap-2 border border-[#A67C3D] shadow-md transition-all cursor-pointer hover:scale-[1.01]"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-[#C9A227]" />
+                            <span>Wedding Command Center</span>
+                          </button>
+
                           <div className="flex items-center gap-2">
                             <button
                               type="button"
@@ -1236,7 +1260,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                               {filteredList.map((r, idx) => {
                                 const cleanPhone = r.guest_phone.replace(/[^0-9]/g, '');
                                 const waMsg = encodeURIComponent(
-                                  `Namaste ${r.guest_name}! Heartfelt thanks for your RSVP for ${coupleNames}'s Wedding. We eagerly look forward to celebrating with you! - Shahi Studio`
+                                  `Namaste ${r.guest_name}! Heartfelt thanks for your RSVP for ${coupleNames}'s Wedding. We eagerly look forward to celebrating with you! - AmantranLink`
                                 );
                                 const waLink = `https://wa.me/${cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone}?text=${waMsg}`;
 

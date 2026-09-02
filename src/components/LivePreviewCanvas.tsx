@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, Volume2, ShieldCheck, Lock, Share2, RotateCw, Wifi, BatteryCharging } from 'lucide-react';
+import { Play, Pause, Volume2, ShieldCheck, Lock, Share2, RotateCw, Wifi, BatteryCharging, Sparkles } from 'lucide-react';
 import { WeddingProjectState, PhotoFilterType } from '../types/wedding';
+import { normalizeInvitationData, applyInvitationDataToTemplateDOM } from '../utils/invitationAdapter';
 import { themes } from './ThemeSelector';
+import { stopAllIframesAudio } from '../services/audioCoordinator';
 
 interface LivePreviewCanvasProps {
   state: WeddingProjectState;
@@ -77,6 +79,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [audioUrl, setAudioUrl] = useState<string>('');
   const [currentTimeStr, setCurrentTimeStr] = useState<string>('09:41');
+  const [showWaxSealPreview, setShowWaxSealPreview] = useState<boolean>(false);
   const internalAudioRef = useRef<HTMLAudioElement | null>(null);
   const countdownIntervalRef = useRef<any>(null);
   const lastSecondRef = useRef<string>('');
@@ -92,6 +95,14 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
   };
 
   const targetUrl = templateUrls[state.theme] || '/templates/rajmahal-template/index.html';
+
+  // 🔇 Silence previous iframe audio when switching theme
+  useEffect(() => {
+    stopAllIframesAudio(iframeRef.current);
+    return () => {
+      stopAllIframesAudio();
+    };
+  }, [state.theme]);
 
   // Live Clock for iPhone Status Bar
   useEffect(() => {
@@ -248,6 +259,9 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
       const win = iframe.contentWindow as any;
 
       const currentSlug = `${(state.couple.groomEn || 'dhruv').toLowerCase()}-${(state.couple.brideEn || 'shreya').toLowerCase()}`;
+      const normalizedData = normalizeInvitationData(state, currentSlug, siteId || undefined);
+      applyInvitationDataToTemplateDOM(doc, win, normalizedData);
+
       win.LIVE_WEDDING_SLUG = currentSlug;
       win.LIVE_WEDDING_SITE_ID = siteId || null;
       if (typeof win.initShahiRsvp === 'function') {
@@ -353,9 +367,27 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
         el.textContent = displayBride;
       });
 
-      // 4. Monogram & Hashtag
-      doc.querySelectorAll('.rjm-nav-mark, .nav-mark, .monogram, .couple-mark, #couple-mark, .mark-tag, .logo-monogram, a.g-serif').forEach((el) => {
-        el.textContent = mark;
+      // 4. Dynamic Auto-Generated Monogram & Initials & Hashtag
+      const gInit = (groomEn.trim().charAt(0) || 'R').toUpperCase();
+      const bInit = (brideEn.trim().charAt(0) || 'I').toUpperCase();
+      const autoMarkDot = `${gInit} · ${bInit}`;
+      const autoMarkAmp = `${gInit} & ${bInit}`;
+      const autoMarkPlus = `${gInit} + ${bInit}`;
+      const currentMark = state.couple.mark || autoMarkDot;
+
+      doc.querySelectorAll('.rjm-nav-mark, .nav-mark, .monogram, .couple-mark, #couple-mark, .mark-tag, .logo-monogram, .dak-navname, .myr-monogram, .jdi-monogram, .rd-monogram, [data-bind="mark"]').forEach((el) => {
+        el.textContent = autoMarkDot;
+      });
+      doc.querySelectorAll('a.g-serif, header a.g-serif').forEach((el) => {
+        el.textContent = autoMarkDot;
+      });
+      doc.querySelectorAll('header a.jhr-script, a.jhr-script, .jhr-monogram').forEach((el) => {
+        el.textContent = autoMarkAmp;
+      });
+      doc.querySelectorAll('text.dak-mono, svg text, .dak-stamp-shadow text').forEach((tNode) => {
+        if (/^[A-Z]\s*[·&+]\s*[A-Z]$/i.test(tNode.textContent?.trim() || '')) {
+          tNode.textContent = autoMarkDot;
+        }
       });
       doc.querySelectorAll('.rjm-foot-tag, .hashtag, #wedding-hashtag, .wedding-tag, .foot-hashtag').forEach((el) => {
         el.textContent = hashtag;
@@ -780,26 +812,28 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
         />
       )}
 
-      {/* Floating Quick Music Control Bar */}
+      {/* Floating Quick Action Bar (Music Control) */}
       {audioUrl && (
-        <div className="absolute top-4 right-6 z-40 bg-[#FFFDF8]/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[#E8D5AD] shadow-md flex items-center gap-2.5">
-          <button
-            type="button"
-            onClick={toggleAudio}
-            className="flex items-center gap-1.5 text-xs font-semibold text-[#6E1020] hover:text-[#430914] transition-colors cursor-pointer"
-          >
-            {isPlayingAudio ? (
-              <>
-                <Pause className="w-3.5 h-3.5 text-[#C49A35] fill-[#C49A35] animate-pulse" />
-                <span>Pause Music</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-3.5 h-3.5 text-[#C49A35] fill-[#C49A35]" />
-                <span>Play Audio</span>
-              </>
-            )}
-          </button>
+        <div className="absolute top-4 right-6 z-40 flex items-center gap-2">
+          <div className="bg-[#FFFDF8]/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[#E8D5AD] shadow-md flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={toggleAudio}
+              className="flex items-center gap-1.5 text-xs font-semibold text-[#6E1020] hover:text-[#430914] transition-colors cursor-pointer"
+            >
+              {isPlayingAudio ? (
+                <>
+                  <Pause className="w-3.5 h-3.5 text-[#C49A35] fill-[#C49A35] animate-pulse" />
+                  <span>Pause Music</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-3.5 h-3.5 text-[#C49A35] fill-[#C49A35]" />
+                  <span>Play Audio</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       )}
 

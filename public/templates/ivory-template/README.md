@@ -1,4 +1,4 @@
-# The Ivory — Royal Minimalist Editorial Wedding Invitation Template 🤍👑
+﻿# The Ivory — Royal Minimalist Editorial Wedding Invitation Template 🤍👑
 
 A pixel-perfect clone of **The Ivory** luxury wedding template (`https://www.jointhejashn.com/demo/ivory`).
 
@@ -7,7 +7,7 @@ A pixel-perfect clone of **The Ivory** luxury wedding template (`https://www.joi
 ## ✨ Features
 
 - 🤍 **Minimalist Editorial & Royal Ivory Aesthetic**: Soft creamy ivory parchment, vivid gulal rose pink, festive marigold, and plum luxury accents.
-- 👑 **Dhruv & Shreya (`D · S`)**: Personalized couple initials, 3 December 2024 date, The Milestone Himmatnagar location, and family details.
+- 👑 **Rudra & Ishani (`R · I`)**: Personalized couple initials, 3 December 2024 date, The Milestone Modasa location, and family details.
 - 🌐 **Instant Bilingual Toggle**: 1-click English ⇋ Hindi switch.
 - ⏳ **Live Muhurat Countdown**: Real-time days, hours, minutes, and seconds countdown counter.
 - 🎶 **Silent Auto Background Music**: `FinalSong.mp3` starts softly on scroll/tap and plays on infinite loop.
@@ -23,3 +23,5 @@ A pixel-perfect clone of **The Ivory** luxury wedding template (`https://www.joi
    ```bash
    npx serve -l 3005 "C:\Users\Avira\Web Devlopment Project\Wedding Invitation Design\ivory-template"
    ```
+
+

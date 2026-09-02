@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, Lock, Sparkles, CheckCircle2, XCircle, ArrowRight, 
-  RotateCw, ExternalLink, X, Heart, CreditCard, ChevronRight, Tag, AlertCircle, Loader2, Check
+  RotateCw, ExternalLink, X, Heart, CreditCard, ChevronRight, Tag, AlertCircle, Loader2, Check, Clock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ThemeId, WeddingProjectState, PackageType } from '../types/wedding';
 import { RoyalCrestIcon, DiyaIcon, PalaceGateIcon } from './ShahiIcons';
 import { themes } from './ThemeSelector';
-import { initiateRazorpayCheckout, getUserPurchases } from '../services/razorpayClient';
+import { initiateRazorpayCheckout, getUserPurchases, isTemplateUnlockedForUser, recoverPaymentStatus } from '../services/razorpayClient';
 import { useAuth } from '../context/AuthContext';
 import { OFFICIAL_PACKAGES, THEME_PACKAGE_MAP, calculatePaymentDetails } from '../config/pricing';
 
@@ -43,7 +43,7 @@ export const PACKAGES_META: Record<PackageType, { name: string; price: number; b
   },
 };
 
-type PaymentModalState = 'confirm' | 'processing' | 'success' | 'failed' | 'already_unlocked';
+type PaymentModalState = 'confirm' | 'processing' | 'success' | 'failed' | 'already_unlocked' | 'verification_pending';
 
 export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
   isOpen,
@@ -56,13 +56,14 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
   const [modalState, setModalState] = useState<PaymentModalState>('confirm');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [verifiedPaymentRef, setVerifiedPaymentRef] = useState<string>('');
+  const [isRecovering, setIsRecovering] = useState<boolean>(false);
 
   const effectivePackageType: PackageType = packageType || (state?.theme ? THEME_PACKAGE_MAP[state.theme] : 'gold');
   const currentTheme = themes.find((t) => t.id === state.theme) || themes[0];
   const pkg = PACKAGES_META[effectivePackageType] || PACKAGES_META.gold;
 
   // Single authoritative source of pricing
-  const paymentDetails = calculatePaymentDetails(effectivePackageType, state.theme);
+  const paymentDetails = calculatePaymentDetails(effectivePackageType, state.theme, user?.role);
   const payableAmount = paymentDetails.finalAmountInr;
 
   // Dynamic Couple Names
@@ -100,7 +101,7 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
       packageId: effectivePackageType,
       uid: user?.uid || `guest_${Date.now()}`,
       userName: user?.name || coupleTitle,
-      userEmail: user?.email || `${groomName.toLowerCase()}.${brideName.toLowerCase()}@shahistudio.com`,
+      userEmail: user?.email || `${groomName.toLowerCase()}.${brideName.toLowerCase()}@amantranlink.com`,
       userPhone: user?.phone || state.family.rsvp1Phone || '+91 9409360336',
       state,
       onSuccess: (purchase) => {
@@ -122,13 +123,43 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
       },
       onError: (err) => {
         setErrorMessage(err || 'Payment was not completed. Please try again.');
-        setModalState('failed');
+        if (err && (err.includes('verifying') || err.includes('Payment received') || err.includes('verification'))) {
+          setModalState('verification_pending');
+        } else {
+          setModalState('failed');
+        }
       },
       onCancel: () => {
         // Return gracefully to confirmation screen
         setModalState('confirm');
       },
     });
+  };
+
+  const handleRecoverPayment = async () => {
+    setIsRecovering(true);
+    try {
+      const result = await recoverPaymentStatus(user?.uid || '', state.theme);
+      if (result.success && result.recovered) {
+        setVerifiedPaymentRef('VERIFIED_RECOVERED');
+        setModalState('success');
+        confetti({
+          particleCount: 120,
+          spread: 90,
+          origin: { y: 0.45 },
+          colors: ['#C9A227', '#741526', '#E59838', '#F7F0DF'],
+        });
+        if (onPaymentSuccess) {
+          onPaymentSuccess(state.theme);
+        }
+      } else {
+        alert(result.message || 'Unable to automatically recover payment. Please contact support with your bank transaction details.');
+      }
+    } catch (e: any) {
+      alert(e.message || 'Error recovering payment.');
+    } finally {
+      setIsRecovering(false);
+    }
   };
 
   return (
@@ -147,12 +178,16 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
             <X className="w-4 h-4" />
           </button>
 
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#741526] border-2 border-[#C9A227] shadow-md mb-2 text-[#C9A227]">
-            <RoyalCrestIcon className="w-7 h-7" />
+          <div className="flex items-center justify-center mb-2">
+            <img 
+              src="/amantranlink.png" 
+              alt="AmantranLink Logo" 
+              className="h-10 w-auto object-contain brightness-110 drop-shadow-sm" 
+            />
           </div>
 
           <div className="text-[10px] font-mono uppercase tracking-widest text-[#C9A227] font-bold">
-            SHAHI STUDIO · ROYAL DIGITAL KANKOTRI
+            AMANTRANLINK · ROYAL DIGITAL INVITATIONS
           </div>
 
           <h2 className="font-fraunces font-bold text-xl sm:text-2xl text-[#F7F0DF] tracking-wide mt-1">
@@ -234,14 +269,26 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
                   {/* Total Payable */}
                   <div className="flex items-baseline justify-between pt-3 border-t border-[#D8C7AA]/60">
                     <div>
-                      <span className="text-xs font-bold text-[#2B1714] block">
-                        Total Payable
+                      <span className="text-xs font-bold text-[#2B1714] flex items-center gap-1.5">
+                        <span>Total Payable</span>
+                        {paymentDetails.isPartnerPricing && (
+                          <span className="text-[9px] font-mono font-bold bg-[#167A5A]/15 text-[#167A5A] px-2 py-0.5 rounded-md">
+                            Partner Rate Applied
+                          </span>
+                        )}
                       </span>
-                      <span className="text-[10px] text-[#8B7358]">
-                        One-time payment · Lifetime cloud hosting
+                      <span className="text-[10px] text-[#8B7358] block">
+                        {paymentDetails.isPartnerPricing 
+                          ? `₹${paymentDetails.commissionAmountInr} Studio Commission eligible` 
+                          : 'One-time payment · Lifetime cloud hosting'}
                       </span>
                     </div>
                     <div className="text-right">
+                      {paymentDetails.isPartnerPricing && (
+                        <span className="text-xs font-mono text-[#8B7358] line-through block -mb-1">
+                          ₹{paymentDetails.retailPriceInr.toLocaleString('en-IN')}
+                        </span>
+                      )}
                       <span className="font-fraunces font-extrabold text-2xl text-[#741526]">
                         ₹{payableAmount.toLocaleString('en-IN')}
                       </span>
@@ -435,10 +482,10 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
 
               <div className="space-y-1">
                 <h3 className="font-fraunces font-bold text-lg text-rose-800">
-                  Payment Was Not Completed
+                  Payment Couldn’t Be Completed
                 </h3>
-                <p className="text-xs text-[#8B7358] max-w-sm mx-auto">
-                  {errorMessage || 'Your Kankotri has not been unlocked. No funds were debited, or your bank cancelled the transaction.'}
+                <p className="text-xs text-[#8B7358] max-w-sm mx-auto leading-relaxed">
+                  {errorMessage || "We couldn't complete your payment at the moment. No access has been unlocked and no funds were debited."}
                 </p>
               </div>
 
@@ -448,14 +495,57 @@ export const RoyalPaymentModal: React.FC<RoyalPaymentModalProps> = ({
                   onClick={handleProceedToPayment}
                   className="py-3 px-4 rounded-xl bg-[#741526] hover:bg-[#500E1A] text-[#F7F0DF] font-fraunces font-bold text-xs tracking-wide shadow-md transition-all cursor-pointer"
                 >
-                  TRY AGAIN
+                  TRY PAYMENT AGAIN
                 </button>
                 <button
                   type="button"
-                  onClick={() => setModalState('confirm')}
+                  onClick={onClose}
                   className="py-3 px-4 rounded-xl bg-[#F7F0DF] hover:bg-[#EDE0C8] text-[#741526] border border-[#D8C7AA] font-fraunces font-bold text-xs tracking-wide transition-all cursor-pointer"
                 >
-                  BACK TO GALLERY
+                  BACK TO INVITATION
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* VIEW 6: VERIFICATION PENDING / RESTORE PAYMENT SCREEN     */}
+          {/* ========================================================= */}
+          {modalState === 'verification_pending' && (
+            <div className="space-y-5 animate-fade-in text-center">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-100 border-2 border-amber-600 text-amber-700">
+                <Clock className="w-7 h-7 animate-spin" />
+              </div>
+
+              <div className="space-y-1">
+                <h3 className="font-fraunces font-bold text-lg text-amber-800">
+                  Payment Received — Verifying Your Order
+                </h3>
+                <p className="text-xs text-[#8B7358] max-w-sm mx-auto">
+                  Your payment was captured by Razorpay. We are confirming the transaction signature and unlocking your Royal Invitation.
+                </p>
+              </div>
+
+              <div className="bg-[#F7F0DF] p-4 rounded-xl border border-[#C9A227]/40 text-xs text-[#500E1A] text-left space-y-1.5 font-mono">
+                <div className="text-[11px] text-[#8B7358]">Theme: <strong className="text-[#500E1A]">{currentTheme.name}</strong></div>
+                <div className="text-[11px] text-[#8B7358]">Status: <strong className="text-amber-800">Verification in progress</strong></div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  disabled={isRecovering}
+                  onClick={handleRecoverPayment}
+                  className="py-3 px-4 rounded-xl bg-[#741526] hover:bg-[#500E1A] text-[#F7F0DF] font-fraunces font-bold text-xs tracking-wide shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <span>{isRecovering ? 'VERIFYING...' : 'VERIFY & RESTORE ACCESS'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="py-3 px-4 rounded-xl bg-[#F7F0DF] hover:bg-[#EDE0C8] text-[#741526] border border-[#D8C7AA] font-fraunces font-bold text-xs tracking-wide transition-all cursor-pointer"
+                >
+                  CLOSE
                 </button>
               </div>
             </div>

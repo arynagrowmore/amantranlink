@@ -7,19 +7,19 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        cormorant: ['"Cormorant Garamond"', 'serif'],
-        manrope: ['Manrope', 'sans-serif'],
-        fraunces: ['"Cormorant Garamond"', 'Fraunces', 'serif'],
+        cinzel: ['Cinzel', '"Cormorant Garamond"', 'serif'],
+        'cinzel-dec': ['"Cinzel Decorative"', 'Cinzel', 'serif'],
+        cormorant: ['"Cormorant Garamond"', 'Cinzel', 'serif'],
+        fraunces: ['Fraunces', '"Cormorant Garamond"', 'serif'],
+        manrope: ['Manrope', '"Plus Jakarta Sans"', 'sans-serif'],
+        jakarta: ['"Plus Jakarta Sans"', 'Manrope', 'sans-serif'],
         baloo: ['Baloo Bhai 2', 'cursive', 'sans-serif'],
-        hanken: ['Manrope', 'Hanken Grotesk', 'sans-serif'],
+        hanken: ['"Plus Jakarta Sans"', 'Manrope', 'sans-serif'],
         mukta: ['Mukta', 'sans-serif'],
-        mono: ['Space Grotesk', 'monospace'],
-        // Legacy fallbacks
-        'cinzel-dec': ['"Cormorant Garamond"', 'Fraunces', 'serif'],
-        cinzel: ['"Cormorant Garamond"', 'Fraunces', 'serif'],
-        marcellus: ['Manrope', 'Hanken Grotesk', 'sans-serif'],
-        serif: ['"Cormorant Garamond"', 'Fraunces', 'serif'],
-        sans: ['Manrope', 'Hanken Grotesk', 'sans-serif'],
+        mono: ['"Space Grotesk"', 'monospace'],
+        serif: ['Cinzel', '"Cormorant Garamond"', 'serif'],
+        sans: ['"Plus Jakarta Sans"', 'Manrope', 'sans-serif'],
+        marcellus: ['Cinzel', 'serif'],
         tiro: ['Baloo Bhai 2', 'cursive', 'sans-serif'],
       },
       colors: {

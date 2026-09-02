@@ -1,5 +1,5 @@
 import { ThemeId, WeddingProjectState, WeddingSite, InvitationEditingStatus, InvitationPublicationStatus, InvitationPaymentStatus } from '../types/wedding';
-import { getUserActiveSite, saveWeddingSite, getUserPurchases } from './razorpayClient';
+import { getUserActiveSite, saveWeddingSite, getUserPurchases, isUserVipAdmin } from './razorpayClient';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { OFFICIAL_PACKAGES, THEME_PACKAGE_MAP } from '../config/pricing';
 
@@ -56,6 +56,23 @@ export const getInvitationAccessState = (
       isEditingAllowed: false,
       isPublicLive: false,
       lockReason: 'unpaid',
+    };
+  }
+
+  // 👑 VIP Master Account Bypass: Lifetime 100% Free & Unlimited Edit/Publish
+  if (isUserVipAdmin(uid)) {
+    const site = providedSite || getUserActiveSite(uid, templateId);
+    const isPublished = Boolean(site && (site.status === 'published' || site.publicationStatus === 'published'));
+    return {
+      paymentStatus: 'paid',
+      editingStatus: 'unlocked',
+      publicationStatus: isPublished ? 'published' : 'draft',
+      isEditingAllowed: true,
+      isPublicLive: isPublished,
+      publishedUrl: site?.publishedUrl,
+      slug: site?.slug,
+      siteId: site?.siteId || site?.id,
+      lockReason: 'none',
     };
   }
 
@@ -200,6 +217,7 @@ export const lockInvitationOnPublish = (
   const existingSite = getUserActiveSite(uid, templateId);
   const siteId = existingSite?.siteId || `site_${uid}_${templateId}_${Date.now()}`;
   const publishedUrl = `/i/${slug}`;
+  const isVip = isUserVipAdmin(uid);
 
   const publishedSite: WeddingSite = {
     ...(existingSite || {}),
@@ -210,8 +228,8 @@ export const lockInvitationOnPublish = (
     slug,
     status: 'published',
     publicationStatus: 'published',
-    isLocked: true, // 🔒 Mandatory re-lock!
-    editingStatus: 'locked', // 🔒 Mandatory re-lock!
+    isLocked: isVip ? false : true, // 🔒 VIP accounts stay unlocked!
+    editingStatus: isVip ? 'unlocked' : 'locked', // 🔒 VIP accounts stay unlocked!
     paymentStatus: 'paid',
     content: publishedState, // Published version is now live
     draftContent: publishedState,
@@ -224,14 +242,14 @@ export const lockInvitationOnPublish = (
 
   const accessState: InvitationAccessState = {
     paymentStatus: 'paid',
-    editingStatus: 'locked',
+    editingStatus: isVip ? 'unlocked' : 'locked',
     publicationStatus: 'published',
-    isEditingAllowed: false,
+    isEditingAllowed: isVip ? true : false,
     isPublicLive: true,
     publishedUrl,
     slug,
     siteId,
-    lockReason: 'published_locked',
+    lockReason: isVip ? 'none' : 'published_locked',
   };
 
   setCachedAccessState(uid, templateId, accessState);

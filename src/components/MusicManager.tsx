@@ -8,12 +8,14 @@ import { useAuth } from '../context/AuthContext';
 import { uploadWeddingMusic } from '../services/storageService';
 
 interface MusicManagerProps {
+  theme?: WeddingProjectState['theme'];
+  invitationType?: WeddingProjectState['invitation_type'];
   media: WeddingProjectState['media'];
   onChange: (updated: Partial<WeddingProjectState['media']>) => void;
   onSaveAndNext: () => void;
 }
 
-const PRESET_MELODIES = [
+const WEDDING_PRESET_MELODIES = [
   { 
     id: 'shehnai-classic', 
     name: 'Lossless Vedic Shehnai & Nagada', 
@@ -34,15 +36,40 @@ const PRESET_MELODIES = [
   },
 ];
 
+const ENGAGEMENT_PRESET_MELODIES = [
+  { 
+    id: 'sitar-synth', 
+    name: 'Ambient Sitar & Drone Synthesizer', 
+    desc: 'Cinematic sitar drone synth designed for The Royal Ring', 
+    url: '/templates/rajmahal-template/FinalSong.mp3' 
+  },
+  { 
+    id: 'flute-raag', 
+    name: 'Divine Bansuri & Sitar Raag', 
+    desc: 'Serene flute melody with subtle acoustic bells', 
+    url: '/templates/rajmahal-template/FinalSong.mp3' 
+  },
+  { 
+    id: 'royal-darbar', 
+    name: 'Udaipur Palace Darbar Symphony', 
+    desc: 'Grand celebration symphony with soft tabla rhythms', 
+    url: '/templates/rajmahal-template/FinalSong.mp3' 
+  },
+];
+
 export const MusicManager: React.FC<MusicManagerProps> = ({
+  theme,
+  invitationType,
   media,
   onChange,
   onSaveAndNext,
 }) => {
   const { user } = useAuth();
+  const isEngagement = invitationType === 'engagement';
+  const PRESET_MELODIES = isEngagement ? ENGAGEMENT_PRESET_MELODIES : WEDDING_PRESET_MELODIES;
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [activeMelody, setActiveMelody] = useState<string>(media.bgMusicPreset || 'shehnai-classic');
+  const [activeMelody, setActiveMelody] = useState<string>(media.bgMusicPreset || (isEngagement ? 'sitar-synth' : 'shehnai-classic'));
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioPreviewRef = useRef<HTMLAudioElement | null>(null);
 
@@ -129,13 +156,15 @@ export const MusicManager: React.FC<MusicManagerProps> = ({
       <div className="space-y-1 border-b border-[#E8D5AD]/60 pb-4">
         <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F8F3E8] border border-[#E8D5AD] text-[#6E1020] text-[11px] font-semibold uppercase tracking-wider">
           <Music className="w-3.5 h-3.5 text-[#C49A35]" />
-          <span>STEP 06 · MUSIC &amp; AUDIO</span>
+          <span>{isEngagement ? 'STEP 06 · CELEBRATION MUSIC' : 'STEP 06 · MUSIC & AUDIO'}</span>
         </div>
         <h3 className="font-cormorant font-bold text-2xl text-[#430914]">
-          Auspicious Wedding Music &amp; Shehnai
+          {isEngagement ? 'Celebration Music & Ambient Sitar' : 'Auspicious Wedding Music & Shehnai'}
         </h3>
         <p className="text-xs text-[#75675C] leading-relaxed">
-          Set the acoustic ambiance that plays when guests open your royal 3D invitation.
+          {isEngagement 
+            ? 'Set the acoustic ambiance that plays when guests open your Royal Ring invitation.'
+            : 'Set the acoustic ambiance that plays when guests open your royal 3D invitation.'}
         </p>
       </div>
 

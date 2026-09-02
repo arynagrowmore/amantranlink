@@ -100,13 +100,27 @@ export const resolveInvitationState = (
 
     const activeSlug = slug || urlParams.get('invite') || cleanHash || cleanPath;
     if (activeSlug) {
-      const savedBySlug = localStorage.getItem(`SHAHI_INVITE_${activeSlug.toLowerCase()}`);
+      const cleanTarget = activeSlug.toLowerCase().replace(/^\/i\//, '').replace(/^i\//, '').trim();
+      const savedBySlug = localStorage.getItem(`SHAHI_INVITE_${cleanTarget}`);
       if (savedBySlug) {
         return JSON.parse(savedBySlug);
       }
+      // If a specific invitation slug was queried and not found in slug registry,
+      // check if WEDDING_STUDIO_STATE matches the slug before returning it
+      const currentStudioStr = localStorage.getItem('WEDDING_STUDIO_STATE');
+      if (currentStudioStr) {
+        try {
+          const currentStudio = JSON.parse(currentStudioStr);
+          const studioSlug = `${(currentStudio.couple?.groomEn || '').toLowerCase()}-${(currentStudio.couple?.brideEn || '').toLowerCase()}`;
+          if (cleanTarget.includes(studioSlug) || studioSlug.includes(cleanTarget)) {
+            return currentStudio;
+          }
+        } catch (e) {}
+      }
+      return initialFallback || null;
     }
 
-    // 3. Check Current Studio State in LocalStorage
+    // 3. Check Current Studio State in LocalStorage only if no specific slug was targeted
     const currentStudio = localStorage.getItem('WEDDING_STUDIO_STATE');
     if (currentStudio) {
       return JSON.parse(currentStudio);

@@ -274,3 +274,101 @@
   box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.6);
 }
 
+/* 👑 AMANTRANLINK High-Contrast Brand Typography */
+.amantranlink-wordmark {
+  font-family: 'Cinzel', serif, system-ui;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #3B0710 !important;
+  opacity: 1 !important;
+  text-transform: uppercase;
+  text-shadow: none !important;
+  filter: none !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+.amantranlink-wordmark-gold {
+  color: #B8860B !important;
+  font-weight: 900;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.amantranlink-wordmark-sub {
+  font-family: 'Hanken Grotesk', 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  color: #521822 !important;
+  opacity: 1 !important;
+  text-transform: uppercase;
+  text-shadow: none !important;
+  filter: none !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 📜 Thin Luxury Royal Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(232, 213, 173, 0.2);
+  border-radius: 999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(185, 138, 50, 0.5);
+  border-radius: 999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(116, 19, 33, 0.8);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(185, 138, 50, 0.5) rgba(232, 213, 173, 0.2);
+}
+
+/* 🏰 Cinematic Royal Portal & Palace Geometry */
+@keyframes floatDustSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.25; }
+  50% { transform: translateY(-18px) rotate(180deg); opacity: 0.7; }
+}
+
+@keyframes palaceAuraPulse {
+  0%, 100% { transform: scale(1); opacity: 0.45; }
+  50% { transform: scale(1.08); opacity: 0.65; }
+}
+
+@keyframes entranceCinematic {
+  0% { opacity: 0; transform: scale(0.96) translateY(24px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.animate-entrance-cinematic {
+  animation: entranceCinematic 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-palace-aura {
+  animation: palaceAuraPulse 9s ease-in-out infinite;
+}
+
+.animate-float-dust-1 {
+  animation: floatDustSlow 14s ease-in-out infinite;
+}
+.animate-float-dust-2 {
+  animation: floatDustSlow 19s ease-in-out infinite 3s;
+}
+.animate-float-dust-3 {
+  animation: floatDustSlow 22s ease-in-out infinite 7s;
+}
+
+.royal-portal-shadow {
+  box-shadow: 
+    0 30px 100px -20px rgba(59, 7, 16, 0.85),
+    0 0 0 1px rgba(185, 138, 50, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+
+
+

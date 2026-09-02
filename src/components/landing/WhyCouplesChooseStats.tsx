@@ -112,7 +112,7 @@ export const WhyCouplesChooseStats: React.FC = () => {
         </div>
 
         <h2 className="font-fraunces font-black text-3xl sm:text-5xl text-[#741526] tracking-tight">
-          WHY COUPLES CHOOSE SHAHI STUDIO
+          WHY COUPLES CHOOSE AMANTRANLINK
         </h2>
 
         <p className="text-sm sm:text-base text-[#2B1714]/80 font-medium max-w-xl mx-auto leading-relaxed">

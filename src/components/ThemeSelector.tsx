@@ -3,6 +3,7 @@ import { Check, ArrowRight, Lock, Unlock, Sparkles, Eye } from 'lucide-react';
 import { ThemeId, WeddingTheme } from '../types/wedding';
 import { useAuth } from '../context/AuthContext';
 import { isTemplateUnlockedForUser } from '../services/razorpayClient';
+import { calculatePaymentDetails } from '../config/pricing';
 
 interface ThemeSelectorProps {
   selectedTheme: ThemeId;
@@ -18,7 +19,7 @@ export const themes: Array<WeddingTheme & { previewImg: string }> = [
     tagline: 'Royal Heritage & 3D Palace Gateways',
     price: 2299,
     icon: '🏰',
-    badge: '3D Heritage',
+    badge: 'The Rajmahal',
     bgGradient: 'from-[#4A0E17] to-[#1C060A]',
     accentColor: '#C49A35',
     description: '3D palace gates open smoothly on scroll with elephant procession and darbar elegance.',
@@ -31,12 +32,12 @@ export const themes: Array<WeddingTheme & { previewImg: string }> = [
     tagline: 'Udaipur Palace Lakefront & Scratch Heart Blessing',
     price: 2299,
     icon: '🌅',
-    badge: 'Lakefront Aura',
+    badge: 'The Royal Dawn',
     bgGradient: 'from-[#4A121E] via-[#2A050D] to-[#0D0406]',
     accentColor: '#C49A35',
     description: 'Udaipur lakefront palace grandeur with interactive gold scratch-heart blessing and 4-box timer.',
     url: '/templates/royaldawn-template/index.html',
-    previewImg: '/templates/royaldawn-template/public/assets/gate.jpg',
+    previewImg: '/previews/theme-royaldawn.webp',
   },
   {
     id: 'jharokha',
@@ -44,7 +45,7 @@ export const themes: Array<WeddingTheme & { previewImg: string }> = [
     tagline: 'Traditional Palace Arch & Gold Filigree',
     price: 1299,
     icon: '🪟',
-    badge: 'Palace Filigree',
+    badge: 'The Jharokha',
     bgGradient: 'from-[#1B3B2B] to-[#0A1A12]',
     accentColor: '#C49A35',
     description: 'Intricate Rajasthani marble arches, gold filigree motifs, and animated peacock feather accents.',
@@ -57,7 +58,7 @@ export const themes: Array<WeddingTheme & { previewImg: string }> = [
     tagline: 'Peacock Grandeur & Royal Emerald Teal',
     price: 1299,
     icon: '🦚',
-    badge: 'Emerald Grandeur',
+    badge: 'The Mayura',
     bgGradient: 'from-[#0F2B48] to-[#051329]',
     accentColor: '#C49A35',
     description: 'Deep emerald teal tones with majestic dancing peacock feather animations and gold calligraphy.',
@@ -70,7 +71,7 @@ export const themes: Array<WeddingTheme & { previewImg: string }> = [
     tagline: 'Festive Gold Thaali & Illustrated Couple Caricature',
     price: 1299,
     icon: '💑',
-    badge: 'Sacred Tradition',
+    badge: 'The Jodi',
     bgGradient: 'from-[#3D1E3A] to-[#180A17]',
     accentColor: '#C49A35',
     description: 'Sacred 24K brass gold thaali with marigolds and illustrated couple caricature.',
@@ -83,10 +84,10 @@ export const themes: Array<WeddingTheme & { previewImg: string }> = [
     tagline: 'Vintage Royal Telegram & Postal Stamp',
     price: 1299,
     icon: '💌',
-    badge: 'Vintage Letterpress',
+    badge: 'The Shahi Dâk',
     bgGradient: 'from-[#3A2A1A] to-[#1A120B]',
     accentColor: '#C49A35',
-    description: 'Vintage royal telegram postal envelope with crimson wax stamp seal and aged letterpress.',
+    description: 'Vintage royal telegram postal envelope with handcrafted gold embossing and aged letterpress.',
     url: '/templates/dak-template/index.html',
     previewImg: '/previews/theme-dak.webp',
   },
@@ -96,7 +97,7 @@ export const themes: Array<WeddingTheme & { previewImg: string }> = [
     tagline: 'Minimalist High-Fashion & Editorial Gold',
     price: 1299,
     icon: '🤍',
-    badge: 'Haute Couture',
+    badge: 'The Ivory',
     bgGradient: 'from-[#1A1A1A] to-[#0D0D0D]',
     accentColor: '#C49A35',
     description: 'High-fashion editorial magazine aesthetic with crisp serif typography and warm alabaster.',
@@ -130,10 +131,12 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
       </div>
 
       {/* Grid of 7 Royal Themes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4">
         {themes.map((theme) => {
           const isSelected = selectedTheme === theme.id;
           const isUnlocked = isTemplateUnlockedForUser(user?.uid, theme.id);
+          const isPartner = user?.role === 'partner';
+          const priceInfo = calculatePaymentDetails(null, theme.id, user?.role);
 
           return (
             <div
@@ -145,23 +148,24 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                   : 'bg-[#F8F3E8] border-[#E8D5AD] hover:border-[#C49A35]/70 hover:bg-[#FFFDF8] shadow-xs'
               }`}
             >
-              <div className="space-y-2.5">
-                {/* Thumbnail Image Header */}
-                <div className="relative h-28 rounded-xl overflow-hidden bg-black border border-[#E8D5AD]">
+              <div className="space-y-3">
+                {/* 16:10 Standardized Thumbnail Image Header */}
+                <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-[#160408] border border-[#E8D5AD]">
                   <img
                     src={theme.previewImg}
                     alt={theme.name}
+                    loading="lazy"
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                   />
                   
                   {/* Badge & Lock Indicator */}
-                  <div className="absolute top-2 left-2 flex items-center gap-1">
+                  <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
                     <span className="text-[9px] font-mono font-bold bg-[#6E1020]/90 backdrop-blur-md text-[#FFFDF8] px-2 py-0.5 rounded border border-[#C49A35]/40 shadow-xs">
                       {theme.badge}
                     </span>
                   </div>
 
-                  <div className="absolute top-2 right-2">
+                  <div className="absolute top-2 right-2 z-10">
                     {isUnlocked ? (
                       <span className="text-[9px] font-mono font-bold bg-[#167A5A] text-white px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
                         <Unlock className="w-2.5 h-2.5" /> Unlocked
@@ -178,11 +182,24 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                 <div>
                   <h4 className="font-cormorant font-bold text-lg text-[#430914] flex items-center justify-between">
                     <span>{theme.name}</span>
-                    <span className="text-sm font-mono font-bold text-[#C49A35]">
-                      ₹{theme.price.toLocaleString('en-IN')}
-                    </span>
+                    <div className="text-right">
+                      {isPartner ? (
+                        <div className="flex flex-col items-end">
+                          <span className="text-sm font-mono font-bold text-[#167A5A]">
+                            ₹{priceInfo.finalAmountInr.toLocaleString('en-IN')}
+                          </span>
+                          <span className="text-[9px] font-mono text-[#75675C] line-through">
+                            ₹{priceInfo.retailPriceInr.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-sm font-mono font-bold text-[#C49A35]">
+                          ₹{priceInfo.finalAmountInr.toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </div>
                   </h4>
-                  <p className="text-[11px] text-[#75675C] line-clamp-2 leading-relaxed">
+                  <p className="text-[11px] text-[#75675C] line-clamp-2 leading-relaxed min-h-[32px]">
                     {theme.tagline}
                   </p>
                 </div>

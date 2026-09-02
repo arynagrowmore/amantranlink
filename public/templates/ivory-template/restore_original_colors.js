@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 
 let css = fs.readFileSync('style.css', 'utf8');
 
@@ -60,4 +60,5 @@ section#top > div,
 
 css = originalRestoredPalette + '\n\n' + css;
 fs.writeFileSync('style.css', css);
-console.log('Successfully removed Green color and restored original vibrant palette with pure white Dhruv & Shreya!');
+console.log('Successfully removed Green color and restored original vibrant palette with pure white Rudra & Ishani!');
+

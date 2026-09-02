@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 
 const html = fs.readFileSync('index.html', 'utf8');
 
@@ -14,11 +14,12 @@ if (meeraIdx !== -1) {
   console.log(html.substring(meeraIdx - 100, meeraIdx + 150));
 }
 
-// Let's replace any Aarav -> Dhruv, Meera -> Shreya, आरव -> ध्रुव, मीरा -> श्रेया
-let cleanHtml = html.replace(/Aarav/g, 'Dhruv');
-cleanHtml = cleanHtml.replace(/Meera/g, 'Shreya');
-cleanHtml = cleanHtml.replace(/आरव/g, 'ध्रुव');
-cleanHtml = cleanHtml.replace(/मीरा/g, 'श्रेया');
+// Let's replace any Aarav -> Rudra, Meera -> Ishani, आरव -> रुद्र, मीरा -> ईशानी
+let cleanHtml = html.replace(/Aarav/g, 'Rudra');
+cleanHtml = cleanHtml.replace(/Meera/g, 'Ishani');
+cleanHtml = cleanHtml.replace(/आरव/g, 'रुद्र');
+cleanHtml = cleanHtml.replace(/मीरा/g, 'ईशानी');
 
 fs.writeFileSync('index.html', cleanHtml);
-console.log('Cleaned all remaining Aarav/Meera occurrences to Dhruv/Shreya in index.html!');
+console.log('Cleaned all remaining Aarav/Meera occurrences to Rudra/Ishani in index.html!');
+

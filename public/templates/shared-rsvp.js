@@ -1,5 +1,5 @@
 /**
- * 🏰 SHAHI STUDIO UNIVERSAL RSVP CLIENT ENGINE (ALL 7 TEMPLATES)
+ * 🏰 AMANTRANLINK UNIVERSAL RSVP CLIENT ENGINE (ALL 7 TEMPLATES)
  * Dynamically binds to theme RSVP forms, validates input, connects to Supabase backend API,
  * and communicates seamlessly with the Couple Dashboard & Live Canvas.
  */
@@ -31,14 +31,15 @@
       (parentParams && parentParams.get('invite')) || 
       (urlParams.get('slug')) || 
       (parentParams && parentParams.get('slug')) || 
+      window.LIVE_WEDDING_SLUG ||
       '';
 
     if (!slug) {
       var pathParts = window.location.pathname.split('/').filter(Boolean);
-      if (pathParts.length > 0 && pathParts[0] === 'wedding' && pathParts[1]) {
+      if (pathParts.length > 0 && (pathParts[0] === 'wedding' || pathParts[0] === 'i' || pathParts[0] === 'invite') && pathParts[1]) {
         slug = pathParts[1];
       } else {
-        slug = 'dhruv-shreya';
+        slug = window.LIVE_WEDDING_SLUG || 'royal-wedding';
       }
     }
 
@@ -172,7 +173,7 @@
         // Auto-resolve site ID from slug if not present in metadata
         if (!validSiteId && meta.slug && meta.slug !== 'general') {
           try {
-            var apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+            var apiBase = (window.VITE_API_BASE_URL || window.API_BASE_URL || '');
             var rRes = await fetch(apiBase + '/api/rsvp/resolve-site?slug=' + encodeURIComponent(meta.slug));
             if (rRes.ok) {
               var rJson = await rRes.json();
@@ -184,7 +185,7 @@
         }
 
         var payload = {
-          wedding_slug: meta.slug || 'dhruv-shreya',
+          wedding_slug: meta.slug || window.LIVE_WEDDING_SLUG || 'royal-wedding',
           guest_name: guestName,
           guest_phone: guestPhone,
           attendees_count: isAttending ? attendeesCount : 0,
@@ -227,7 +228,7 @@
 
           // 2. Gateway Server Fallback (/api/rsvp/submit)
           if (!submitted) {
-            var apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+            var apiBase = (window.VITE_API_BASE_URL || window.API_BASE_URL || '');
             var gwRes = await fetch(apiBase + '/api/rsvp/submit', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -302,4 +303,32 @@
 
   // Expose global init hook for SPA re-renders
   window.initShahiRsvp = initShahiRsvp;
+
+  // 🎵 Universal Single Audio Enforcement across All Templates
+  window.addEventListener('message', function(event) {
+    if (!event.data) return;
+    if (event.data.type === 'PAUSE_AUDIO' || event.data.type === 'STOP_AUDIO' || event.data.type === 'MUTE_AUDIO') {
+      document.querySelectorAll('audio').forEach(function(a) {
+        try { 
+          a.pause(); 
+        } catch(e) {}
+      });
+      document.querySelectorAll('.rjm-music-btn, #rjm-music-toggle, .music-btn, .audio-toggle, .rjm-audio-widget').forEach(function(btn) {
+        btn.classList.remove('is-playing', 'playing');
+      });
+    }
+  });
+
+  // Broadcast to parent when this template plays audio so parent can pause conflicting iframes
+  document.addEventListener('play', function(e) {
+    if (e.target && e.target.tagName === 'AUDIO') {
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'AUDIO_STARTED_IN_IFRAME' }, '*');
+        }
+      } catch(err) {}
+    }
+  }, true);
 })();
+
+

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Sparkles, Smartphone, Monitor, Tablet, ArrowRight, Volume2, ShieldCheck } from 'lucide-react';
 import { ThemeId, ViewMode } from '../types/wedding';
 import { themes } from './ThemeSelector';
-import { THEME_PACKAGE_MAP, OFFICIAL_PACKAGES } from '../config/pricing';
+import { useAuth } from '../context/AuthContext';
+import { THEME_PACKAGE_MAP, OFFICIAL_PACKAGES, calculatePaymentDetails } from '../config/pricing';
+import { stopAllIframesAudio } from '../services/audioCoordinator';
 
 interface TemplatePreviewModalProps {
   themeId: ThemeId | null;
@@ -17,12 +19,38 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
   onClose,
   onSelectAndCustomize,
 }) => {
+  const { user } = useAuth();
   const [viewMode, setViewMode] = useState<ViewMode>('desktop');
+  const modalIframeRef = useRef<HTMLIFrameElement>(null);
+
+  // 🔇 Stop any background audio when modal opens, switches theme, or closes
+  useEffect(() => {
+    if (isOpen && themeId) {
+      stopAllIframesAudio(modalIframeRef.current);
+    }
+    return () => {
+      stopAllIframesAudio();
+    };
+  }, [isOpen, themeId]);
+
   if (!isOpen || !themeId) return null;
 
   const currentTheme = themes.find((t) => t.id === themeId) || themes[0];
   const pkgType = THEME_PACKAGE_MAP[themeId] || 'gold';
   const pkgInfo = OFFICIAL_PACKAGES[pkgType];
+  const priceInfo = calculatePaymentDetails(null, themeId, user?.role);
+  const isPartner = user?.role === 'partner';
+
+  const handleClose = () => {
+    stopAllIframesAudio();
+    onClose();
+  };
+
+  const handleSelect = () => {
+    stopAllIframesAudio();
+    onSelectAndCustomize(themeId);
+    onClose();
+  };
 
   const getContainerWidth = () => {
     if (viewMode === 'mobile') return 'max-w-[410px] h-[85vh] rounded-[40px] border-[10px] border-neutral-900 shadow-2xl';
@@ -47,9 +75,17 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
                 {currentTheme.badge}
               </span>
             </div>
-            <p className="text-[11px] font-manrope text-[#E8D5AD] hidden sm:block">
-              {currentTheme.tagline} • ₹{pkgInfo.priceInr.toLocaleString('en-IN')}
-            </p>
+            <div className="text-[11px] font-manrope text-[#E8D5AD] hidden sm:flex items-center gap-2">
+              <span>{currentTheme.tagline}</span>
+              <span>•</span>
+              {isPartner ? (
+                <span className="text-emerald-400 font-bold">
+                  Studio Price ₹{priceInfo.finalAmountInr.toLocaleString('en-IN')} (Retail ₹{priceInfo.retailPriceInr.toLocaleString('en-IN')})
+                </span>
+              ) : (
+                <span>₹{pkgInfo.priceInr.toLocaleString('en-IN')} All-Inclusive</span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -91,10 +127,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => {
-              onSelectAndCustomize(themeId);
-              onClose();
-            }}
+            onClick={handleSelect}
             className="px-5 py-2 rounded-xl bg-[#C49A35] hover:bg-[#D8AF4B] text-[#24060B] font-manrope font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md hover:scale-105 transition-all cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#24060B]" />
@@ -105,7 +138,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
             aria-label="Close Preview"
           >
@@ -118,6 +151,8 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
       <main className="flex-1 flex items-center justify-center p-3 sm:p-6 overflow-hidden relative">
         <div className={`transition-all duration-300 overflow-hidden bg-white relative flex flex-col ${getContainerWidth()}`}>
           <iframe
+            ref={modalIframeRef}
+            key={`${themeId}-${viewMode}`}
             src={`${currentTheme.url}?preview=true&theme=${themeId}`}
             title={`Preview of ${currentTheme.name}`}
             className="w-full h-full border-0"
@@ -142,3 +177,4 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
 };
 
 export default TemplatePreviewModal;
+

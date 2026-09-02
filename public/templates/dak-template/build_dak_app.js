@@ -1,14 +1,14 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 
 const configJs = `// Dâk Vintage Royal Postal Wedding Configuration File
 window.WEDDING_CONFIG = {
-  groomName: "Dhruv",
-  brideName: "Shreya",
+  groomName: "Rudra",
+  brideName: "Ishani",
   weddingDate: "2024-12-03T18:30:00+05:30",
   dateFormatted: "3 December 2024",
-  city: "The Milestone, Himmatnagar, Gujarat",
-  mark: "D · S",
-  hashtag: "#DhruvKiShreya",
+  city: "The Milestone, Modasa, Gujarat",
+  mark: "R · I",
+  hashtag: "#RudraKiIshani",
   groomParents: {
     father: "Mr. Nalinkumar",
     mother: "Mrs. Kalpuben"
@@ -346,7 +346,7 @@ A pixel-perfect clone of **The Dâk** vintage postal luxury wedding template (\`
 
 - ✉️ **Vintage Royal Postal Letter & Postcard Aesthetic**: Airmail red & navy striped borders, perforated postage stamp cards, postmark cancellation stamp animations, and telegram parchment paper.
 - 📬 **Interactive Postmark Cancellation Stamp**: Animated ink strike stamping effect on scroll.
-- 👑 **Dhruv & Shreya (\`D · S\`)**: Personalized couple initials, 3 December 2024 date, The Milestone Himmatnagar location, and family details.
+- 👑 **Rudra & Ishani (\`R · I\`)**: Personalized couple initials, 3 December 2024 date, The Milestone Modasa location, and family details.
 - 🌐 **Instant Bilingual Toggle**: 1-click English ⇋ Hindi switch.
 - ⏳ **Live Muhurat Countdown**: Real-time days, hours, minutes, and seconds countdown counter.
 - 🎶 **Silent Auto Background Music**: \`FinalSong.mp3\` starts softly on scroll/tap and plays on infinite loop.
@@ -366,3 +366,5 @@ A pixel-perfect clone of **The Dâk** vintage postal luxury wedding template (\`
 fs.writeFileSync('README.md', readmeMd);
 
 console.log('Successfully written app.js, wedding-config.js, package.json and README.md for Dâk!');
+
+

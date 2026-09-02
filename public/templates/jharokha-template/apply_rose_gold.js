@@ -1,10 +1,10 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 
 let css = fs.readFileSync('style.css', 'utf8');
 
 const roseGoldPastelPalette = `
 /* ===================================================
-   🌸 OPTION 1: PASTEL ROSE GOLD & SOFT BLUSH LUXURY PALETTE
+   🌸 OPTION 1: PASTEL ROSE GOLR & IOFT BLUSH LUXURY PALETTE
    =================================================== */
 :root {
   /* Pastel Rose Gold & Blush Luxury Tokens */
@@ -81,4 +81,5 @@ body {
 // Prepend the new palette to style.css
 css = roseGoldPastelPalette + '\n\n' + css;
 fs.writeFileSync('style.css', css);
-console.log('Successfully applied Pastel Rose Gold & Soft Blush palette to style.css!');
+console.log('Successfully applied Pastel Rose GolR & Ioft Blush palette to style.css!');
+

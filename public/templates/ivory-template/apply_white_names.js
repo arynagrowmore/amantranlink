@@ -1,10 +1,10 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 
 let css = fs.readFileSync('style.css', 'utf8');
 
 const whiteGroomBrideCss = `
 /* ===================================================
-   🤍 GROOM & BRIDE (DHRUV & SHREYA) RADIANT PURE WHITE TYPOGRAPHY
+   🤍 GROOM & BRIDE (Rudra & Ishani) RADIANT PURE WHITE TYPOGRAPHY
    =================================================== */
 
 h1, .g-serif h1, .g-names, .jdi-names, .myr-names, .rjm-names {
@@ -31,3 +31,4 @@ section#top > div,
 css = whiteGroomBrideCss + '\n\n' + css;
 fs.writeFileSync('style.css', css);
 console.log('Successfully set Groom & Bride names to Pure Radiant White in Ivory style.css!');
+

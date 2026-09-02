@@ -1,13 +1,13 @@
-// Royal Dawn Wedding Configuration File
+﻿// Royal Dawn Wedding Configuration File
 window.WEDDING_CONFIG = {
-  groomName: "Dhruv",
-  brideName: "Shreya",
+  groomName: "Rudra",
+  brideName: "Ishani",
   weddingDate: "2026-12-03T18:30:00+05:30",
   dateFormatted: "3 December 2026",
-  city: "The Milestone, Himmatnagar, Gujarat",
+  city: "The Milestone, Modasa, Gujarat",
   venue: "The Milestone Palace & Lakefront Grounds",
-  mark: "D · S",
-  hashtag: "#DhruvKiShreya",
+  mark: "R · I",
+  hashtag: "#RudraKiIshani",
   groomParents: {
     father: "Mr. Nalinkumar",
     mother: "Mrs. Kalpuben"
@@ -17,3 +17,5 @@ window.WEDDING_CONFIG = {
     { name: "Family Helpdesk", phone: "+91 9409360336" }
   ]
 };
+
+

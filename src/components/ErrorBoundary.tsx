@@ -24,7 +24,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Shahi Studio Error Boundary caught error:', error, errorInfo);
+    console.error('AmantranLink Error Boundary caught error:', error, errorInfo);
     this.setState({ errorInfo });
   }
 
@@ -49,10 +49,10 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <div className="space-y-1">
               <h2 className="text-xl font-bold text-[#6B1420]">
-                {this.props.fallbackTitle || 'Unable to open your Wedding Studio'}
+                {this.props.fallbackTitle || 'Unable to open your AmantranLink Studio'}
               </h2>
               <p className="text-xs font-hanken text-[#8B7358]">
-                शाही स्टूडियो लोड करने में अस्थायी रुकावट आई। कृपया पुनः प्रयास करें।
+                AmantranLink स्टूडियो लोड करने में अस्थायी रुकावट आई। कृपया पुनः प्रयास करें।
               </p>
             </div>
 

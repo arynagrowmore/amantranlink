@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const path = require('path');
 
 const templates = [
@@ -16,12 +16,13 @@ templates.forEach(tDir => {
 
   // Replace K + A, K+A, K · A, K & A, K&amp;A
   html = html.replace(/K\s*\+\s*A/g, 'D + S');
-  html = html.replace(/K\s*·\s*A/g, 'D · S');
+  html = html.replace(/K\s*·\s*A/g, 'R · I');
   html = html.replace(/K\s*&amp;\s*A/g, 'D &amp; S');
-  html = html.replace(/K\s*&\s*A/g, 'D & S');
+  html = html.replace(/K\s*&\s*A/g, 'R & I');
   html = html.replace(/>KA</g, '>DS<');
   html = html.replace(/>K \+ A</g, '>D + S<');
 
   fs.writeFileSync(htmlPath, html);
   console.log(`Replaced all K + A with D + S in ${path.basename(tDir)}!`);
 });
+

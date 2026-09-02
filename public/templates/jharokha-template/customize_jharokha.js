@@ -1,19 +1,19 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 
 let html = fs.readFileSync('index.html', 'utf8');
 
 // Update Title and Meta
-html = html.replace(/<title>[^<]*<\/title>/i, '<title>Dhruv &amp; Shreya — The Jharokha Royal Wedding</title>');
-html = html.replace(/<meta name="description" content="[^"]*"/i, '<meta name="description" content="You are cordially invited to celebrate the royal wedding of Dhruv &amp; Shreya in Himmatnagar."');
+html = html.replace(/<title>[^<]*<\/title>/i, '<title>Rudra &amp; Ishani — The Jharokha Royal Wedding</title>');
+html = html.replace(/<meta name="description" content="[^"]*"/i, '<meta name="description" content="You are cordially invited to celebrate the royal wedding of Rudra &amp; Ishani in Modasa."');
 
 // Update couple names in all occurrences
-html = html.replace(/Karan/g, 'Dhruv');
-html = html.replace(/Anjali/g, 'Shreya');
-html = html.replace(/करण/g, 'ध्रुव');
-html = html.replace(/अंजलि/g, 'श्रेया');
+html = html.replace(/Karan/g, 'Rudra');
+html = html.replace(/Anjali/g, 'Ishani');
+html = html.replace(/करण/g, 'रुद्र');
+html = html.replace(/अंजलि/g, 'ईशानी');
 
 // Update mark initials
-html = html.replace(/>K\s*·\s*A</g, '>D · S<');
+html = html.replace(/>K\s*·\s*A</g, '>R · I<');
 html = html.replace(/>K\s*&amp;\s*A</g, '>D &amp; S<');
 
 // Update date
@@ -23,8 +23,8 @@ html = html.replace(/11 December 2026/g, '2 December 2024');
 html = html.replace(/13 December 2026/g, '4 December 2024');
 
 // Update cities & venues
-html = html.replace(/Jaipur/g, 'Himmatnagar');
-html = html.replace(/जयपुर/g, 'हिम्मतनगर');
+html = html.replace(/Jaipur/g, 'Modasa');
+html = html.replace(/जयपुर/g, 'मोडासा');
 
 html = html.replace(/Jai Mahal Palace/g, 'The Milestone');
 html = html.replace(/The Leela Palace/g, 'The Milestone');
@@ -44,8 +44,10 @@ html = html.replace(/Riya/g, 'Family Helpdesk');
 html = html.replace(/\+91 97110 67890/g, '+91 98982 34567');
 
 // Update hashtag
-html = html.replace(/#AaravKiMeera/gi, '#DhruvKiShreya');
-html = html.replace(/AaravKiMeera/gi, '#DhruvKiShreya');
+html = html.replace(/#AaravKiMeera/gi, '#RudraKiIshani');
+html = html.replace(/AaravKiMeera/gi, '#RudraKiIshani');
 
 fs.writeFileSync('index.html', html);
-console.log('Successfully customized Jharokha theme with Dhruv & Shreya details!');
+console.log('Successfully customized Jharokha theme with Rudra & Ishani details!');
+
+

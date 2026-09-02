@@ -1,4 +1,4 @@
-# The Dâk — Vintage Royal Indian Postal Wedding Invitation Template ✉️👑
+﻿# The Dâk — Vintage Royal Indian Postal Wedding Invitation Template ✉️👑
 
 A pixel-perfect clone of **The Dâk** vintage postal luxury wedding template (`https://www.jointhejashn.com/demo/dak`).
 
@@ -8,7 +8,7 @@ A pixel-perfect clone of **The Dâk** vintage postal luxury wedding template (`h
 
 - ✉️ **Vintage Royal Postal Letter & Postcard Aesthetic**: Airmail red & navy striped borders, perforated postage stamp cards, postmark cancellation stamp animations, and telegram parchment paper.
 - 📬 **Interactive Postmark Cancellation Stamp**: Animated ink strike stamping effect on scroll.
-- 👑 **Dhruv & Shreya (`D · S`)**: Personalized couple initials, 3 December 2024 date, The Milestone Himmatnagar location, and family details.
+- 👑 **Rudra & Ishani (`R · I`)**: Personalized couple initials, 3 December 2024 date, The Milestone Modasa location, and family details.
 - 🌐 **Instant Bilingual Toggle**: 1-click English ⇋ Hindi switch.
 - ⏳ **Live Muhurat Countdown**: Real-time days, hours, minutes, and seconds countdown counter.
 - 🎶 **Silent Auto Background Music**: `FinalSong.mp3` starts softly on scroll/tap and plays on infinite loop.
@@ -24,3 +24,5 @@ A pixel-perfect clone of **The Dâk** vintage postal luxury wedding template (`h
    ```bash
    npx serve -l 3004 "C:\Users\Avira\Web Devlopment Project\Wedding Invitation Design\dak-template"
    ```
+
+

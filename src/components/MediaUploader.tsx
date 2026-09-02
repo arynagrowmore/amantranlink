@@ -7,13 +7,21 @@ import { uploadWeddingPhoto, uploadWeddingMusic, deleteWeddingPhoto } from '../s
 
 interface MediaUploaderProps {
   theme?: ThemeId;
+  invitationType?: 'wedding' | 'engagement';
   media: WeddingProjectState['media'];
   onChange: (updated: Partial<WeddingProjectState['media']>) => void;
   onSaveAndExport: () => void;
 }
 
-export const MediaUploader: React.FC<MediaUploaderProps> = ({ theme = 'rajmahal', media, onChange, onSaveAndExport }) => {
+export const MediaUploader: React.FC<MediaUploaderProps> = ({ 
+  theme = 'rajmahal', 
+  invitationType,
+  media, 
+  onChange, 
+  onSaveAndExport 
+}) => {
   const { user } = useAuth();
+  const isEngagement = invitationType === 'engagement';
   const [activeCropSlotId, setActiveCropSlotId] = useState<string | null>(null);
   const [tempCropImageUrl, setTempCropImageUrl] = useState<string>('');
   const [uploadingSlotId, setUploadingSlotId] = useState<string | null>(null);
@@ -215,13 +223,24 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({ theme = 'rajmahal'
     }
   };
 
-  const portraitSlots = [
+  const portraitSlots = isEngagement ? [
+    { id: 'hero', label: '1. Couple Hero (The Royal Ring)', req: 'Cover & Centerpiece Portrait' },
+    { id: 'groom', label: '2. Person 1 Portrait', req: 'Partner 1 Story Card' },
+    { id: 'bride', label: '3. Person 2 Portrait', req: 'Partner 2 Story Card' },
+  ] : [
     { id: 'hero', label: '1. Palace Grand Reveal (Couple)', req: 'Cover & Main Reveal Portrait' },
     { id: 'groom', label: '2. Maharaja Dulha Portrait', req: 'Groom Story Card' },
     { id: 'bride', label: '3. Maharani Dulhan Portrait', req: 'Bride Story Card' },
   ];
 
-  const gallerySlots = [
+  const gallerySlots = isEngagement ? [
+    { id: 'gallery1', label: 'Ring Ceremony Moment', req: 'Dual Rings Exchange' },
+    { id: 'gallery2', label: 'Family Blessings', req: 'Family Joy & Blessings' },
+    { id: 'gallery3', label: 'Moments Gallery Photo 1', req: 'First Meeting / Proposal' },
+    { id: 'gallery4', label: 'Moments Gallery Photo 2', req: 'Coffee & Long Talks' },
+    { id: 'gallery5', label: 'Moments Gallery Photo 3', req: 'Two Families Unite' },
+    { id: 'gallery6', label: 'Moments Gallery Photo 4', req: 'Lifetime Memories' },
+  ] : [
     { id: 'gallery1', label: 'Gallery Photo 1', req: 'First Meeting / Sangeet' },
     { id: 'gallery2', label: 'Gallery Photo 2', req: 'Under The Mandap / Haldi' },
     { id: 'gallery3', label: 'Gallery Photo 3', req: 'Sacred Vows / Pheras' },
@@ -237,10 +256,12 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({ theme = 'rajmahal'
       <div className="flex items-center justify-between">
         <div>
           <h3 className="font-fraunces font-bold text-base text-[#6B1420] flex items-center gap-1.5">
-            <span>5. Chhavi &amp; Sangeet Studio</span>
+            <span>{isEngagement ? '5. Couple & Moments Studio' : '5. Chhavi & Sangeet Studio'}</span>
           </h3>
           <p className="text-[10px] font-hanken text-[#6B5A4A]">
-            Portraits &amp; Dynamic 6-Photo Gallery · Supabase Storage CDN · Background Music
+            {isEngagement 
+              ? 'Portraits & Dynamic 6-Photo Moments Gallery · High Definition Canvas'
+              : 'Portraits & Dynamic 6-Photo Gallery · Supabase Storage CDN · Background Music'}
           </p>
         </div>
         <span className="stamped-label text-[#6B1420] bg-[#EDE0C8] border border-[#D8C7AA] px-2 py-0.5 rounded font-mono text-[10px]">

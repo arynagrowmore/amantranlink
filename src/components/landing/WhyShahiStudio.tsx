@@ -65,7 +65,7 @@ export const WhyShahiStudio: React.FC = () => {
         </div>
 
         <h2 className="font-cormorant font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
-          WHY SHAHI STUDIO
+          WHY AMANTRANLINK
         </h2>
 
         <p className="text-sm sm:text-base text-[#75675C] font-normal max-w-xl mx-auto leading-relaxed">
@@ -101,7 +101,7 @@ export const WhyShahiStudio: React.FC = () => {
 
             <div className="pt-5 border-t border-[#E8D5AD]/60 text-[11px] text-[#75675C] font-medium flex items-center gap-1.5 mt-4">
               <Sparkles className="w-3.5 h-3.5 text-[#C49A35]" />
-              <span>Standard in all Shahi invitations</span>
+              <span>Standard in all AmantranLink invitations</span>
             </div>
           </div>
         ))}

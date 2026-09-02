@@ -1,4 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // 🌟 Universal Auto-Monogram & Dynamic Names Initializer
+  function applyDynamicMonogramAndNames(groom, bride) {
+    if (!groom || !bride) return;
+    const gInit = groom.trim().charAt(0).toUpperCase();
+    const bInit = bride.trim().charAt(0).toUpperCase();
+    const monogramDot = `${gInit} · ${bInit}`;
+    const monogramAmp = `${gInit} & ${bInit}`;
+
+    document.querySelectorAll('.monogram, .dak-navname, .dak-monogram, .nav-mark, .couple-mark, #couple-mark, .mark-tag, .logo-monogram, [data-bind="mark"]').forEach(el => {
+      el.textContent = monogramDot;
+    });
+    document.querySelectorAll('text.dak-mono, svg text, .dak-stamp-shadow text').forEach(tNode => {
+      if (/^[A-Z]\s*[·&+]\s*[A-Z]$/i.test(tNode.textContent?.trim() || '')) {
+        tNode.textContent = monogramDot;
+      }
+    });
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const qGroom = urlParams.get('groom') || (window.WEDDING_CONFIG && window.WEDDING_CONFIG.groomName);
+  const qBride = urlParams.get('bride') || (window.WEDDING_CONFIG && window.WEDDING_CONFIG.brideName);
+  if (qGroom && qBride) {
+    applyDynamicMonogramAndNames(qGroom, qBride);
+  }
+
+  window.addEventListener('message', (event) => {
+    if (event.data && (event.data.type === 'SYNC_COUPLE_DATA' || event.data.type === 'UPDATE_COUPLE')) {
+      const { groom, bride, groomEn, brideEn } = event.data;
+      const g = groom || groomEn;
+      const b = bride || brideEn;
+      if (g && b) applyDynamicMonogramAndNames(g, b);
+    }
+  });
+
   // 1. Language Toggle (English <-> Hindi)
   const htmlEl = document.documentElement;
   const langBtns = document.querySelectorAll('.dak-lang, .rjm-lang, [data-lang-toggle]');
@@ -18,21 +52,42 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 2. Mobile Navigation Menu Toggle
-  const navToggle = document.querySelector('.dak-nav-toggle, .rjm-nav-toggle');
-  const navLinks = document.querySelector('.dak-nav-links, #dak-menu, #rjm-menu');
+  const navToggle = document.querySelector('.dak-nav-toggle, #dak-nav-toggle, .rjm-nav-toggle');
+  const navLinks = document.querySelector('#dak-menu, .dak-nav-links, #rjm-menu');
 
   if (navToggle && navLinks) {
-    navToggle.addEventListener('click', () => {
-      const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
-      navToggle.setAttribute('aria-expanded', String(!isExpanded));
-      navLinks.classList.toggle('open');
+    navToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = navLinks.classList.contains('hidden');
+      if (isHidden) {
+        navLinks.classList.remove('hidden');
+        navLinks.classList.add('open');
+        navToggle.setAttribute('aria-expanded', 'true');
+        navToggle.textContent = '✕ CLOSE';
+      } else {
+        navLinks.classList.add('hidden');
+        navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.textContent = 'MENU';
+      }
     });
 
     navLinks.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
-        navToggle.setAttribute('aria-expanded', 'false');
+        navLinks.classList.add('hidden');
         navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.textContent = 'MENU';
       });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) {
+        navLinks.classList.add('hidden');
+        navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.textContent = 'MENU';
+      }
     });
   }
 

@@ -1,14 +1,14 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 
 const configJs = `// Jharokha Wedding Configuration File
 window.WEDDING_CONFIG = {
-  groomName: "Dhruv",
-  brideName: "Shreya",
+  groomName: "Rudra",
+  brideName: "Ishani",
   weddingDate: "2024-12-03T18:30:00+05:30",
   dateFormatted: "3 December 2024",
-  city: "The Milestone, Himmatnagar, Gujarat",
-  mark: "D · S",
-  hashtag: "#DhruvKiShreya",
+  city: "The Milestone, Modasa, Gujarat",
+  mark: "R · I",
+  hashtag: "#RudraKiIshani",
   groomParents: {
     father: "Mr. Nalinkumar",
     mother: "Mrs. Kalpuben"
@@ -310,3 +310,5 @@ const appJs = `document.addEventListener('DOMContentLoaded', () => {
 
 fs.writeFileSync('app.js', appJs);
 console.log('Successfully generated app.js and wedding-config.js for Jharokha theme!');
+
+

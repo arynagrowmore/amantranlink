@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 
 let html = fs.readFileSync('index.html', 'utf8');
 
@@ -63,7 +63,7 @@ const dressCodeSection = `
         <span class="l-en">Live Broadcast</span><span class="l-hi">सीधा प्रसारण</span>
       </span>
       <h3 class="text-2xl sm:text-3xl font-serif text-[#e8cd7e] mb-2"><span class="l-en">Can't make it in person?</span><span class="l-hi">समारोह से वर्चुअली जुड़ें</span></h3>
-      <p class="text-sm text-[#f8dbe0] opacity-85 mb-6 font-sans"><span class="l-en">Join us virtually and shower your blessings on Dhruv &amp; Shreya from anywhere in the world.</span><span class="l-hi">विश्व के किसी भी कोने से ध्रुव एवं श्रेया को अपना स्नेह और आशीर्वाद दें।</span></p>
+      <p class="text-sm text-[#f8dbe0] opacity-85 mb-6 font-sans"><span class="l-en">Join us virtually and shower your blessings on Rudra &amp; Ishani from anywhere in the world.</span><span class="l-hi">विश्व के किसी भी कोने से रुद्र एवं ईशानी को अपना स्नेह और आशीर्वाद दें।</span></p>
       <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#c9a24a] to-[#e8cd7e] text-[#3f0c1e] font-bold text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-transform">
         <span>▶</span>
         <span class="l-en">Watch Live Stream</span><span class="l-hi">लाइव प्रसारण देखें</span>
@@ -87,3 +87,4 @@ if (vIdx !== -1) {
   fs.writeFileSync('index.html', html);
   console.log('Appended before footer!');
 }
+

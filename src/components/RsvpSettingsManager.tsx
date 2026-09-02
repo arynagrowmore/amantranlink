@@ -6,6 +6,8 @@ import {
 import { WeddingProjectState } from '../types/wedding';
 
 interface RsvpSettingsManagerProps {
+  theme?: WeddingProjectState['theme'];
+  invitationType?: WeddingProjectState['invitation_type'];
   family: WeddingProjectState['family'];
   rsvpConfig?: WeddingProjectState['rsvpConfig'];
   onChangeFamily: (updated: Partial<WeddingProjectState['family']>) => void;
@@ -15,6 +17,8 @@ interface RsvpSettingsManagerProps {
 }
 
 export const RsvpSettingsManager: React.FC<RsvpSettingsManagerProps> = ({
+  theme,
+  invitationType,
   family,
   rsvpConfig = {
     enabled: true,
@@ -30,19 +34,23 @@ export const RsvpSettingsManager: React.FC<RsvpSettingsManagerProps> = ({
   onSaveAndNext,
   onOpenRsvpDashboard,
 }) => {
+  const isEngagement = invitationType === 'engagement';
+
   return (
     <div className="flex flex-col h-full space-y-6 font-manrope">
       {/* Header */}
       <div className="space-y-1 border-b border-[#E8D5AD]/60 pb-4">
         <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F8F3E8] border border-[#E8D5AD] text-[#6E1020] text-[11px] font-semibold uppercase tracking-wider">
           <Users className="w-3.5 h-3.5 text-[#C49A35]" />
-          <span>STEP 07 · LIVE RSVP CONFIGURATION</span>
+          <span>{isEngagement ? 'STEP 07 · GUEST RSVP' : 'STEP 07 · LIVE RSVP CONFIGURATION'}</span>
         </div>
         <h3 className="font-cormorant font-bold text-2xl text-[#430914]">
-          Guest RSVP & Attendance Settings
+          Guest RSVP &amp; Attendance Settings
         </h3>
         <p className="text-xs text-[#75675C] leading-relaxed">
-          Configure how your guests respond, submit headcount, and send auspicious family blessings.
+          {isEngagement 
+            ? 'Configure how your guests respond, submit headcount, and send warm engagement blessings.'
+            : 'Configure how your guests respond, submit headcount, and send auspicious family blessings.'}
         </p>
       </div>
 

@@ -1,4 +1,4 @@
-// 🛡️ SHAHI STUDIO — Strict Anti-Theft, Anti-Extension, Anti-F12 & Anti-Scraper Shield
+// 🛡️ AMANTRANLINK — Strict Anti-Theft, Anti-Extension, Anti-F12 & Anti-Scraper Shield
 export function initSecurityShield() {
   if (typeof window === 'undefined') return;
 
@@ -18,7 +18,7 @@ export function initSecurityShield() {
     if (!isInput) {
       e.preventDefault();
       if (e.clipboardData) {
-        e.clipboardData.setData('text/plain', '👑 Shahi Studio™ — Protected Intellectual Property.');
+        e.clipboardData.setData('text/plain', '👑 AmantranLink™ — Protected Intellectual Property.');
       }
       return false;
     }
@@ -87,7 +87,7 @@ export function initSecurityShield() {
   // 6. 🛡️ Anti-Tamper Protection
   try {
     console.log(
-      '%c👑 SHAHI STUDIO™ %c— Royal Digital Wedding Invitations',
+      '%c👑 AMANTRANLINK™ %c— Royal Digital Invitations',
       'color: #6B1420; font-size: 16px; font-weight: bold; background: #EDE0C8; padding: 4px 8px; border-radius: 4px;',
       'color: #A67C3D; font-size: 12px; font-weight: bold;'
     );

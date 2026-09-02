@@ -1,4 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // 🌟 Universal Auto-Monogram & Dynamic Names Initializer
+  function applyDynamicMonogramAndNames(groom, bride) {
+    if (!groom || !bride) return;
+    const gInit = groom.trim().charAt(0).toUpperCase();
+    const bInit = bride.trim().charAt(0).toUpperCase();
+    const monogramAmp = `${gInit} & ${bInit}`;
+
+    document.querySelectorAll('.monogram, .jhr-nav-mark, .jhr-monogram, .nav-mark, .couple-mark, #couple-mark, .mark-tag, .logo-monogram, [data-bind="mark"], a.jhr-script, header a.jhr-script').forEach(el => {
+      el.textContent = monogramAmp;
+    });
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const qGroom = urlParams.get('groom') || (window.WEDDING_CONFIG && window.WEDDING_CONFIG.groomName);
+  const qBride = urlParams.get('bride') || (window.WEDDING_CONFIG && window.WEDDING_CONFIG.brideName);
+  if (qGroom && qBride) {
+    applyDynamicMonogramAndNames(qGroom, qBride);
+  }
+
+  window.addEventListener('message', (event) => {
+    if (event.data && (event.data.type === 'SYNC_COUPLE_DATA' || event.data.type === 'UPDATE_COUPLE')) {
+      const { groom, bride, groomEn, brideEn } = event.data;
+      const g = groom || groomEn;
+      const b = bride || brideEn;
+      if (g && b) applyDynamicMonogramAndNames(g, b);
+    }
+  });
+
   // 1. Language Toggle (English <-> Hindi)
   const htmlEl = document.documentElement;
   const langBtns = document.querySelectorAll('.jhr-lang, .rjm-lang');
@@ -18,21 +46,42 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 2. Mobile Navigation Menu Toggle
-  const navToggle = document.querySelector('.jhr-nav-toggle, .rjm-nav-toggle');
-  const navLinks = document.querySelector('.jhr-nav-links, #jhr-menu, #rjm-menu');
+  const navToggle = document.querySelector('.jhr-nav-toggle, #jhr-nav-toggle, .rjm-nav-toggle');
+  const navLinks = document.querySelector('#jhr-menu, .jhr-nav-links, #rjm-menu');
 
   if (navToggle && navLinks) {
-    navToggle.addEventListener('click', () => {
-      const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
-      navToggle.setAttribute('aria-expanded', String(!isExpanded));
-      navLinks.classList.toggle('open');
+    navToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = navLinks.classList.contains('hidden');
+      if (isHidden) {
+        navLinks.classList.remove('hidden');
+        navLinks.classList.add('open');
+        navToggle.setAttribute('aria-expanded', 'true');
+        navToggle.textContent = '✕ Close';
+      } else {
+        navLinks.classList.add('hidden');
+        navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.textContent = 'Menu';
+      }
     });
 
     navLinks.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
-        navToggle.setAttribute('aria-expanded', 'false');
+        navLinks.classList.add('hidden');
         navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.textContent = 'Menu';
       });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) {
+        navLinks.classList.add('hidden');
+        navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.textContent = 'Menu';
+      }
     });
   }
 
@@ -241,21 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isAudioPlaying) {
       pauseAudio();
     } else {
-      
-  // Royal Theme Switcher (Emerald, Sapphire, Wine)
-  const themeDots = document.querySelectorAll('.theme-dot');
-  themeDots.forEach(dot => {
-    dot.addEventListener('click', () => {
-      const theme = dot.getAttribute('data-theme-name');
-      if (theme === 'emerald') {
-        htmlEl.removeAttribute('data-theme');
-      } else {
-        htmlEl.setAttribute('data-theme', theme);
-      }
-    });
-  });
-
-  window.rjmForcePlayAudio();
+      window.rjmForcePlayAudio();
     }
   }
 

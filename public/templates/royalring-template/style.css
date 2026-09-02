@@ -1,0 +1,206 @@
+/* ========================================================================= */
+/* 💍 THE ROYAL RING — EXACT CINEMATIC LUXURY ENGAGEMENT STYLES              */
+/* ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600;700&family=Tiro+Devanagari+Hindi:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+:root {
+  --radius: 0.25rem;
+
+  --maroon: #4a0e17;
+  --maroon-deep: #2d080e;
+  --maroon-ink: #1a0407;
+  --ivory: #faf5eb;
+  --ivory-warm: #f3ecdf;
+  --pearl: #fffdfa;
+  --gold: #c49a35;
+  --gold-light: #e8d5ad;
+  --gold-deep: #9c772f;
+
+  --background: var(--ivory);
+  --foreground: #2d080e;
+  --card: var(--pearl);
+
+  --gradient-gold: linear-gradient(
+    100deg,
+    #9c772f 0%,
+    #e8d5ad 28%,
+    #c49a35 52%,
+    #fbf4e4 74%,
+    #9c772f 100%
+  );
+  --gradient-maroon: linear-gradient(
+    165deg,
+    #3f0910 0%,
+    #24060a 60%,
+    #140306 100%
+  );
+  --gradient-ivory: linear-gradient(180deg, var(--pearl) 0%, var(--ivory) 45%, var(--ivory-warm) 100%);
+  --shadow-lift: 0 30px 70px -40px rgba(45, 8, 14, 0.45);
+  --shadow-gold: 0 0 0 1px rgba(196, 154, 53, 0.5), 0 24px 60px -30px rgba(196, 154, 53, 0.6);
+  --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Jost', 'Helvetica Neue', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(196, 154, 53, 0.35);
+  color: #1a0407;
+}
+
+/* 👑 Typography */
+.font-display {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+}
+.font-body {
+  font-family: 'Jost', sans-serif;
+}
+.font-deva {
+  font-family: 'Tiro Devanagari Hindi', 'Cormorant Garamond', serif;
+}
+
+/* 🌟 Gold Foil Shimmer */
+.text-gold-foil {
+  background-image: var(--gradient-gold);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: foil-sweep 9s var(--ease-lux) infinite;
+}
+
+.bg-gold-foil {
+  background-image: var(--gradient-gold);
+  background-size: 220% 100%;
+  animation: foil-sweep 9s var(--ease-lux) infinite;
+}
+
+.bg-royal {
+  background-image: var(--gradient-maroon);
+}
+
+.bg-ivory-sheet {
+  background-image: var(--gradient-ivory);
+}
+
+.tracking-royal {
+  letter-spacing: 0.36em;
+}
+
+.glass-ivory {
+  background: rgba(255, 253, 250, 0.72);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+  border: 1px solid rgba(196, 154, 53, 0.45);
+  box-shadow: var(--shadow-lift);
+}
+
+.glass-dark {
+  background: rgba(26, 4, 7, 0.65);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  border: 1px solid rgba(196, 154, 53, 0.28);
+}
+
+.gold-hairline {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(196, 154, 53, 0.15) 12%,
+    rgba(232, 213, 173, 0.9) 50%,
+    rgba(196, 154, 53, 0.15) 88%,
+    transparent
+  );
+}
+
+.card-lift {
+  transition: transform 0.7s var(--ease-lux), box-shadow 0.7s var(--ease-lux), border-color 0.7s var(--ease-lux);
+}
+.card-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 35px 75px -30px rgba(45, 8, 14, 0.35);
+}
+
+.light-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.light-sweep::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    60deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%) skewX(-18deg);
+  animation: sweep-across 6s ease-in-out infinite;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* 💫 Keyframes */
+@keyframes foil-sweep {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes ring-spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.06); }
+}
+
+@keyframes sweep-across {
+  0% { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
+  30% { opacity: 0.75; }
+  100% { transform: translateX(220%) skewX(-18deg); opacity: 0; }
+}
+
+@keyframes particle-rise {
+  0% { transform: translate3d(0, 20px, 0) scale(0.6); opacity: 0; }
+  25% { opacity: 0.9; }
+  100% { transform: translate3d(var(--drift, 12px), -160px, 0) scale(1); opacity: 0; }
+}
+
+@keyframes wave-bar {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+/* 📜 Language Switching */
+[data-lang="en"] .l-hi, [data-lang="en"] .l-gu { display: none !important; }
+[data-lang="hi"] .l-en, [data-lang="hi"] .l-gu { display: none !important; }
+[data-lang="gu"] .l-en, [data-lang="gu"] .l-hi { display: none !important; }

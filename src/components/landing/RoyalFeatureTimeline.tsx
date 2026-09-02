@@ -92,7 +92,7 @@ export const RoyalFeatureTimeline: React.FC<{ onEnterStudio: () => void }> = ({ 
         </h2>
 
         <p className="text-sm sm:text-base text-[#2B1714]/80 font-medium max-w-xl mx-auto leading-relaxed">
-          From the instant your invitation link opens to the sacred final pheras, explore the 6 moments that make Shahi Studio invitations unforgettable.
+          From the instant your invitation link opens to the sacred final pheras, explore the 6 moments that make AmantranLink invitations unforgettable.
         </p>
       </div>
 

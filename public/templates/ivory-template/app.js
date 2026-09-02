@@ -1,38 +1,120 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // 🌟 Universal Auto-Monogram & Dynamic Names Initializer
+  function applyDynamicMonogramAndNames(groom, bride) {
+    if (!groom || !bride) return;
+    const gInit = groom.trim().charAt(0).toUpperCase();
+    const bInit = bride.trim().charAt(0).toUpperCase();
+    const monogramDot = `${gInit} · ${bInit}`;
+    const monogramAmp = `${gInit} & ${bInit}`;
+
+    document.querySelectorAll('.monogram, .nav-mark, .couple-mark, #couple-mark, .mark-tag, .logo-monogram, [data-bind="mark"]').forEach(el => {
+      el.textContent = monogramDot;
+    });
+    document.querySelectorAll('a.g-serif, header a.g-serif').forEach(el => {
+      el.textContent = monogramDot;
+    });
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const qGroom = urlParams.get('groom') || (window.WEDDING_CONFIG && window.WEDDING_CONFIG.groomName);
+  const qBride = urlParams.get('bride') || (window.WEDDING_CONFIG && window.WEDDING_CONFIG.brideName);
+  if (qGroom && qBride) {
+    applyDynamicMonogramAndNames(qGroom, qBride);
+  }
+
+  window.addEventListener('message', (event) => {
+    if (event.data && (event.data.type === 'SYNC_COUPLE_DATA' || event.data.type === 'UPDATE_COUPLE')) {
+      const { groom, bride, groomEn, brideEn } = event.data;
+      const g = groom || groomEn;
+      const b = bride || brideEn;
+      if (g && b) applyDynamicMonogramAndNames(g, b);
+    }
+  });
+
   // 1. Language Toggle (English <-> Hindi)
   const htmlEl = document.documentElement;
-  const langBtns = document.querySelectorAll('.g-lang, .rjm-lang, [data-lang-toggle]');
+  const langBtns = document.querySelectorAll('.g-lang, .g-lang-en, .g-lang-hi, .rjm-lang, [data-lang-toggle]');
   
-  langBtns.forEach(langBtn => {
-    langBtn.addEventListener('click', () => {
-      const currentLang = htmlEl.getAttribute('data-lang') || 'en';
-      const nextLang = currentLang === 'en' ? 'hi' : 'en';
-      htmlEl.setAttribute('data-lang', nextLang);
-      langBtns.forEach(btn => btn.textContent = nextLang === 'en' ? 'हिन्दी' : 'English');
-      
-      const gulDiv = document.querySelector('.gul, .wsite');
-      if (gulDiv) {
-        gulDiv.setAttribute('data-lang', nextLang);
+  const setLanguage = (lang) => {
+    htmlEl.setAttribute('data-lang', lang);
+    const gulDiv = document.querySelector('.gul, .wsite');
+    if (gulDiv) {
+      gulDiv.setAttribute('data-lang', lang);
+    }
+    document.querySelectorAll('.g-lang-en').forEach(btn => {
+      if (lang === 'en') {
+        btn.classList.add('bg-[color:var(--g-pink)]', 'text-white');
+        btn.classList.remove('text-[color:var(--g-ink)]/50', 'bg-black/5');
+      } else {
+        btn.classList.remove('bg-[color:var(--g-pink)]', 'text-white');
+        btn.classList.add('text-[color:var(--g-ink)]/50', 'bg-black/5');
       }
+    });
+    document.querySelectorAll('.g-lang-hi').forEach(btn => {
+      if (lang === 'hi') {
+        btn.classList.add('bg-[color:var(--g-pink)]', 'text-white');
+        btn.classList.remove('text-[color:var(--g-ink)]/50', 'bg-black/5');
+      } else {
+        btn.classList.remove('bg-[color:var(--g-pink)]', 'text-white');
+        btn.classList.add('text-[color:var(--g-ink)]/50', 'bg-black/5');
+      }
+    });
+  };
+
+  langBtns.forEach(langBtn => {
+    langBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      let nextLang = 'en';
+      if (langBtn.classList.contains('g-lang-hi')) {
+        nextLang = 'hi';
+      } else if (langBtn.classList.contains('g-lang-en')) {
+        nextLang = 'en';
+      } else {
+        const currentLang = htmlEl.getAttribute('data-lang') || 'en';
+        nextLang = currentLang === 'en' ? 'hi' : 'en';
+      }
+      setLanguage(nextLang);
     });
   });
 
   // 2. Mobile Navigation Menu Toggle
-  const navToggle = document.querySelector('.g-nav-toggle, .rjm-nav-toggle, button[aria-expanded]');
-  const navLinks = document.querySelector('.g-nav-links, #g-menu, #rjm-menu');
+  const navToggle = document.getElementById('g-nav-toggle') || document.querySelector('.g-nav-toggle, button[aria-controls="g-menu"]');
+  const navLinks = document.getElementById('g-menu') || document.querySelector('.g-nav-links, #g-menu');
 
   if (navToggle && navLinks) {
-    navToggle.addEventListener('click', () => {
-      const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
-      navToggle.setAttribute('aria-expanded', String(!isExpanded));
-      navLinks.classList.toggle('open');
+    navToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = navLinks.classList.contains('hidden');
+      if (isHidden) {
+        navLinks.classList.remove('hidden');
+        navLinks.classList.add('open');
+        navToggle.setAttribute('aria-expanded', 'true');
+        navToggle.textContent = '✕ Close';
+      } else {
+        navLinks.classList.add('hidden');
+        navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.textContent = 'Menu';
+      }
     });
 
     navLinks.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
-        navToggle.setAttribute('aria-expanded', 'false');
+        navLinks.classList.add('hidden');
         navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.textContent = 'Menu';
       });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) {
+        navLinks.classList.add('hidden');
+        navLinks.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.textContent = 'Menu';
+      }
     });
   }
 

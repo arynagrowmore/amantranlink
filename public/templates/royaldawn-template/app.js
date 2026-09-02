@@ -8,6 +8,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     initGates();
+    initNavMenu();
     initPetals();
     initAudio();
     initCountdown();
@@ -19,6 +20,48 @@
       applyWeddingData(window.WEDDING_CONFIG);
     }
   });
+
+  // 0. 📱 Mobile Navigation Menu Toggle
+  function initNavMenu() {
+    const toggleBtn = document.getElementById('rdNavToggle') || document.querySelector('.rd-nav-toggle');
+    const menuEl = document.getElementById('rdNavMenu') || document.querySelector('.rd-nav-menu');
+
+    if (!toggleBtn || !menuEl) return;
+
+    toggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = menuEl.classList.contains('hidden');
+      if (isHidden) {
+        menuEl.classList.remove('hidden');
+        menuEl.classList.add('open');
+        toggleBtn.setAttribute('aria-expanded', 'true');
+        toggleBtn.textContent = '✕ Close';
+      } else {
+        menuEl.classList.add('hidden');
+        menuEl.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.textContent = 'Menu';
+      }
+    });
+
+    menuEl.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        menuEl.classList.add('hidden');
+        menuEl.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.textContent = 'Menu';
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!menuEl.contains(e.target) && !toggleBtn.contains(e.target)) {
+        menuEl.classList.add('hidden');
+        menuEl.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.textContent = 'Menu';
+      }
+    });
+  }
 
   // 1. 🏰 3D Gate Open on Wax Seal Touch
   function initGates() {
@@ -369,8 +412,8 @@
     document.querySelectorAll('.data-template-name').forEach(el => el.textContent = templateName);
 
     // 1. Groom & Bride Names across languages
-    let groom = data.couple?.groomEn || data.groomName || 'Dhruv';
-    let bride = data.couple?.brideEn || data.brideName || 'Shreya';
+    let groom = data.couple?.groomEn || data.groomName || 'Rudra';
+    let bride = data.couple?.brideEn || data.brideName || 'Ishani';
 
     if (lang === 'hi') {
       groom = data.couple?.groomHi || groom;
@@ -385,8 +428,10 @@
     document.querySelectorAll('.data-couple-names').forEach(el => el.textContent = `${groom} & ${bride}`);
 
     // 2. Monogram / Mark
-    const mark = data.couple?.mark || data.mark || `${groom.charAt(0)} · ${bride.charAt(0)}`;
-    document.querySelectorAll('.data-monogram, .monogram, .couple-mark').forEach(el => el.textContent = mark);
+    const gInit = (groom && groom.trim().charAt(0) || 'R').toUpperCase();
+    const bInit = (bride && bride.trim().charAt(0) || 'I').toUpperCase();
+    const mark = data.couple?.mark || data.mark || `${gInit} · ${bInit}`;
+    document.querySelectorAll('.data-monogram, .monogram, .couple-mark, .rd-monogram, .nav-mark').forEach(el => el.textContent = mark);
 
     // 3. Wedding Hashtag
     const hashtag = data.couple?.hashtag || data.hashtag || `#${groom}Ki${bride}`;
@@ -422,7 +467,7 @@
 
     // 5. Venue Name & Address
     const venue = data.couple?.venueName || data.venue || 'The Milestone';
-    const city = data.couple?.venueAddress || data.city || 'Himmatnagar, Gujarat';
+    const city = data.couple?.venueAddress || data.city || 'Modasa, Gujarat';
     const fullVenue = `${venue}, ${city}`;
     document.querySelectorAll('.data-venue, .venue-text').forEach(el => el.textContent = fullVenue);
     document.querySelectorAll('.data-reveal-venue, #revealVenue').forEach(el => el.textContent = `📍 ${fullVenue}`);
@@ -568,3 +613,5 @@
   }
 
 })();
+
+

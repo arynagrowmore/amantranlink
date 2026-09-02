@@ -6,26 +6,34 @@ interface VenueManagerProps {
   couple: WeddingProjectState['couple'];
   onChange: (updated: Partial<WeddingProjectState['couple']>) => void;
   onSaveAndNext: () => void;
+  theme?: WeddingProjectState['theme'];
+  invitationType?: WeddingProjectState['invitation_type'];
 }
 
 export const VenueManager: React.FC<VenueManagerProps> = ({
   couple,
   onChange,
   onSaveAndNext,
+  theme,
+  invitationType,
 }) => {
+  const isEngagement = invitationType === 'engagement';
+
   return (
     <div className="flex flex-col h-full space-y-6 font-manrope">
       {/* Header */}
       <div className="space-y-1 border-b border-[#E8D5AD]/60 pb-4">
         <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F8F3E8] border border-[#E8D5AD] text-[#6E1020] text-[11px] font-semibold uppercase tracking-wider">
           <MapPin className="w-3.5 h-3.5 text-[#C49A35]" />
-          <span>STEP 04 · VENUE & NAVIGATION</span>
+          <span>{isEngagement ? 'STEP 04 · VENUE & LOCATION' : 'STEP 04 · VENUE & NAVIGATION'}</span>
         </div>
         <h3 className="font-cormorant font-bold text-2xl text-[#430914]">
-          Wedding Venue & Google Maps
+          {isEngagement ? 'Engagement Venue & Google Maps' : 'Wedding Venue & Google Maps'}
         </h3>
         <p className="text-xs text-[#75675C] leading-relaxed">
-          Provide your guests with exact venue details and one-tap GPS navigation.
+          {isEngagement 
+            ? 'Provide your guests with exact celebration venue details and one-tap GPS navigation.'
+            : 'Provide your guests with exact venue details and one-tap GPS navigation.'}
         </p>
       </div>
 
@@ -35,13 +43,13 @@ export const VenueManager: React.FC<VenueManagerProps> = ({
         {/* Venue Name */}
         <div className="space-y-1.5">
           <label className="block text-xs font-semibold uppercase tracking-wider text-[#430914]">
-            Main Palace / Venue Name <span className="text-rose-600">*</span>
+            {isEngagement ? 'Main Celebration / Venue Name' : 'Main Palace / Venue Name'} <span className="text-rose-600">*</span>
           </label>
           <input
             type="text"
             value={couple.venueName || ''}
             onChange={(e) => onChange({ venueName: e.target.value })}
-            placeholder="e.g. The Milestone Palace & Resort"
+            placeholder={isEngagement ? 'e.g. The Grand Palace, Udaipur' : 'e.g. The Milestone Palace & Resort'}
             className="w-full px-4 py-3 rounded-xl bg-[#FFFDF8] border border-[#E8D5AD] focus:border-[#C49A35] text-[#241A17] text-xs font-medium focus:ring-1 focus:ring-[#C49A35] outline-none shadow-xs transition-all"
           />
         </div>
@@ -55,7 +63,7 @@ export const VenueManager: React.FC<VenueManagerProps> = ({
             rows={3}
             value={couple.venueAddress || ''}
             onChange={(e) => onChange({ venueAddress: e.target.value })}
-            placeholder="e.g. Near Shamlaji Highway, Motipura, Himmatnagar, Gujarat 383001"
+            placeholder={isEngagement ? 'e.g. Near Lake Pichola, Haridas Ji Ki Magri, Udaipur, Rajasthan 313001' : 'e.g. Near Malpur Road, Bypass Highway, Modasa, Gujarat 383315'}
             className="w-full px-4 py-3 rounded-xl bg-[#FFFDF8] border border-[#E8D5AD] focus:border-[#C49A35] text-[#241A17] text-xs font-medium focus:ring-1 focus:ring-[#C49A35] outline-none shadow-xs transition-all resize-none"
           />
         </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   Palette, Heart, Calendar, MapPin, 
   Image as ImageIcon, Music, Users, 
-  Check, Sparkles, Globe, ShieldCheck 
+  Check, Sparkles, Download 
 } from 'lucide-react';
 import { WeddingProjectState } from '../types/wedding';
 
@@ -14,7 +14,7 @@ export interface StepItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-export const STUDIO_STEPS: StepItem[] = [
+export const WEDDING_STUDIO_STEPS: StepItem[] = [
   { id: 'theme', num: '01', label: 'Theme', sub: 'शाही थीम', icon: Palette },
   { id: 'couple', num: '02', label: 'Couple', sub: 'वर-वधू विवरन', icon: Heart },
   { id: 'events', num: '03', label: 'Events', sub: 'शुभ प्रसंग', icon: Calendar },
@@ -25,10 +25,24 @@ export const STUDIO_STEPS: StepItem[] = [
   { id: 'review', num: '08', label: 'Review', sub: 'अंतिम पूर्वावलोकन', icon: Sparkles },
 ];
 
+export const ENGAGEMENT_STUDIO_STEPS: StepItem[] = [
+  { id: 'theme', num: '01', label: 'Theme', sub: 'शाही थीम', icon: Palette },
+  { id: 'couple', num: '02', label: 'Couple Details', sub: 'युगल विवरण', icon: Heart },
+  { id: 'events', num: '03', label: 'Engagement Events', sub: 'सगाई प्रसंग', icon: Calendar },
+  { id: 'venue', num: '04', label: 'Venue & Location', sub: 'स्थान व नक्शा', icon: MapPin },
+  { id: 'media', num: '05', label: 'Couple & Moments', sub: 'सगाई फोटो', icon: ImageIcon },
+  { id: 'music', num: '06', label: 'Celebration Music', sub: 'उत्सव संगीत', icon: Music },
+  { id: 'rsvp', num: '07', label: 'Guest RSVP', sub: 'मेहमान निमंत्रण', icon: Users },
+  { id: 'review', num: '08', label: 'Review & Publish', sub: 'पूर्वावलोकन व पब्लिश', icon: Sparkles },
+];
+
+export const STUDIO_STEPS = WEDDING_STUDIO_STEPS;
+
 interface SidebarProps {
   activeTab: string;
   completedTabs: Set<string>;
   onTabChange: (tab: string) => void;
+  onOpenDownloadHub?: () => void;
   state?: WeddingProjectState;
 }
 
@@ -36,11 +50,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeTab, 
   completedTabs, 
   onTabChange,
-  state,
+  onOpenDownloadHub,
+  state 
 }) => {
-  const currentStepIndex = STUDIO_STEPS.findIndex((s) => s.id === activeTab);
+  const isEngagement = state?.invitation_type === 'engagement';
+  const steps = isEngagement ? ENGAGEMENT_STUDIO_STEPS : WEDDING_STUDIO_STEPS;
+  const currentStepIndex = steps.findIndex((s) => s.id === activeTab);
   const activeStepNum = currentStepIndex >= 0 ? currentStepIndex + 1 : 1;
-  const totalSteps = STUDIO_STEPS.length;
+  const totalSteps = steps.length;
 
   // 🎯 Calculate Dynamic Invitation Readiness Score based on real state data
   let readinessScore = 0;
@@ -75,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Dynamic Readiness Badge */}
         <div className="flex items-center gap-2">
-          <div className="w-24 bg-[#E8D5AD]/50 h-1.5 rounded-full overflow-hidden hidden sm:block">
+          <div className="w-20 bg-[#E8D5AD]/40 h-1.5 rounded-full overflow-hidden hidden sm:block">
             <div 
               className="bg-[#C49A35] h-full rounded-full transition-all duration-300"
               style={{ width: `${finalReadiness}%` }}
@@ -83,31 +100,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
           <span className="text-[10px] font-mono font-bold text-[#6E1020] bg-[#F8F3E8] px-2 py-0.5 rounded-full border border-[#E8D5AD] flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-[#C49A35]" />
-            <span>Readiness: {finalReadiness}%</span>
+            <span>Ready: {finalReadiness}%</span>
           </span>
         </div>
       </div>
 
-      {/* Stepper Navigation (Horizontal on All Screens) */}
+      {/* Stepper Navigation (Horizontal Segmented Control) */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-        {STUDIO_STEPS.map((step, idx) => {
+        {steps.map((step) => {
           const isActive = activeTab === step.id;
           const isCompleted = completedTabs.has(step.id);
+          const Icon = step.icon;
 
           return (
             <button
               key={step.id}
               type="button"
               onClick={() => onTabChange(step.id)}
-              className={`px-3 py-2 rounded-xl whitespace-nowrap flex items-center gap-2 transition-all cursor-pointer border ${
+              className={`px-3 py-1.5 rounded-xl whitespace-nowrap flex items-center gap-2 transition-all cursor-pointer border text-left ${
                 isActive
-                  ? 'bg-[#6E1020] border-[#C49A35] text-[#FFFDF8] font-bold shadow-xs ring-1 ring-[#C49A35]/50'
+                  ? 'bg-[#6E1020] border-[#C49A35] text-[#FFFDF8] font-bold shadow-xs'
                   : isCompleted
-                  ? 'bg-[#F8F3E8] border-[#E8D5AD] text-[#430914] hover:border-[#C49A35]/60'
+                  ? 'bg-[#F8F3E8] border-[#E8D5AD] text-[#430914] hover:border-[#C49A35]/60 hover:bg-[#FFFDF8]'
                   : 'bg-[#FFFDF8] border-[#E8D5AD]/60 text-[#75675C] hover:text-[#430914] hover:bg-[#F8F3E8]'
               }`}
             >
-              {/* Step Number, Dot, or Checkmark */}
+              {/* Step Number / Icon / Checkmark */}
               <div
                 className={`w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-mono font-bold shrink-0 border ${
                   isActive
@@ -124,16 +142,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
               </div>
 
-              {/* Label & Subtitle */}
-              <div className="text-left">
-                <div className="flex items-center gap-1">
-                  <span className={`block text-xs font-semibold leading-tight ${
-                    isActive ? 'text-[#FFFDF8]' : 'text-[#430914]'
-                  }`}>
-                    {step.label}
-                  </span>
-                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#C49A35] animate-ping" />}
-                </div>
+              {/* Label */}
+              <div>
+                <span className={`block text-xs font-semibold leading-tight ${
+                  isActive ? 'text-[#FFFDF8]' : 'text-[#241A17]'
+                }`}>
+                  {step.label}
+                </span>
                 <span className={`block text-[9px] font-serif leading-none pt-0.5 ${
                   isActive ? 'text-[#E8D5AD]' : 'text-[#C49A35]'
                 }`}>
@@ -145,6 +160,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </div>
 
+      {/* 📥 Quick Download & Export Assets Hub Button */}
+      {onOpenDownloadHub && (
+        <div className="pt-2 border-t border-[#E8D5AD]/60">
+          <button
+            type="button"
+            onClick={onOpenDownloadHub}
+            className="w-full py-1.5 px-3 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] border border-[#C49A35]/50 hover:border-[#C49A35] text-[#6E1020] text-xs font-bold flex items-center justify-between transition-all cursor-pointer shadow-2xs group"
+          >
+            <div className="flex items-center gap-1.5">
+              <Download className="w-3.5 h-3.5 text-[#C49A35] group-hover:scale-110 transition-transform" />
+              <span>4K QR &amp; Story Assets</span>
+            </div>
+            <span className="text-[9px] bg-[#6E1020] text-white px-1.5 py-0.2 rounded font-mono">
+              4K
+            </span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

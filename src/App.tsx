@@ -15,15 +15,29 @@ import { LivePreviewCanvas } from './components/LivePreviewCanvas';
 import { PublishModal } from './components/PublishModal';
 import { StandaloneInvitationView } from './components/StandaloneInvitationView';
 import { LandingPage } from './components/LandingPage';
-import { LoginPage } from './components/LoginPage';
 import { CoupleDashboard } from './components/CoupleDashboard';
 import { ProfilePage } from './components/ProfilePage';
 import { PackagesPage } from './components/PackagesPage';
+import { WeddingCommandCenter } from './components/CommandCenter/WeddingCommandCenter';
 import { RoyalPaymentModal } from './components/RoyalPaymentModal';
 import { LockedEditorBanner } from './components/LockedEditorBanner';
 import { TemplatePreviewModal } from './components/TemplatePreviewModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuthModal } from './components/AuthModal';
+import { PartnerAttributionBanner } from './components/PartnerAttributionBanner';
+import { RoleIndicatorBanner } from './components/RoleIndicatorBanner';
+import { PartnerOnboardingModal } from './components/PartnerOnboardingModal';
+import { PartnerDashboard, StudioWorkspaceTab } from './components/PartnerDashboard/PartnerDashboard';
+import { ClientReviewView } from './components/ClientReviewView';
+import { AdminControlCenter } from './components/Admin/AdminControlCenter';
+import { AdminSuperControlCenter } from './components/Admin/SuperControlCenter/AdminSuperControlCenter';
+import { RoyalDownloadHubModal } from './components/DownloadHub/RoyalDownloadHubModal';
+import { DigitalEntryPassView } from './components/Guest/DigitalEntryPassView';
+import { VenueCheckInView } from './components/CheckIn/VenueCheckInView';
+import { PublicMemoryDropView } from './components/Memories/PublicMemoryDropView';
+import { ClientApprovalPortalView } from './components/ClientReview/ClientApprovalPortalView';
+import { ClientQuotationPortalView } from './components/ClientFinance/ClientQuotationPortalView';
+import { ClientInvoicePaymentPortalView } from './components/ClientFinance/ClientInvoicePaymentPortalView';
 import { 
   isSiteCurrentlyLocked, 
   isTemplateUnlockedForUser,
@@ -37,13 +51,12 @@ import {
   fetchUserWeddingSite,
   publishWeddingSite 
 } from './services/weddingSiteService';
-import { 
-  unlockInvitationForEditing, 
-  lockInvitationOnPublish 
-} from './services/accessControlService';
+import { unlockInvitationForEditing, lockInvitationOnPublish } from './services/accessControlService';
 import { THEME_PACKAGE_MAP } from './config/pricing';
+import { stopAllIframesAudio, initGlobalAudioCoordinator } from './services/audioCoordinator';
 import { resolveInvitationState } from './utils/invitationStorage';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { resolveApplicationRoute, navigateToRoute } from './utils/navigation';
 
 const initialPhotoSlots: Record<string, PhotoSlot> = {
   hero: {
@@ -120,30 +133,15 @@ const initialEvents = [
 ];
 
 function MainApp() {
-  const { user, requireAuth } = useAuth();
+  const { user, requireAuth, setShowAuthModal } = useAuth();
 
-  // 🧭 App Mode: 'landing' vs 'studio' vs 'login' vs 'dashboard' vs 'profile' vs 'packages'
-  const [profileTab, setProfileTab] = useState<'profile' | 'purchases' | 'transactions' | 'weddings' | 'rsvps'>('profile');
-  const [currentAppView, setCurrentAppView] = useState<'landing' | 'studio' | 'login' | 'dashboard' | 'profile' | 'packages'>(() => {
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const viewParam = urlParams.get('view')?.toLowerCase();
-      if (viewParam === 'studio' || viewParam === 'editor' || viewParam === 'customizer') return 'studio';
-      if (viewParam === 'packages' || viewParam === 'pricing' || viewParam === 'plans') return 'packages';
-
-      const hash = window.location.hash.toLowerCase().replace(/^#\/?/, '');
-      if (hash === 'studio' || hash === 'customizer' || hash === 'editor') return 'studio';
-      if (hash === 'login') return 'login';
-      if (hash === 'dashboard') return 'dashboard';
-      if (hash === 'packages' || hash === 'pricing' || hash === 'plans') return 'packages';
-      if (hash === 'rsvps' || hash === 'my-rsvps') { setProfileTab('rsvps'); return 'profile'; }
-      if (hash === 'profile' || hash === 'account') return 'profile';
-      if (hash === 'purchases') { setProfileTab('purchases'); return 'profile'; }
-      if (hash === 'transactions') { setProfileTab('transactions'); return 'profile'; }
-      if (hash === 'my-weddings' || hash === 'weddings') { setProfileTab('weddings'); return 'profile'; }
-    }
-    return 'landing';
-  });
+  // 🧭 App Routing State synchronized with window.location, popstate, and browser Back/Forward
+  const initialRoute = resolveApplicationRoute();
+  const [profileTab, setProfileTab] = useState<'profile' | 'purchases' | 'transactions' | 'weddings' | 'rsvps'>(initialRoute.profileTab || 'profile');
+  const [partnerActiveTab, setPartnerActiveTab] = useState<StudioWorkspaceTab>(initialRoute.partnerTab || 'dashboard');
+  const [selectedCommandCenterSite, setSelectedCommandCenterSite] = useState<any>(null);
+  const [currentAppView, setCurrentAppView] = useState<'landing' | 'studio' | 'login' | 'dashboard' | 'profile' | 'packages' | 'command-center' | 'partner' | 'review' | 'admin' | 'auth-callback' | 'reset-password' | 'pass' | 'checkin' | 'memories' | 'quote' | 'pay'>(initialRoute.view as any);
+  const [isStandaloneView, setIsStandaloneView] = useState<boolean>(initialRoute.isStandalone);
 
   const [activeTab, setActiveTab] = useState<string>('theme');
   const [completedTabs, setCompletedTabs] = useState<Set<string>>(new Set(['theme']));
@@ -154,62 +152,40 @@ function MainApp() {
   const [previewModalTheme, setPreviewModalTheme] = useState<ThemeId | null>(null);
   const [royalPaymentPackage, setRoyalPaymentPackage] = useState<PackageType>('silver');
   const [mobileStudioPane, setMobileStudioPane] = useState<'form' | 'preview'>('form');
+  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState<boolean>(Boolean(initialRoute.openPartnerModal));
+  const [isDownloadHubOpen, setIsDownloadHubOpen] = useState<boolean>(false);
+  const [downloadHubSite, setDownloadHubSite] = useState<any>(null);
 
-  // 🎯 Auto-check if current URL is a standalone couple invitation link
-  const [isStandaloneView] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    const pathname = window.location.pathname;
-    const search = window.location.search;
-    const hash = window.location.hash.toLowerCase().replace(/^#\/?/, '');
-
-    // Canonical /i/:slug or /invite/:slug or /wedding/:slug
-    if (/^\/(?:i|invite|wedding)\/[^/?#]+/i.test(pathname)) {
-      return true;
-    }
-
-    if (search.includes('invite=') || search.includes('d=') || search.includes('data=') || search.includes('slug=')) {
-      return true;
-    }
-
-    if (hash.startsWith('i/') || hash.startsWith('invite/') || hash.startsWith('invite-')) {
-      return true;
-    }
-
-    return false;
-  });
-
-  // 🧭 Hash change listener for seamless URL-based view navigation
+  // 🧭 Synchronous Route Listener for Instant Browser Back / Forward & Navigation Updates
   useEffect(() => {
-    const handleHashNav = () => {
-      const hash = window.location.hash.toLowerCase().replace(/^#\/?/, '');
-      if (hash === 'studio') {
-        setCurrentAppView('studio');
-      } else if (hash === 'login') {
-        setCurrentAppView('login');
-      } else if (hash === 'dashboard') {
-        setCurrentAppView('dashboard');
-      } else if (hash === 'packages' || hash === 'pricing' || hash === 'plans') {
-        setCurrentAppView('packages');
-      } else if (hash === 'rsvps' || hash === 'my-rsvps') {
-        setProfileTab('rsvps');
-        setCurrentAppView('profile');
-      } else if (hash === 'profile' || hash === 'account') {
-        setProfileTab('profile');
-        setCurrentAppView('profile');
-      } else if (hash === 'purchases') {
-        setProfileTab('purchases');
-        setCurrentAppView('profile');
-      } else if (hash === 'transactions') {
-        setProfileTab('transactions');
-        setCurrentAppView('profile');
-      } else if (hash === 'my-weddings' || hash === 'weddings') {
-        setProfileTab('weddings');
-        setCurrentAppView('profile');
+    const handleRouteNav = () => {
+      const resolved = resolveApplicationRoute();
+      setCurrentAppView(resolved.view);
+      setIsStandaloneView(resolved.isStandalone);
+      if (resolved.partnerTab) {
+        setPartnerActiveTab(resolved.partnerTab);
+      }
+      if (resolved.profileTab) {
+        setProfileTab(resolved.profileTab);
+      }
+      if (resolved.openPartnerModal) {
+        setIsPartnerModalOpen(true);
       }
     };
 
-    window.addEventListener('hashchange', handleHashNav);
-    return () => window.removeEventListener('hashchange', handleHashNav);
+    const handleOpenPartnerEvent = () => {
+      setIsPartnerModalOpen(true);
+    };
+
+    window.addEventListener('hashchange', handleRouteNav);
+    window.addEventListener('popstate', handleRouteNav);
+    window.addEventListener('open-partner-modal', handleOpenPartnerEvent);
+
+    return () => {
+      window.removeEventListener('hashchange', handleRouteNav);
+      window.removeEventListener('popstate', handleRouteNav);
+      window.removeEventListener('open-partner-modal', handleOpenPartnerEvent);
+    };
   }, []);
 
   const defaultStudioState: WeddingProjectState = {
@@ -218,18 +194,18 @@ function MainApp() {
     previewZoom: 0.9, // 90% Default Zoom for Desktop
     language: 'en',
     couple: {
-      groomEn: 'Dhruv',
-      groomHi: 'ध्रुव',
-      groomGu: 'ધ્રુવ',
-      brideEn: 'Shreya',
-      brideHi: 'श्रेया',
-      brideGu: 'શ્રેયા',
-      mark: 'D · S',
-      hashtag: '#DhruvKiShreya',
+      groomEn: 'Rudra',
+      groomHi: 'रुद्र',
+      groomGu: 'રુદ્ર',
+      brideEn: 'Ishani',
+      brideHi: 'ईशानी',
+      brideGu: 'ઈશાની',
+      mark: 'R · I',
+      hashtag: '#RudraWedsIshani',
       weddingDate: '3 December 2026 · 06:30 PM',
       muhuratTime: '06:30 PM',
-      venueName: 'The Milestone, Himmatnagar, Gujarat',
-      venueAddress: 'The Milestone Highway, Himmatnagar',
+      venueName: 'The Milestone, Modasa, Gujarat',
+      venueAddress: 'The Milestone Highway, Modasa',
       mapUrl: 'https://maps.google.com',
     },
     events: initialEvents,
@@ -256,10 +232,33 @@ function MainApp() {
     try {
       const resolved = resolveInvitationState();
       if (resolved) {
+        let mergedCouple = { ...defaultStudioState.couple, ...(resolved.couple || {}) };
+        
+        // 🔄 Seamless migration for previously cached session states in user's browser
+        if (
+          !mergedCouple.groomEn || 
+          mergedCouple.groomEn === 'Dhruv' || 
+          mergedCouple.groomEn === 'Groom'
+        ) {
+          mergedCouple.groomEn = 'Rudra';
+          mergedCouple.groomHi = 'रुद्र';
+          mergedCouple.groomGu = 'રુદ્ર';
+          mergedCouple.brideEn = 'Ishani';
+          mergedCouple.brideHi = 'ईशानी';
+          mergedCouple.brideGu = 'ઈશાની';
+          mergedCouple.mark = 'R · I';
+          mergedCouple.hashtag = '#RudraWedsIshani';
+        }
+
+        if (mergedCouple.venueName?.includes('Himmatnagar')) {
+          mergedCouple.venueName = 'The Milestone, Modasa, Gujarat';
+          mergedCouple.venueAddress = 'The Milestone Highway, Modasa';
+        }
+
         return {
           ...defaultStudioState,
           ...resolved,
-          couple: { ...defaultStudioState.couple, ...(resolved.couple || {}) },
+          couple: mergedCouple,
           family: { ...defaultStudioState.family, ...(resolved.family || {}) },
           media: {
             ...defaultStudioState.media,
@@ -327,6 +326,10 @@ function MainApp() {
   useEffect(() => {
     try {
       localStorage.setItem('WEDDING_STUDIO_STATE', JSON.stringify(state));
+      const currentSlug = `${(state.couple?.groomEn || '').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(state.couple?.brideEn || '').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+      if (currentSlug && currentSlug !== '-') {
+        localStorage.setItem(`SHAHI_INVITE_${currentSlug}`, JSON.stringify(state));
+      }
     } catch (e) {}
 
     // Debounced sync to Supabase wedding_sites.content
@@ -364,15 +367,17 @@ function MainApp() {
     if (preferredTheme) {
       setState((prev) => ({ ...prev, theme: preferredTheme }));
     }
-    if (typeof window !== 'undefined') {
-      try {
-        window.location.hash = '#studio';
-      } catch (e) {}
-    }
-    setCurrentAppView('studio');
+    navigateToRoute('/studio');
   };
 
+  // 🎵 Global Audio Coordinator: ensures only one template iframe audio plays at any time
+  useEffect(() => {
+    const cleanup = initGlobalAudioCoordinator();
+    return cleanup;
+  }, []);
+
   const handlePreviewThemeFromLanding = (themeId: ThemeId) => {
+    stopAllIframesAudio();
     setPreviewModalTheme(themeId);
   };
 
@@ -479,28 +484,61 @@ function MainApp() {
     }
   };
 
-  // 🔐 If on Dedicated Login Page View, render the ultra-premium Login Page!
-  if (currentAppView === 'login') {
+  // 🔍 If on Dedicated Client Review / Approval Portal View, render the Client Review Experience!
+  const isReviewRoute = typeof window !== 'undefined' && (
+    window.location.pathname.startsWith('/preview/') || 
+    window.location.pathname.startsWith('/review/')
+  );
+  if (currentAppView === 'review' || isReviewRoute) {
+    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+    const token = urlParams.get('token') || 
+                  urlParams.get('review_token') || 
+                  urlParams.get('review') ||
+                  (typeof window !== 'undefined' ? window.location.pathname.replace(/^\/(?:review|preview)\/?/i, '').replace(/^#\/?/, '') : '') || '';
+    const slug = urlParams.get('slug') || activeSite?.slug || state.couple.hashtag?.replace('#', '') || 'dhruv-shreya';
+
     return (
-      <>
-        <LoginPage
-          onBackToHome={() => {
-            if (typeof window !== 'undefined') window.location.hash = '';
-            setCurrentAppView('landing');
-          }}
-          onSuccessRedirect={() => {
-            if (typeof window !== 'undefined') window.location.hash = '';
-            setCurrentAppView('landing');
-          }}
-        />
-        <AuthModal />
-      </>
+      <ErrorBoundary>
+        {token.startsWith('rev_') ? (
+          <ClientApprovalPortalView
+            reviewToken={token}
+            weddingSlug={slug}
+            onBackToApp={() => navigateToRoute('/')}
+          />
+        ) : (
+          <ClientReviewView
+            token={token}
+            onBackToHome={() => {
+              navigateToRoute('/');
+            }}
+          />
+        )}
+      </ErrorBoundary>
     );
   }
 
-  const handleNavigateProfile = (tab: 'profile' | 'purchases' | 'transactions' | 'weddings' = 'profile') => {
+  const renderPartnerModal = () => (
+    <PartnerOnboardingModal
+      isOpen={isPartnerModalOpen}
+      onClose={() => setIsPartnerModalOpen(false)}
+      onNavigateLogin={() => setShowAuthModal(true)}
+      onSuccess={() => {
+        setIsPartnerModalOpen(false);
+        navigateToRoute('/partner');
+        showToast('📸 Studio Partner Account Activated! Welcome to AmantranLink Partner Hub.');
+      }}
+    />
+  );
+
+  // 🔐 If user visits auth/login routes, directly take them into the Studio customizer
+  if (currentAppView === 'login' || currentAppView === 'auth-callback' || currentAppView === 'reset-password') {
+    navigateToRoute('/studio', true);
+    return null;
+  }
+
+  const handleNavigateProfile = (tab: 'profile' | 'purchases' | 'transactions' | 'weddings' | 'rsvps' = 'profile') => {
     setProfileTab(tab);
-    setCurrentAppView('profile');
+    navigateToRoute(`/profile#${tab}`);
   };
 
   // 👤 If on Profile / My Account View, render the luxury Account Center!
@@ -510,16 +548,14 @@ function MainApp() {
         <ProfilePage
           initialTab={profileTab}
           onBackToHome={() => {
-            if (typeof window !== 'undefined') window.location.hash = '';
-            setCurrentAppView('landing');
+            navigateToRoute('/');
           }}
           onBackToStudio={() => {
-            if (typeof window !== 'undefined') window.location.hash = '';
-            setCurrentAppView('studio');
+            navigateToRoute('/studio');
           }}
           onSelectTheme={(themeId) => {
             setState((prev) => ({ ...prev, theme: themeId }));
-            setCurrentAppView('studio');
+            navigateToRoute('/studio');
           }}
           onEditWeddingSite={(site) => {
             if (site.content) {
@@ -531,11 +567,163 @@ function MainApp() {
             } else if (site.templates?.slug) {
               setState((prev) => ({ ...prev, theme: site.templates.slug }));
             }
-            setCurrentAppView('studio');
+            navigateToRoute('/studio');
+          }}
+          onOpenCommandCenter={(site) => {
+            setSelectedCommandCenterSite(site);
+            navigateToRoute('/command-center');
           }}
         />
-        <AuthModal />
+
+        {renderPartnerModal()}
       </>
+    );
+  }
+
+  // 🏰 If on Shahi Wedding Command Center View, render the private royal command room!
+  if (currentAppView === 'command-center') {
+    const targetSite = selectedCommandCenterSite || activeSite || {
+      id: 'default-site',
+      content: state,
+      slug: `${(state.couple?.groomEn || 'dhruv').toLowerCase()}-${(state.couple?.brideEn || 'shreya').toLowerCase()}`
+    };
+
+    return (
+      <>
+        <WeddingCommandCenter
+          site={targetSite}
+          allUserSites={[]}
+          onSelectSite={(site) => setSelectedCommandCenterSite(site)}
+          onBackToProfile={() => navigateToRoute('/profile')}
+          onBackToStudio={() => navigateToRoute('/studio')}
+          onOpenLiveInvitation={(slug) => {
+            const url = `/i/${slug}`;
+            window.open(url, '_blank');
+          }}
+        />
+
+        {renderPartnerModal()}
+      </>
+    );
+  }
+
+  // 👑 If on Admin Control Center View, render the Super Control Center Platform Intelligence!
+  if (currentAppView === 'admin') {
+    return (
+      <AdminSuperControlCenter
+        onBackToHome={() => {
+          navigateToRoute('/');
+        }}
+        onBackToStudio={() => {
+          navigateToRoute('/studio');
+        }}
+      />
+    );
+  }
+
+  // 📸 If on Photographer Partner Hub View, render the Multi-Client Studio Workspace!
+  if (currentAppView === 'partner') {
+    return (
+      <>
+        <PartnerDashboard
+          initialTab={partnerActiveTab}
+          onBackToStudio={() => {
+            navigateToRoute('/studio');
+          }}
+          onBackToHome={() => {
+            navigateToRoute('/');
+          }}
+          onOpenClientStudio={(siteId, themeId, content) => {
+            if (content) {
+              setState(content);
+            } else {
+              setState((prev) => ({ ...prev, theme: themeId }));
+            }
+            navigateToRoute('/studio');
+            showToast('👑 Client Wedding Opened in Studio Editor!');
+          }}
+          onOpenAssetKit={(site) => {
+            setDownloadHubSite(site);
+            setIsDownloadHubOpen(true);
+          }}
+          onOpenJoinPartnerModal={() => setIsPartnerModalOpen(true)}
+        />
+
+        {renderPartnerModal()}
+      </>
+    );
+  }
+
+  // 🎫 If on Digital QR Entry Pass View, render the Guest Entry Pass!
+  if (currentAppView === 'pass') {
+    const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const pathParts = typeof window !== 'undefined' ? window.location.pathname.split('/') : [];
+    const passToken = urlParams.get('pass') || (pathParts.includes('pass') ? pathParts[pathParts.indexOf('pass') + 1] : '') || '';
+    const slug = urlParams.get('slug') || activeSite?.slug || state.couple.hashtag?.replace('#', '') || 'dhruv-shreya';
+
+    return (
+      <DigitalEntryPassView
+        token={passToken}
+        weddingSlug={slug}
+      />
+    );
+  }
+
+  // 🎟️ If on Venue Check-in View, render the Live Scanner Workspace!
+  if (currentAppView === 'checkin') {
+    const slug = activeSite?.slug || state.couple.hashtag?.replace('#', '') || 'dhruv-shreya';
+    return (
+      <VenueCheckInView
+        state={state}
+        weddingSlug={slug}
+        weddingSiteId={activeSite?.siteId || activeSite?.id}
+        userId={user?.uid}
+        onBack={() => navigateToRoute('/dashboard')}
+      />
+    );
+  }
+
+  // 📸 If on Public Wedding Memories & Photo Drop View, render the Guest Memories Wall!
+  if (currentAppView === 'memories') {
+    const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const slug = urlParams.get('slug') || activeSite?.slug || state.couple.hashtag?.replace('#', '') || 'dhruv-shreya';
+    const coupleName = `${state.couple.groomEn || 'Dhruv'} & ${state.couple.brideEn || 'Shreya'}`;
+
+    return (
+      <PublicMemoryDropView
+        weddingSlug={slug}
+        weddingSiteId={activeSite?.siteId || activeSite?.id}
+        coupleNames={coupleName}
+        onBackToInvite={() => navigateToRoute(`/i/${slug}`)}
+      />
+    );
+  }
+
+  // 📜 If on Client Quotation Portal View, render the Quotation Acceptance Portal!
+  if (currentAppView === 'quote') {
+    const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const pathParts = typeof window !== 'undefined' ? window.location.pathname.split('/') : [];
+    const quoteToken = urlParams.get('quote') || (pathParts.includes('quote') ? pathParts[pathParts.indexOf('quote') + 1] : '') || 'quo_demo';
+
+    return (
+      <ClientQuotationPortalView
+        quoteToken={quoteToken}
+        onBackToApp={() => navigateToRoute('/')}
+      />
+    );
+  }
+
+  // 💳 If on Client Invoice Payment View, render the Invoice Payment Portal!
+  if (currentAppView === 'pay') {
+    const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const pathParts = typeof window !== 'undefined' ? window.location.pathname.split('/') : [];
+    const invToken = urlParams.get('pay') || urlParams.get('invoice') || (pathParts.includes('pay') ? pathParts[pathParts.indexOf('pay') + 1] : (pathParts.includes('invoice') ? pathParts[pathParts.indexOf('invoice') + 1] : '')) || 'inv_demo';
+
+    return (
+      <ClientInvoicePaymentPortalView
+        invoiceToken={invToken}
+        onBackToApp={() => navigateToRoute('/')}
+      />
     );
   }
 
@@ -546,10 +734,11 @@ function MainApp() {
         <CoupleDashboard
           state={state}
           siteId={activeSite?.siteId || activeSite?.id}
-          onBackToStudio={() => setCurrentAppView('studio')}
-          onBackToHome={() => setCurrentAppView('landing')}
+          onBackToStudio={() => navigateToRoute('/studio')}
+          onBackToHome={() => navigateToRoute('/')}
         />
-        <AuthModal />
+
+        {renderPartnerModal()}
       </>
     );
   }
@@ -560,8 +749,7 @@ function MainApp() {
       <>
         <PackagesPage
           onBackToHome={() => {
-            if (typeof window !== 'undefined') window.location.hash = '';
-            setCurrentAppView('landing');
+            navigateToRoute('/');
           }}
           onEnterStudio={handleEnterStudio}
           onSelectPackage={(pkg, themeId) => {
@@ -581,10 +769,11 @@ function MainApp() {
             setCompletedTabs((prev) => new Set([...prev, 'theme']));
             setActiveTab('couple');
             showToast(`👑 ${themeId.toUpperCase()} Unlocked Successfully!`);
-            setCurrentAppView('studio');
+            navigateToRoute('/studio');
           }}
         />
-        <AuthModal />
+
+        {renderPartnerModal()}
       </>
     );
   }
@@ -597,11 +786,14 @@ function MainApp() {
           state={state}
           onEnterStudio={handleEnterStudio}
           onPreviewTheme={handlePreviewThemeFromLanding}
-          onNavigateLogin={() => setCurrentAppView('login')}
+          onNavigateLogin={() => setShowAuthModal(true)}
           onNavigateProfile={handleNavigateProfile}
           onNavigatePackages={() => {
-            if (typeof window !== 'undefined') window.location.hash = '#packages';
-            setCurrentAppView('packages');
+            navigateToRoute('/packages');
+          }}
+          onOpenPartnerModal={() => setIsPartnerModalOpen(true)}
+          onNavigatePartnerHub={() => {
+            navigateToRoute('/partner');
           }}
         />
         <RoyalPaymentModal
@@ -613,17 +805,21 @@ function MainApp() {
             setCompletedTabs((prev) => new Set([...prev, 'theme']));
             setActiveTab('couple');
             showToast(`👑 ${themeId.toUpperCase()} Unlocked Successfully!`);
-            setCurrentAppView('studio');
+            navigateToRoute('/studio');
           }}
         />
-        <AuthModal />
+
+        {renderPartnerModal()}
       </>
     );
   }
 
-  // 🛠️ Otherwise, render the Shahi Studio Customizer 2.0
+  // 🎨 Otherwise, render the AmantranLink Customizer 2.0
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col antialiased bg-[#FFFDF8] text-[#241A17] relative font-manrope">
+      {/* 📸 Partner Attribution Banner */}
+      <PartnerAttributionBanner />
+
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-[#6E1020] text-[#FFFDF8] text-xs font-semibold border border-[#C49A35] shadow-2xl flex items-center gap-2 animate-bounce">
@@ -641,13 +837,20 @@ function MainApp() {
         onZoomChange={(zoom: number) => setState((prev) => ({ ...prev, previewZoom: zoom }))}
         onRefreshPreview={() => setRefreshKey((prev) => prev + 1)}
         onOpenPublish={() => setIsPublishModalOpen(true)}
-        onNavigateHome={() => setCurrentAppView('landing')}
-        onNavigateLogin={() => setCurrentAppView('login')}
+        onNavigateHome={() => navigateToRoute('/')}
+        onNavigateLogin={() => setShowAuthModal(true)}
         onNavigateDashboard={() => {
-          setProfileTab('rsvps');
-          setCurrentAppView('profile');
+          navigateToRoute('/dashboard');
         }}
         onNavigateProfile={handleNavigateProfile}
+        onOpenPartnerModal={() => setIsPartnerModalOpen(true)}
+        onNavigatePartnerHub={(tab) => {
+          if (tab) setPartnerActiveTab(tab);
+          navigateToRoute(tab ? `/partner#studio/${tab}` : '/partner');
+        }}
+        onNavigateAdmin={() => {
+          navigateToRoute('/admin');
+        }}
       />
 
       {/* 📱 Mobile Form vs Live Preview Switcher (< 1024px) */}
@@ -699,6 +902,10 @@ function MainApp() {
             activeTab={activeTab}
             completedTabs={completedTabs}
             onTabChange={handleTabSelect}
+            onOpenDownloadHub={() => {
+              setDownloadHubSite(null);
+              setIsDownloadHubOpen(true);
+            }}
             state={state}
           />
 
@@ -718,6 +925,8 @@ function MainApp() {
             {activeTab === 'couple' && (
               <CoupleForm
                 couple={state.couple}
+                theme={state.theme}
+                invitationType={state.invitation_type || 'wedding'}
                 onChange={updateCouple}
                 onSaveAndNext={() => handleTabSaveAndNext('couple', 'events')}
               />
@@ -727,15 +936,19 @@ function MainApp() {
             {activeTab === 'events' && (
               <EventsManager
                 events={state.events}
+                theme={state.theme}
+                invitationType={state.invitation_type || 'wedding'}
                 onChange={updateEvents}
                 onSaveAndNext={() => handleTabSaveAndNext('events', 'venue')}
               />
             )}
 
-            {/* Step 04: Wedding Venue & Google Maps Navigation */}
+            {/* Step 04: Venue & Google Maps Navigation */}
             {activeTab === 'venue' && (
               <VenueManager
                 couple={state.couple}
+                theme={state.theme}
+                invitationType={state.invitation_type || 'wedding'}
                 onChange={updateCouple}
                 onSaveAndNext={() => handleTabSaveAndNext('venue', 'media')}
               />
@@ -745,24 +958,29 @@ function MainApp() {
             {activeTab === 'media' && (
               <MediaUploader
                 theme={state.theme}
+                invitationType={state.invitation_type || 'wedding'}
                 media={state.media}
                 onChange={updateMedia}
                 onSaveAndExport={() => handleTabSaveAndNext('media', 'music')}
               />
             )}
 
-            {/* Step 06: Background Music & Shehnai */}
+            {/* Step 06: Background Music & Audio */}
             {activeTab === 'music' && (
               <MusicManager
+                theme={state.theme}
+                invitationType={state.invitation_type || 'wedding'}
                 media={state.media}
                 onChange={updateMedia}
                 onSaveAndNext={() => handleTabSaveAndNext('music', 'rsvp')}
               />
             )}
 
-            {/* Step 07: Live RSVP & Guest Headcount Configuration */}
+            {/* Step 07: Live RSVP Configuration */}
             {activeTab === 'rsvp' && (
               <RsvpSettingsManager
+                theme={state.theme}
+                invitationType={state.invitation_type || 'wedding'}
                 family={state.family}
                 rsvpConfig={state.rsvpConfig}
                 onChangeFamily={updateFamily}
@@ -801,6 +1019,10 @@ function MainApp() {
             setIsPublishModalOpen(false);
             handlePublishCompleted();
           }}
+          onOpenDownloadHub={() => {
+            setDownloadHubSite(null);
+            setIsDownloadHubOpen(true);
+          }}
         />
       )}
 
@@ -822,8 +1044,7 @@ function MainApp() {
         }}
       />
 
-      {/* 👤 Royal Authentication Modal */}
-      <AuthModal />
+
 
       {/* 👁️ Luxury Immersive Full-Screen Template Preview Modal */}
       <TemplatePreviewModal
@@ -836,6 +1057,44 @@ function MainApp() {
           showToast(`👑 Loaded ${t.toUpperCase()} Theme in Studio!`);
         }}
       />
+
+      {/* 📸 Photographer Partner Onboarding Modal */}
+      <PartnerOnboardingModal
+        isOpen={isPartnerModalOpen}
+        onClose={() => setIsPartnerModalOpen(false)}
+        onSuccess={() => {
+          setIsPartnerModalOpen(false);
+          setCurrentAppView('partner');
+          if (typeof window !== 'undefined') {
+            try {
+              window.location.hash = '#partner';
+            } catch (e) {}
+          }
+          showToast('📸 Studio Partner Account Activated! Welcome to AmantranLink Partner Hub.');
+        }}
+      />
+
+      {/* 📥 4K Royal Asset & Download Center Modal */}
+      <RoyalDownloadHubModal
+        isOpen={isDownloadHubOpen}
+        onClose={() => {
+          setIsDownloadHubOpen(false);
+          setDownloadHubSite(null);
+        }}
+        state={downloadHubSite?.content || state}
+        siteId={downloadHubSite?.id || activeSite?.siteId || activeSite?.id}
+        slug={downloadHubSite?.published_url || activeSite?.slug}
+      />
+
+      {/* 👑 Role Indicator Bottom Status Bar (Couple vs Photographer) */}
+      <RoleIndicatorBanner
+        onNavigatePartnerHub={() => {
+          if (typeof window !== 'undefined') {
+            try { window.location.hash = '#partner'; } catch (e) {}
+          }
+          setCurrentAppView('partner');
+        }}
+      />
     </div>
   );
 }
@@ -845,6 +1104,7 @@ export function App() {
     <ErrorBoundary>
       <AuthProvider>
         <MainApp />
+        <AuthModal />
       </AuthProvider>
     </ErrorBoundary>
   );

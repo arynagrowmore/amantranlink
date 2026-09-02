@@ -19,6 +19,7 @@ export const ReviewSummaryStep: React.FC<ReviewSummaryStepProps> = ({
   onProceedToPublish,
   onJumpToStep,
 }) => {
+  const isEngagement = state.invitation_type === 'engagement';
   const currentTheme = themes.find((t) => t.id === state.theme) || themes[0];
   const uploadedPhotosCount = Object.values(state.media.photoSlots).filter((s) => s.url).length;
   const isRsvpEnabled = state.rsvpConfig?.enabled !== false;
@@ -30,13 +31,15 @@ export const ReviewSummaryStep: React.FC<ReviewSummaryStepProps> = ({
       <div className="space-y-1 border-b border-[#E8D5AD]/60 pb-4">
         <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#F8F3E8] border border-[#E8D5AD] text-[#6E1020] text-[11px] font-semibold uppercase tracking-wider">
           <CheckCircle2 className="w-3.5 h-3.5 text-[#167A5A]" />
-          <span>STEP 08 · FINAL INVITATION REVIEW</span>
+          <span>{isEngagement ? 'STEP 08 · REVIEW & PUBLISH' : 'STEP 08 · FINAL INVITATION REVIEW'}</span>
         </div>
         <h3 className="font-cormorant font-bold text-2xl text-[#430914]">
-          Inspect Your Royal Kankotri
+          {isEngagement ? 'Inspect Your Royal Engagement Invitation' : 'Inspect Your Royal Kankotri'}
         </h3>
         <p className="text-xs text-[#75675C] leading-relaxed">
-          Verify all details before publishing and generating your permanent public invitation link.
+          {isEngagement 
+            ? 'Verify all details before publishing and generating your permanent public engagement link.'
+            : 'Verify all details before publishing and generating your permanent public invitation link.'}
         </p>
       </div>
 
@@ -50,7 +53,9 @@ export const ReviewSummaryStep: React.FC<ReviewSummaryStepProps> = ({
               {currentTheme.icon}
             </div>
             <div>
-              <span className="text-[10px] font-mono text-[#C49A35] uppercase font-bold block">Selected Royal Theme</span>
+              <span className="text-[10px] font-mono text-[#C49A35] uppercase font-bold block">
+                {isEngagement ? 'Selected Engagement Theme' : 'Selected Royal Theme'}
+              </span>
               <h4 className="font-cormorant font-bold text-base text-[#430914]">{currentTheme.name}</h4>
             </div>
           </div>
@@ -72,7 +77,7 @@ export const ReviewSummaryStep: React.FC<ReviewSummaryStepProps> = ({
             <div>
               <span className="text-[10px] font-mono text-[#C49A35] uppercase font-bold block">Couple Details</span>
               <h4 className="font-cormorant font-bold text-base text-[#430914]">
-                {state.couple.groomEn || 'Groom'} &amp; {state.couple.brideEn || 'Bride'}
+                {state.couple.groomEn || 'Partner 1'} &amp; {state.couple.brideEn || 'Partner 2'}
               </h4>
               <p className="text-[11px] text-[#75675C]">{state.couple.weddingDate || 'Date not set'}</p>
             </div>
@@ -93,9 +98,11 @@ export const ReviewSummaryStep: React.FC<ReviewSummaryStepProps> = ({
               <Calendar className="w-5 h-5 text-[#C49A35]" />
             </div>
             <div>
-              <span className="text-[10px] font-mono text-[#C49A35] uppercase font-bold block">Celebration Rasams</span>
+              <span className="text-[10px] font-mono text-[#C49A35] uppercase font-bold block">
+                {isEngagement ? 'Engagement Events' : 'Celebration Rasams'}
+              </span>
               <h4 className="font-cormorant font-bold text-base text-[#430914]">
-                {state.events.length} Wedding Events Added
+                {state.events.length} {isEngagement ? 'Events Added' : 'Wedding Events Added'}
               </h4>
               <p className="text-[11px] text-[#75675C]">
                 {state.events.map((e) => e.name.replace(/^[^\w]+/, '')).slice(0, 3).join(', ')}
@@ -223,7 +230,7 @@ export const ReviewSummaryStep: React.FC<ReviewSummaryStepProps> = ({
             )}
             {!state.couple.weddingDate && (
               <li>
-                Wedding Date not selected —{' '}
+                {isEngagement ? 'Engagement Date not selected — ' : 'Wedding Date not selected — '}
                 <button type="button" onClick={() => onJumpToStep('couple')} className="font-bold underline hover:text-amber-950">
                   Select Date →
                 </button>

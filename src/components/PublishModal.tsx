@@ -7,29 +7,57 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { WeddingProjectState, Language } from '../types/wedding';
-import { RoyalCrestIcon, DiyaIcon, PalaceGateIcon, ShehnaiIcon } from './ShahiIcons';
+import { RoyalCrestIcon, DiyaIcon, PalaceGateIcon } from './ShahiIcons';
 import { savePublishedInvitation } from '../utils/invitationStorage';
 import { isTemplateUnlockedForUser, initiateRazorpayCheckout } from '../services/razorpayClient';
 import { publishWeddingSite } from '../services/weddingSiteService';
 import { useAuth } from '../context/AuthContext';
 import { themes } from './ThemeSelector';
 import { THEME_PACKAGE_MAP, calculatePaymentDetails, OFFICIAL_PACKAGES } from '../config/pricing';
-import { 
-  generateWhatsAppMessage, 
-  getLocalizedCardTitle, 
-  getLocalizedCardSubtitle 
-} from '../utils/whatsappInvitationGenerator';
+
+const getLocalizedCardTitle = (state: WeddingProjectState, lang: Language): string => {
+  const groom = (lang === 'hi' ? state.couple.groomHi : lang === 'gu' ? state.couple.groomGu : state.couple.groomEn) || state.couple.groomEn;
+  const bride = (lang === 'hi' ? state.couple.brideHi : lang === 'gu' ? state.couple.brideGu : state.couple.brideEn) || state.couple.brideEn;
+  return `${groom} & ${bride} - Royal Vivah Invitation`;
+};
+
+const getLocalizedCardSubtitle = (state: WeddingProjectState, lang: Language): string => {
+  return state.couple.weddingDate || 'Auspicious Wedding Ceremony';
+};
+
+const generateWhatsAppMessage = ({
+  state,
+  language,
+  invitationUrl,
+}: {
+  state: WeddingProjectState;
+  language: Language;
+  invitationUrl: string;
+}): string => {
+  const groom = state.couple.groomEn;
+  const bride = state.couple.brideEn;
+  const date = state.couple.weddingDate || 'Auspicious Date';
+  const venue = state.couple.venueName || 'Grand Palace';
+
+  if (language === 'hi') {
+    return `🙏 *सादर निमंत्रण | शुभ विवाह*\n\nपरमपिता परमात्मा की असीम अनुकंपा से हमारे सुपुत्र/सुपुत्री के मांगलिक परिणय संस्कार में आपकी गरिमामयी उपस्थिति सादर प्रार्थनीय है।\n\n👑 *${groom} weds ${bride}*\n📅 *दिनांक:* ${date}\n📍 *स्थान:* ${venue}\n\n💌 *डिजिटल शाही निमंत्रण पत्रिका:* \n${invitationUrl}\n\n_कृपया पधारकर नवदंपति को अपना स्नेह व शुभाशीर्वाद प्रदान करें।_`;
+  }
+  if (language === 'gu') {
+    return `🙏 *સ્નેહભર્યું નિમંત્રણ | શુભ લગ્નોત્સવ*\n\nશ્રી ગણેશજી ની અસીમ કૃપા થી અમારા આંગણે રૂડા લગ્ન પ્રસંગે આપનું સહકુટુંબ સ્નેહભર્યું સ્વાગત છે.\n\n👑 *${groom} weds ${bride}*\n📅 *તારીખ:* ${date}\n📍 *સ્થળ:* ${venue}\n\n💌 *ડિજિટલ શાહી કંકોત્રી:* \n${invitationUrl}\n\n_આપની પાવન ઉપસ્થિતિ પ્રાર્થનીય છે._`;
+  }
+  return `🙏 *Royal Wedding Invitation*\n\nWe cordially invite you and your family to celebrate the auspicious wedding ceremony of\n\n👑 *${groom} & ${bride}*\n📅 *Date:* ${date}\n📍 *Venue:* ${venue}\n\n💌 *View our Royal Digital Invitation:* \n${invitationUrl}\n\n_We look forward to celebrating with you!_`;
+};
 
 interface PublishModalProps {
   state: WeddingProjectState;
   onClose: () => void;
+  onOpenDownloadHub?: () => void;
 }
 
 type ModalStage = 'checkout' | 'animating' | 'success_beat' | 'completed';
 
-export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) => {
+export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOpenDownloadHub }) => {
   const { user } = useAuth();
-  // 🎯 Main Flow State: 'checkout' -> 'animating' -> 'success_beat' -> 'completed'
   const [stage, setStage] = useState<ModalStage>('checkout');
 
   // Razorpay Processing State
@@ -49,34 +77,27 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
     { title: 'Affixing 24K Gold Seal', text: 'Sealing Your Royal Kankotri With 24K Gold Sovereign Seal...', hindi: '24K स्वर्ण शाही मोहर समर्पण', percent: 100 },
   ];
 
-  // Authoritative Single Source of Truth Pricing
+  // Pricing
   const currentThemeObj = themes.find((t) => t.id === state.theme) || themes[0];
   const themePackageId = THEME_PACKAGE_MAP[state.theme] || 'gold';
   const isAlreadyUnlocked = isTemplateUnlockedForUser(user?.uid, state.theme);
-  const paymentDetails = calculatePaymentDetails(themePackageId, state.theme);
-  const baseThemePrice = isAlreadyUnlocked ? 0 : paymentDetails.originalAmountInr;
+  const paymentDetails = calculatePaymentDetails(themePackageId, state.theme, user?.role);
   const finalPayableAmount = isAlreadyUnlocked ? 0 : paymentDetails.finalAmountInr;
 
-  // 🎯 Couple's personalized pure Short URL slug (e.g. dhruv-shreya)
-  const coupleSlug = `${(state.couple.groomEn || 'dhruv').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(state.couple.brideEn || 'shreya').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+  // Slug
+  const coupleSlug = `${(state.couple.groomEn || 'rudra').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(state.couple.brideEn || 'ishani').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
   const [slug, setSlug] = useState<string>(coupleSlug);
 
-  // Base domain & Canonical Public Invitation Short Link resolution
   const origin = typeof window !== 'undefined' && window.location.origin 
     ? window.location.origin 
-    : 'https://shahistudio.com';
+    : 'https://amantranlink.com';
   const cleanDomain = origin.replace(/^https?:\/\//, '');
-  
-  // 🔗 Canonical Pure & Dedicated Public Invitation Route (e.g. /i/dhruv-shreya)
-  const shortUrl = `${origin}/i/${slug}`;
-  const prettyUrl = shortUrl;
-  const fullUrl = shortUrl;
+  const fullUrl = `${origin}/i/${slug}`;
 
-  // 🌐 Multilingual WhatsApp Language State (Inherits from Customizer state.language, default EN)
+  // WhatsApp Language
   const initialLang: Language = (state?.language === 'hi' || state?.language === 'gu') ? state.language : 'en';
   const [selectedLanguage, setSelectedLanguage] = useState<Language>(initialLang);
 
-  // Sync if state.language updates
   useEffect(() => {
     if (state?.language) {
       const validLang: Language = (state.language === 'hi' || state.language === 'gu') ? state.language : 'en';
@@ -84,7 +105,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
     }
   }, [state?.language]);
 
-  // Dynamic Couple Names based on selected language
   const groomName = selectedLanguage === 'hi' ? (state.couple.groomHi || state.couple.groomEn) :
                     selectedLanguage === 'gu' ? (state.couple.groomGu || state.couple.groomEn) :
                     state.couple.groomEn;
@@ -92,21 +112,18 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
                     selectedLanguage === 'gu' ? (state.couple.brideGu || state.couple.brideEn) :
                     state.couple.brideEn;
 
-  // Auspicious Personalized WhatsApp Message with Canonical Invitation Route
   const whatsappMessage = generateWhatsAppMessage({
     language: selectedLanguage,
     state,
     invitationUrl: fullUrl,
   });
 
-  // Save current state to registry & localStorage
   useEffect(() => {
     if (stage === 'completed') {
       savePublishedInvitation(slug, state);
     }
   }, [state, slug, stage]);
 
-  // Start Ceremonial Publishing Flow after Payment (Razorpay Only)
   const triggerPublishSequence = async () => {
     if (finalPayableAmount > 0) {
       setIsVerifyingPayment(true);
@@ -117,7 +134,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
         packageId: themePackageId,
         uid: user?.uid || `user_${Date.now()}`,
         userName: groomName ? `${groomName} & ${brideName}` : 'Royal Couple',
-        userEmail: user?.email || `${(groomName || 'dhruv').toLowerCase()}.${(brideName || 'shreya').toLowerCase()}@shahistudio.com`,
+        userEmail: user?.email || `${(groomName || 'rudra').toLowerCase()}.${(brideName || 'ishani').toLowerCase()}@amantranlink.com`,
         userPhone: user?.phone || state.family.rsvp1Phone || '+91 9409360336',
         state,
         onSuccess: () => {
@@ -136,7 +153,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
       return;
     }
 
-    // Already unlocked template
     setIsVerifyingPayment(true);
     setPaymentError(null);
 
@@ -151,27 +167,11 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
     setPublishProgress(18);
     setCurrentTaskIndex(0);
 
-    const t1 = setTimeout(() => {
-      setPublishProgress(38);
-      setCurrentTaskIndex(1);
-    }, 550);
-
-    const t2 = setTimeout(() => {
-      setPublishProgress(58);
-      setCurrentTaskIndex(2);
-    }, 1100);
-
-    const t3 = setTimeout(() => {
-      setPublishProgress(78);
-      setCurrentTaskIndex(3);
-    }, 1650);
-
-    const t4 = setTimeout(() => {
-      setPublishProgress(92);
-      setCurrentTaskIndex(4);
-    }, 2200);
-
-    const t5 = setTimeout(() => {
+    setTimeout(() => { setPublishProgress(38); setCurrentTaskIndex(1); }, 550);
+    setTimeout(() => { setPublishProgress(58); setCurrentTaskIndex(2); }, 1100);
+    setTimeout(() => { setPublishProgress(78); setCurrentTaskIndex(3); }, 1650);
+    setTimeout(() => { setPublishProgress(92); setCurrentTaskIndex(4); }, 2200);
+    setTimeout(() => {
       setPublishProgress(100);
       setCurrentTaskIndex(5);
       setPublishStageToSuccess();
@@ -179,7 +179,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
   };
 
   const setPublishStageToSuccess = () => {
-    // 1. Persist published site to localStorage and Supabase
     savePublishedInvitation(slug, state);
     if (user?.uid) {
       publishWeddingSite({
@@ -193,12 +192,11 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
     setStage('success_beat');
     setTimeout(() => {
       setStage('completed');
-      // 🎊 Grand Royal Gold & Marigold Shower!
       confetti({
         particleCount: 110,
         spread: 85,
         origin: { y: 0.45 },
-        colors: ['#A67C3D', '#C4522A', '#E59838', '#6B1420', '#F7F0DD'],
+        colors: ['#C49A35', '#701222', '#F4D06F', '#167A5A', '#FFFDF8'],
         ticks: 260,
         gravity: 0.75,
         scalar: 1.15,
@@ -206,7 +204,6 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
     }, 950);
   };
 
-  // Copy Helpers
   const [copied, setCopied] = useState<boolean>(false);
   const [copiedMsg, setCopiedMsg] = useState<boolean>(false);
 
@@ -224,351 +221,197 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
 
   const handleWhatsAppShare = () => {
     const encoded = encodeURIComponent(whatsappMessage);
-    const isMobile = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    // On mobile, use direct whatsapp scheme; on desktop, use WhatsApp Web / API
-    const targetUrl = isMobile 
-      ? `https://api.whatsapp.com/send?text=${encoded}` 
-      : `https://web.whatsapp.com/send?text=${encoded}`;
-    
-    const win = window.open(targetUrl, '_blank');
-    if (!win) {
-      window.location.href = `https://api.whatsapp.com/send?text=${encoded}`;
-    }
+    const waUrl = `https://api.whatsapp.com/send?text=${encoded}`;
+    window.open(waUrl, '_blank');
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#140306]/85 backdrop-blur-lg animate-fadeIn">
-      <div className="w-full max-w-2xl bg-[#F7F0DD] rounded-3xl border-2 border-[#A67C3D] shadow-[0_30px_90px_rgba(74,12,20,0.6)] overflow-hidden flex flex-col max-h-[94vh] relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fadeIn font-manrope">
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-hidden rounded-3xl bg-[#FFFDF8] border border-[#E8D5AD] shadow-[0_20px_70px_rgba(0,0,0,0.5)] flex flex-col text-[#241A17]">
         
-        {/* Four Corner Ornamental Flourishes */}
-        <div className="absolute top-2.5 left-2.5 text-[#A67C3D] text-sm pointer-events-none z-30 select-none">✦</div>
-        <div className="absolute top-2.5 right-2.5 text-[#A67C3D] text-sm pointer-events-none z-30 select-none">✦</div>
-        <div className="absolute bottom-2.5 left-2.5 text-[#A67C3D] text-sm pointer-events-none z-30 select-none">✦</div>
-        <div className="absolute bottom-2.5 right-2.5 text-[#A67C3D] text-sm pointer-events-none z-30 select-none">✦</div>
-
-        {/* 👑 Top Royal Header */}
-        <div className="bg-gradient-to-r from-[#500E1A] via-[#6E1020] to-[#500E1A] border-b-2 border-[#C49A35]/60 p-4 sm:p-5 flex items-center justify-between shrink-0 text-[#FFFDF8] shadow-md">
-          <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-[#430914] border-2 border-[#C49A35] flex items-center justify-center text-xl text-[#C49A35] shadow-md shrink-0">
-              <RoyalCrestIcon className="w-6 h-6 text-[#C49A35]" />
-            </div>
+        {/* Top Header Bar */}
+        <div className="bg-[#6E1020] px-5 sm:px-6 py-4 flex items-center justify-between border-b border-[#C49A35]/40 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <span className="text-lg">👑</span>
             <div>
-              <h3 className="font-fraunces font-bold text-lg sm:text-xl text-[#FFFDF8] flex items-center gap-2 tracking-wide drop-shadow-sm">
-                <span>
-                  {stage === 'checkout' && 'Shahi Checkout & Payment Gateway'}
-                  {stage === 'animating' && 'Carving Your Royal Kankotri...'}
-                  {stage === 'success_beat' && 'Payment Verified & Live!'}
-                  {stage === 'completed' && '👑 Shahi Invitation Publish Center'}
-                </span>
-              </h3>
-              <span className="text-xs font-serif font-bold text-[#E8D5AD] block tracking-wide pt-0.5">
-                {stage === 'checkout' && '॥ सुरक्षित भुगतान · लाइफटाइम एक्सेस व लाइव डिजिटल निमंत्रण ॥'}
-                {stage === 'animating' && '॥ शाही राजदरबार में निमंत्रण निर्माण प्रक्रिया ॥'}
-                {stage === 'completed' && '॥ आपकी शाही कंकोत्री अब लाइव प्रकाशित हो चुकी है ॥'}
+              <h2 className="font-cormorant font-bold text-xl sm:text-2xl text-[#FFFDF8] leading-tight">
+                {stage === 'completed' ? 'Royal Invitation Published!' : 'Publish Royal Kankotri'}
+              </h2>
+              <span className="text-[10px] font-mono text-[#E8D5AD] uppercase tracking-wider block">
+                ॥ श्री गणेशाय नमः ॥ · AmantranLink Official Cloud
               </span>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-[#E8D5AD] hover:text-[#FFFDF8] hover:bg-white/10 transition-colors border border-[#C49A35]/40 cursor-pointer"
+            className="p-1.5 rounded-xl text-[#E8D5AD] hover:text-[#FFFDF8] hover:bg-white/10 transition-colors border border-[#C49A35]/40 cursor-pointer"
             title="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* 💳 STAGE 0: SHAHI STUDIO ROYAL INVITATION CHECKOUT (RAZORPAY ONLY) */}
+        {/* 💳 STAGE 0: CHECKOUT & SLUG CONFIGURATION */}
         {stage === 'checkout' && (
-          <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 text-left font-hanken">
-            {/* Header Title & Subtitle */}
-            <div className="text-center sm:text-left space-y-1 pb-1">
-              <h3 className="font-fraunces font-bold text-lg sm:text-xl text-[#6B1420] tracking-wide">
-                Complete Your Royal Invitation
+          <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 text-left">
+            <div className="space-y-1">
+              <h3 className="font-cormorant font-bold text-xl text-[#6E1020]">
+                Confirm &amp; Launch Your Digital Invitation
               </h3>
-              <p className="text-xs text-[#2B1810]/75 font-serif italic">
-                Secure your invitation, unlock your selected theme, and publish your royal kankotri.
+              <p className="text-xs text-[#75675C]">
+                Your invitation will be deployed on high-speed cloud with real-time RSVPs and direct WhatsApp links.
               </p>
             </div>
 
-            {/* 1. Auspicious Order Summary */}
-            <div className="p-4 rounded-2xl bg-[#EDE0C8] border border-[#A67C3D] space-y-3.5 shadow-xs">
-              <div className="flex items-center justify-between border-b border-[#D8C7AA] pb-2.5">
-                <span className="text-xs font-fraunces font-bold text-[#6B1420] flex items-center gap-1.5 uppercase tracking-wider">
-                  <RoyalCrestIcon className="w-4 h-4 text-[#A67C3D]" />
-                  <span>Order Summary</span>
+            {/* Error Message */}
+            {paymentError && (
+              <div className="p-3.5 rounded-xl bg-[#FDF2F2] border border-[#F0D5D5] flex items-center gap-2 text-xs text-[#8C4A4A]">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{paymentError}</span>
+              </div>
+            )}
+
+            {/* Order Summary Card */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFDF8] border border-[#E8D5AD] shadow-xs space-y-3.5">
+              <div className="flex items-center justify-between border-b border-[#E8D5AD]/60 pb-2.5">
+                <span className="text-xs font-semibold text-[#6E1020] flex items-center gap-1.5 uppercase tracking-wider font-mono">
+                  <RoyalCrestIcon className="w-4 h-4 text-[#C49A35]" />
+                  <span>Invitation Details</span>
                 </span>
                 {isAlreadyUnlocked ? (
-                  <span className="text-[10px] font-mono bg-[#3D6B4A] text-white px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
+                  <span className="text-[10px] font-mono bg-[#167A5A] text-white px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
                     <Check className="w-3 h-3" /> Theme Unlocked
                   </span>
                 ) : (
-                  <span className="text-[10px] font-mono text-[#6B1420] bg-[#6B1420]/10 px-2.5 py-0.5 rounded-full border border-[#6B1420]/30 font-bold">
+                  <span className="text-[10px] font-mono text-[#6E1020] bg-[#F8F3E8] px-2.5 py-0.5 rounded-full border border-[#E8D5AD] font-bold">
                     One-time Lifetime Access
                   </span>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-                <div className="p-2.5 rounded-xl bg-[#F7F0DD] border border-[#D8C7AA]">
-                  <span className="text-[9px] font-mono text-[#A67C3D] block font-bold uppercase">COUPLE:</span>
-                  <span className="font-fraunces font-bold text-[#6B1420] text-xs sm:text-sm truncate block">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#E8D5AD]/60">
+                  <span className="text-[10px] font-mono text-[#75675C] block uppercase font-semibold">Couple</span>
+                  <span className="font-bold text-[#6E1020] text-sm truncate block mt-0.5">
                     👑 {groomName} &amp; {brideName}
                   </span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-[#F7F0DD] border border-[#D8C7AA]">
-                  <span className="text-[9px] font-mono text-[#A67C3D] block font-bold uppercase">SELECTED THEME:</span>
-                  <span className="font-fraunces font-bold text-[#6B1420] text-xs sm:text-sm truncate block">
+                <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#E8D5AD]/60">
+                  <span className="text-[10px] font-mono text-[#75675C] block uppercase font-semibold">Theme</span>
+                  <span className="font-bold text-[#6E1020] text-sm truncate block mt-0.5">
                     {currentThemeObj.name}
                   </span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-[#F7F0DD] border border-[#D8C7AA]">
-                  <span className="text-[9px] font-mono text-[#A67C3D] block font-bold uppercase">PACKAGE:</span>
-                  <span className="font-fraunces font-bold text-[#6B1420] text-xs sm:text-sm truncate block">
+                <div className="p-3 rounded-xl bg-[#FAF8F5] border border-[#E8D5AD]/60">
+                  <span className="text-[10px] font-mono text-[#75675C] block uppercase font-semibold">Edition</span>
+                  <span className="font-bold text-[#6E1020] text-sm truncate block mt-0.5">
                     {OFFICIAL_PACKAGES[themePackageId].name}
                   </span>
                 </div>
               </div>
 
-              {/* Dynamic Price Summary Line */}
-              <div className="flex items-baseline justify-between pt-1 border-t border-[#D8C7AA]/70">
+              {/* Price Row */}
+              <div className="flex items-baseline justify-between pt-2 border-t border-[#E8D5AD]/60">
                 <div>
-                  <span className="text-xs font-bold text-[#2B1810] block">Total Payable</span>
-                  <span className="text-[10px] text-[#806B5A]">Includes all royal features &amp; hosting</span>
+                  <span className="text-xs font-bold text-[#241A17] block">Total Payable</span>
+                  <span className="text-[10px] text-[#75675C]">Includes all royal features, music, GPS maps &amp; live guest RSVPs</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-fraunces font-extrabold text-2xl text-[#6B1420]">
+                  {paymentDetails.isPartnerPricing && (
+                    <span className="text-xs line-through text-[#75675C] mr-2">
+                      ₹{paymentDetails.retailPriceInr.toLocaleString('en-IN')}
+                    </span>
+                  )}
+                  <span className="font-cormorant font-bold text-3xl text-[#6E1020]">
                     ₹{finalPayableAmount.toLocaleString('en-IN')}
                   </span>
                 </div>
               </div>
 
-              {/* Custom Short URL Slug editor */}
-              <div className="pt-2 border-t border-[#D8C7AA]/70 space-y-1">
-                <label className="text-[11px] font-fraunces font-bold text-[#6B1420] flex items-center justify-between">
-                  <span>Your Dedicated Short Link Slug:</span>
-                  <span className="text-[9px] font-mono text-[#A67C3D]">Clean &amp; Direct URL</span>
+              {/* Dedicated URL Customizer */}
+              <div className="pt-2 border-t border-[#E8D5AD]/60 space-y-1.5">
+                <label className="text-xs font-semibold text-[#6E1020] flex items-center justify-between">
+                  <span>Choose Your Invitation Link:</span>
+                  <span className="text-[10px] font-mono text-[#C49A35]">Direct Short Link</span>
                 </label>
-                <div className="flex items-center gap-1.5 bg-[#F7F0DD] border border-[#A67C3D] rounded-xl px-3 py-2 text-xs font-mono">
-                  <span className="text-[#A67C3D] font-bold shrink-0">{cleanDomain}/i/</span>
+                <div className="flex items-center gap-1 bg-[#FAF8F5] border border-[#E8D5AD] rounded-xl px-3.5 py-2.5 text-xs font-mono">
+                  <span className="text-[#C49A35] font-bold shrink-0">{cleanDomain}/i/</span>
                   <input
                     type="text"
                     value={slug}
                     onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ''))}
-                    className="flex-1 bg-transparent font-bold text-[#6B1420] focus:outline-none"
+                    className="flex-1 bg-transparent font-bold text-[#6E1020] focus:outline-none"
                     placeholder="dhruv-shreya"
                   />
                 </div>
               </div>
             </div>
 
-            {/* 2. Razorpay Secure Payment (Shown if not yet unlocked) */}
-            {finalPayableAmount === 0 ? (
-              <div className="p-4 rounded-2xl bg-[#E8F2EC] border border-[#3D6B4A] space-y-2 text-center shadow-xs">
-                <span className="text-2xl">✨</span>
-                <h4 className="font-fraunces font-bold text-sm text-[#2A5236]">
-                  Auspicious Theme Unlocked &amp; Ready to Publish!
-                </h4>
-                <p className="text-xs text-[#2A5236]/80 font-medium">
-                  Click below to finalize and publish your royal invitation with lifetime access, Shehnai melody &amp; live guest RSVPs.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3.5">
-                {/* Razorpay Gateway Overview Box */}
-                <div className="p-4 rounded-2xl bg-[#EDE0C8] border border-[#A67C3D] space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-fraunces font-bold text-sm text-[#6B1420] block">
-                          Secure Payment Powered by Razorpay
-                        </span>
-                        <span className="text-[9px] font-mono bg-[#3D6B4A] text-white px-2 py-0.5 rounded font-bold">
-                          ✓ Verified Merchant
-                        </span>
-                      </div>
-                      <span className="text-[11px] text-[#2B1810] font-medium">
-                        Instant UPI (GPay, PhonePe, Paytm), RuPay / Visa / MasterCard &amp; 50+ Banks
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Razorpay Supported Modes Badges */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
-                    <div className="p-2 rounded-xl bg-[#F7F0DD] border border-[#D8C7AA] text-center">
-                      <span className="text-[10px] font-bold text-[#6B1420] block">⚡ Instant UPI</span>
-                      <span className="text-[9px] text-[#2B1810]">GPay, PhonePe</span>
-                    </div>
-                    <div className="p-2 rounded-xl bg-[#F7F0DD] border border-[#D8C7AA] text-center">
-                      <span className="text-[10px] font-bold text-[#6B1420] block">💳 Cards</span>
-                      <span className="text-[9px] text-[#2B1810]">Credit / Debit</span>
-                    </div>
-                    <div className="p-2 rounded-xl bg-[#F7F0DD] border border-[#D8C7AA] text-center">
-                      <span className="text-[10px] font-bold text-[#6B1420] block">🏦 NetBanking</span>
-                      <span className="text-[9px] text-[#2B1810]">50+ Indian Banks</span>
-                    </div>
-                    <div className="p-2 rounded-xl bg-[#F7F0DD] border border-[#D8C7AA] text-center">
-                      <span className="text-[10px] font-bold text-[#6B1420] block">🔒 Security</span>
-                      <span className="text-[9px] text-[#2B1810]">PCI-DSS Level 1</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Payment Error Banner if Failed */}
-            {paymentError && (
-              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-300 text-rose-800 text-xs space-y-1">
-                <div className="flex items-center gap-1.5 font-bold">
-                  <AlertCircle className="w-4 h-4 text-rose-600" />
-                  <span>Payment Could Not Be Completed</span>
-                </div>
-                <p className="text-[11px] text-rose-700">{paymentError}</p>
-              </div>
-            )}
-
-            {/* 4. Dominant Royal Payment Action Button */}
-            <div className="pt-1 space-y-2.5">
+            {/* Launch Action Button */}
+            <div className="pt-2">
               <button
                 type="button"
                 onClick={triggerPublishSequence}
                 disabled={isVerifyingPayment}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#7A1024] via-[#8E182C] to-[#7A1024] hover:from-[#5A0C1B] hover:to-[#5A0C1B] text-[#F8F2E5] font-fraunces font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-xl border border-[#C89B2C] hover:-translate-y-0.5 active:scale-[0.99] transition-all min-h-[48px] cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed"
+                className="w-full py-4 rounded-2xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg border border-[#C49A35] transition-all cursor-pointer hover:scale-[1.01] disabled:opacity-50"
               >
                 {isVerifyingPayment ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin text-[#F8F2E5]" />
-                    <span>SECURELY PROCESSING...</span>
+                    <Loader2 className="w-4 h-4 animate-spin text-[#C49A35]" />
+                    <span>Preparing Royal Cloud...</span>
                   </>
-                ) : finalPayableAmount === 0 ? (
+                ) : finalPayableAmount > 0 ? (
                   <>
-                    <Sparkles className="w-4 h-4 text-[#C89B2C]" />
-                    <span>👑 FINALIZE &amp; PUBLISH LIVE KANKOTRI</span>
-                    <ArrowRight className="w-4 h-4 text-[#C89B2C]" />
+                    <CreditCard className="w-4 h-4 text-[#C49A35]" />
+                    <span>Pay ₹{finalPayableAmount} &amp; Publish Kankotri</span>
+                    <ArrowRight className="w-4 h-4 text-[#C49A35]" />
                   </>
                 ) : (
                   <>
-                    <Lock className="w-4 h-4 text-[#C89B2C]" />
-                    <span>🔒 PAY ₹{finalPayableAmount.toLocaleString('en-IN')} &amp; PUBLISH MY KANKOTRI →</span>
+                    <Sparkles className="w-4 h-4 text-[#C49A35]" />
+                    <span>Publish Royal Kankotri Now (Free / Unlocked)</span>
+                    <ArrowRight className="w-4 h-4 text-[#C49A35]" />
                   </>
                 )}
               </button>
-
-              {/* Truthful Trust Indicators */}
-              <div className="text-center text-[10px] text-[#806B5A] flex items-center justify-center gap-2 pt-0.5">
-                <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-                  <span>Secure Razorpay Payment</span>
-                </span>
-                <span>•</span>
-                <span>Instant Unlock After Confirmation</span>
-                <span>•</span>
-                <span>Lifetime Access</span>
-              </div>
             </div>
           </div>
         )}
 
-        {/* 👑 STAGE 1: ULTRA-HEAVY CINEMATIC ROYAL DARBAR PUBLISHING ANIMATION (LIGHT THEME) */}
+        {/* 🎬 STAGE 1: CINEMATIC CRAFTING PROGRESS */}
         {stage === 'animating' && (
-          <div className="p-6 sm:p-10 flex flex-col items-center justify-center text-center space-y-6 flex-1 bg-gradient-to-b from-[#F7F0DD] via-[#EDE0C8] to-[#F5EAD4] text-[#2B1810] relative overflow-hidden">
-            
-            {/* Ambient Shimmer & Sacred Jaali Texture */}
-            <div className="absolute inset-0 bg-[radial-gradient(#A67C3D_0.8px,transparent_0.8px)] [background-size:22px_22px] opacity-20 pointer-events-none"></div>
-            
-            {/* Top Sacred Shloka Ribbon */}
-            <div className="relative z-10 px-5 py-2 rounded-full bg-[#FFFDF9]/90 border-2 border-[#A67C3D]/70 shadow-sm text-center">
-              <span className="font-baloo text-xs sm:text-sm text-[#6B1420] font-bold tracking-wider block">
-                ॥ वक्रतुण्ड महाकाय सूर्यकोटि समप्रभ । निर्विघ्नं कुरु मे देव सर्वकार्येषु सर्वदा ॥
-              </span>
+          <div className="p-8 sm:p-12 flex flex-col items-center justify-center text-center space-y-6 flex-1 animate-fadeIn">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full bg-[#6E1020] border-2 border-[#C49A35] flex items-center justify-center text-3xl shadow-xl">
+                <span className="animate-pulse">👑</span>
+              </div>
+              <div className="absolute -inset-3 rounded-full border-2 border-dashed border-[#C49A35]/60 animate-spin" style={{ animationDuration: '12s' }} />
             </div>
 
-            {/* Central Grand 3D Royal Crest with Rotating Concentric Gold Rings & Glowing Diyas */}
-            <div className="relative flex items-center justify-center py-2 z-10">
-              {/* Left Diya */}
-              <div className="absolute -left-12 sm:-left-16 flex flex-col items-center animate-bounce duration-1000">
-                <DiyaIcon className="w-8 h-8 text-[#C4522A] drop-shadow-[0_0_10px_rgba(196,82,42,0.6)]" />
-                <span className="text-[10px] font-baloo text-[#6B1420] font-bold mt-1">शुभ</span>
-              </div>
-
-              {/* Glowing Center Crown & Seal */}
-              <div className="relative">
-                {/* Outer Rotating Sanskrit Mandap Ring */}
-                <div 
-                  className="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-dashed border-[#A67C3D] flex items-center justify-center shadow-[0_0_20px_rgba(166,124,61,0.25)]"
-                  style={{ animation: 'spin 18s linear infinite' }}
-                >
-                  <div className="w-full h-full rounded-full border border-[#A67C3D]/40 p-2"></div>
-                </div>
-
-                {/* Inner Counter-Rotating Ring */}
-                <div 
-                  className="absolute inset-2 rounded-full border border-dotted border-[#C4522A]/70"
-                  style={{ animation: 'spin 12s linear infinite reverse' }}
-                ></div>
-
-                {/* 3D Solid Maroon & Gold Core Wax Seal */}
-                <div className="absolute inset-4 rounded-full bg-gradient-to-br from-[#7E1827] via-[#6B1420] to-[#4A0C14] border-2 border-[#A67C3D] flex items-center justify-center text-4xl shadow-[0_0_20px_rgba(107,20,32,0.35)]">
-                  <span className="animate-pulse">👑</span>
-                </div>
-              </div>
-
-              {/* Right Diya */}
-              <div className="absolute -right-12 sm:-right-16 flex flex-col items-center animate-bounce duration-1000">
-                <DiyaIcon className="w-8 h-8 text-[#C4522A] drop-shadow-[0_0_10px_rgba(196,82,42,0.6)]" />
-                <span className="text-[10px] font-baloo text-[#6B1420] font-bold mt-1">लाभ</span>
-              </div>
-            </div>
-
-            {/* Active Craftsmanship Stage Details */}
-            <div className="space-y-1.5 max-w-lg min-h-[70px] flex flex-col justify-center relative z-10">
-              <span className="stamped-label text-[#A67C3D] tracking-[0.2em] text-[10px] font-bold block">
+            <div className="space-y-1.5 max-w-md">
+              <span className="text-[10px] font-mono text-[#C49A35] uppercase font-bold tracking-widest block">
                 STAGE {currentTaskIndex + 1} OF 6 · {publishingTasks[currentTaskIndex]?.title}
               </span>
-              <h4 className="font-fraunces font-bold text-lg sm:text-xl text-[#6B1420] tracking-tight">
+              <h3 className="font-cormorant font-bold text-2xl text-[#6E1020]">
                 {publishingTasks[currentTaskIndex]?.text}
-              </h4>
-              <p className="font-baloo text-xs text-[#A67C3D] font-bold">
-                ॥ {publishingTasks[currentTaskIndex]?.hindi} ॥
+              </h3>
+              <p className="text-xs text-[#75675C] font-serif">
+                {publishingTasks[currentTaskIndex]?.hindi}
               </p>
             </div>
 
-            {/* Heavy Luxury Gold Progress Bar with Sparkling Shimmer Light Trail */}
-            <div className="w-full max-w-md space-y-2.5 relative z-10">
-              <div className="w-full bg-[#EDE0C8] h-4 rounded-full overflow-hidden border-2 border-[#A67C3D] p-0.5 relative shadow-inner">
-                <div
-                  className="bg-gradient-to-r from-[#A67C3D] via-[#C4522A] to-[#6B1420] h-full rounded-full transition-all duration-500 shadow-md relative"
+            {/* Progress Bar */}
+            <div className="w-full max-w-md space-y-2">
+              <div className="w-full bg-[#FAF8F5] border border-[#E8D5AD] h-2.5 rounded-full overflow-hidden p-0.5">
+                <div 
+                  className="bg-gradient-to-r from-[#C49A35] to-[#701222] h-full rounded-full transition-all duration-300"
                   style={{ width: `${publishProgress}%` }}
-                >
-                  {/* Glowing Leading Edge Particle */}
-                  <div className="absolute right-0 top-0 bottom-0 w-2.5 bg-white rounded-full blur-[0.5px] shadow-[0_0_6px_#FFF]"></div>
-                </div>
-
-                {/* 6 Stage Ticks */}
-                <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
-                  {[0, 1, 2, 3, 4, 5].map((idx) => (
-                    <div
-                      key={idx}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        idx <= currentTaskIndex 
-                          ? 'bg-[#FFFDF9] shadow-sm' 
-                          : 'bg-[#D8C7AA]'
-                      }`}
-                    ></div>
-                  ))}
-                </div>
+                />
               </div>
-
-              {/* Progress Summary */}
-              <div className="flex items-center justify-between text-xs font-mono font-bold px-1 text-[#6B1420]">
-                <span className="flex items-center gap-1 text-[#A67C3D]">
-                  <Sparkles className="w-3.5 h-3.5 text-[#C4522A] animate-spin" />
-                  <span>Royal Cloud Engine Active</span>
-                </span>
-                <span className="text-[#FFFDF9] bg-[#6B1420] px-2.5 py-0.5 rounded-full border border-[#A67C3D] shadow-sm">
-                  {publishProgress}% COMPLETED
-                </span>
+              <div className="flex items-center justify-between text-[11px] font-mono text-[#75675C]">
+                <span>Deploying to Cloud CDN</span>
+                <span className="font-bold text-[#6E1020]">{publishProgress}%</span>
               </div>
             </div>
           </div>
@@ -576,97 +419,92 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
 
         {/* 🌟 STAGE 1.5: SUCCESS BEAT MOMENT */}
         {stage === 'success_beat' && (
-          <div className="p-8 sm:p-12 flex flex-col items-center justify-center text-center space-y-6 flex-1 animate-fadeIn bg-gradient-to-b from-[#F7F0DD] via-[#E8F2EC] to-[#F5EAD4] text-[#2B1810]">
+          <div className="p-8 sm:p-12 flex flex-col items-center justify-center text-center space-y-6 flex-1 animate-fadeIn">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#3D6B4A] via-[#2A5236] to-[#1C3824] border-3 border-[#A67C3D] flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(61,107,74,0.4)] scale-110 transition-transform">
-                <Check className="w-12 h-12 text-[#FFFDF9]" />
+              <div className="w-20 h-20 rounded-full bg-[#167A5A] border-2 border-[#C49A35] flex items-center justify-center shadow-xl">
+                <Check className="w-10 h-10 text-[#FFFDF8]" />
               </div>
-              <div className="absolute -inset-3 rounded-full border-2 border-dashed border-[#A67C3D] animate-spin"></div>
+              <div className="absolute -inset-3 rounded-full border-2 border-dashed border-[#C49A35]/60 animate-spin" />
             </div>
-            <div className="space-y-2">
-              <span className="stamped-label text-[#3D6B4A] text-xs tracking-widest font-bold block">
+            <div className="space-y-1">
+              <span className="text-xs font-mono text-[#167A5A] font-bold tracking-wider block">
                 ✦ 24K GOLD SEAL AFFIXED ✦
               </span>
-              <h3 className="font-fraunces font-black text-2xl sm:text-3xl text-[#6B1420]">
+              <h3 className="font-cormorant font-bold text-3xl text-[#6E1020]">
                 Your Royal Kankotri is Live!
               </h3>
-              <p className="font-baloo text-sm text-[#A67C3D] font-bold">
+              <p className="text-xs text-[#75675C]">
                 ॥ बधाई हो · शाही निमंत्रण सफलता पूर्वक प्रकाशित हो चुका है ॥
               </p>
             </div>
           </div>
         )}
 
-        {/* 🎊 STAGE 2: PUBLISHED LIVE SHARE CENTER (Certificate Moment) */}
+        {/* 🎊 STAGE 2: PUBLISHED SHARE CENTER */}
         {stage === 'completed' && (
-          <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 animate-fadeIn">
-            {/* 1. Standalone Dedicated Link */}
-            <div className="p-4 rounded-2xl shahi-card-flat space-y-3 bg-[#F7F0DD]">
+          <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 text-left">
+            
+            {/* 1. Standalone Dedicated Link Box */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFDF8] border border-[#E8D5AD] shadow-xs space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#6B1420] font-fraunces flex items-center gap-1.5">
-                  <Globe className="w-4 h-4 text-[#A67C3D]" />
-                  <span>1. Dedicated Standalone Live Invitation URL</span>
+                <span className="text-xs font-bold text-[#6E1020] flex items-center gap-1.5 uppercase font-mono">
+                  <Globe className="w-4 h-4 text-[#C49A35]" />
+                  <span>1. Dedicated Live Invitation Link</span>
                 </span>
-                <span className="text-[10px] font-mono text-[#3D6B4A] bg-[#3D6B4A]/10 px-2 py-0.5 rounded-full border border-[#3D6B4A]/30 font-bold flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3 text-[#3D6B4A]" /> Full-Screen Live Invitation
+                <span className="text-[10px] font-mono text-[#167A5A] bg-[#167A5A]/10 px-2.5 py-0.5 rounded-full border border-[#167A5A]/30 font-bold flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-[#167A5A]" /> Full-Screen Live
                 </span>
               </div>
 
-              {/* Generated Live URL Display with Open and Copy */}
-              <div className="bg-[#EDE0C8] border border-[#A67C3D] p-3.5 rounded-xl flex items-center justify-between gap-2 shadow-inner">
-                <div className="truncate text-xs font-mono font-bold text-[#6B1420] flex items-center gap-1.5" title={fullUrl}>
-                  <Globe className="w-3.5 h-3.5 text-[#A67C3D] shrink-0" />
-                  <span className="truncate">{prettyUrl}</span>
+              <div className="bg-[#FAF8F5] border border-[#E8D5AD] p-3 rounded-xl flex items-center justify-between gap-2 shadow-2xs">
+                <div className="truncate text-xs font-mono font-bold text-[#6E1020] flex items-center gap-1.5" title={fullUrl}>
+                  <Globe className="w-3.5 h-3.5 text-[#C49A35] shrink-0" />
+                  <span className="truncate">{fullUrl}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <a
                     href={fullUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-1.5 rounded-xl btn-vermillion text-xs uppercase font-bold flex items-center gap-1.5 shadow min-h-[36px]"
-                    title="Open live invitation in full-screen tab"
+                    className="px-3.5 py-2 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all"
                   >
-                    <ExternalLink className="w-3.5 h-3.5 text-[#F7F0DD]" />
-                    <span>Open Kankotri ↗</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-[#C49A35]" />
+                    <span>Open ↗</span>
                   </a>
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className={`px-3.5 py-1.5 rounded-xl border text-xs font-mono font-bold flex items-center gap-1 transition-all shadow-sm min-h-[36px] ${
+                    className={`px-3.5 py-2 rounded-xl border text-xs font-mono font-bold flex items-center gap-1 transition-all shadow-2xs ${
                       copied 
-                        ? 'bg-[#3D6B4A] text-white border-[#3D6B4A]' 
-                        : 'bg-[#F7F0DD] border-[#A67C3D] text-[#6B1420] hover:bg-[#EDE0C8]'
+                        ? 'bg-[#167A5A] text-white border-[#167A5A]' 
+                        : 'bg-white border-[#E8D5AD] text-[#6E1020] hover:bg-[#FAF8F5]'
                     }`}
                   >
                     {copied ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copied ? 'Copied ✓' : 'Copy Link'}</span>
+                    <span>{copied ? 'Copied ✓' : 'Copy'}</span>
                   </button>
                 </div>
               </div>
-
-              <p className="text-[10px] text-[#A67C3D] italic font-fraunces">
-                ✦ Yeh link bina kisi editor ya toolbar ke, seedha pure full-screen shahi kankotri invitation open karega!
-              </p>
             </div>
 
             {/* 2. Direct WhatsApp Instant Share */}
-            <div className="p-4 rounded-2xl shahi-card-flat space-y-3.5 bg-[#F7F0DD]">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <span className="text-xs font-bold text-[#6B1420] font-fraunces flex items-center gap-1.5">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFDF8] border border-[#E8D5AD] shadow-xs space-y-3.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#6E1020] flex items-center gap-1.5 uppercase font-mono">
                   <MessageCircle className="w-4 h-4 text-[#25D366]" />
-                  <span>2. 1-Click WhatsApp Royal Invitation Dispatch</span>
+                  <span>2. 1-Click WhatsApp Invitation Dispatch</span>
                 </span>
-                <span className="text-[10px] font-mono text-[#3D6B4A] bg-[#3D6B4A]/10 px-2 py-0.5 rounded-full border border-[#3D6B4A]/30 font-bold self-start sm:self-auto">
-                  ✓ Rich Card Preview Active
+                <span className="text-[10px] font-mono text-[#167A5A] bg-[#167A5A]/10 px-2.5 py-0.5 rounded-full border border-[#167A5A]/30 font-bold">
+                  ✓ Rich Preview Ready
                 </span>
               </div>
 
-              {/* 🌐 Interactive Language Switcher Tabs */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-[#EDE0C8] p-2 rounded-xl border border-[#D8C7AA]">
-                <span className="text-[11px] font-fraunces font-bold text-[#6B1420] pl-1 flex items-center gap-1.5">
-                  <span>🌐 WhatsApp Message Language:</span>
+              {/* Language Selector */}
+              <div className="flex items-center justify-between bg-[#FAF8F5] p-2 rounded-xl border border-[#E8D5AD]">
+                <span className="text-xs font-semibold text-[#241A17] pl-1">
+                  Message Language:
                 </span>
-                <div className="flex items-center gap-1.5 self-start sm:self-auto">
+                <div className="flex items-center gap-1">
                   {(['en', 'hi', 'gu'] as Language[]).map((lang) => (
                     <button
                       key={lang}
@@ -674,27 +512,20 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
                       onClick={() => setSelectedLanguage(lang)}
                       className={`px-3 py-1 rounded-lg text-xs font-mono font-bold uppercase transition-all cursor-pointer ${
                         selectedLanguage === lang
-                          ? 'bg-[#6B1420] text-[#FFFDF9] shadow-sm border border-[#A67C3D]'
-                          : 'bg-[#F7F0DD] text-[#6B1420] hover:bg-[#FFFDF9] border border-[#D8C7AA]'
+                          ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
+                          : 'bg-white text-[#75675C] hover:text-[#241A17] border border-[#E8D5AD]'
                       }`}
                     >
-                      {lang === 'en' ? 'EN (English)' : lang === 'hi' ? 'HI (हिन्दी)' : 'GU (ગુજરાતી)'}
+                      {lang === 'en' ? 'English' : lang === 'hi' ? 'हिन्दी' : 'ગુજરાતી'}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Realistic WhatsApp Chat Bubble with Rich Media Preview */}
-              <div className="bg-[#EFE8DD] p-3 rounded-2xl border border-[#D8C7AA] shadow-inner space-y-2">
-                <div className="text-[10px] font-mono text-[#6B5A4A] flex items-center justify-between px-1">
-                  <span>📱 WhatsApp Message &amp; Rich Link Card Preview ({selectedLanguage.toUpperCase()}):</span>
-                  <span className="text-[#25D366] font-bold">● Live Preview</span>
-                </div>
-
-                {/* WhatsApp Chat Bubble */}
-                <div className="max-w-md bg-[#DCF8C6] text-[#111B21] p-3 rounded-2xl rounded-tl-sm shadow-sm space-y-2 text-xs border border-[#C5E1A5]">
-                  {/* Rich OpenGraph Card Box */}
-                  <div className="bg-[#FFFFFF] rounded-xl overflow-hidden border border-[#D8C7AA]/70 shadow-xs">
+              {/* WhatsApp Chat Preview Bubble */}
+              <div className="bg-[#EFEAE2] p-3.5 rounded-2xl border border-[#E0D7CB] shadow-inner space-y-2">
+                <div className="max-w-md bg-[#DCF8C6] text-[#111B21] p-3 rounded-2xl rounded-tl-sm shadow-xs space-y-2 text-xs border border-[#C5E1A5]">
+                  <div className="bg-white rounded-xl overflow-hidden border border-black/10 shadow-2xs">
                     <div className="h-28 bg-[#1C060A] relative overflow-hidden flex items-center justify-center">
                       <img 
                         src={state.media.photoSlots?.hero?.url || `/previews/theme-${state.theme}.webp`} 
@@ -702,26 +533,25 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
                         className="w-full h-full object-cover"
                         onError={(e) => { (e.target as HTMLImageElement).src = '/previews/theme-rajmahal.webp'; }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                       <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-white text-[11px] font-bold">
-                        <span className="drop-shadow">👑 {groomName} &amp; {brideName}</span>
+                        <span>👑 {groomName} &amp; {brideName}</span>
                         <span className="text-[9px] font-mono text-[#D4B37F] bg-black/40 px-1.5 py-0.5 rounded">Shahi Vivah</span>
                       </div>
                     </div>
-                    <div className="p-2.5 space-y-0.5 bg-[#FAF7F2]">
-                      <h5 className="font-bold text-[#6B1420] text-xs line-clamp-1">
+                    <div className="p-2.5 space-y-0.5 bg-[#FAF8F5]">
+                      <h5 className="font-bold text-[#6E1020] text-xs line-clamp-1">
                         {getLocalizedCardTitle(state, selectedLanguage)}
                       </h5>
-                      <p className="text-[10px] text-[#6B5A4A] line-clamp-2">
+                      <p className="text-[10px] text-[#75675C] line-clamp-2">
                         {getLocalizedCardSubtitle(state, selectedLanguage)}
                       </p>
-                      <span className="text-[9px] font-mono text-[#8696A0] block pt-1">
+                      <span className="text-[9px] font-mono text-stone-500 block pt-0.5">
                         {cleanDomain}
                       </span>
                     </div>
                   </div>
 
-                  {/* Text Content */}
                   <div className="whitespace-pre-wrap leading-relaxed font-sans text-xs">
                     {whatsappMessage}
                   </div>
@@ -731,61 +561,77 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
                 </div>
               </div>
 
+              {/* WhatsApp Action Buttons */}
               <div className="flex items-center gap-2 pt-1">
                 <button
                   type="button"
                   onClick={handleWhatsAppShare}
-                  className="flex-1 py-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-fraunces font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all min-h-[44px] cursor-pointer"
+                  className="flex-1 py-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Open &amp; Send on WhatsApp ({selectedLanguage.toUpperCase()})</span>
+                  <span>Send on WhatsApp ({selectedLanguage.toUpperCase()})</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleCopyMessage}
-                  className={`px-4 py-3 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 shadow-sm min-h-[44px] transition-all cursor-pointer ${
+                  className={`px-4 py-3 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer ${
                     copiedMsg
-                      ? 'bg-[#3D6B4A] text-white border-[#3D6B4A]'
-                      : 'bg-[#F7F0DD] border-[#D8C7AA] hover:border-[#A67C3D] text-[#6B1420]'
+                      ? 'bg-[#167A5A] text-white border-[#167A5A]'
+                      : 'bg-white border-[#E8D5AD] text-[#6E1020] hover:bg-[#FAF8F5]'
                   }`}
                 >
                   {copiedMsg ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedMsg ? 'Copied Text ✓' : `Copy Text (${selectedLanguage.toUpperCase()})`}</span>
+                  <span>{copiedMsg ? 'Copied Text ✓' : 'Copy Text'}</span>
                 </button>
               </div>
             </div>
 
-            {/* 3. Re-Lock Status Indicator */}
-            <div className="p-4 rounded-2xl bg-[#EDE0C8] border-2 border-[#A67C3D]/60 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#6B1420] text-[#F7F0DD] flex items-center justify-center font-bold shrink-0 shadow-sm border border-[#A67C3D]">
-                  <Lock className="w-4 h-4 text-[#D4AF37]" />
+            {/* 3. 4K Assets Download Hub */}
+            {onOpenDownloadHub && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-[#6E1020] border border-[#C49A35] text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#430914] text-[#C49A35] flex items-center justify-center font-bold shrink-0 border border-[#C49A35]">
+                    <Download className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-cormorant font-bold text-base text-[#FFFDF8]">
+                        Download 4K Print QR &amp; Story Assets
+                      </span>
+                      <span className="text-[9px] font-mono font-bold bg-[#C49A35] text-[#430914] px-2 py-0.5 rounded-full">
+                        300 DPI
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#E8D5AD]">
+                      Print QR Cards, 9:16 WhatsApp Story posters &amp; offline assets.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-fraunces font-bold text-xs sm:text-sm text-[#6B1420] block">
-                    🔒 EDITING LOCKED · INVITATION LIVE
-                  </span>
-                  <span className="text-[11px] text-[#806B5A] block">
-                    Your invitation is live and protected. Editing is locked.
-                  </span>
-                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenDownloadHub();
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-[#C49A35] hover:bg-[#D8AF4B] text-[#430914] font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow transition-all cursor-pointer hover:scale-105 shrink-0"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#430914]" />
+                  <span>Open Download Hub</span>
+                </button>
               </div>
-              <span className="text-[10px] font-mono font-bold bg-[#3D6B4A] text-white px-2.5 py-1 rounded-full shrink-0 shadow-xs">
-                ✓ Live on Web
-              </span>
-            </div>
+            )}
           </div>
         )}
 
-        {/* Footer Action */}
-        <div className="bg-[#EDE0C8] border-t border-[#D8C7AA] p-4 flex items-center justify-end shrink-0">
+        {/* Footer */}
+        <div className="bg-[#FFFDF8] border-t border-[#E8D5AD] p-4 flex items-center justify-end shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl artisan-btn-gold text-xs font-fraunces font-bold flex items-center justify-center gap-2 shadow-md min-h-[40px] cursor-pointer"
+            className="px-6 py-2.5 rounded-xl bg-[#FAF8F5] hover:bg-[#F8F3E8] border border-[#E8D5AD] text-[#6E1020] text-xs font-bold transition-all cursor-pointer"
           >
-            <Check className="w-4 h-4 text-[#D4B37F]" />
-            <span>Close</span>
+            Close
           </button>
         </div>
       </div>
@@ -793,3 +639,4 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose }) =>
   );
 };
 
+export default PublishModal;

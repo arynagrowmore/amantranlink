@@ -14,6 +14,7 @@ export const SERVER_TEMPLATES_PRICING: Record<ThemeId, { name: string; priceInr:
   dak: { name: 'The Shahi Dak', priceInr: 1499, category: 'heritage' },
   ivory: { name: 'The Ivory Minimalist', priceInr: 1499, category: 'modern' },
   royaldawn: { name: 'The Royal Dawn', priceInr: 2499, category: 'heritage' },
+  royalring: { name: 'The Royal Ring (3D Engagement)', priceInr: 1999, category: 'engagement' },
 };
 
 export const getCashfreeCredentials = () => {

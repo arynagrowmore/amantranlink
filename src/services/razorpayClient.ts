@@ -6,10 +6,10 @@ import {
   THEME_PRICING_CATALOG, 
   calculatePaymentDetails 
 } from '../config/pricing';
+import { getStoredPartnerAttribution } from './partnerService';
+import { getApiBaseUrl, resolveApiUrl } from '../utils/apiConfig';
 
-const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
-  ? 'http://localhost:5000'
-  : '';
+export { getApiBaseUrl, resolveApiUrl };
 
 // 🏷️ Template Catalog with Official Authoritative Pricing (Single Source of Truth)
 export const TEMPLATES_CATALOG: Record<ThemeId, TemplateConfig> = {
@@ -69,14 +69,79 @@ export const TEMPLATES_CATALOG: Record<ThemeId, TemplateConfig> = {
     reEditFeeInr: 0,
     category: 'modern',
   },
+  royalring: {
+    templateId: 'royalring',
+    name: 'The Royal Ring (3D Diamond Engagement)',
+    previewImage: '/previews/theme-royalring.webp',
+    priceInr: 1999,
+    reEditFeeInr: 0,
+    category: 'engagement',
+  },
 };
 
 // 💾 Local Cache Helpers
 const PURCHASES_STORAGE_KEY = 'SHAHI_USER_PURCHASES';
 const SITES_STORAGE_KEY = 'SHAHI_USER_SITES';
 
+// 👑 3 Master VIP Unlimited Accounts (Lifetime 100% Free, All 8 Themes, Unlimited Publishes)
+export const VIP_MASTER_ACCOUNTS = [
+  'cyberpatel6001@gmail.com',
+  'admin@amantranlink.com',
+  'vip@amantranlink.com',
+  'partner@amantranlink.com',
+  'studio@amantranlink.com',
+];
+
+export const isUserVipAdmin = (uid?: string, email?: string): boolean => {
+  const checkEmail = (e?: string) => {
+    if (!e) return false;
+    const lower = e.toLowerCase().trim();
+    return VIP_MASTER_ACCOUNTS.some((vip) => lower === vip || lower.includes(vip));
+  };
+
+  if (email && checkEmail(email)) return true;
+
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('SHAHI_AUTH_USER');
+      if (saved) {
+        const u = JSON.parse(saved);
+        if (checkEmail(u?.email)) return true;
+        if (u?.role === 'admin' || u?.role === 'master_vip' || u?.role === 'vip') return true;
+        if (uid && (u?.id === uid || u?.uid === uid) && (checkEmail(u?.email) || u?.role === 'admin' || u?.role === 'master_vip' || u?.role === 'vip')) {
+          return true;
+        }
+      }
+    } catch (e) {}
+  }
+  return false;
+};
+
+const ALL_TEMPLATES_ARRAY: ThemeId[] = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+
 export const getUserPurchases = (uid?: string): Record<string, Purchase> => {
   if (typeof window === 'undefined') return {};
+  
+  if (isUserVipAdmin(uid)) {
+    const vipPurchases: Record<string, Purchase> = {};
+    ALL_TEMPLATES_ARRAY.forEach((tId) => {
+      vipPurchases[tId] = {
+        id: `vip_${tId}_unlocked`,
+        uid: uid || 'vip_master_unlocked',
+        templateId: tId,
+        status: 'unlocked',
+        paymentGateway: 'razorpay',
+        amountInr: 0,
+        currency: 'INR',
+        paymentStatus: 'PAID',
+        paymentReference: 'VIP_MASTER_LIFETIME_UNLIMITED',
+        unlockedAt: '2026-08-24T00:00:00.000Z',
+        createdAt: '2026-08-24T00:00:00.000Z',
+      };
+    });
+    return vipPurchases;
+  }
+
   try {
     const raw = localStorage.getItem(PURCHASES_STORAGE_KEY);
     const all = raw ? JSON.parse(raw) : {};
@@ -87,6 +152,9 @@ export const getUserPurchases = (uid?: string): Record<string, Purchase> => {
 };
 
 export const syncUserPurchasesFromSupabase = async (uid: string): Promise<Record<string, Purchase>> => {
+  if (isUserVipAdmin(uid)) {
+    return getUserPurchases(uid);
+  }
   if (!uid || !isSupabaseConfigured) return getUserPurchases(uid);
   try {
     const { data: dbPurchases, error } = await supabase
@@ -163,6 +231,7 @@ export const saveWeddingSite = (site: WeddingSite): void => {
 
 export const isTemplateUnlockedForUser = (uid?: string, templateId?: ThemeId): boolean => {
   if (!uid || !templateId) return false;
+  if (isUserVipAdmin(uid)) return true;
   const purchases = getUserPurchases(uid);
   const purchase = purchases[templateId];
   const hasPaid = Boolean(purchase && (purchase.paymentStatus === 'PAID' || purchase.paymentStatus === 'SUCCESS' || purchase.status === 'unlocked'));
@@ -185,6 +254,9 @@ export const isSiteCurrentlyLocked = (
 ): { isLocked: boolean; reason: 'not_logged_in' | 'not_purchased' | 'published' | 'none'; editingStatus: 'locked' | 'unlocked'; publicationStatus: 'draft' | 'published' } => {
   if (!uid) return { isLocked: true, reason: 'not_logged_in', editingStatus: 'locked', publicationStatus: 'draft' };
   if (!templateId) return { isLocked: false, reason: 'none', editingStatus: 'unlocked', publicationStatus: 'draft' };
+  if (isUserVipAdmin(uid)) {
+    return { isLocked: false, reason: 'none', editingStatus: 'unlocked', publicationStatus: 'draft' };
+  }
 
   const currentSite = site || getUserActiveSite(uid, templateId);
   const purchases = getUserPurchases(uid);
@@ -252,6 +324,40 @@ export interface RazorpayCheckoutOptions {
   state?: WeddingProjectState;
 }
 
+// 🌐 Resilient Payment API caller using centralized resolveApiUrl
+const callPaymentApi = async (endpoint: string, payload: any): Promise<any> => {
+  const url = resolveApiUrl(endpoint);
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    const data = await res.json().catch(() => null);
+    if (res.ok && data) {
+      if (data.success === false) {
+        throw new Error(data.error || 'Server rejected payment request');
+      }
+      return data;
+    }
+    if (!res.ok) {
+      // Safe human-friendly normalized message (never expose raw 500 status)
+      const rawMsg = data?.error || '';
+      if (rawMsg) {
+        throw new Error(rawMsg);
+      }
+      throw new Error("We couldn't complete your payment request right now. Please try again.");
+    }
+  } catch (err: any) {
+    if (err.message && !err.message.includes('fetch') && !err.message.includes('network')) {
+      throw err;
+    }
+    throw new Error("We couldn't reach the payment service. Please check your connection and try again.");
+  }
+};
+
 // 🚀 Primary Razorpay Checkout Initiation Function
 export const initiateRazorpayCheckout = async (options: RazorpayCheckoutOptions): Promise<void> => {
   const {
@@ -272,26 +378,18 @@ export const initiateRazorpayCheckout = async (options: RazorpayCheckoutOptions)
 
   try {
     // 1. Create order on backend with strict server-side price validation
+    const currentPartnerSlug = getStoredPartnerAttribution();
     let orderData = null;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/razorpay/create-order`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          templateId,
-          packageId: effectivePackageId,
-          userId: uid,
-          userName,
-          userEmail,
-          userPhone
-        })
+      orderData = await callPaymentApi('/api/razorpay/create-order', {
+        templateId,
+        packageId: effectivePackageId,
+        userId: uid,
+        userName,
+        userEmail,
+        userPhone,
+        partnerSlug: currentPartnerSlug || undefined
       });
-      if (res.ok) {
-        orderData = await res.json();
-      } else {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.error || 'Server rejected order creation');
-      }
     } catch (e: any) {
       console.error('Backend order creation failed:', e.message);
       onError(e.message || 'Payment server unavailable. Please try again.');
@@ -299,7 +397,7 @@ export const initiateRazorpayCheckout = async (options: RazorpayCheckoutOptions)
     }
 
     if (!orderData?.orderId || !orderData.keyId) {
-      onError(orderData?.error || 'Could not generate Razorpay order. Check backend status.');
+      onError(orderData?.error || 'Could not generate Razorpay order. Check backend configuration.');
       return;
     }
 
@@ -350,28 +448,24 @@ export const initiateRazorpayCheckout = async (options: RazorpayCheckoutOptions)
       key: orderData.keyId,
       amount: orderData.amount,
       currency: orderData.currency || 'INR',
-      name: 'Shahi Studio',
-      description: orderData.description || `Unlock ${packageInfo.name} Digital Kankotri`,
+      name: 'AmantranLink',
+      description: orderData.description || `Unlock ${packageInfo.name} Digital Invitation`,
       image: '/previews/theme-rajmahal.webp',
       order_id: orderData.orderId,
       handler: async function (response: any) {
         try {
           // 3. Strict Server-Side Verification (HMAC-SHA256 & REST API Confirmation)
-          const verifyRes = await fetch(`${API_BASE_URL}/api/razorpay/verify-payment`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              templateId,
-              packageId: effectivePackageId,
-              userId: uid,
-              invitationData: state
-            })
+          const verifyData = await callPaymentApi('/api/razorpay/verify-payment', {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            templateId,
+            packageId: effectivePackageId,
+            userId: uid,
+            invitationData: state,
+            partnerSlug: currentPartnerSlug || undefined
           });
 
-          const verifyData = await verifyRes.json();
           if (verifyData.success) {
             const purchase: Purchase = {
               id: `${uid}_${templateId}`,
@@ -404,7 +498,43 @@ export const initiateRazorpayCheckout = async (options: RazorpayCheckoutOptions)
             onError(verifyData.error || 'Payment signature verification failed.');
           }
         } catch (verErr: any) {
-          onError(verErr.message || 'Payment verification server error.');
+          // If Razorpay already returned payment_id, attempt recovery before declaring failure
+          console.warn('⚠️ Verification call failed after payment capture, attempting immediate recovery...', verErr.message);
+          try {
+            const recovery = await recoverPaymentStatus(uid, templateId, response.razorpay_payment_id, response.razorpay_order_id);
+            if (recovery.success && recovery.recovered) {
+              const purchase: Purchase = {
+                id: `${uid}_${templateId}`,
+                uid,
+                templateId,
+                status: 'unlocked',
+                paymentGateway: 'razorpay' as any,
+                amountInr: amountInRupees,
+                currency: 'INR',
+                paymentStatus: 'PAID',
+                paymentReference: response.razorpay_payment_id,
+                unlockedAt: new Date().toISOString(),
+                createdAt: new Date().toISOString()
+              };
+
+              const site: WeddingSite = {
+                siteId: `${templateId}-${Date.now().toString(36)}`,
+                uid,
+                templateId,
+                status: 'draft',
+                isLocked: false,
+                content: state || ({} as any),
+                unlockedAt: new Date().toISOString()
+              };
+
+              saveUserPurchase(purchase);
+              saveWeddingSite(site);
+              onSuccess(purchase, site);
+              return;
+            }
+          } catch (recErr) {}
+
+          onError(verErr.message || 'Payment received — verifying your order with the server.');
         }
       },
       prefill: {
@@ -421,7 +551,7 @@ export const initiateRazorpayCheckout = async (options: RazorpayCheckoutOptions)
         packageId: effectivePackageId,
         templateId: templateId,
         userName: userName,
-        purpose: 'Shahi Studio Royal Wedding Kankotri Unlock'
+        purpose: 'AmantranLink Royal Digital Invitation Unlock'
       },
       modal: {
         ondismiss: function () {
@@ -439,6 +569,34 @@ export const initiateRazorpayCheckout = async (options: RazorpayCheckoutOptions)
   } catch (error: any) {
     console.error('Razorpay checkout error:', error);
     onError(error.message || 'Failed to initialize Razorpay checkout.');
+  }
+};
+
+/**
+ * 🔄 Idempotent Payment Recovery
+ * Recovers verified purchase state directly from server authority
+ */
+export const recoverPaymentStatus = async (
+  uid: string,
+  templateId: ThemeId,
+  paymentId?: string,
+  orderId?: string
+): Promise<{ success: boolean; recovered: boolean; message?: string }> => {
+  try {
+    const data = await callPaymentApi('/api/razorpay/recover-payment', {
+      userId: uid,
+      templateId,
+      razorpayPaymentId: paymentId,
+      razorpayOrderId: orderId
+    });
+
+    if (data.success) {
+      await syncUserPurchasesFromSupabase(uid);
+      return { success: true, recovered: true, message: data.message };
+    }
+    return { success: false, recovered: false, message: data.error };
+  } catch (e: any) {
+    return { success: false, recovered: false, message: e.message };
   }
 };
 

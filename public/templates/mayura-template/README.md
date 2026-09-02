@@ -1,4 +1,4 @@
-# The Mayura — Royal Peacock Wedding Invitation Template 🦚👑
+﻿# The Mayura — Royal Peacock Wedding Invitation Template 🦚👑
 
 A pixel-perfect clone of **The Mayura** royal peacock luxury wedding template (`https://www.jointhejashn.com/demo/mayura`).
 
@@ -9,7 +9,7 @@ A pixel-perfect clone of **The Mayura** royal peacock luxury wedding template (`
 - 🦚 **Royal Peacock Feather Plume & Fan**: Majestic peacock plume expanding and breathing in gentle motion with floating iridescent feathers drifting across the screen.
 - 🪷 **Lotus Flower Buds & Toran**: Floral garlands swaying in the palace breeze.
 - 🕯️ **Flickering Lanterns & Diyas**: Animated royal flame glow.
-- 👑 **Dhruv & Shreya (`D · S`)**: Personalized couple initials, 3 December 2024 date, The Milestone Himmatnagar location, and family details.
+- 👑 **Rudra & Ishani (`R · I`)**: Personalized couple initials, 3 December 2024 date, The Milestone Modasa location, and family details.
 - 🌐 **Instant Bilingual Toggle**: 1-click English ⇋ Hindi switch.
 - ⏳ **Live Muhurat Countdown**: Real-time days, hours, minutes, and seconds countdown counter.
 - 🎶 **Silent Auto Background Music**: `FinalSong.mp3` starts softly on scroll/tap and plays on infinite loop.
@@ -25,3 +25,5 @@ A pixel-perfect clone of **The Mayura** royal peacock luxury wedding template (`
    ```bash
    npx serve -l 3002 "C:\Users\Avira\Web Devlopment Project\Wedding Invitation Design\mayura-template"
    ```
+
+

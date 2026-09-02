@@ -1,4 +1,4 @@
-# The Jharokha — Luxury Royal Wedding Invitation Template 🪟👑
+﻿# The Jharokha — Luxury Royal Wedding Invitation Template 🪟👑
 
 A pixel-perfect clone of **The Jharokha** luxury royal wedding template (`https://www.jointhejashn.com/demo/jharokha`).
 
@@ -15,7 +15,7 @@ A pixel-perfect clone of **The Jharokha** luxury royal wedding template (`https:
 - 📅 **5 Celebration Events**: Haldi, Mehendi, Sangeet, Wedding, Reception with 1-click Google Calendar integration.
 - 🖼️ **Arched Moments Gallery**: Royal arched frames with hover zoom animations.
 - 💌 **Full Working RSVP Form**: Interactive guest counter and animated thank-you card.
-- 📍 **The Milestone, Himmatnagar Location & Maps**: Complete venue details and directions.
+- 📍 **The Milestone, Modasa Location & Maps**: Complete venue details and directions.
 
 ---
 
@@ -26,3 +26,4 @@ A pixel-perfect clone of **The Jharokha** luxury royal wedding template (`https:
    ```bash
    npx serve -l 3001 "C:\Users\Avira\Web Devlopment Project\Wedding Invitation Design\jharokha-template"
    ```
+

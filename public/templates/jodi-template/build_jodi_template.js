@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 
 let body = fs.readFileSync('body_extracted.html', 'utf8');
 
@@ -26,12 +26,12 @@ body = body.replace(/<a[^>]*href="https:\/\/www\.jointhejashn\.com"[^>]*>www\.jo
 );
 
 // 4. Customize details
-body = body.replace(/Karan/g, 'Dhruv');
-body = body.replace(/Anjali/g, 'Shreya');
-body = body.replace(/करण/g, 'ध्रुव');
-body = body.replace(/अंजलि/g, 'श्रेया');
+body = body.replace(/Karan/g, 'Rudra');
+body = body.replace(/Anjali/g, 'Ishani');
+body = body.replace(/करण/g, 'रुद्र');
+body = body.replace(/अंजलि/g, 'ईशानी');
 
-body = body.replace(/>K\s*·\s*A</g, '>D · S<');
+body = body.replace(/>K\s*·\s*A</g, '>R · I<');
 body = body.replace(/>K\s*&amp;\s*A</g, '>D &amp; S<');
 
 body = body.replace(/12 December 2026/g, '3 December 2024');
@@ -39,8 +39,8 @@ body = body.replace(/10 December 2026/g, '1 December 2024');
 body = body.replace(/11 December 2026/g, '2 December 2024');
 body = body.replace(/13 December 2026/g, '4 December 2024');
 
-body = body.replace(/Jaipur/g, 'Himmatnagar');
-body = body.replace(/जयपुर/g, 'हिम्मतनगर');
+body = body.replace(/Jaipur/g, 'Modasa');
+body = body.replace(/जयपुर/g, 'मोडासा');
 body = body.replace(/Jai Mahal Palace/g, 'The Milestone');
 body = body.replace(/The Leela Palace/g, 'The Milestone');
 body = body.replace(/Amber Fort Road/g, 'The Milestone Highway');
@@ -55,7 +55,7 @@ body = body.replace(/Rohan/g, 'Nalinkumar');
 body = body.replace(/\+91 98100 12345/g, '+91 98251 45678');
 body = body.replace(/Riya/g, 'Family Helpdesk');
 body = body.replace(/\+91 97110 67890/g, '+91 98982 34567');
-body = body.replace(/#AaravKiMeera/gi, '#DhruvKiShreya');
+body = body.replace(/#AaravKiMeera/gi, '#RudraKiIshani');
 
 // 5. Fix invisible SVG paths
 body = body.replace(/opacity="0"/g, 'opacity="0.9"');
@@ -66,7 +66,7 @@ const indexHtml = `<!DOCTYPE html>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Jodi — Shubh Vivah Royal Wedding Invitation</title>
-  <meta name="description" content="You are cordially invited to celebrate the royal wedding of Dhruv &amp; Shreya in The Jodi theme." />
+  <meta name="description" content="You are cordially invited to celebrate the royal wedding of Rudra &amp; Ishani in The Jodi theme." />
   <link rel="icon" href="./public/favicon.ico" sizes="256x256" type="image/x-icon" />
 
   <!-- Google Fonts -->
@@ -169,3 +169,5 @@ ${body}
 
 fs.writeFileSync('index.html', indexHtml);
 console.log('Successfully generated index.html for Jodi theme!');
+
+

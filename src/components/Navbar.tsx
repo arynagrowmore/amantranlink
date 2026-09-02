@@ -1,7 +1,8 @@
 import React from 'react';
 import { 
   Monitor, Smartphone, Tablet, RotateCw, ZoomIn, ZoomOut, 
-  Share2, Home, Users, CheckCircle2, Clock, Cloud, CloudOff, ArrowLeft 
+  Share2, Home, Users, CheckCircle2, Clock, Cloud, CloudOff, ArrowLeft,
+  Camera, ShieldCheck
 } from 'lucide-react';
 import { WeddingProjectState, ViewMode, Language } from '../types/wedding';
 import { RoyalCrestIcon } from './ShahiIcons';
@@ -22,6 +23,9 @@ interface NavbarProps {
   onNavigateLogin?: () => void;
   onNavigateDashboard?: () => void;
   onNavigateProfile?: (tab?: 'profile' | 'purchases' | 'transactions' | 'weddings' | 'rsvps') => void;
+  onOpenPartnerModal?: () => void;
+  onNavigatePartnerHub?: (tab?: 'dashboard' | 'invitations' | 'clients' | 'analytics' | 'marketing' | 'commissions' | 'profile' | 'branding' | 'team' | 'settings') => void;
+  onNavigateAdmin?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -36,8 +40,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigateLogin,
   onNavigateDashboard,
   onNavigateProfile,
+  onOpenPartnerModal,
+  onNavigatePartnerHub,
+  onNavigateAdmin,
 }) => {
   const { user, requireAuth } = useAuth();
+  const isPartner = user?.role === 'partner' || user?.role === 'photographer' || user?.role === 'studio_partner';
 
   return (
     <header className="h-16 bg-[#FFFDF8]/95 backdrop-blur-md border-b border-[#E8D5AD] px-3 sm:px-6 flex items-center justify-between shrink-0 z-30 shadow-[0_4px_20px_-4px_rgba(67,9,20,0.04)] font-manrope">
@@ -57,18 +65,27 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         <div 
           onClick={onNavigateHome}
-          className="flex items-center gap-2.5 cursor-pointer group"
-          title="Shahi Studio Atelier"
+          className="flex items-center gap-2.5 cursor-pointer group shrink-0 select-none"
+          title="AmantranLink · Royal Digital Invitations"
         >
-          <div className="w-8 h-8 rounded-lg bg-[#6E1020] border border-[#C49A35] shadow-xs flex items-center justify-center text-[#C49A35] group-hover:scale-105 transition-transform">
-            <RoyalCrestIcon className="w-4 h-4" />
-          </div>
-          <div>
-            <h1 className="font-cormorant font-bold text-lg sm:text-xl tracking-wider text-[#430914] leading-tight">
-              Shahi Studio
-            </h1>
-            <span className="text-[9px] font-manrope uppercase tracking-widest text-[#C49A35] font-bold block leading-none">
-              Kankotri Studio
+          <img 
+            src="/amantranlink.png" 
+            alt="AmantranLink Logo" 
+            className="h-9 w-auto object-contain group-hover:scale-105 transition-transform shrink-0" 
+          />
+          <div className="hidden sm:flex flex-col justify-center shrink-0">
+            <div className="flex items-center gap-1.5">
+              <span className="amantranlink-wordmark text-sm block whitespace-nowrap leading-tight">
+                AMANTRAN<span className="amantranlink-wordmark-gold">LINK</span>
+              </span>
+              {isPartner && (
+                <span className="text-[8.5px] font-mono font-bold bg-[#167A5A]/10 text-[#167A5A] border border-[#167A5A]/30 px-1 py-0.1 rounded uppercase">
+                  Studio
+                </span>
+              )}
+            </div>
+            <span className="amantranlink-wordmark-sub block whitespace-nowrap leading-none mt-0.5">
+              {isPartner ? 'Studio Editor' : 'Royal Digital Invitations'}
             </span>
           </div>
         </div>
@@ -105,16 +122,29 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* RIGHT: Controls, Devices, Zoom, Profile & Primary CTA */}
       <div className="flex items-center gap-2 sm:gap-3">
         
+        {/* Studio Partner Hub Quick Return */}
+        {isPartner && onNavigatePartnerHub && (
+          <button
+            type="button"
+            onClick={() => onNavigatePartnerHub('dashboard')}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F4F9F6] hover:bg-[#E8F3EE] border border-[#167A5A]/40 text-[#167A5A] text-xs font-bold font-manrope shadow-2xs transition-colors cursor-pointer"
+            title="Return to Studio Partner Workspace"
+          >
+            <Camera className="w-3.5 h-3.5 text-[#167A5A]" />
+            <span>Studio Hub</span>
+          </button>
+        )}
+
         {/* RSVP Management Shortcut */}
-        {onNavigateDashboard && (
+        {onNavigateDashboard && !isPartner && (
           <button
             type="button"
             onClick={onNavigateDashboard}
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] border border-[#E8D5AD] text-[#430914] text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-            title="Open RSVP Dashboard"
+            title="Open Wedding Guest Management & RSVP Dashboard"
           >
             <Users className="w-3.5 h-3.5 text-[#C49A35]" />
-            <span>RSVP Center</span>
+            <span>Guests &amp; RSVP</span>
           </button>
         )}
 
@@ -237,6 +267,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             onNavigateProfile={(tab) => {
               if (onNavigateProfile) onNavigateProfile(tab);
             }}
+            onOpenPartnerModal={onOpenPartnerModal}
+            onNavigatePartnerHub={onNavigatePartnerHub}
+            onNavigateAdmin={onNavigateAdmin}
           />
         ) : (
           <button
@@ -245,10 +278,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               if (onNavigateLogin) {
                 onNavigateLogin();
               } else {
-                requireAuth('Log in to save and unlock your Kankotri');
+                requireAuth('Sign in to save and unlock your Kankotri');
               }
             }}
-            className="px-3.5 py-1.5 rounded-full bg-[#F8F3E8] hover:bg-[#FFFDF8] border border-[#E8D5AD] text-[#430914] text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            className="px-3.5 py-1.5 rounded-full bg-[#F8F3E8] hover:bg-[#FFFDF8] border border-[#E8D5AD] text-[#430914] text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
           >
             <span>Log In</span>
           </button>
@@ -259,10 +292,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenPublish}
-            className="px-4 sm:px-5 py-2 rounded-full bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-sm border border-[#C49A35] transition-all cursor-pointer hover:scale-105"
+            className="px-4 sm:px-5 py-2 rounded-full bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-sm border border-[#C49A35] transition-all cursor-pointer hover:scale-105 whitespace-nowrap shrink-0"
             title="Generate Shareable Kankotri Link"
           >
-            <Share2 className="w-3.5 h-3.5 text-[#C49A35]" />
+            <Share2 className="w-3.5 h-3.5 text-[#C49A35] shrink-0" />
             <span>Publish &amp; Share</span>
           </button>
         )}

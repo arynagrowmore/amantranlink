@@ -1,4 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // 🌟 Universal Auto-Monogram & Dynamic Names Initializer
+  function applyDynamicMonogramAndNames(groom, bride) {
+    if (!groom || !bride) return;
+    const gInit = groom.trim().charAt(0).toUpperCase();
+    const bInit = bride.trim().charAt(0).toUpperCase();
+    const monogramDot = `${gInit} · ${bInit}`;
+    const monogramAmp = `${gInit} & ${bInit}`;
+
+    document.querySelectorAll('.monogram, .rjm-nav-mark, .rjm-hero-monogram, .nav-mark, .couple-mark, #couple-mark, .mark-tag, .logo-monogram, .rjm-monogram, [data-bind="mark"]').forEach(el => {
+      el.textContent = monogramDot;
+    });
+    document.querySelectorAll('a.rjm-logo, .rjm-brand-mark').forEach(el => {
+      el.textContent = monogramDot;
+    });
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const qGroom = urlParams.get('groom') || (window.WEDDING_CONFIG && window.WEDDING_CONFIG.groomName);
+  const qBride = urlParams.get('bride') || (window.WEDDING_CONFIG && window.WEDDING_CONFIG.brideName);
+  if (qGroom && qBride) {
+    applyDynamicMonogramAndNames(qGroom, qBride);
+  }
+
+  window.addEventListener('message', (event) => {
+    if (event.data && (event.data.type === 'SYNC_COUPLE_DATA' || event.data.type === 'UPDATE_COUPLE')) {
+      const { groom, bride, groomEn, brideEn } = event.data;
+      const g = groom || groomEn;
+      const b = bride || brideEn;
+      if (g && b) applyDynamicMonogramAndNames(g, b);
+    }
+  });
+
   // 1. Language Toggle (English <-> Hindi)
   const htmlEl = document.documentElement;
   const langBtn = document.querySelector('.rjm-lang');
@@ -22,7 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const navLinks = document.getElementById('rjm-menu');
 
   if (navToggle && navLinks) {
-    navToggle.addEventListener('click', () => {
+    navToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
       const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
       navToggle.setAttribute('aria-expanded', String(!isExpanded));
       navLinks.classList.toggle('open');
@@ -33,6 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
         navToggle.setAttribute('aria-expanded', 'false');
         navLinks.classList.remove('open');
       });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) {
+        navToggle.setAttribute('aria-expanded', 'false');
+        navLinks.classList.remove('open');
+      }
     });
   }
 

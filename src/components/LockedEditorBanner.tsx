@@ -3,6 +3,29 @@ import { Lock, Sparkles, ArrowRight, ExternalLink, Globe } from 'lucide-react';
 import { ThemeId, WeddingProjectState } from '../types/wedding';
 import { useAuth } from '../context/AuthContext';
 import { OFFICIAL_PACKAGES, THEME_PACKAGE_MAP } from '../config/pricing';
+import { themes } from './ThemeSelector';
+import { TEMPLATES_CATALOG, isUserVipAdmin } from '../services/razorpayClient';
+
+export const TEMPLATE_DISPLAY_NAMES: Record<ThemeId, string> = {
+  jharokha: 'The Jharokha',
+  rajmahal: 'The Rajmahal',
+  royaldawn: 'The Royal Dawn',
+  royalring: 'The Royal Ring',
+  mayura: 'The Mayura',
+  jodi: 'The Jodi',
+  dak: 'The Shahi Dāk',
+  ivory: 'The Ivory Minimalist',
+};
+
+export const getTemplateDisplayName = (themeId?: ThemeId): string => {
+  if (!themeId) return '';
+  if (TEMPLATE_DISPLAY_NAMES[themeId]) return TEMPLATE_DISPLAY_NAMES[themeId];
+  const themeObj = themes.find((t) => t.id === themeId);
+  if (themeObj?.name) return themeObj.name;
+  const catalogObj = TEMPLATES_CATALOG[themeId];
+  if (catalogObj?.name) return catalogObj.name;
+  return '';
+};
 
 interface LockedEditorBannerProps {
   templateId: ThemeId;
@@ -21,46 +44,40 @@ export const LockedEditorBanner: React.FC<LockedEditorBannerProps> = ({
 }) => {
   const { user } = useAuth();
   if (reason === 'none') return null;
+  if (isUserVipAdmin(user?.uid, user?.email)) return null;
 
+  const effectiveTemplateId = templateId || state?.theme;
+  const templateName = getTemplateDisplayName(effectiveTemplateId);
   const coupleSlug = slug || `${(state.couple.groomEn || 'dhruv').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(state.couple.brideEn || 'shreya').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
   const publicUrl = `/i/${coupleSlug}`;
-  const themePkg = THEME_PACKAGE_MAP[templateId] || 'gold';
+  const themePkg = THEME_PACKAGE_MAP[effectiveTemplateId] || 'gold';
   const pkgPrice = OFFICIAL_PACKAGES[themePkg]?.priceInr || 2299;
 
   return (
-    <div className="bg-gradient-to-r from-[#6B1420] via-[#851C2C] to-[#6B1420] text-[#F7F0DD] px-4 py-3 border-b-2 border-[#A67C3D] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn shrink-0 z-20">
-      <div className="flex items-center gap-3 text-left">
-        <div className="w-9 h-9 rounded-xl bg-[#F7F0DD] text-[#6B1420] flex items-center justify-center font-bold shrink-0 shadow-sm border border-[#A67C3D]">
-          <Lock className="w-4 h-4 text-[#6B1420]" />
-        </div>
-        <div>
-          <h4 className="font-fraunces font-black text-xs sm:text-sm tracking-wide flex items-center gap-2 flex-wrap">
-            <span>
-              {reason === 'published' 
-                ? 'INVITATION PUBLISHED · EDITING LOCKED' 
-                : 'EDITING LOCKED'}
-            </span>
-            {reason === 'published' ? (
-              <>
-                <span className="text-[9.5px] font-mono bg-[#3D6B4A] text-white px-2 py-0.5 rounded font-bold shadow-xs">
-                  ✓ LIVE
-                </span>
-                <span className="text-[9.5px] font-mono bg-[#A67C3D] text-[#F7F0DD] px-2 py-0.5 rounded font-bold">
-                  🔒 EDITING LOCKED
-                </span>
-              </>
-            ) : (
-              <span className="text-[9.5px] font-mono bg-[#A67C3D] text-[#F7F0DD] px-2 py-0.5 rounded font-bold">
-                🔒 LOCKED
-              </span>
-            )}
+    <div className="bg-gradient-to-r from-[#6B1420] via-[#851C2C] to-[#6B1420] text-[#F7F0DD] px-4 sm:px-6 py-2.5 border-b-2 border-[#A67C3D] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn shrink-0 z-20">
+      <div className="flex flex-col text-left space-y-0.5 w-full sm:w-auto">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <h4
+            className="font-fraunces font-black text-sm sm:text-base tracking-wide uppercase text-[#D4AF37] drop-shadow-sm"
+            style={{ color: '#D4AF37' }}
+          >
+            {templateName ? templateName.toUpperCase() : 'ROYAL INVITATION'}
           </h4>
-          <p className="text-[11px] font-hanken text-[#F7F0DD]/90 font-medium mt-0.5">
-            {reason === 'published'
-              ? 'Your royal kankotri is live. Editing is currently locked to safeguard your invitation.'
-              : 'Pay to unlock this royal invitation and customize couple details, events, photos & music.'}
-          </p>
+          {reason === 'published' && (
+            <span className="text-[9.5px] font-mono bg-[#3D6B4A] text-white px-2 py-0.5 rounded font-bold shadow-xs">
+              ✓ LIVE
+            </span>
+          )}
+          <span className="text-[9.5px] font-mono bg-[#F7F0DD] text-[#6B1420] border border-[#A67C3D] px-2.5 py-0.5 rounded font-bold uppercase shadow-xs flex items-center gap-1">
+            <span>🔒</span>
+            <span>EDITING LOCKED</span>
+          </span>
         </div>
+        <p className="text-[11px] sm:text-xs font-hanken text-[#FFF8E8] font-medium">
+          {reason === 'published'
+            ? 'Your royal kankotri is live. Editing is currently locked to safeguard your invitation.'
+            : 'Pay to unlock this royal invitation and customize couple details, events, photos & music.'}
+        </p>
       </div>
 
       <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">

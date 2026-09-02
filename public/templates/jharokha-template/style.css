@@ -173,39 +173,7 @@ body {
   filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.35)) !important;
 }
 
-/* Floating Theme Switcher Badge */
-.rjm-theme-switcher {
-  position: fixed;
-  bottom: 5.6rem;
-  right: 1.8rem;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  background: rgba(11, 35, 23, 0.9);
-  border: 1.5px solid #D4AF37;
-  padding: 0.4rem;
-  border-radius: 999px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  backdrop-filter: blur(8px);
-}
 
-.theme-dot {
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  border: 1.5px solid #FFF;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.theme-dot:hover {
-  transform: scale(1.2);
-}
-
-.theme-dot.emerald { background: linear-gradient(135deg, #143D28, #D4AF37); }
-.theme-dot.sapphire { background: linear-gradient(135deg, #0F2347, #D4AF37); }
-.theme-dot.wine { background: linear-gradient(135deg, #4A1020, #D4AF37); }
 
 
 

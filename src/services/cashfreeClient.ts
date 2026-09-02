@@ -65,6 +65,14 @@ export const TEMPLATES_CATALOG: Record<ThemeId, TemplateConfig> = {
     reEditFeeInr: RE_EDIT_FEE_INR,
     category: 'modern',
   },
+  royalring: {
+    templateId: 'royalring',
+    name: 'The Royal Ring (3D Engagement)',
+    previewImage: '/previews/theme-royalring.webp',
+    priceInr: 1999,
+    reEditFeeInr: RE_EDIT_FEE_INR,
+    category: 'engagement',
+  },
 };
 
 // 🚀 Inject Official Cashfree JS SDK v3
