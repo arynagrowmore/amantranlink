@@ -18,73 +18,77 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
   let siteUuid = `${themeId}-${Date.now().toString(36)}`;
 
   try {
-    if (isSupabaseConfigured && userId) {
+    if (isSupabaseConfigured) {
       // 1. Fetch template UUID from templates table
-      const { data: tpl } = await supabase
-        .from('templates')
-        .select('id')
-        .eq('slug', themeId)
-        .single();
-
-      const templateUuid = tpl?.id;
-
-      if (templateUuid) {
-        // 2. Check if a site already exists for this slug or user template
-        const { data: existingSite } = await supabase
-          .from('wedding_sites')
+      let templateUuid: string | null = null;
+      try {
+        const { data: tpl } = await supabase
+          .from('templates')
           .select('id')
-          .or(`slug.eq.${slug},and(user_id.eq.${userId},template_id.eq.${templateUuid})`)
-          .limit(1)
+          .eq('slug', themeId)
           .maybeSingle();
+        templateUuid = tpl?.id || null;
+      } catch (e) {}
 
-        if (existingSite?.id) {
-          siteUuid = existingSite.id;
-          await supabase
-            .from('wedding_sites')
-            .update({
-              slug: slug,
-              template_id: templateUuid,
-              status: 'published',
-              is_locked: true,
-              editing_status: 'locked',
-              publication_status: 'published',
-              payment_status: 'paid',
-              content: state, // Latest customized state with new theme & names
-              draft_content: state,
-              published_url: publishedUrl,
-              published_at: now,
-              updated_at: now,
-            })
-            .eq('id', existingSite.id);
-        } else {
-          const isValidUserUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
-          const insertPayload: any = {
-            template_id: templateUuid,
-            slug: slug,
-            status: 'published',
-            is_locked: true,
-            editing_status: 'locked',
-            publication_status: 'published',
-            payment_status: 'paid',
-            content: state,
-            draft_content: state,
-            published_url: publishedUrl,
-            published_at: now,
-            updated_at: now,
-          };
-          if (isValidUserUuid) {
-            insertPayload.user_id = userId;
-          }
+      // 2. Check if a site already exists for this slug or user template
+      let existingSiteQuery = supabase.from('wedding_sites').select('id');
+      if (userId && templateUuid) {
+        existingSiteQuery = existingSiteQuery.or(`slug.eq.${slug},and(user_id.eq.${userId},template_id.eq.${templateUuid})`);
+      } else {
+        existingSiteQuery = existingSiteQuery.eq('slug', slug);
+      }
 
-          const { data: newSite, error: insErr } = await supabase
-            .from('wedding_sites')
-            .insert(insertPayload)
-            .select()
-            .single();
+      const { data: existingSite } = await existingSiteQuery.limit(1).maybeSingle();
 
-          if (!insErr && newSite?.id) {
-            siteUuid = newSite.id;
-          }
+      const isValidUserUuid = typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+
+      if (existingSite?.id) {
+        siteUuid = existingSite.id;
+        const updatePayload: any = {
+          slug: slug,
+          status: 'published',
+          is_locked: true,
+          editing_status: 'locked',
+          publication_status: 'published',
+          payment_status: 'paid',
+          content: state, // Latest customized state with new theme & names
+          draft_content: state,
+          published_url: publishedUrl,
+          published_at: now,
+          updated_at: now,
+        };
+        if (templateUuid) updatePayload.template_id = templateUuid;
+        if (isValidUserUuid) updatePayload.user_id = userId;
+
+        await supabase
+          .from('wedding_sites')
+          .update(updatePayload)
+          .eq('id', existingSite.id);
+      } else {
+        const insertPayload: any = {
+          slug: slug,
+          status: 'published',
+          is_locked: true,
+          editing_status: 'locked',
+          publication_status: 'published',
+          payment_status: 'paid',
+          content: state,
+          draft_content: state,
+          published_url: publishedUrl,
+          published_at: now,
+          updated_at: now,
+        };
+        if (templateUuid) insertPayload.template_id = templateUuid;
+        if (isValidUserUuid) insertPayload.user_id = userId;
+
+        const { data: newSite, error: insErr } = await supabase
+          .from('wedding_sites')
+          .insert(insertPayload)
+          .select()
+          .single();
+
+        if (!insErr && newSite?.id) {
+          siteUuid = newSite.id;
         }
       }
     }

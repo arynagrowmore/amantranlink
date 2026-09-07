@@ -186,14 +186,12 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
 
   const finalizePublishing = () => {
     savePublishedInvitation(slug, state);
-    if (user?.uid) {
-      publishWeddingSite({
-        userId: user.uid,
-        themeId: state.theme,
-        state,
-        customSlug: slug,
-      });
-    }
+    publishWeddingSite({
+      userId: user?.uid || `user_${Date.now()}`,
+      themeId: state.theme,
+      state,
+      customSlug: slug,
+    });
 
     setStage('completed');
     confetti({
