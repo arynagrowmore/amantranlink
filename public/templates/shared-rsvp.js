@@ -1,7 +1,7 @@
 /**
- * 🏰 AMANTRANLINK UNIVERSAL RSVP CLIENT ENGINE (ALL 7 TEMPLATES)
- * Dynamically binds to theme RSVP forms, validates input, connects to Supabase backend API,
- * and communicates seamlessly with the Couple Dashboard & Live Canvas.
+ * 🏰 AMANTRANLINK UNIVERSAL RSVP CLIENT ENGINE (ALL 7 ROYAL TEMPLATES)
+ * Dynamically binds to theme RSVP forms, supports 3-tier attendance choices (Attending, Maybe, Decline),
+ * connects to Supabase backend API, and communicates seamlessly with the Couple Dashboard & Live Canvas.
  */
 
 (function () {
@@ -58,54 +58,137 @@
       if (form.dataset.rsvpInitialized === 'true') return;
       form.dataset.rsvpInitialized = 'true';
 
-      // Attendee selection toggle highlight (if segmented buttons exist)
-      var attendeePills = form.querySelectorAll('.rsvp-attendee-pill');
-      attendeePills.forEach(function (pill) {
-        pill.addEventListener('click', function () {
-          attendeePills.forEach(function (p) {
-            p.classList.remove('active', 'selected', 'ring-2', 'border-gold');
-          });
-          pill.classList.add('active', 'selected');
-          var hiddenCountInput = form.querySelector('input[name="attendees_count"]');
-          if (hiddenCountInput && pill.dataset.count) {
-            hiddenCountInput.value = pill.dataset.count;
-          }
-        });
-      });
+      // Headcount Stepper Controls (− / +) with 01 Guest / 02 Guests formatting
+      var headcountDec = form.querySelector('.rsvp-count-dec');
+      var headcountInc = form.querySelector('.rsvp-count-inc');
+      var countDisplay = form.querySelector('.rsvp-count-val');
+      var countLabel = form.querySelector('.rsvp-count-label');
+      var countSelect = form.querySelector('select[name="attendees_count"]');
+      var countHidden = form.querySelector('input[name="attendees_count"]');
 
-      // Attending Yes/No Choice Cards toggle
-      var choiceCards = form.querySelectorAll('.rjm-choice-card, .rsvp-choice-card');
+      function formatGuestCount(num) {
+        var n = parseInt(num, 10) || 1;
+        var formatted = n < 10 ? '0' + n : String(n);
+        var label = n === 1 ? 'Guest' : 'Guests';
+        return { formatted: formatted, label: label, raw: n };
+      }
+
+      function updateHeadcount(newCount) {
+        var clamped = Math.max(1, Math.min(30, newCount));
+        var res = formatGuestCount(clamped);
+        if (countDisplay) countDisplay.textContent = res.formatted;
+        if (countLabel) countLabel.textContent = res.label;
+        if (countSelect) countSelect.value = String(clamped);
+        if (countHidden) countHidden.value = String(clamped);
+      }
+
+      if (headcountDec) {
+        headcountDec.addEventListener('click', function (e) {
+          e.preventDefault();
+          var current = countHidden ? parseInt(countHidden.value, 10) || 2 : (countDisplay ? parseInt(countDisplay.textContent, 10) || 2 : 2);
+          updateHeadcount(current - 1);
+        });
+      }
+      if (headcountInc) {
+        headcountInc.addEventListener('click', function (e) {
+          e.preventDefault();
+          var current = countHidden ? parseInt(countHidden.value, 10) || 2 : (countDisplay ? parseInt(countDisplay.textContent, 10) || 2 : 2);
+          updateHeadcount(current + 1);
+        });
+      }
+      if (countSelect) {
+        countSelect.addEventListener('change', function () {
+          var res = formatGuestCount(countSelect.value);
+          if (countDisplay) countDisplay.textContent = res.formatted;
+          if (countLabel) countLabel.textContent = res.label;
+          if (countHidden) countHidden.value = countSelect.value;
+        });
+      }
+
+      // Attending Option Toggle (Attending vs Declined)
       var attendanceToggles = form.querySelectorAll('input[name="attending"]');
+      var submitBtn = form.querySelector('button[type="submit"]');
 
       function syncChoiceCardVisuals() {
         attendanceToggles.forEach(function (radio) {
           var card = radio.closest('.rjm-choice-card, .rsvp-choice-card, label');
+          var checkIcon = card ? card.querySelector('.choice-check-icon') : null;
           if (card) {
             if (radio.checked) {
-              card.classList.add('selected-choice', 'border-[#6E1020]', 'bg-[#FFFDF8]', 'shadow-sm');
-              card.classList.remove('border-[#E8D5AD]', 'border-[#D8C7AA]', 'opacity-70');
+              card.classList.add('selected-choice', 'border-[#C49A35]', 'bg-[#FFFDF8]', 'shadow-sm');
+              card.classList.remove('border-[#E8DFD1]', 'border-[#E8D5AD]', 'bg-[#FAF6EE]');
+              if (checkIcon) {
+                checkIcon.style.opacity = '1';
+                checkIcon.style.color = '#C49A35';
+              }
             } else {
-              card.classList.remove('selected-choice', 'border-[#6E1020]', 'shadow-sm');
-              card.classList.add('border-[#E8D5AD]', 'opacity-80');
+              card.classList.remove('selected-choice', 'border-[#C49A35]', 'shadow-sm');
+              card.classList.add('border-[#E8DFD1]', 'bg-[#FAF6EE]');
+              if (checkIcon) {
+                checkIcon.style.opacity = '0.35';
+                checkIcon.style.color = '#9C8C8E';
+              }
             }
           }
         });
+
+        // Sync Dynamic CTA Button Text
+        var checkedRadio = form.querySelector('input[name="attending"]:checked');
+        var val = checkedRadio ? checkedRadio.value : 'true';
+        var isDeclined = val === 'false' || val === '0' || val === 'not_attending' || val === 'no';
+        var ctaTextSpan = form.querySelector('.rsvp-cta-text');
+
+        if (ctaTextSpan) {
+          if (isDeclined) {
+            ctaTextSpan.textContent = 'SEND OUR LOVE & WISHES →';
+          } else {
+            ctaTextSpan.textContent = 'CONFIRM MY RSVP →';
+          }
+        }
+
+        // Toggle visibility of headcount & dining preference groups
+        var attendeeCountContainer = form.querySelector('.rsvp-attendees-group');
+        var mealPrefContainer = form.querySelector('.rsvp-meal-group');
+
+        if (attendeeCountContainer) {
+          if (isDeclined) {
+            attendeeCountContainer.style.display = 'none';
+          } else {
+            attendeeCountContainer.style.display = 'block';
+          }
+        }
+        if (mealPrefContainer) {
+          if (isDeclined) {
+            mealPrefContainer.style.display = 'none';
+          } else {
+            mealPrefContainer.style.display = 'block';
+          }
+        }
       }
 
-      attendanceToggles.forEach(function (radio) {
-        radio.addEventListener('change', function () {
-          syncChoiceCardVisuals();
-          var attendeeCountContainer = form.querySelector('.rsvp-attendees-group');
-          if (attendeeCountContainer) {
-            if (radio.value === 'false' || radio.value === false) {
-              attendeeCountContainer.style.opacity = '0.4';
-              attendeeCountContainer.style.pointerEvents = 'none';
-            } else {
-              attendeeCountContainer.style.opacity = '1';
-              attendeeCountContainer.style.pointerEvents = 'auto';
-            }
+      // Meal / Dining Preference Custom Request Reveal
+      var mealRadios = form.querySelectorAll('input[name="meal_preference"]');
+      var customMealContainer = form.querySelector('.rsvp-custom-meal-wrap');
+
+      function syncMealPreferenceVisuals() {
+        var checkedMeal = form.querySelector('input[name="meal_preference"]:checked');
+        var val = checkedMeal ? checkedMeal.value : '';
+        if (customMealContainer) {
+          if (val === 'Other / Special Request' || val === 'Special Request' || val === 'Other') {
+            customMealContainer.style.display = 'block';
+          } else {
+            customMealContainer.style.display = 'none';
           }
-        });
+        }
+      }
+
+      mealRadios.forEach(function (radio) {
+        radio.addEventListener('change', syncMealPreferenceVisuals);
+      });
+      syncMealPreferenceVisuals();
+
+      attendanceToggles.forEach(function (radio) {
+        radio.addEventListener('change', syncChoiceCardVisuals);
       });
 
       // Initial visual sync
@@ -115,7 +198,6 @@
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        var submitBtn = form.querySelector('button[type="submit"]');
         var errorBanner = form.querySelector('.rsvp-error-msg');
         var successContainer = form.parentElement.querySelector('.rsvp-success-card') || form.querySelector('.rsvp-success-card');
         var formFieldsContainer = form.querySelector('.rsvp-fields-container') || form;
@@ -130,12 +212,16 @@
         var phoneInput = form.querySelector('[name="guest_phone"]');
         var attendingInput = form.querySelector('input[name="attending"]:checked');
         var attendeesInput = form.querySelector('[name="attendees_count"]');
+        var mealInput = form.querySelector('input[name="meal_preference"]:checked') || form.querySelector('[name="meal_preference"]');
         var wishesInput = form.querySelector('[name="wishes"]');
 
         var guestName = nameInput ? nameInput.value.trim() : '';
         var guestPhone = phoneInput ? phoneInput.value.trim() : '';
-        var isAttending = attendingInput ? (attendingInput.value === 'true' || attendingInput.value === '1' || attendingInput.value === true) : true;
-        var attendeesCount = attendeesInput ? Math.max(1, parseInt(attendeesInput.value, 10) || 1) : 1;
+        var attendanceRaw = attendingInput ? attendingInput.value : 'true';
+        var isAttending = attendanceRaw === 'true' || attendanceRaw === '1' || attendanceRaw === true || attendanceRaw === 'attending';
+        var isMaybe = attendanceRaw === 'maybe';
+        var attendeesCount = (isAttending || isMaybe) ? (attendeesInput ? Math.max(1, parseInt(attendeesInput.value, 10) || 1) : 1) : 0;
+        var mealPreference = mealInput ? mealInput.value : null;
         var wishes = wishesInput ? wishesInput.value.trim() : '';
 
         // Validation
@@ -163,7 +249,7 @@
           submitBtn.disabled = true;
           submitBtn.innerHTML = '<span style="display:inline-flex;align-items:center;justify-content:center;gap:8px;">' +
             '<svg style="animation:spin 1s linear infinite;width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-width="3" stroke-dasharray="32" stroke-linecap="round"/></svg>' +
-            '✦ RECORDING RSVP…</span>';
+            'SAVING YOUR RESPONSE…</span>';
         }
 
         var meta = getActiveWeddingMetadata();
@@ -184,12 +270,23 @@
           } catch (resErr) {}
         }
 
+        var storageKey = 'shahi_rsvp_' + (meta.slug || 'wedding');
+        var attendanceStatus = isAttending ? 'Attending' : 'Not Attending';
+
+        var customMealNote = form.querySelector('[name="custom_meal_note"]');
+        var fullMealPref = mealPreference;
+        if (mealPreference === 'Other / Special Request' && customMealNote && customMealNote.value.trim()) {
+          fullMealPref = 'Special: ' + customMealNote.value.trim();
+        }
+
         var payload = {
           wedding_slug: meta.slug || window.LIVE_WEDDING_SLUG || 'royal-wedding',
           guest_name: guestName,
           guest_phone: guestPhone,
-          attendees_count: isAttending ? attendeesCount : 0,
+          attendees_count: attendeesCount,
           attending: isAttending,
+          attendance_status: attendanceStatus,
+          meal_preference: fullMealPref,
           wishes: wishes
         };
         if (validSiteId) {
@@ -238,16 +335,78 @@
             if (gwRes.ok && gwJson.success) {
               submitted = true;
             } else {
-              throw new Error(gwJson.error || errorDetail || 'Unable to submit RSVP. Please try again.');
+              throw new Error(gwJson.error || errorDetail || 'Unable to submit RSVP.');
             }
           }
 
-          // Populate Guest Name in Success Card
+          // Persist response locally for "Already Responded" return view
+          try {
+            localStorage.setItem(storageKey, JSON.stringify(payload));
+          } catch (e) {}
+
+          // Populate Confirmation Screen with Contextual Message
           if (successContainer) {
             var confirmedNameEls = successContainer.querySelectorAll('.rsvp-confirmed-name, .guest-name-confirmed');
             confirmedNameEls.forEach(function (el) {
               el.textContent = guestName;
             });
+
+            var countEls = successContainer.querySelectorAll('.rsvp-confirmed-count');
+            countEls.forEach(function (el) {
+              el.textContent = attendeesCount < 10 ? '0' + attendeesCount : String(attendeesCount);
+            });
+
+            var countLabelEls = successContainer.querySelectorAll('.rsvp-confirmed-count-label');
+            countLabelEls.forEach(function (el) {
+              el.textContent = attendeesCount === 1 ? 'Guest' : 'Guests';
+            });
+
+            var mealPrefEl = successContainer.querySelector('.rsvp-confirmed-meal');
+            if (mealPrefEl) {
+              mealPrefEl.textContent = fullMealPref || 'Traditional Feast';
+            }
+
+            // Contextual thank you note
+            var noteEl = successContainer.querySelector('.rsvp-success-note');
+            if (noteEl) {
+              if (isAttending) {
+                noteEl.textContent = "We’re so happy to celebrate this moment with you. We'll keep your place ready.";
+              } else {
+                noteEl.textContent = 'Thank you for letting us know. Sending our love and warmest blessings.';
+              }
+            }
+
+            var badgeEl = successContainer.querySelector('.rsvp-success-badge');
+            if (badgeEl) {
+              if (isAttending) {
+                badgeEl.innerHTML = '<span style="color:#167A5A;font-weight:bold;">✓ Attendance Confirmed</span> · ' + (attendeesCount < 10 ? '0' + attendeesCount : attendeesCount) + ' ' + (attendeesCount === 1 ? 'Guest' : 'Guests');
+                badgeEl.style.borderColor = '#BCE3D1';
+                badgeEl.style.backgroundColor = '#FAF6EE';
+              } else {
+                badgeEl.innerHTML = '<span style="color:#6E1020;font-weight:bold;">🕊️ Sending Love from Afar</span> · Regretfully Declined';
+                badgeEl.style.borderColor = '#E8DFD1';
+                badgeEl.style.backgroundColor = '#FAF6EE';
+              }
+            }
+
+            // Update RSVP Button Action
+            var updateBtn = successContainer.querySelector('.rsvp-update-btn');
+            if (updateBtn && !updateBtn.dataset.bound) {
+              updateBtn.dataset.bound = 'true';
+              updateBtn.addEventListener('click', function (ev) {
+                ev.preventDefault();
+                successContainer.style.display = 'none';
+                if (formFieldsContainer && formFieldsContainer !== form) {
+                  formFieldsContainer.style.display = 'block';
+                }
+                form.style.display = 'block';
+                if (submitBtn) {
+                  submitBtn.disabled = false;
+                  submitBtn.innerHTML = '<span class="text-[#F4D06F]">✦</span><span class="rsvp-cta-text">UPDATE MY RSVP →</span><span class="text-[#F4D06F]">✦</span>';
+                }
+                form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              });
+            }
           }
 
           // Success Presentation (Soft transition)
@@ -262,7 +421,7 @@
             successContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
 
-          // Notify Parent Frame / Couple Dashboard / Profile
+          // Notify Parent Frame / Couple Dashboard
           try {
             window.parent.postMessage({
               type: 'SHAHI_RSVP_SUBMITTED',
@@ -272,7 +431,7 @@
 
         } catch (err) {
           console.error('RSVP Submission Error:', err);
-          showError(form, "We couldn't record your RSVP right now. Please check your details and try again.");
+          showError(form, "We couldn’t save your response just yet. Kindly check your connection and try again.");
           if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = origBtnText;
@@ -287,10 +446,10 @@
     if (!errorBanner) {
       errorBanner = document.createElement('div');
       errorBanner.className = 'rsvp-error-msg';
-      errorBanner.style.cssText = 'color:#6E1020;background:#FDF2F4;border:1px solid #E8D5AD;border-radius:14px;padding:10px 14px;font-size:12px;margin-bottom:14px;text-align:center;font-weight:600;font-family:inherit;';
+      errorBanner.style.cssText = 'color:#6E1020;background:#FDF2F4;border:1px solid #C49A35;border-radius:16px;padding:12px 18px;font-size:12px;margin-bottom:16px;text-align:center;font-weight:600;font-family:inherit;box-shadow:0 2px 8px rgba(110,16,32,0.08);';
       form.insertBefore(errorBanner, form.firstChild);
     }
-    errorBanner.innerHTML = '✦ ' + msg;
+    errorBanner.innerHTML = '✦ ' + msg + ' <button type="button" onclick="this.parentElement.style.display=\'none\'" style="margin-left:8px;text-decoration:underline;cursor:pointer;background:none;border:none;color:#6E1020;font-weight:bold;">Try Again</button>';
     errorBanner.style.display = 'block';
   }
 
@@ -300,35 +459,4 @@
   } else {
     initShahiRsvp();
   }
-
-  // Expose global init hook for SPA re-renders
-  window.initShahiRsvp = initShahiRsvp;
-
-  // 🎵 Universal Single Audio Enforcement across All Templates
-  window.addEventListener('message', function(event) {
-    if (!event.data) return;
-    if (event.data.type === 'PAUSE_AUDIO' || event.data.type === 'STOP_AUDIO' || event.data.type === 'MUTE_AUDIO') {
-      document.querySelectorAll('audio').forEach(function(a) {
-        try { 
-          a.pause(); 
-        } catch(e) {}
-      });
-      document.querySelectorAll('.rjm-music-btn, #rjm-music-toggle, .music-btn, .audio-toggle, .rjm-audio-widget').forEach(function(btn) {
-        btn.classList.remove('is-playing', 'playing');
-      });
-    }
-  });
-
-  // Broadcast to parent when this template plays audio so parent can pause conflicting iframes
-  document.addEventListener('play', function(e) {
-    if (e.target && e.target.tagName === 'AUDIO') {
-      try {
-        if (window.parent && window.parent !== window) {
-          window.parent.postMessage({ type: 'AUDIO_STARTED_IN_IFRAME' }, '*');
-        }
-      } catch(err) {}
-    }
-  }, true);
 })();
-
-

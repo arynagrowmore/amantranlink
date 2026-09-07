@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Users, CheckCircle2, XCircle, Heart, Download, Search, 
   RefreshCw, MessageCircle, ExternalLink, ArrowLeft, 
-  Sparkles, Filter, ShieldCheck, Share2, UserCheck, ListOrdered, Check, Camera, Printer
+  Sparkles, Filter, ShieldCheck, Share2, UserCheck, ListOrdered, Check, Camera, Printer, Edit3
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { fetchWeddingRsvps, exportRsvpsToCSV, RsvpRecord, RsvpSummary } from '../services/rsvpService';
@@ -84,125 +84,118 @@ export const CoupleDashboard: React.FC<CoupleDashboardProps> = ({
     <div className="min-h-screen bg-[#FAF6EE] text-[#20181A] font-manrope selection:bg-[#C59B4B]/30 pb-20">
       
       {/* ========================================================================= */}
-      {/* 1. TOP APPLICATION BAR (Deep Royal Burgundy)                              */}
+      {/* 1. TOP ATELIER BAR                                                        */}
       {/* ========================================================================= */}
-      <header className="border-b border-[#31060D] bg-[#430914] text-[#FDFBF7] sticky top-0 z-40 px-4 sm:px-8 py-3 flex items-center justify-between shadow-xs">
+      <header className="border-b border-[#E8D5AD]/60 bg-[#FFFDF8] text-[#241A17] sticky top-0 z-40 px-4 sm:px-8 py-3 flex items-center justify-between shadow-2xs">
         
-        {/* Left Side: Back & Portal Title */}
+        {/* Left Side: Back & Atelier Identity */}
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onBackToStudio}
-            className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-[#F4D06F] transition-all cursor-pointer flex items-center gap-1 text-xs font-semibold"
-            title="Return to Studio Editor"
+            className="px-3 py-1.5 rounded-lg bg-transparent hover:bg-[#F8F3E8] border border-[#E8D5AD] text-[#350811] transition-all cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
+            title="Return to Studio Atelier"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Studio</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Invitation Atelier</span>
           </button>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono tracking-widest text-[#E2B968] uppercase font-bold">
-                AmantranLink · Couple Portal
-              </span>
-              <span className="hidden sm:inline-flex items-center gap-1 text-[9px] font-mono bg-emerald-950/60 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                Live Sync
-              </span>
-            </div>
-            <h1 className="font-cormorant text-lg sm:text-xl font-bold text-[#FFFDF8] tracking-wide leading-tight">
-              {coupleName}’s Vivah Portal
-            </h1>
+          <div className="hidden sm:flex flex-col border-l border-[#E8D5AD]/60 pl-3">
+            <span className="font-cormorant font-bold text-base tracking-wider text-[#350811] block leading-none">
+              AMANTRAN<span className="text-[#C49A35]">LINK</span>
+            </span>
+            <span className="text-[8px] font-mono font-medium text-[#8C7A73] uppercase tracking-widest block leading-none mt-0.5">
+              COUPLE WEDDING WORKSPACE
+            </span>
           </div>
         </div>
 
-        {/* Right Side: Tab Switcher & Share Public Link */}
-        <div className="flex items-center gap-2.5">
-          
-          {/* Restrained Tab Switcher */}
-          <div className="hidden sm:flex items-center p-0.5 rounded-xl bg-[#2A050D] border border-white/10 text-xs">
+        {/* Right Side: Tab Navigation & Quick Actions */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Atelier Navigation Tabs */}
+          <div className="hidden md:flex items-center p-0.5 rounded-lg bg-[#F8F3E8] border border-[#E8D5AD]/60 text-xs">
             <button
               type="button"
               onClick={() => setActiveTab('guests')}
-              className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'guests'
-                  ? 'bg-white text-[#430914] font-bold shadow-2xs'
-                  : 'text-[#D9C8CB] hover:text-white'
+                  ? 'bg-[#FFFDF8] text-[#350811] shadow-2xs font-bold'
+                  : 'text-[#75675C] hover:text-[#350811]'
               }`}
             >
-              <Users className="w-3.5 h-3.5" />
-              <span>Guest Management</span>
+              <Users className="w-3.5 h-3.5 text-[#C49A35]" />
+              <span>Guest Directory</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('rsvps')}
-              className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'rsvps'
-                  ? 'bg-white text-[#430914] font-bold shadow-2xs'
-                  : 'text-[#D9C8CB] hover:text-white'
+                  ? 'bg-[#FFFDF8] text-[#350811] shadow-2xs font-bold'
+                  : 'text-[#75675C] hover:text-[#350811]'
               }`}
             >
-              <Heart className="w-3.5 h-3.5" />
+              <Heart className="w-3.5 h-3.5 text-[#C49A35]" />
               <span>RSVP Responses ({summary.totalRsvps})</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('memories')}
-              className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'memories'
-                  ? 'bg-white text-[#430914] font-bold shadow-2xs'
-                  : 'text-[#D9C8CB] hover:text-white'
+                  ? 'bg-[#FFFDF8] text-[#350811] shadow-2xs font-bold'
+                  : 'text-[#75675C] hover:text-[#350811]'
               }`}
             >
-              <Camera className="w-3.5 h-3.5" />
-              <span>Memories &amp; Wishes</span>
+              <Camera className="w-3.5 h-3.5 text-[#C49A35]" />
+              <span>Memories &amp; Wall</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('exports')}
-              className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'exports'
-                  ? 'bg-white text-[#430914] font-bold shadow-2xs'
-                  : 'text-[#D9C8CB] hover:text-white'
+                  ? 'bg-[#FFFDF8] text-[#350811] shadow-2xs font-bold'
+                  : 'text-[#75675C] hover:text-[#350811]'
               }`}
             >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Export &amp; Download</span>
+              <Printer className="w-3.5 h-3.5 text-[#C49A35]" />
+              <span>Export &amp; Print</span>
             </button>
           </div>
 
-          {/* Secondary Action: Share Public Link */}
+          {/* Share Invitation CTA */}
           <button
             type="button"
             onClick={handleCopyInviteLink}
-            className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-[#F7E7C4] text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer border border-white/10"
+            className="px-3.5 py-1.5 rounded-lg bg-[#6E1020] hover:bg-[#520B17] text-[#FFFDF8] text-xs font-semibold tracking-wide flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
             title="Copy Public Wedding Invitation Link"
           >
-            {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5 text-[#E2B968]" />}
-            <span>{copiedLink ? 'Copied!' : 'Share Public Link'}</span>
+            {copiedLink ? <Check className="w-3.5 h-3.5 text-[#F4D06F]" /> : <Share2 className="w-3.5 h-3.5 text-[#F4D06F]" />}
+            <span>{copiedLink ? 'Link Copied!' : 'Share Invitation'}</span>
           </button>
         </div>
       </header>
 
       {/* Mobile Tab Bar */}
-      <div className="sm:hidden flex items-center justify-around bg-[#33070F] border-b border-[#430914] p-1.5 text-xs">
+      <div className="md:hidden flex items-center justify-around bg-[#FFFDF8] border-b border-[#E8D5AD]/60 p-1.5 text-xs">
         <button
           type="button"
           onClick={() => setActiveTab('guests')}
           className={`flex-1 py-1.5 rounded-lg font-semibold text-center transition-all ${
-            activeTab === 'guests' ? 'bg-white text-[#430914] font-bold' : 'text-[#D9C8CB]'
+            activeTab === 'guests' ? 'bg-[#6E1020] text-white font-bold' : 'text-[#75675C]'
           }`}
         >
-          Guest List
+          Guests
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('rsvps')}
           className={`flex-1 py-1.5 rounded-lg font-semibold text-center transition-all ${
-            activeTab === 'rsvps' ? 'bg-white text-[#430914] font-bold' : 'text-[#D9C8CB]'
+            activeTab === 'rsvps' ? 'bg-[#6E1020] text-white font-bold' : 'text-[#75675C]'
           }`}
         >
           RSVP ({summary.totalRsvps})
@@ -211,7 +204,7 @@ export const CoupleDashboard: React.FC<CoupleDashboardProps> = ({
           type="button"
           onClick={() => setActiveTab('memories')}
           className={`flex-1 py-1.5 rounded-lg font-semibold text-center transition-all ${
-            activeTab === 'memories' ? 'bg-white text-[#430914] font-bold' : 'text-[#D9C8CB]'
+            activeTab === 'memories' ? 'bg-[#6E1020] text-white font-bold' : 'text-[#75675C]'
           }`}
         >
           Memories
@@ -220,7 +213,7 @@ export const CoupleDashboard: React.FC<CoupleDashboardProps> = ({
           type="button"
           onClick={() => setActiveTab('exports')}
           className={`flex-1 py-1.5 rounded-lg font-semibold text-center transition-all ${
-            activeTab === 'exports' ? 'bg-white text-[#430914] font-bold' : 'text-[#D9C8CB]'
+            activeTab === 'exports' ? 'bg-[#6E1020] text-white font-bold' : 'text-[#75675C]'
           }`}
         >
           Export
@@ -230,8 +223,109 @@ export const CoupleDashboard: React.FC<CoupleDashboardProps> = ({
       {/* ========================================================================= */}
       {/* MAIN BODY CONTAINER                                                       */}
       {/* ========================================================================= */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-8 mt-6 space-y-6">
         
+        {/* 👑 WEDDING HERO IDENTITY & EDITORIAL PULSE */}
+        <section className="p-6 sm:p-8 rounded-3xl bg-[#FFFDF8] border border-[#E8D5AD] shadow-[0_4px_25px_rgba(36,26,23,0.04)] relative overflow-hidden">
+          {/* Subtle watermark crest */}
+          <div className="absolute right-6 top-6 opacity-5 pointer-events-none select-none text-9xl font-serif text-[#C49A35]">
+            🏰
+          </div>
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+            
+            {/* Left Column: Couple Identity & Emotional Story Status */}
+            <div className="space-y-2 max-w-xl">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono tracking-widest text-[#C49A35] uppercase font-bold">
+                  ॥ श्री गणेशाय नमः ॥
+                </span>
+                <span className="text-[#8C7A73]">·</span>
+                <span className="text-xs font-mono text-[#8C7A73] uppercase tracking-wider">
+                  {state.couple.venueName || 'Udaipur, Rajasthan'} · {state.couple.weddingDate || '18 February 2027'}
+                </span>
+              </div>
+
+              <h1 className="font-cormorant text-2xl sm:text-4xl font-bold text-[#350811] tracking-tight">
+                {coupleName.toUpperCase()}
+              </h1>
+
+              <p className="text-xs sm:text-sm text-[#75675C] leading-relaxed">
+                Your wedding is taking shape beautifully. Every guest response, blessing and moment gathered in one sacred atelier.
+              </p>
+            </div>
+
+            {/* Right Column: Next in Your Wedding Journey & Quick Actions */}
+            <div className="bg-[#FAF6EE] p-5 rounded-2xl border border-[#E8D5AD]/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 lg:min-w-[420px]">
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-[#6E1020] font-bold block">
+                  Next in your wedding journey
+                </span>
+                <p className="text-xs font-semibold text-[#241A17] leading-snug">
+                  {summary.totalRsvps === 0
+                    ? 'Your invitation is ready to personalize and share with families.'
+                    : `${summary.totalAttendingCount} families have confirmed. Review dietary choices & passes.`}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={onBackToStudio}
+                  className="px-4 py-2 rounded-lg bg-[#6E1020] hover:bg-[#520B17] text-white text-xs font-bold tracking-wide transition-all cursor-pointer shadow-2xs whitespace-nowrap"
+                >
+                  <span>Open Atelier</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 📊 Asymmetric Wedding Pulse Strip */}
+          <div className="mt-8 pt-6 border-t border-[#E8D5AD]/60 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 text-left">
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#8C7A73] font-bold block">
+                Invitations
+              </span>
+              <div className="font-cormorant text-2xl sm:text-3xl font-bold text-[#350811] leading-none">
+                {summary.totalRsvps > 0 ? `${summary.totalRsvps} Families` : 'Ready to Share'}
+              </div>
+              <span className="text-[11px] text-[#75675C] block">Personalized Digital Passes</span>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#8C7A73] font-bold block">
+                RSVP Responses
+              </span>
+              <div className="font-cormorant text-2xl sm:text-3xl font-bold text-[#167A5A] leading-none">
+                {summary.totalAttendingCount} Confirmed
+              </div>
+              <span className="text-[11px] text-[#75675C] block">
+                {summary.totalRegretsCount > 0 ? `${summary.totalRegretsCount} Declining` : 'Awaiting responses'}
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#8C7A73] font-bold block">
+                Expected Guests
+              </span>
+              <div className="font-cormorant text-2xl sm:text-3xl font-bold text-[#350811] leading-none">
+                {summary.totalAttendingCount > 0 ? `${summary.totalAttendingCount} Guests` : '0 Headcount'}
+              </div>
+              <span className="text-[11px] text-[#75675C] block">Confirmed Headcount</span>
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#8C7A73] font-bold block">
+                Ceremony Muhurat
+              </span>
+              <div className="font-cormorant text-2xl sm:text-3xl font-bold text-[#350811] leading-none">
+                {state.couple.muhuratTime || '06:30 PM'}
+              </div>
+              <span className="text-[11px] text-[#75675C] block">Auspicious Vivah Pheras</span>
+            </div>
+          </div>
+        </section>
+
         {/* TAB 1: GUEST MANAGEMENT VIEW */}
         {activeTab === 'guests' && (
           <GuestManagementView

@@ -54,7 +54,7 @@ app.use(cors({
     return callback(new Error(`CORS policy: Origin ${origin} not allowed`));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-Id']
 }));
 app.use(express.json({ limit: '25mb' }));
@@ -3386,8 +3386,13 @@ const runAutomationWorker = async () => {
   }
 };
 
-// Start 60s worker daemon
-setInterval(runAutomationWorker, 60000);
+// Start 60s worker daemon in standalone server mode (not serverless)
+if (typeof process !== 'undefined' && !process.env.VERCEL) {
+  const isDirect = process.argv[1] && (process.argv[1].endsWith('server.js') || process.argv[1].endsWith('server.cjs'));
+  if (isDirect) {
+    setInterval(runAutomationWorker, 60000);
+  }
+}
 
 // Note: Email Campaign & WhatsApp Campaign modules removed per Prompt 19.
 // Guest Management focuses on Personalized Direct Links (/i/:slug?guest=:token).
@@ -3826,12 +3831,26 @@ app.get('/', (req, res) => {
   `);
 });
 
-// 🚀 Start Server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n======================================================`);
-  console.log(`🏰 AMANTRANLINK SUPABASE + RAZORPAY BACKEND RUNNING`);
-  console.log(`📍 Port:     ${PORT} (Listening on 0.0.0.0)`);
-  console.log(`⚡ DB/Auth:  Supabase PostgreSQL (Zero Firebase)`);
-  console.log(`💳 Payments: Razorpay Gateway Official Integration`);
-  console.log(`======================================================\n`);
-});
+// 🚀 Start Server when executed directly (node server.js)
+const isDirectExecution = typeof process !== 'undefined' && 
+  process.argv[1] && 
+  (process.argv[1].endsWith('server.js') || process.argv[1].endsWith('server.cjs') || process.argv[1].endsWith('server.mjs'));
+
+if (isDirectExecution && !process.env.VERCEL) {
+  try {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`\n======================================================`);
+      console.log(`🏰 AMANTRANLINK SUPABASE + RAZORPAY BACKEND RUNNING`);
+      console.log(`📍 Port:     ${PORT} (Listening on 0.0.0.0)`);
+      console.log(`⚡ DB/Auth:  Supabase PostgreSQL (Zero Firebase)`);
+      console.log(`💳 Payments: Razorpay Gateway Official Integration`);
+      console.log(`======================================================\n`);
+    });
+  } catch (listenErr) {
+    console.warn('⚠️ Server listen note:', listenErr.message);
+  }
+}
+
+export default app;
+
+

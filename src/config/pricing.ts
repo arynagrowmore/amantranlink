@@ -41,7 +41,7 @@ export const OFFICIAL_PACKAGES: Record<PackageType, PackagePricingConfig> = {
       'Gold Scratch-Heart Blessing Card',
       'Trilingual Vivah Engine (EN, HI, GU)',
       'Lossless Shehnai & Audio Uploads',
-      'Digital QR Entry Pass & Guest Directory',
+      'Guest Hospitality & RSVP Directory',
       'Live RSVP Analytics & Excel Download',
     ],
   },

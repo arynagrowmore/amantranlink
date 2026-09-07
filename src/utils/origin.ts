@@ -31,13 +31,15 @@ export const getCurrentAppOrigin = (): string => {
     }
   } catch {}
 
-  return 'https://amantranlink.com';
+  return 'https://amantranlink.in';
 };
 
 export const getAppOrigin = getCurrentAppOrigin;
 
 export const getAuthCallbackUrl = (): string => {
-  return getCurrentAppOrigin();
+  const base = getCurrentAppOrigin();
+  // Return standard auth callback route
+  return `${base}/auth/callback`;
 };
 
 export const getPasswordResetUrl = (): string => {

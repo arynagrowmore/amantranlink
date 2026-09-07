@@ -276,13 +276,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const { data: exchanged, error: exchangeErr } = await supabase.auth.exchangeCodeForSession(code);
             if (exchangeErr) {
               console.warn('OAuth code exchange note:', exchangeErr.message);
-            } else if (exchanged?.session?.user && isMounted) {
               setSupabaseUser(exchanged.session.user);
               const profile = await fetchProfileFromDb(exchanged.session.user);
               setUser(profile);
               localStorage.setItem('SHAHI_AUTH_USER', JSON.stringify(profile));
               setShowAuthModal(false);
-              window.history.replaceState({}, document.title, window.location.pathname);
+              
+              // Restore intended destination if user was redirected from a specific page
+              const savedDest = sessionStorage.getItem('AMANTRANLINK_AUTH_DESTINATION');
+              if (savedDest) {
+                sessionStorage.removeItem('AMANTRANLINK_AUTH_DESTINATION');
+                window.history.replaceState({}, document.title, savedDest);
+                window.dispatchEvent(new CustomEvent('app-navigate', { detail: { path: savedDest } }));
+              } else {
+                window.history.replaceState({}, document.title, window.location.pathname);
+              }
               if (isMounted) setLoading(false);
               return;
             }
@@ -491,6 +499,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!isSupabaseConfigured) {
         throw new Error('Supabase authentication is not configured. Check your environment variables.');
+      }
+
+      // Save current destination before navigating away to Google OAuth
+      if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname + window.location.search + window.location.hash;
+        if (!currentPath.includes('/auth') && !currentPath.includes('code=')) {
+          sessionStorage.setItem('AMANTRANLINK_AUTH_DESTINATION', currentPath);
+        }
       }
 
       const redirectUrl = typeof window !== 'undefined' 

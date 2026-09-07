@@ -758,6 +758,30 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
           @media print {
             body { display: none !important; }
           }
+          /* 👑 Editorial Luxury Stationery Micro-Refinements */
+          html {
+            scroll-behavior: smooth;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+          ::-webkit-scrollbar {
+            width: 5px;
+          }
+          ::-webkit-scrollbar-track {
+            background: rgba(37, 22, 10, 0.05);
+          }
+          ::-webkit-scrollbar-thumb {
+            background: rgba(196, 154, 53, 0.35);
+            border-radius: 9999px;
+          }
+          ::-webkit-scrollbar-thumb:hover {
+            background: rgba(196, 154, 53, 0.6);
+          }
+          .rjm-hero-names, .jhr-hero-names, .myr-hero-names, .jdi-hero-names, .dak-hero-names, .hero-names, .couple-names {
+            letter-spacing: 0.04em !important;
+            text-shadow: 0 2px 14px rgba(0,0,0,0.18);
+          }
         `;
         iframeDoc.head.appendChild(style);
       }
@@ -793,12 +817,12 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
   const domainUrl = `https://${(state.couple.groomEn || 'dhruv').toLowerCase()}-${(state.couple.brideEn || 'shreya').toLowerCase()}.wedding.app`;
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden p-2 sm:p-6 select-none font-manrope">
+    <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden p-2 sm:p-6 select-none font-manrope bg-[#FAF8F5]">
       {/* 🟢 Live Synchronization Status Badge */}
-      <div className="absolute top-4 left-6 z-40 bg-[#FFFDF8]/95 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[#E8D5AD] shadow-md flex items-center gap-2">
-        <span className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-amber-400 animate-ping' : 'bg-[#167A5A]'}`} />
-        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#430914]">
-          {isSyncing ? 'UPDATING PREVIEW…' : 'LIVE PREVIEW'}
+      <div className="absolute top-3 left-4 z-40 bg-[#FFFDF8]/90 backdrop-blur-xs px-2.5 py-1 rounded-md border border-[#E8D5AD]/60 flex items-center gap-1.5 shadow-2xs">
+        <span className={`w-1.5 h-1.5 rounded-full ${isSyncing ? 'bg-[#C49A35] animate-pulse' : 'bg-[#167A5A]'}`} />
+        <span className="text-[9.5px] font-mono font-medium tracking-widest text-[#75675C] uppercase">
+          {isSyncing ? 'UPDATING…' : 'LIVE PREVIEW'}
         </span>
       </div>
 
@@ -961,3 +985,6 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
     </div>
   );
 };
+
+export default LivePreviewCanvas;
+

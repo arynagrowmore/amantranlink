@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle2, Sparkles, Calendar, MapPin, Users, ShieldCheck, 
-  Clock, AlertTriangle, Download, ArrowLeft, RefreshCw, Utensils
+  Clock, AlertTriangle, Download, ArrowLeft, RefreshCw, Utensils,
+  Printer, Share2, Copy, Check
 } from 'lucide-react';
 import { GuestEntryPass } from '../../types/entryPass';
 import { resolveEntryPass } from '../../services/entryPassService';
@@ -19,6 +20,7 @@ export const DigitalEntryPassView: React.FC<DigitalEntryPassViewProps> = ({
   const [pass, setPass] = useState<GuestEntryPass | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   const loadPass = async () => {
     setLoading(true);
@@ -38,14 +40,25 @@ export const DigitalEntryPassView: React.FC<DigitalEntryPassViewProps> = ({
     }
   }, [token, weddingSlug]);
 
-  const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://shahistudio.com';
+  const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://amantranlink.in';
   const passUrl = pass ? `${originUrl}/pass/${pass.entry_token}` : '';
 
+  const handleCopyLink = () => {
+    if (!passUrl) return;
+    navigator.clipboard.writeText(passUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
-    <div className="min-h-screen bg-[#FAF6EE] text-[#20181A] font-manrope flex flex-col justify-center items-center p-4 py-8 relative">
+    <div className="min-h-screen bg-[#FAF6EE] text-[#20181A] font-manrope flex flex-col justify-center items-center p-4 py-8 relative print:bg-white print:p-0">
       
       {/* Top Branding Eyebrow */}
-      <div className="text-center mb-5 space-y-1">
+      <div className="text-center mb-5 space-y-1 print:hidden">
         <span className="text-[10px] font-mono tracking-widest uppercase text-[#9C772F] font-bold">
           AmantranLink · Royal Wedding Entry Pass
         </span>
@@ -55,10 +68,10 @@ export const DigitalEntryPassView: React.FC<DigitalEntryPassViewProps> = ({
       </div>
 
       {/* Main Luxury Ticket Card */}
-      <div className="w-full max-w-md bg-white border border-[#E8DFD1] rounded-3xl shadow-xl overflow-hidden relative">
+      <div className="w-full max-w-md bg-white border border-[#E8DFD1] rounded-3xl shadow-xl overflow-hidden relative print:shadow-none print:border-2 print:border-black print:rounded-2xl">
         
         {/* Top Gold Accent */}
-        <div className="h-2 w-full bg-linear-to-r from-[#9C772F] via-[#F4D06F] to-[#9C772F]" />
+        <div className="h-2 w-full bg-linear-to-r from-[#9C772F] via-[#F4D06F] to-[#9C772F] print:bg-[#C49A35]" />
 
         {loading ? (
           <div className="p-12 text-center space-y-3">
@@ -131,7 +144,7 @@ export const DigitalEntryPassView: React.FC<DigitalEntryPassViewProps> = ({
               </div>
 
               {/* Perforated Divider Visual */}
-              <div className="relative my-4 flex items-center justify-between">
+              <div className="relative my-4 flex items-center justify-between print:hidden">
                 <div className="w-4 h-8 bg-[#FAF6EE] rounded-r-full -ml-6 border-r border-t border-b border-[#E8DFD1]" />
                 <div className="flex-1 border-t-2 border-dashed border-[#E8DFD1] mx-2" />
                 <div className="w-4 h-8 bg-[#FAF6EE] rounded-l-full -mr-6 border-l border-t border-b border-[#E8DFD1]" />
@@ -153,6 +166,26 @@ export const DigitalEntryPassView: React.FC<DigitalEntryPassViewProps> = ({
                 </div>
               </div>
 
+              {/* Action Buttons for Guest */}
+              <div className="flex items-center gap-2 pt-1 print:hidden">
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className="flex-1 py-2.5 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5 text-[#C49A35]" />
+                  <span>Print Pass</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-[#FAF6EE] text-[#6E1020] border border-[#E8DFD1] text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer"
+                >
+                  {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#9C772F]" />}
+                  <span>{copiedLink ? 'Copied' : 'Copy Pass Link'}</span>
+                </button>
+              </div>
+
             </div>
 
             {/* Footer Notice */}
@@ -168,3 +201,4 @@ export const DigitalEntryPassView: React.FC<DigitalEntryPassViewProps> = ({
 };
 
 export default DigitalEntryPassView;
+

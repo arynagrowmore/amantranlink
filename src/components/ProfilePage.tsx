@@ -39,6 +39,7 @@ interface PurchaseItem {
 
 interface WeddingSiteItem {
   id: string;
+  slug?: string;
   template_id: string;
   status: string;
   is_locked: boolean;
@@ -119,21 +120,20 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
     let isMounted = true;
 
     async function loadAccountData() {
-      if (!user?.uid || !isSupabaseConfigured) {
-        setLoadingData(false);
-        return;
-      }
-
       try {
         setLoadingData(true);
 
         // 1. Fetch Purchases
-        const isCyberVip = Boolean(user.email && user.email.toLowerCase().includes('cyberpatel6001@gmail.com'));
-        const { data: dbPurchases } = await supabase
-          .from('purchases')
-          .select('*, templates(slug, name, preview_image, price, category)')
-          .eq('user_id', user.uid)
-          .order('unlocked_at', { ascending: false });
+        const isCyberVip = Boolean(user?.email && user.email.toLowerCase().includes('cyberpatel6001@gmail.com'));
+        let dbPurchases: any[] = [];
+        if (user?.uid && isSupabaseConfigured) {
+          const { data } = await supabase
+            .from('purchases')
+            .select('*, templates(slug, name, preview_image, price, category)')
+            .eq('user_id', user.uid)
+            .order('unlocked_at', { ascending: false });
+          if (data) dbPurchases = data;
+        }
 
         if (isMounted) {
           if (isCyberVip) {
@@ -147,41 +147,132 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
               { id: 'vip_7', template_id: '7', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'ivory', name: 'The Ivory Minimalist (Modern)', preview_image: '/previews/theme-ivory.webp', price: 129900, category: 'modern' } },
             ];
             setPurchases(allRoyalTemplates);
-          } else if (dbPurchases) {
+          } else if (dbPurchases.length > 0) {
             setPurchases(dbPurchases as any);
           }
         }
 
-        // 2. Fetch Wedding Sites
-        const { data: dbSites } = await supabase
-          .from('wedding_sites')
-          .select('*, templates(slug, name, preview_image)')
-          .eq('user_id', user.uid)
-          .order('updated_at', { ascending: false });
+        // 2. Fetch Wedding Sites from Supabase
+        let dbSites: any[] = [];
+        if (user?.uid && isSupabaseConfigured) {
+          const { data } = await supabase
+            .from('wedding_sites')
+            .select('*, templates(slug, name, preview_image)')
+            .eq('user_id', user.uid)
+            .order('updated_at', { ascending: false });
+          if (data) dbSites = data;
+        }
 
-        if (isMounted && dbSites) {
-          setWeddingSites(dbSites as any);
+        // 3. Fallback / Merge from Local Storage for Instant Reliability
+        const mergedSites: WeddingSiteItem[] = [...dbSites];
+        try {
+          // Check SHAHI_USER_SITES
+          const rawLocalSites = localStorage.getItem('SHAHI_USER_SITES');
+          if (rawLocalSites) {
+            const parsed = JSON.parse(rawLocalSites);
+            const userSitesMap = user?.uid ? parsed[user.uid] || {} : parsed;
+            Object.values(userSitesMap).forEach((s: any) => {
+              if (s && s.slug && !mergedSites.some((m) => m.slug === s.slug || m.id === s.id)) {
+                mergedSites.push({
+                  id: s.id || s.siteId || `site_${s.slug}`,
+                  template_id: s.templateId || s.content?.theme || 'rajmahal',
+                  status: s.status || 'published',
+                  is_locked: Boolean(s.isLocked),
+                  content: s.content,
+                  published_url: s.publishedUrl || `/i/${s.slug}`,
+                  published_at: s.publishedAt || new Date().toISOString(),
+                  updated_at: s.updatedAt || new Date().toISOString(),
+                  templates: {
+                    slug: s.templateId || s.content?.theme || 'rajmahal',
+                    name: `The ${((s.templateId || s.content?.theme || 'rajmahal') as string).toUpperCase()}`,
+                    preview_image: `/previews/theme-${s.templateId || s.content?.theme || 'rajmahal'}.webp`
+                  }
+                });
+              }
+            });
+          }
 
-          // 3. Fetch RSVPs strictly per wedding_site_id (Zero global query, zero mixing)
+          // Check SHAHI_INVITATIONS_INDEX
+          const rawIdx = localStorage.getItem('SHAHI_INVITATIONS_INDEX');
+          if (rawIdx) {
+            const idx = JSON.parse(rawIdx);
+            Object.keys(idx).forEach((slug) => {
+              const rawInv = localStorage.getItem(`SHAHI_INVITE_${slug}`);
+              if (rawInv) {
+                const invState = JSON.parse(rawInv);
+                if (!mergedSites.some((m) => m.slug === slug || m.published_url?.includes(slug))) {
+                  mergedSites.push({
+                    id: `local_${slug}`,
+                    template_id: invState.theme || 'rajmahal',
+                    status: 'published',
+                    is_locked: true,
+                    content: invState,
+                    published_url: `/i/${slug}`,
+                    published_at: idx[slug].savedAt || new Date().toISOString(),
+                    updated_at: idx[slug].savedAt || new Date().toISOString(),
+                    templates: {
+                      slug: invState.theme || 'rajmahal',
+                      name: `The ${((invState.theme || 'rajmahal') as string).toUpperCase()}`,
+                      preview_image: `/previews/theme-${invState.theme || 'rajmahal'}.webp`
+                    }
+                  });
+                }
+              }
+            });
+          }
+
+          // If still empty, check current studio state
+          if (mergedSites.length === 0) {
+            const currentStudioStr = localStorage.getItem('WEDDING_STUDIO_STATE');
+            if (currentStudioStr) {
+              const currentStudio = JSON.parse(currentStudioStr);
+              const couple = currentStudio.couple;
+              const slug = `${(couple?.groomEn || 'rudra').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(couple?.brideEn || 'ishani').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+              mergedSites.push({
+                id: `studio_site_${Date.now().toString(36)}`,
+                template_id: currentStudio.theme || 'rajmahal',
+                status: 'published',
+                is_locked: false,
+                content: currentStudio,
+                published_url: `/i/${slug}`,
+                published_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                templates: {
+                  slug: currentStudio.theme || 'rajmahal',
+                  name: `The ${((currentStudio.theme || 'rajmahal') as string).toUpperCase()}`,
+                  preview_image: `/previews/theme-${currentStudio.theme || 'rajmahal'}.webp`
+                }
+              });
+            }
+          }
+        } catch (e) {}
+
+        if (isMounted) {
+          setWeddingSites(mergedSites);
+
+          // 4. Fetch RSVPs strictly per wedding_site_id
           const siteMap: Record<string, RsvpSummary> = {};
-          
-          for (const site of (dbSites as any[])) {
-            const { data: siteDbRsvps } = await supabase
-              .from('rsvps')
-              .select('*')
-              .eq('wedding_site_id', site.id)
-              .order('created_at', { ascending: false });
+          if (isSupabaseConfigured) {
+            for (const site of mergedSites) {
+              try {
+                const { data: siteDbRsvps } = await supabase
+                  .from('rsvps')
+                  .select('*')
+                  .eq('wedding_site_id', site.id)
+                  .order('created_at', { ascending: false });
 
-            const siteRsvps: RsvpRecord[] = (siteDbRsvps || []) as any;
-            const totalAttending = siteRsvps.reduce((acc, r) => r.attending ? acc + (Number(r.attendees_count) || 1) : acc, 0);
-            const totalRegrets = siteRsvps.filter(r => !r.attending).length;
+                const siteRsvps: RsvpRecord[] = (siteDbRsvps || []) as any;
+                const totalAttending = siteRsvps.reduce((acc, r) => r.attending ? acc + (Number(r.attendees_count) || 1) : acc, 0);
+                const totalRegrets = siteRsvps.filter(r => !r.attending).length;
 
-            siteMap[site.id] = {
-              totalRsvps: siteRsvps.length,
-              totalAttendingCount: totalAttending,
-              totalRegretsCount: totalRegrets,
-              rsvps: siteRsvps,
-            };
+                siteMap[site.id] = {
+                  totalRsvps: siteRsvps.length,
+                  totalAttendingCount: totalAttending,
+                  totalRegretsCount: totalRegrets,
+                  rsvps: siteRsvps,
+                };
+              } catch (e) {}
+            }
           }
 
           if (isMounted) {

@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   Monitor, Smartphone, Tablet, RotateCw, ZoomIn, ZoomOut, 
   Share2, Home, Users, CheckCircle2, Clock, Cloud, CloudOff, ArrowLeft,
-  Camera, ShieldCheck
+  Camera, ShieldCheck, Check
 } from 'lucide-react';
 import { WeddingProjectState, ViewMode, Language } from '../types/wedding';
 import { RoyalCrestIcon } from './ShahiIcons';
@@ -48,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isPartner = user?.role === 'partner' || user?.role === 'photographer' || user?.role === 'studio_partner';
 
   return (
-    <header className="h-16 bg-[#FFFDF8]/95 backdrop-blur-md border-b border-[#E8D5AD] px-3 sm:px-6 flex items-center justify-between shrink-0 z-30 shadow-[0_4px_20px_-4px_rgba(67,9,20,0.04)] font-manrope">
+    <header className="h-14 bg-[#FFFDF8] border-b border-[#E8D5AD]/60 px-3 sm:px-6 flex items-center justify-between shrink-0 z-30 font-manrope selection:bg-[#C49A35]/20">
       
       {/* LEFT: Royal Brand Identity & Home Back */}
       <div className="flex items-center gap-3 select-none">
@@ -56,91 +56,89 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onNavigateHome}
-            className="w-9 h-9 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] border border-[#E8D5AD] hover:border-[#C49A35] text-[#430914] flex items-center justify-center transition-colors cursor-pointer shadow-xs"
+            className="w-8 h-8 rounded-lg bg-transparent hover:bg-[#F8F3E8] border border-transparent hover:border-[#E8D5AD] text-[#430914] flex items-center justify-center transition-colors cursor-pointer"
             title="Back to Home"
           >
-            <ArrowLeft className="w-4 h-4 text-[#C49A35]" />
+            <ArrowLeft className="w-4 h-4 text-[#75675C] hover:text-[#430914]" />
           </button>
         )}
 
         <div 
           onClick={onNavigateHome}
-          className="flex items-center gap-2.5 cursor-pointer group shrink-0 select-none"
+          className="flex items-center gap-3 cursor-pointer group shrink-0 select-none"
           title="AmantranLink · Royal Digital Invitations"
         >
           <img 
             src="/amantranlink.png" 
             alt="AmantranLink Logo" 
-            className="h-9 w-auto object-contain group-hover:scale-105 transition-transform shrink-0" 
+            className="h-8 sm:h-9 w-auto object-contain transition-opacity group-hover:opacity-90 shrink-0" 
           />
           <div className="hidden sm:flex flex-col justify-center shrink-0">
             <div className="flex items-center gap-1.5">
-              <span className="amantranlink-wordmark text-sm block whitespace-nowrap leading-tight">
-                AMANTRAN<span className="amantranlink-wordmark-gold">LINK</span>
+              <span className="font-cormorant font-bold text-lg sm:text-xl tracking-wider text-[#350811] block whitespace-nowrap leading-none">
+                AMANTRAN<span className="text-[#C49A35]">LINK</span>
               </span>
               {isPartner && (
-                <span className="text-[8.5px] font-mono font-bold bg-[#167A5A]/10 text-[#167A5A] border border-[#167A5A]/30 px-1 py-0.1 rounded uppercase">
+                <span className="text-[8.5px] font-mono font-medium bg-[#167A5A]/10 text-[#167A5A] border border-[#167A5A]/30 px-1 py-0.2 rounded uppercase">
                   Studio
                 </span>
               )}
             </div>
-            <span className="amantranlink-wordmark-sub block whitespace-nowrap leading-none mt-0.5">
-              {isPartner ? 'Studio Editor' : 'Royal Digital Invitations'}
+            <span className="text-[8.5px] font-mono font-medium text-[#8C7A73] uppercase tracking-widest block whitespace-nowrap leading-none mt-1">
+              {isPartner ? 'STUDIO ATELIER' : 'ROYAL DIGITAL INVITATIONS'}
             </span>
           </div>
         </div>
 
-        {/* Real-time Save Status Indicator */}
-        <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F8F3E8] border border-[#E8D5AD] text-[11px] text-[#430914] ml-2">
+        {/* Quiet Studio Save Status */}
+        <div className="hidden md:flex items-center gap-1.5 text-[11px] text-[#75675C] font-manrope pl-4 border-l border-[#E8D5AD]/60 ml-2">
           {saveStatus === 'saving' && (
-            <>
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping shrink-0" />
-              <span className="text-amber-800 font-semibold">Saving…</span>
-            </>
+            <span className="text-[#A67C3D] flex items-center gap-1.5 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C49A35] animate-pulse" />
+              <span>Saving changes…</span>
+            </span>
           )}
           {saveStatus === 'saved' && (
-            <>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-              <span className="text-emerald-800 font-medium">Saved just now</span>
-            </>
+            <span className="text-[#55695C] flex items-center gap-1 font-medium">
+              <Check className="w-3.5 h-3.5 text-[#167A5A]" />
+              <span>Saved just now</span>
+            </span>
           )}
           {saveStatus === 'idle' && (
-            <>
-              <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0" />
-              <span className="text-[#75675C]">Changes saved</span>
-            </>
+            <span className="text-[#8C7A73] flex items-center gap-1">
+              <span>All changes saved</span>
+            </span>
           )}
           {saveStatus === 'error' && (
-            <>
-              <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
-              <span className="text-rose-700 font-semibold">Offline / Retry</span>
-            </>
+            <span className="text-[#8C4A4A] flex items-center gap-1 font-medium">
+              <span>Offline</span>
+            </span>
           )}
         </div>
       </div>
 
-      {/* RIGHT: Controls, Devices, Zoom, Profile & Primary CTA */}
+      {/* RIGHT: Restrained Atelier Controls */}
       <div className="flex items-center gap-2 sm:gap-3">
         
-        {/* Studio Partner Hub Quick Return */}
+        {/* Studio Partner Hub Shortcut */}
         {isPartner && onNavigatePartnerHub && (
           <button
             type="button"
             onClick={() => onNavigatePartnerHub('dashboard')}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F4F9F6] hover:bg-[#E8F3EE] border border-[#167A5A]/40 text-[#167A5A] text-xs font-bold font-manrope shadow-2xs transition-colors cursor-pointer"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-transparent hover:bg-[#F4F9F6] border border-[#167A5A]/30 text-[#167A5A] text-xs font-semibold font-manrope transition-colors cursor-pointer"
             title="Return to Studio Partner Workspace"
           >
-            <Camera className="w-3.5 h-3.5 text-[#167A5A]" />
+            <Camera className="w-3 h-3 text-[#167A5A]" />
             <span>Studio Hub</span>
           </button>
         )}
 
-        {/* RSVP Management Shortcut */}
+        {/* Guest & RSVP Shortcut */}
         {onNavigateDashboard && !isPartner && (
           <button
             type="button"
             onClick={onNavigateDashboard}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] border border-[#E8D5AD] text-[#430914] text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-transparent hover:bg-[#F8F3E8] border border-[#E8D5AD]/80 text-[#430914] text-xs font-medium transition-colors cursor-pointer"
             title="Open Wedding Guest Management & RSVP Dashboard"
           >
             <Users className="w-3.5 h-3.5 text-[#C49A35]" />
@@ -149,13 +147,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         )}
 
         {/* Trilingual Language Selector */}
-        <div className="flex items-center gap-0.5 bg-[#F8F3E8] p-1 rounded-xl border border-[#E8D5AD] text-xs font-mono font-semibold shadow-xs">
+        <div className="flex items-center bg-[#F8F3E8] p-0.5 rounded-lg border border-[#E8D5AD]/60 text-[11px] font-mono">
           <button
             type="button"
             onClick={() => onLanguageChange('en')}
-            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
               state.language === 'en'
-                ? 'bg-[#6E1020] text-[#FFFDF8] font-bold shadow-xs'
+                ? 'bg-[#FFFDF8] text-[#430914] font-bold shadow-2xs'
                 : 'text-[#75675C] hover:text-[#430914]'
             }`}
             title="English"
@@ -165,9 +163,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={() => onLanguageChange('hi')}
-            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
               state.language === 'hi'
-                ? 'bg-[#6E1020] text-[#FFFDF8] font-bold shadow-xs'
+                ? 'bg-[#FFFDF8] text-[#430914] font-bold shadow-2xs'
                 : 'text-[#75675C] hover:text-[#430914]'
             }`}
             title="हिन्दी"
@@ -177,9 +175,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={() => onLanguageChange('gu')}
-            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
+            className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
               state.language === 'gu'
-                ? 'bg-[#6E1020] text-[#FFFDF8] font-bold shadow-xs'
+                ? 'bg-[#FFFDF8] text-[#430914] font-bold shadow-2xs'
                 : 'text-[#75675C] hover:text-[#430914]'
             }`}
             title="ગુજરાતી"
@@ -189,65 +187,65 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Device Switcher (Desktop, Tablet, Mobile) */}
-        <div className="hidden lg:flex items-center gap-0.5 bg-[#F8F3E8] p-1 rounded-xl border border-[#E8D5AD] shadow-xs">
+        <div className="hidden lg:flex items-center bg-[#F8F3E8] p-0.5 rounded-lg border border-[#E8D5AD]/60">
           <button
             type="button"
             onClick={() => onViewChange('desktop')}
-            className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+            className={`p-1.5 rounded-md transition-all cursor-pointer ${
               state.viewMode === 'desktop'
-                ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
+                ? 'bg-[#FFFDF8] text-[#430914] shadow-2xs'
                 : 'text-[#75675C] hover:text-[#430914]'
             }`}
             title="Desktop Browser View"
           >
-            <Monitor className="w-4 h-4" />
+            <Monitor className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
             onClick={() => onViewChange('tablet')}
-            className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+            className={`p-1.5 rounded-md transition-all cursor-pointer ${
               state.viewMode === 'tablet'
-                ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
+                ? 'bg-[#FFFDF8] text-[#430914] shadow-2xs'
                 : 'text-[#75675C] hover:text-[#430914]'
             }`}
             title="Tablet View"
           >
-            <Tablet className="w-4 h-4" />
+            <Tablet className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
             onClick={() => onViewChange('mobile')}
-            className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+            className={`p-1.5 rounded-md transition-all cursor-pointer ${
               state.viewMode === 'mobile'
-                ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
+                ? 'bg-[#FFFDF8] text-[#430914] shadow-2xs'
                 : 'text-[#75675C] hover:text-[#430914]'
             }`}
             title="Smartphone View"
           >
-            <Smartphone className="w-4 h-4" />
+            <Smartphone className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* Zoom Controls */}
-        <div className="hidden xl:flex items-center gap-1 bg-[#F8F3E8] p-1 rounded-xl border border-[#E8D5AD] shadow-xs">
+        <div className="hidden xl:flex items-center bg-[#F8F3E8] p-0.5 rounded-lg border border-[#E8D5AD]/60">
           <button
             type="button"
             onClick={() => onZoomChange(Math.max(0.5, (state.previewZoom || 1) - 0.1))}
-            className="p-1 rounded-lg text-[#75675C] hover:text-[#430914] transition-colors cursor-pointer"
+            className="p-1 rounded text-[#75675C] hover:text-[#430914] transition-colors cursor-pointer"
             title="Zoom Out"
           >
-            <ZoomOut className="w-3.5 h-3.5" />
+            <ZoomOut className="w-3 h-3" />
           </button>
-          <span className="text-[10px] font-mono font-bold text-[#430914] px-1 min-w-[34px] text-center">
+          <span className="text-[10px] font-mono font-medium text-[#430914] px-1 min-w-[32px] text-center">
             {Math.round((state.previewZoom || 1) * 100)}%
           </span>
           <button
             type="button"
             onClick={() => onZoomChange(Math.min(1.5, (state.previewZoom || 1) + 0.1))}
-            className="p-1 rounded-lg text-[#75675C] hover:text-[#430914] transition-colors cursor-pointer"
+            className="p-1 rounded text-[#75675C] hover:text-[#430914] transition-colors cursor-pointer"
             title="Zoom In"
           >
-            <ZoomIn className="w-3.5 h-3.5" />
+            <ZoomIn className="w-3 h-3" />
           </button>
         </div>
 
@@ -255,10 +253,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           type="button"
           onClick={onRefreshPreview}
-          className="p-2 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] border border-[#E8D5AD] text-[#75675C] hover:text-[#430914] shadow-xs transition-colors cursor-pointer"
-          title="Reload Live Canvas"
+          className="p-1.5 rounded-lg bg-transparent hover:bg-[#F8F3E8] text-[#75675C] hover:text-[#430914] transition-colors cursor-pointer"
+          title="Refresh Preview"
         >
-          <RotateCw className="w-4 h-4" />
+          <RotateCw className="w-3.5 h-3.5" />
         </button>
 
         {/* User Profile / Account Dropdown */}
@@ -281,7 +279,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 requireAuth('Sign in to save and unlock your Kankotri');
               }
             }}
-            className="px-3.5 py-1.5 rounded-full bg-[#F8F3E8] hover:bg-[#FFFDF8] border border-[#E8D5AD] text-[#430914] text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+            className="px-3 py-1 rounded-lg bg-transparent hover:bg-[#F8F3E8] border border-[#E8D5AD] text-[#430914] text-xs font-medium transition-colors cursor-pointer"
           >
             <span>Log In</span>
           </button>
@@ -292,10 +290,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenPublish}
-            className="px-4 sm:px-5 py-2 rounded-full bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 shadow-sm border border-[#C49A35] transition-all cursor-pointer hover:scale-105 whitespace-nowrap shrink-0"
+            className="px-3.5 py-1.5 rounded-lg bg-[#6E1020] hover:bg-[#520B17] text-[#FFFDF8] text-xs font-semibold tracking-wide flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0"
             title="Generate Shareable Kankotri Link"
           >
-            <Share2 className="w-3.5 h-3.5 text-[#C49A35] shrink-0" />
+            <Share2 className="w-3 h-3 text-[#C49A35] shrink-0" />
             <span>Publish &amp; Share</span>
           </button>
         )}
@@ -306,3 +304,4 @@ export const Navbar: React.FC<NavbarProps> = ({
 };
 
 export default Navbar;
+

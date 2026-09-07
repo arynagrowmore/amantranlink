@@ -56,6 +56,8 @@ export const AdvancedRsvpModal: React.FC<AdvancedRsvpModalProps> = ({
 
   const maxAllowed = guest?.number_of_members ? Math.max(guest.number_of_members, 10) : 10;
   const coupleTitle = `${state.couple.groomEn || 'Groom'} & ${state.couple.brideEn || 'Bride'}`;
+  const weddingDate = state.events?.[0]?.date || 'Auspicious Date';
+  const venueLocation = state.events?.[0]?.venue || 'Royal Palace Venue';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,51 +89,52 @@ export const AdvancedRsvpModal: React.FC<AdvancedRsvpModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0A0204]/80 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-linear-to-b from-[#1C050B] to-[#120306] border-2 border-[#C59B4B]/40 shadow-[0_20px_70px_rgba(0,0,0,0.8)] text-[#F7E7C4] font-hanken">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn font-manrope">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-[#FFFDF8] border border-[#E8DFD1] shadow-2xl text-[#241A17] flex flex-col max-h-[90vh]">
+        
         {/* Top Gold Ornament Bar */}
-        <div className="h-1.5 w-full bg-linear-to-r from-[#9C772F] via-[#F4D06F] to-[#9C772F]" />
+        <div className="h-1.5 w-full bg-linear-to-r from-[#C49A35] via-[#F4D06F] to-[#C49A35] shrink-0" />
 
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/15 text-[#E2B968] transition-all cursor-pointer border border-[#C59B4B]/20"
+          className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-[#FAF6EE] text-[#736567] transition-colors cursor-pointer z-10"
         >
           <X className="w-4 h-4" />
         </button>
 
         {isSuccess ? (
-          /* 🎉 Success State */
-          <div className="p-8 sm:p-10 text-center space-y-6 animate-scaleUp">
-            <div className="w-16 h-16 mx-auto rounded-full bg-[#C59B4B]/15 border-2 border-[#C59B4B] flex items-center justify-center text-[#F4D06F] shadow-[0_0_30px_rgba(197,155,75,0.3)]">
+          /* Success State */
+          <div className="p-8 sm:p-10 text-center space-y-5 animate-scaleUp">
+            <div className="w-16 h-16 mx-auto rounded-full bg-[#EDF7F2] border border-[#BCE3D1] flex items-center justify-center text-[#167A5A] shadow-xs">
               <CheckCircle2 className="w-9 h-9" />
             </div>
 
-            <div className="space-y-2">
-              <span className="text-[11px] font-mono tracking-widest uppercase text-[#C59B4B] font-bold">
-                ॥ श्री गणेशाय नमः ॥
+            <div className="space-y-1.5">
+              <span className="font-serif italic text-xs text-[#C49A35] block">
+                ॥ शुभ विवाह आमंत्रण स्वीकृति ॥
               </span>
-              <h3 className="font-cinzel text-2xl font-bold text-[#FFFDF8]">
-                {attendance === 'Attending' ? 'RSVP Confirmed!' : 'Response Recorded'}
+              <h3 className="font-serif text-2xl sm:text-3xl text-[#241A17] font-normal">
+                {attendance === 'Attending' ? 'We Look Forward to Celebrating With You!' : 'Thank You for Your Wishes'}
               </h3>
-              <p className="text-xs sm:text-sm text-[#D1BFA5] leading-relaxed max-w-sm mx-auto">
+              <p className="text-xs sm:text-sm text-[#736567] leading-relaxed max-w-sm mx-auto">
                 {attendance === 'Attending'
-                  ? `Thank you, ${guestName}! We joyfully look forward to celebrating with you.`
-                  : `Thank you for letting us know, ${guestName}. Your warm wishes are treasured.`}
+                  ? `Thank you, ${guestName}! Your presence will grace our celebration.`
+                  : `Thank you for letting us know, ${guestName}. Your warm blessings are treasured.`}
               </p>
             </div>
 
             {attendance === 'Attending' && (
-              <div className="p-4 rounded-2xl bg-white/5 border border-[#C59B4B]/30 flex items-center justify-around text-xs font-mono">
+              <div className="p-4 rounded-2xl bg-[#FAF6EE] border border-[#E8DFD1] flex items-center justify-around text-xs">
                 <div>
-                  <span className="text-[#A8957F] block text-[10px] uppercase">Attendance</span>
-                  <span className="text-emerald-400 font-bold">JOYFULLY ATTENDING</span>
+                  <span className="text-[#736567] block text-[10px] uppercase font-mono">Attendance</span>
+                  <span className="text-[#167A5A] font-bold">JOYFULLY ATTENDING</span>
                 </div>
-                <div className="h-6 w-px bg-white/10" />
+                <div className="h-6 w-px bg-[#E8DFD1]" />
                 <div>
-                  <span className="text-[#A8957F] block text-[10px] uppercase">Headcount</span>
-                  <span className="text-[#F4D06F] font-bold">{memberCount} Guests</span>
+                  <span className="text-[#736567] block text-[10px] uppercase font-mono">Headcount</span>
+                  <span className="text-[#241A17] font-bold">{memberCount} Guests</span>
                 </div>
               </div>
             )}
@@ -139,76 +142,76 @@ export const AdvancedRsvpModal: React.FC<AdvancedRsvpModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-full py-3.5 rounded-2xl bg-linear-to-r from-[#C59B4B] to-[#9C772F] text-[#140508] font-bold text-xs uppercase tracking-wider shadow-lg hover:shadow-[#C59B4B]/30 transition-all cursor-pointer"
+              className="w-full py-3 rounded-2xl bg-[#6E1020] hover:bg-[#540D1E] text-white font-semibold text-xs transition-all cursor-pointer shadow-sm"
             >
-              Continue to Royal Invitation
+              Continue to Wedding Invitation
             </button>
           </div>
         ) : (
-          /* 📝 Form State */
-          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6 max-h-[85vh] overflow-y-auto">
+          /* Form State */
+          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5 overflow-y-auto flex-1">
             {/* Header */}
-            <div className="text-center space-y-1">
-              <span className="text-[10px] font-mono tracking-widest uppercase text-[#C59B4B] font-bold">
-                Royal Guest Response
+            <div className="text-center space-y-1 border-b border-[#FAF6EE] pb-4">
+              <span className="font-serif italic text-xs text-[#C49A35] block">
+                ॥ श्री गणेशाय नमः ॥
               </span>
-              <h2 className="font-cinzel text-xl sm:text-2xl font-bold text-[#FFFDF8]">
-                {guest?.full_name ? `Welcome, ${guest.full_name}` : 'Confirm Your Presence'}
+              <h2 className="font-serif text-2xl sm:text-3xl text-[#241A17] font-normal">
+                {guest?.family_name || guest?.full_name ? `Will You Join Us, ${guest.family_name || guest.full_name}?` : 'Will You Join Us?'}
               </h2>
-              <p className="text-xs text-[#D1BFA5]">
-                {coupleTitle}’s Auspicious Wedding Celebration
+              <p className="text-xs text-[#736567] font-light">
+                {coupleTitle} · {weddingDate} · {venueLocation}
               </p>
             </div>
 
             {error && (
-              <div className="p-3 rounded-xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs text-center">
+              <div className="p-3 rounded-xl bg-[#FDF2F2] border border-[#F0D5D5] text-[#8C4A4A] text-xs text-center">
                 {error}
               </div>
             )}
 
             {/* Attendance Choice Buttons */}
             <div className="space-y-2">
-              <label className="text-[11px] font-semibold tracking-wider text-[#A8957F] uppercase font-mono">
+              <label className="text-[11px] font-semibold text-[#736567] block uppercase font-mono">
                 Will you join us for the celebration?
               </label>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
                   onClick={() => setAttendance('Attending')}
-                  className={`py-3 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex flex-col items-center gap-1 border ${
+                  className={`p-3 rounded-2xl text-xs font-semibold transition-all cursor-pointer flex flex-col items-center gap-1 border ${
                     attendance === 'Attending'
-                      ? 'bg-[#C59B4B]/20 border-[#F4D06F] text-[#F4D06F] shadow-[0_0_15px_rgba(197,155,75,0.2)]'
-                      : 'bg-white/5 border-white/10 text-[#A8957F] hover:bg-white/10'
+                      ? 'bg-[#EDF7F2] border-[#167A5A] text-[#167A5A] shadow-xs'
+                      : 'bg-[#FAF6EE] border-[#E8DFD1] text-[#736567] hover:bg-[#F4EFE6]'
                   }`}
                 >
                   <span className="text-base">🌸</span>
-                  <span className="text-[11px]">Attending</span>
+                  <span>Joyfully Accept</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setAttendance('Not Attending')}
-                  className={`py-3 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex flex-col items-center gap-1 border ${
+                  className={`p-3 rounded-2xl text-xs font-semibold transition-all cursor-pointer flex flex-col items-center gap-1 border ${
                     attendance === 'Not Attending'
-                      ? 'bg-red-950/40 border-red-500 text-red-300 shadow-[0_0_15px_rgba(239,68,68,0.2)]'
-                      : 'bg-white/5 border-white/10 text-[#A8957F] hover:bg-white/10'
+                      ? 'bg-[#FDF2F2] border-[#8C4A4A] text-[#8C4A4A] shadow-xs'
+                      : 'bg-[#FAF6EE] border-[#E8DFD1] text-[#736567] hover:bg-[#F4EFE6]'
                   }`}
                 >
                   <span className="text-base">🕊️</span>
-                  <span className="text-[11px]">Cannot Attend</span>
+                  <span>Unable to Attend</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setAttendance('Maybe')}
-                  className={`py-3 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex flex-col items-center gap-1 border ${
+                  className={`p-3 rounded-2xl text-xs font-semibold transition-all cursor-pointer flex flex-col items-center gap-1 border ${
                     attendance === 'Maybe'
-                      ? 'bg-amber-950/40 border-amber-500 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
-                      : 'bg-white/5 border-white/10 text-[#A8957F] hover:bg-white/10'
+                      ? 'bg-[#FAF4E8] border-[#C49A35] text-[#9C772F] shadow-xs'
+                      : 'bg-[#FAF6EE] border-[#E8DFD1] text-[#736567] hover:bg-[#F4EFE6]'
                   }`}
                 >
                   <span className="text-base">⏳</span>
-                  <span className="text-[11px]">Maybe</span>
+                  <span>Maybe</span>
                 </button>
               </div>
             </div>
@@ -216,8 +219,8 @@ export const AdvancedRsvpModal: React.FC<AdvancedRsvpModalProps> = ({
             {/* Guest Name & Mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] font-semibold text-[#A8957F] block mb-1 uppercase font-mono">
-                  Your Full Name *
+                <label className="text-xs font-semibold text-[#241A17] block mb-1">
+                  Full Name <span className="text-[#8C4A4A]">*</span>
                 </label>
                 <input
                   type="text"
@@ -225,69 +228,68 @@ export const AdvancedRsvpModal: React.FC<AdvancedRsvpModalProps> = ({
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
                   placeholder="e.g. Mukeshbhai Patel"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-[#C59B4B]/30 text-white placeholder:text-stone-600 text-xs focus:outline-none focus:border-[#F4D06F]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6EE] border border-[#E8DFD1] text-[#241A17] placeholder:text-[#9C8C8E] text-xs focus:outline-none focus:border-[#C49A35]"
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-semibold text-[#A8957F] block mb-1 uppercase font-mono">
-                  Mobile Number *
+                <label className="text-xs font-semibold text-[#241A17] block mb-1">
+                  WhatsApp Mobile <span className="text-[#8C4A4A]">*</span>
                 </label>
                 <input
                   type="tel"
                   required
                   value={guestPhone}
                   onChange={(e) => setGuestPhone(e.target.value)}
-                  placeholder="e.g. +91 9409360336"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-[#C59B4B]/30 text-white placeholder:text-stone-600 text-xs focus:outline-none focus:border-[#F4D06F]"
+                  placeholder="e.g. 9409360336"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6EE] border border-[#E8DFD1] text-[#241A17] placeholder:text-[#9C8C8E] text-xs focus:outline-none focus:border-[#C49A35] font-mono"
                 />
               </div>
             </div>
 
-            {/* Attending Details: Headcount & Meal */}
+            {/* Headcount & Meal (if Attending) */}
             {attendance === 'Attending' && (
-              <div className="p-4 rounded-2xl bg-white/5 border border-[#C59B4B]/20 space-y-4 animate-fadeIn">
-                {/* Number of Members Stepper */}
+              <div className="p-4 rounded-2xl bg-[#FAF6EE] border border-[#E8DFD1] space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-xs font-bold text-[#F7E7C4] block">Number of Guests</span>
-                    <span className="text-[10px] text-[#A8957F]">Attending family members</span>
+                    <span className="text-xs font-semibold text-[#241A17] block">Number of Guests</span>
+                    <span className="text-[10px] text-[#736567]">Attending family members</span>
                   </div>
-                  <div className="flex items-center gap-3 bg-[#140508] p-1.5 rounded-xl border border-[#C59B4B]/30">
+                  <div className="flex items-center gap-3 bg-white p-1 rounded-xl border border-[#E8DFD1]">
                     <button
                       type="button"
                       onClick={() => setMemberCount(Math.max(1, memberCount - 1))}
-                      className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-[#E2B968] font-bold flex items-center justify-center cursor-pointer"
+                      className="w-7 h-7 rounded-lg bg-[#FAF6EE] hover:bg-[#F4EFE6] text-[#6E1020] font-bold flex items-center justify-center cursor-pointer"
                     >
                       -
                     </button>
-                    <span className="font-mono font-bold text-sm text-[#FFFDF8] min-w-6 text-center">
+                    <span className="font-serif font-bold text-base text-[#241A17] min-w-6 text-center">
                       {memberCount}
                     </span>
                     <button
                       type="button"
                       onClick={() => setMemberCount(Math.min(maxAllowed, memberCount + 1))}
-                      className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-[#E2B968] font-bold flex items-center justify-center cursor-pointer"
+                      className="w-7 h-7 rounded-lg bg-[#FAF6EE] hover:bg-[#F4EFE6] text-[#6E1020] font-bold flex items-center justify-center cursor-pointer"
                     >
                       +
                     </button>
                   </div>
                 </div>
 
-                {/* Dietary / Meal Preference Visual Badges */}
+                {/* Dietary Preference */}
                 <div className="space-y-2">
-                  <label className="text-[11px] font-semibold text-[#A8957F] flex items-center gap-1.5 uppercase font-mono">
-                    <Utensils className="w-3.5 h-3.5 text-[#C59B4B]" />
+                  <label className="text-[11px] font-semibold text-[#736567] flex items-center gap-1.5 uppercase font-mono">
+                    <Utensils className="w-3.5 h-3.5 text-[#C49A35]" />
                     Meal / Catering Preference
                   </label>
                   
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {[
-                      { id: 'Standard', label: 'Shahi Feast', sub: 'Traditional Veg', icon: '🍛' },
-                      { id: 'Pure Jain', label: 'Pure Jain', sub: 'No Onion / Garlic', icon: '🌱' },
-                      { id: 'Gujarati Traditional', label: 'Gujarati / Kathiyawadi', sub: 'Special Rasoi', icon: '🥘' },
-                      { id: 'Continental', label: 'Continental', sub: 'Fusion Catering', icon: '🍽️' },
-                      { id: 'Vegan', label: 'Pure Vegan', sub: 'Plant Based', icon: '🥗' },
+                      { id: 'Standard', label: 'Traditional Feast', sub: 'Pure Veg Catering', icon: '🍛' },
+                      { id: 'Pure Jain', label: 'Pure Jain', sub: 'No Root Veg / Garlic', icon: '🌱' },
+                      { id: 'Gujarati Traditional', label: 'Gujarati Rasoi', sub: 'Authentic Sweets & Farsan', icon: '🥘' },
+                      { id: 'Continental', label: 'Continental', sub: 'Fusion Counter', icon: '🍽️' },
+                      { id: 'Vegan', label: 'Pure Vegan', sub: 'Plant-based', icon: '🥗' },
                     ].map((meal) => (
                       <button
                         key={meal.id}
@@ -295,16 +297,16 @@ export const AdvancedRsvpModal: React.FC<AdvancedRsvpModalProps> = ({
                         onClick={() => setMealPreference(meal.id as MealPreference)}
                         className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2 ${
                           mealPreference === meal.id
-                            ? 'bg-[#C59B4B]/20 border-[#F4D06F] text-[#FFFDF8] shadow-sm ring-1 ring-[#F4D06F]/50'
-                            : 'bg-white/5 border-white/10 text-[#D1BFA5] hover:bg-white/10 hover:border-[#C59B4B]/40'
+                            ? 'bg-white border-[#C49A35] text-[#241A17] shadow-2xs ring-1 ring-[#C49A35]/40'
+                            : 'bg-white/60 border-[#E8DFD1] text-[#736567] hover:bg-white'
                         }`}
                       >
                         <span className="text-base shrink-0">{meal.icon}</span>
                         <div className="min-w-0">
-                          <span className="font-semibold text-[11px] block leading-tight truncate text-[#FFFDF8]">
+                          <span className="font-semibold text-[11px] block leading-tight truncate text-[#241A17]">
                             {meal.label}
                           </span>
-                          <span className="text-[9px] text-[#A8957F] block truncate">
+                          <span className="text-[9px] text-[#736567] block truncate">
                             {meal.sub}
                           </span>
                         </div>
@@ -315,36 +317,36 @@ export const AdvancedRsvpModal: React.FC<AdvancedRsvpModalProps> = ({
               </div>
             )}
 
-            {/* Wishes / Special Note */}
+            {/* Wishes */}
             <div className="space-y-1">
-              <label className="text-[11px] font-semibold text-[#A8957F] flex items-center gap-1.5 uppercase font-mono">
-                <MessageSquare className="w-3.5 h-3.5 text-[#C59B4B]" />
-                Blessings & Message for Couple
+              <label className="text-xs font-semibold text-[#241A17] flex items-center gap-1.5">
+                <Heart className="w-3.5 h-3.5 text-[#C49A35]" />
+                Blessings &amp; Message for the Couple
               </label>
               <textarea
                 rows={2}
                 value={wishes}
                 onChange={(e) => setWishes(e.target.value)}
                 placeholder="Write a heartfelt blessing for the auspicious couple..."
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-[#C59B4B]/30 text-white placeholder:text-stone-600 text-xs focus:outline-none focus:border-[#F4D06F] resize-none"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6EE] border border-[#E8DFD1] text-[#241A17] placeholder:text-[#9C8C8E] text-xs focus:outline-none focus:border-[#C49A35] resize-none"
               />
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-2xl bg-linear-to-r from-[#C59B4B] to-[#9C772F] text-[#140508] font-bold text-xs uppercase tracking-wider shadow-lg hover:shadow-[#C59B4B]/30 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-2xl bg-[#6E1020] hover:bg-[#540D1E] text-white font-semibold text-xs shadow-sm transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
                   <Clock className="w-4 h-4 animate-spin" />
-                  <span>Recording Response...</span>
+                  <span>Recording Your RSVP...</span>
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  <span>Confirm RSVP</span>
+                  <span>Send RSVP</span>
                 </>
               )}
             </button>

@@ -32,12 +32,15 @@ import { ClientReviewView } from './components/ClientReviewView';
 import { AdminControlCenter } from './components/Admin/AdminControlCenter';
 import { AdminSuperControlCenter } from './components/Admin/SuperControlCenter/AdminSuperControlCenter';
 import { RoyalDownloadHubModal } from './components/DownloadHub/RoyalDownloadHubModal';
+import { FirstTimeCoupleOnboardingModal } from './components/Onboarding/FirstTimeCoupleOnboardingModal';
 import { DigitalEntryPassView } from './components/Guest/DigitalEntryPassView';
 import { VenueCheckInView } from './components/CheckIn/VenueCheckInView';
 import { PublicMemoryDropView } from './components/Memories/PublicMemoryDropView';
 import { ClientApprovalPortalView } from './components/ClientReview/ClientApprovalPortalView';
 import { ClientQuotationPortalView } from './components/ClientFinance/ClientQuotationPortalView';
 import { ClientInvoicePaymentPortalView } from './components/ClientFinance/ClientInvoicePaymentPortalView';
+import { AuthCallbackView } from './components/AuthCallbackView';
+import { ResetPasswordView } from './components/ResetPasswordView';
 import { 
   isSiteCurrentlyLocked, 
   isTemplateUnlockedForUser,
@@ -153,6 +156,7 @@ function MainApp() {
   const [royalPaymentPackage, setRoyalPaymentPackage] = useState<PackageType>('silver');
   const [mobileStudioPane, setMobileStudioPane] = useState<'form' | 'preview'>('form');
   const [isPartnerModalOpen, setIsPartnerModalOpen] = useState<boolean>(Boolean(initialRoute.openPartnerModal));
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
   const [isDownloadHubOpen, setIsDownloadHubOpen] = useState<boolean>(false);
   const [downloadHubSite, setDownloadHubSite] = useState<any>(null);
 
@@ -177,14 +181,20 @@ function MainApp() {
       setIsPartnerModalOpen(true);
     };
 
+    const handleOpenOnboardingEvent = () => {
+      setIsOnboardingOpen(true);
+    };
+
     window.addEventListener('hashchange', handleRouteNav);
     window.addEventListener('popstate', handleRouteNav);
     window.addEventListener('open-partner-modal', handleOpenPartnerEvent);
+    window.addEventListener('open-onboarding-modal', handleOpenOnboardingEvent);
 
     return () => {
       window.removeEventListener('hashchange', handleRouteNav);
       window.removeEventListener('popstate', handleRouteNav);
       window.removeEventListener('open-partner-modal', handleOpenPartnerEvent);
+      window.removeEventListener('open-onboarding-modal', handleOpenOnboardingEvent);
     };
   }, []);
 
@@ -507,8 +517,19 @@ function MainApp() {
     />
   );
 
-  // 🔐 If user visits auth/login routes, directly take them into the Studio customizer
-  if (currentAppView === 'login' || currentAppView === 'auth-callback' || currentAppView === 'reset-password') {
+  // 🔐 Dedicated Auth Callback Experience (No blank screens or Supabase raw URLs)
+  if (currentAppView === 'auth-callback') {
+    return <AuthCallbackView />;
+  }
+
+  // 🔑 Dedicated Password Reset Experience
+  if (currentAppView === 'reset-password') {
+    return <ResetPasswordView />;
+  }
+
+  // 🚪 If user visits login route, open modal and go to studio/landing
+  if (currentAppView === 'login') {
+    setShowAuthModal(true);
     navigateToRoute('/studio', true);
     return null;
   }
@@ -871,21 +892,22 @@ function MainApp() {
         />
       )}
 
-      {/* Main Dual-Pane Studio: Left Editor (~38-40%) + Right Hero Preview (~60-62%) */}
-      <main className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar Form Workspace */}
-        <aside className={`w-full lg:w-[40%] xl:w-[38%] max-w-[500px] bg-[#FFFDF8] border-r border-[#E8D5AD] flex flex-col shrink-0 overflow-hidden shadow-sm z-10 ${mobileStudioPane === 'preview' ? 'hidden lg:flex' : 'flex'}`}>
-          <Sidebar
-            activeTab={activeTab}
-            completedTabs={completedTabs}
-            onTabChange={handleTabSelect}
-            onOpenDownloadHub={() => {
-              setDownloadHubSite(null);
-              setIsDownloadHubOpen(true);
-            }}
-            state={state}
-          />
+      {/* Main 3-Zone Studio Workspace: Left Rail (~175px) + Center Editorial Form + Right Hero Preview */}
+      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-[#FAF8F5]">
+        {/* Zone 1: Left Vertical Navigation Rail (~175px on desktop, horizontal bar on mobile) */}
+        <Sidebar
+          activeTab={activeTab}
+          completedTabs={completedTabs}
+          onTabChange={handleTabSelect}
+          onOpenDownloadHub={() => {
+            setDownloadHubSite(null);
+            setIsDownloadHubOpen(true);
+          }}
+          state={state}
+        />
 
+        {/* Zone 2: Center Editorial Form Workspace (~680-730px max on desktop) */}
+        <aside className={`w-full lg:w-[480px] xl:w-[560px] 2xl:w-[620px] bg-[#FFFDF8] border-r border-[#E8D5AD]/70 flex flex-col shrink-0 overflow-hidden shadow-xs z-10 ${mobileStudioPane === 'preview' ? 'hidden lg:flex' : 'flex'}`}>
           {/* Scrollable Form Body with Steps */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
             {/* Step 01: Theme Selection */}
@@ -982,11 +1004,12 @@ function MainApp() {
           </div>
         </aside>
 
-        {/* Right Live Visualizer Canvas: The Hero Invitation Preview (~60-62%) */}
-        <section className={`flex-1 bg-[#F8F3E8] flex items-center justify-center p-2 sm:p-6 overflow-hidden relative ${mobileStudioPane === 'form' ? 'hidden lg:flex' : 'flex'}`}>
+        {/* Zone 3: Right Live Visualizer Canvas (Large Hero Preview) */}
+        <section className={`flex-1 bg-[#FAF8F5] flex flex-col items-center justify-center p-2 sm:p-4 lg:p-6 overflow-hidden relative ${mobileStudioPane === 'form' ? 'hidden lg:flex' : 'flex'}`}>
           <LivePreviewCanvas state={state} refreshKey={refreshKey} siteId={activeSite?.siteId || activeSite?.id} />
         </section>
       </main>
+
 
       {/* 🚀 Publish & Share Hub Modal */}
       {isPublishModalOpen && (
@@ -1048,6 +1071,19 @@ function MainApp() {
             } catch (e) {}
           }
           showToast('📸 Studio Partner Account Activated! Welcome to AmantranLink Partner Hub.');
+        }}
+      />
+
+      {/* 👑 First-Time Couple Guided Onboarding Modal */}
+      <FirstTimeCoupleOnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        state={state}
+        onUpdateState={setState}
+        onComplete={() => {
+          setIsOnboardingOpen(false);
+          setCurrentAppView('studio');
+          showToast('👑 Welcome to your Royal Wedding Workspace!');
         }}
       />
 
