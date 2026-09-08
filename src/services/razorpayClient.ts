@@ -381,7 +381,7 @@ export const initiateRazorpayCheckout = async (options: RazorpayCheckoutOptions)
     const currentPartnerSlug = getStoredPartnerAttribution();
     const paymentDetails = calculatePaymentDetails(effectivePackageId, templateId, undefined);
     const calculatedAmount = Math.round(paymentDetails.finalAmountInr * 100);
-    const clientKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_RAZORPAY_KEY_ID) || 'rzp_live_TSPLNnQzZslM17';
+    const clientKey = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_RAZORPAY_KEY_ID) || '';
 
     let orderData: any = null;
     try {
@@ -400,10 +400,16 @@ export const initiateRazorpayCheckout = async (options: RazorpayCheckoutOptions)
       return;
     }
 
+    const resolvedKeyId = orderData?.keyId || clientKey;
+    if (!resolvedKeyId) {
+      onError('Razorpay Public Key is not configured. Please set VITE_RAZORPAY_KEY_ID in environment.');
+      return;
+    }
+
     if (!orderData?.keyId) {
       orderData = {
         ...orderData,
-        keyId: clientKey,
+        keyId: resolvedKeyId,
         amount: calculatedAmount,
         currency: 'INR',
         amountInRupees: paymentDetails.finalAmountInr,

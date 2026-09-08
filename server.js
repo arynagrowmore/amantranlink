@@ -74,18 +74,20 @@ const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 🔑 Razorpay Configuration (Live Production Keys)
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_TSPLNnQzZslM17';
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'AqmDQwSD6QUbALiJZfFZY6A9';
+// 🔑 Razorpay Configuration — Strictly from Environment Variables (Zero Secrets in Source Code)
+const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID || '';
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
 
 let razorpayInstance = null;
-try {
-  razorpayInstance = new Razorpay({
-    key_id: RAZORPAY_KEY_ID,
-    key_secret: RAZORPAY_KEY_SECRET
-  });
-} catch (e) {
-  console.warn('⚠️ Razorpay initialization note:', e.message);
+if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET && !RAZORPAY_KEY_ID.includes('placeholder')) {
+  try {
+    razorpayInstance = new Razorpay({
+      key_id: RAZORPAY_KEY_ID,
+      key_secret: RAZORPAY_KEY_SECRET
+    });
+  } catch (e) {
+    console.warn('⚠️ Razorpay initialization note:', e.message);
+  }
 }
 
 // 🏛️ Official Retail & Partner Pricing Schedules (1 INR FOR TESTING)
@@ -373,6 +375,13 @@ const handleVerifyPayment = async (req, res) => {
       });
     }
 
+    if (!RAZORPAY_KEY_SECRET) {
+      return res.status(503).json({
+        success: false,
+        error: 'Razorpay API secret is not configured on the server. Verification cannot proceed.'
+      });
+    }
+
     // 🔒 Step A: Mathematical HMAC-SHA256 Signature Verification
     const hmac = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET);
     hmac.update(`${finalOrderId}|${finalPaymentId}`);
@@ -628,19 +637,36 @@ app.post('/api/razorpay/recover-payment', async (req, res) => {
 // ⚡ Centralized Webhook Handler for Razorpay / Payment Provider (Strictly Idempotent)
 const handlePaymentWebhook = async (req, res) => {
   try {
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET;
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
     const signature = req.headers['x-razorpay-signature'];
 
-    // 1. Signature Verification if webhook secret is configured
-    if (webhookSecret && signature && !webhookSecret.includes('placeholder')) {
-      const shasum = crypto.createHmac('sha256', webhookSecret);
-      shasum.update(JSON.stringify(req.body));
-      const digest = shasum.digest('hex');
+    if (!webhookSecret) {
+      console.warn('⚠️ [Payment Webhook] RAZORPAY_WEBHOOK_SECRET is not configured on server.');
+      return res.status(503).json({ status: 'error', message: 'RAZORPAY_WEBHOOK_SECRET is not configured on server.' });
+    }
 
-      if (digest !== signature) {
-        console.warn('⚠️ [Payment Webhook] Signature mismatch received');
-        return res.status(400).json({ status: 'error', message: 'Invalid webhook signature' });
+    if (!signature) {
+      return res.status(400).json({ status: 'error', message: 'Missing x-razorpay-signature header.' });
+    }
+
+    const shasum = crypto.createHmac('sha256', webhookSecret);
+    shasum.update(JSON.stringify(req.body));
+    const digest = shasum.digest('hex');
+
+    let isWebhookValid = false;
+    try {
+      const digBuf = Buffer.from(digest, 'utf-8');
+      const sigBuf = Buffer.from(String(signature).trim(), 'utf-8');
+      if (digBuf.length === sigBuf.length) {
+        isWebhookValid = crypto.timingSafeEqual(digBuf, sigBuf);
       }
+    } catch (e) {
+      isWebhookValid = false;
+    }
+
+    if (!isWebhookValid) {
+      console.warn('⚠️ [Payment Webhook] Signature mismatch received');
+      return res.status(400).json({ status: 'error', message: 'Invalid webhook signature' });
     }
 
     const event = req.body.event;
