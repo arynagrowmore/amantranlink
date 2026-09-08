@@ -395,16 +395,9 @@ export const initiateRazorpayCheckout = async (options: RazorpayCheckoutOptions)
         partnerSlug: currentPartnerSlug || undefined
       });
     } catch (e: any) {
-      console.warn('Backend order creation unavailable, using direct client Razorpay checkout:', e.message);
-      // Fallback for static SPA hosting (Netlify / Vercel without active Node backend)
-      orderData = {
-        orderId: `ord_live_${Date.now().toString(36)}`,
-        keyId: clientKey,
-        amount: calculatedAmount,
-        currency: 'INR',
-        amountInRupees: paymentDetails.finalAmountInr,
-        description: `Unlock ${OFFICIAL_PACKAGES[effectivePackageId]?.name || 'Royal'} Invitation`
-      };
+      console.error('Backend order creation failed:', e.message);
+      onError(e.message || 'Payment initialization failed. Please try again.');
+      return;
     }
 
     if (!orderData?.keyId) {

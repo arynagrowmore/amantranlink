@@ -67,7 +67,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   // 📥 1. Resolve & Fetch Published Wedding Site & Guest from Supabase / LocalStorage
   useEffect(() => {
     let isMounted = true;
-    const targetSlug = (propSlug || extractPublicSlugFromUrl() || 'dhruv-shreya')
+    const targetSlug = (propSlug || extractPublicSlugFromUrl() || '')
       .replace(/^\/i\//, '')
       .replace(/^i\//, '')
       .trim()
@@ -79,10 +79,18 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
       setIsLoading(true);
       setIsNotFound(false);
 
+      if (!targetSlug && !initialState) {
+        if (isMounted) {
+          setIsNotFound(true);
+          setIsLoading(false);
+        }
+        return;
+      }
+
       // Look for Guest Token in URL: ?guest=token or ?g=token
       const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
       const guestToken = searchParams?.get('guest') || searchParams?.get('g');
-      if (guestToken) {
+      if (guestToken && targetSlug) {
         try {
           const guestRecord = await fetchGuestByToken(guestToken, targetSlug);
           if (guestRecord && isMounted) {
@@ -92,18 +100,26 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
       }
 
       // Attempt 1: Fetch from Supabase (Source of Truth)
-      if (isSupabaseConfigured) {
+      if (isSupabaseConfigured && targetSlug) {
         try {
-          const { data: site, error } = await supabase
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetSlug);
+          let query = supabase
             .from('wedding_sites')
-            .select('*, templates(slug)')
-            .or(`slug.eq.${targetSlug},id.eq.${targetSlug},published_url.ilike.%${targetSlug}%`)
-            .order('updated_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
+            .select('id, template_id, status, content, published_url, studio_badge, templates(slug)')
+            .order('updated_at', { ascending: false });
+
+          if (isUuid) {
+            query = query.or(`id.eq.${targetSlug},published_url.ilike.%${targetSlug}%`);
+          } else {
+            query = query.ilike('published_url', `%${targetSlug}%`);
+          }
+
+          const { data: site, error } = await query.limit(1).maybeSingle();
 
           if (!error && site && site.content && isMounted) {
-            const fetchedTheme = (site.templates?.slug || site.content?.theme || site.template_id || 'rajmahal') as ThemeId;
+            const rawTpl: any = site.templates;
+            const tplSlug = Array.isArray(rawTpl) ? rawTpl[0]?.slug : rawTpl?.slug;
+            const fetchedTheme = (tplSlug || (site.content as any)?.theme || site.template_id || 'rajmahal') as ThemeId;
             setThemeId(fetchedTheme);
             setLoadedState(site.content as WeddingProjectState);
             setSiteId(site.id);
@@ -122,15 +138,17 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
       }
 
       // Attempt 2: Local storage resolution (offline / instant preview cache)
-      const localResolved = resolveInvitationState(targetSlug, initialState);
-      if (localResolved && isMounted) {
-        setThemeId(localResolved.theme || 'rajmahal');
-        setLoadedState(localResolved);
-        setIsLoading(false);
-        return;
+      if (targetSlug) {
+        const localResolved = resolveInvitationState(targetSlug);
+        if (localResolved && isMounted) {
+          setThemeId(localResolved.theme || 'rajmahal');
+          setLoadedState(localResolved);
+          setIsLoading(false);
+          return;
+        }
       }
 
-      // If initialState provided from editor, use it
+      // Attempt 3: If initialState provided from editor live preview, use it
       if (initialState && isMounted) {
         setThemeId(initialState.theme || 'rajmahal');
         setLoadedState(initialState);
@@ -138,8 +156,9 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         return;
       }
 
-      // Fallback default for demo/preview
+      // If no valid data found for the requested slug, render 404 Royal Not Found screen
       if (isMounted) {
+        setIsNotFound(true);
         setIsLoading(false);
       }
     };
@@ -313,24 +332,24 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   }
 
   return (
-    <div className="fixed inset-0 w-screen h-screen overflow-hidden bg-[#120306] flex items-center justify-center z-50">
+    <div className="fixed inset-0 w-screen h-screen overflow-hidden bg-[#1A0B0E] flex items-center justify-center z-50 select-none">
       {isLoading ? (
-        <div className="w-full h-full flex flex-col items-center justify-center bg-[#140306] text-[#F7F0DF] space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#6E1020] border-2 border-[#C49A35] flex items-center justify-center text-[#C49A35] animate-pulse shadow-2xl">
+        <div className="w-full h-full flex flex-col items-center justify-center bg-[#1A0B0E] text-[#FDF6EB] space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-[#6E1020] border-2 border-[#C08F3F] flex items-center justify-center text-[#C08F3F] animate-pulse shadow-2xl">
             <RoyalCrestIcon className="w-8 h-8" />
           </div>
-          <div className="text-xs font-serif text-[#C49A35] font-semibold tracking-widest uppercase">
+          <div className="text-xs font-serif text-[#C08F3F] font-semibold tracking-widest uppercase">
             ॥ श्री गणेशाय नमः ॥
           </div>
           <div className="text-xs font-mono font-bold tracking-widest text-[#FFFDF8] uppercase">
-            ✦ PREPARING YOUR ROYAL KANKOTRI ✦
+            ✦ PREPARING YOUR ROYAL INVITATION ✦
           </div>
-          <p className="text-xs text-[#E8D5AD]/70 font-serif italic">
+          <p className="text-xs text-[#E8CFA8]/80 font-serif italic">
             Opening palace gates and tuning Shehnai blessings...
           </p>
         </div>
       ) : (
-        <div className="w-full h-full max-w-[100vw] sm:max-w-[768px] md:max-w-[900px] lg:max-w-[1080px] xl:max-w-[1200px] h-full shadow-[0_0_80px_rgba(0,0,0,0.8)] relative flex flex-col overflow-hidden bg-white">
+        <div className="w-full h-full relative flex flex-col overflow-hidden bg-[#FDF6EB]">
           {/* 👑 Floating Personalized Guest Banner (if opened via ?guest=token) */}
           {guest && (
             <PersonalizedGuestBanner
@@ -342,8 +361,8 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
           <iframe
             ref={iframeRef}
             src={templateUrl}
-            title={`${normalizedData.groom.name} & ${normalizedData.bride.name} Royal Wedding Kankotri`}
-            className="w-full h-full border-0 block"
+            title={`${normalizedData.groom.name} & ${normalizedData.bride.name} Royal Wedding Invitation`}
+            className="w-full h-full border-0 block bg-[#FDF6EB]"
             allow="autoplay; clipboard-write"
             onLoad={() => {
               performMasterSync();
@@ -354,7 +373,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
 
           {/* 🎵 Floating Ceremonial Shehnai Audio Pill */}
           {rawState?.media?.audioUrl && (
-            <div className="absolute bottom-3 left-3 z-30 animate-fadeIn">
+            <div className="absolute bottom-4 left-4 z-30 animate-fadeIn">
               <button
                 type="button"
                 onClick={() => {
@@ -367,7 +386,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
                     }
                   }
                 }}
-                className="bg-[#120306]/90 hover:bg-[#1C050B] backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[#C49A35]/40 text-[#F7E7C4] hover:text-[#FFFDF8] text-[11px] font-manrope font-semibold shadow-lg flex items-center gap-2 transition-all cursor-pointer hover:scale-105"
+                className="bg-[#25160A]/90 hover:bg-[#3E2612] backdrop-blur-md px-4 py-2 rounded-full border border-[#C08F3F]/60 text-[#FDF6EB] hover:text-[#FFFDF8] text-xs font-serif tracking-wide shadow-xl flex items-center gap-2.5 transition-all cursor-pointer hover:scale-105"
                 title="Toggle Ceremonial Shehnai Music"
               >
                 {isPlayingAudio ? (
@@ -377,8 +396,8 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
                   </>
                 ) : (
                   <>
-                    <span className="w-2 h-2 rounded-full bg-[#C49A35]" />
-                    <span>Play Shehnai Music 🎶</span>
+                    <span className="w-2 h-2 rounded-full bg-[#C08F3F]" />
+                    <span>Play Shehnai 🎶</span>
                   </>
                 )}
               </button>
@@ -394,9 +413,9 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
 
           {/* 👑 Subtle Luxury Partner Studio Badge */}
           {studioBadge && (
-            <div className="absolute bottom-3 right-3 z-30 bg-[#120306]/85 backdrop-blur-md px-3 py-1 rounded-full border border-[#C49A35]/30 text-[10px] text-[#E8D5AD] font-manrope shadow-md flex items-center gap-1.5 pointer-events-none animate-fadeIn">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C49A35] animate-pulse" />
-              <span>Partner Studio: <strong className="text-[#FFFDF8] font-serif">{studioBadge}</strong></span>
+            <div className="absolute bottom-4 right-4 z-30 bg-[#25160A]/85 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-[#C08F3F]/40 text-[11px] text-[#E8CFA8] font-serif shadow-lg flex items-center gap-1.5 pointer-events-none animate-fadeIn">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C08F3F] animate-pulse" />
+              <span>Partner Studio: <strong className="text-[#FFFDF8] font-semibold">{studioBadge}</strong></span>
             </div>
           )}
 

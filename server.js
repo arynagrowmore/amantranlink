@@ -69,14 +69,14 @@ app.use((req, res, next) => {
 });
 
 // ⚡ Supabase Client Setup (PostgreSQL Database Engine)
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://shahi-studio-demo.supabase.co';
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'demo_anon_key';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://owziiqdxbvynrprugvwk.supabase.co';
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93emlpcWR4YnZ5bnJwcnVndndrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMzAyMDMsImV4cCI6MjEwMjgwNjIwM30._rrJrh-NLf3t0sQzvmcQL9X3CzZH_nvHGvqOv1ijqeI';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 🔑 Razorpay Configuration
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder_key_id';
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'rzp_test_placeholder_secret';
+// 🔑 Razorpay Configuration (Live Production Keys)
+const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_TSPLNnQzZslM17';
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || 'AqmDQwSD6QUbALiJZfFZY6A9';
 
 let razorpayInstance = null;
 try {
@@ -1873,12 +1873,20 @@ app.get(['/api/public/wedding/:slug', '/api/invitations/:slug'], async (req, res
   const { slug } = req.params;
   try {
     const cleanSlug = String(slug).toLowerCase().trim();
-    const { data, error } = await supabase
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanSlug);
+    
+    let query = supabase
       .from('wedding_sites')
       .select('id, template_id, status, content, published_url, published_at, templates(slug, name)')
-      .or(`slug.eq.${cleanSlug},id.eq.${cleanSlug},published_url.ilike.%${cleanSlug}%`)
-      .eq('status', 'published')
-      .maybeSingle();
+      .eq('status', 'published');
+
+    if (isUuid) {
+      query = query.or(`id.eq.${cleanSlug},published_url.ilike.%${cleanSlug}%`);
+    } else {
+      query = query.ilike('published_url', `%${cleanSlug}%`);
+    }
+
+    const { data, error } = await query.order('updated_at', { ascending: false }).limit(1).maybeSingle();
 
     if (!error && data) {
       return res.json({ 
@@ -1902,6 +1910,7 @@ app.get(['/api/public/wedding/:slug', '/api/invitations/:slug'], async (req, res
 app.get(['/i/:slug', '/invite/:slug', '/wedding/:slug', '/share/:slug'], async (req, res) => {
   const { slug } = req.params;
   const cleanSlug = String(slug).toLowerCase().trim();
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanSlug);
   
   let groomName = 'Rudra';
   let brideName = 'Ishani';
@@ -1911,12 +1920,18 @@ app.get(['/i/:slug', '/invite/:slug', '/wedding/:slug', '/share/:slug'], async (
   let isEngagement = false;
 
   try {
-    const { data: site } = await supabase
+    let siteQuery = supabase
       .from('wedding_sites')
       .select('*')
-      .or(`slug.eq.${cleanSlug},id.eq.${cleanSlug},published_url.ilike.%${cleanSlug}%`)
-      .eq('status', 'published')
-      .maybeSingle();
+      .eq('status', 'published');
+
+    if (isUuid) {
+      siteQuery = siteQuery.or(`id.eq.${cleanSlug},published_url.ilike.%${cleanSlug}%`);
+    } else {
+      siteQuery = siteQuery.ilike('published_url', `%${cleanSlug}%`);
+    }
+
+    const { data: site } = await siteQuery.order('updated_at', { ascending: false }).limit(1).maybeSingle();
 
     if (site?.is_suspended) {
       return res.status(403).send(`
@@ -2162,7 +2177,7 @@ app.get('/api/partner/review-token/:token', async (req, res) => {
 
     const { data: site } = await supabase
       .from('wedding_sites')
-      .select('id, slug, published_url, status, is_locked, workflow_status, content, studio_badge, partner_id, created_at')
+      .select('id, published_url, status, is_locked, workflow_status, content, studio_badge, partner_id, created_at')
       .eq('review_token', token)
       .maybeSingle();
 
@@ -2368,10 +2383,18 @@ app.get('/api/rsvp/resolve-site', async (req, res) => {
     const slug = (req.query.slug || '').trim().toLowerCase();
     if (!slug) return res.status(400).json({ success: false, error: 'Slug is required' });
 
-    const { data: site, error } = await supabase
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+    let query = supabase
       .from('wedding_sites')
-      .select('id, slug, published_url')
-      .or(`slug.eq.${slug},id.eq.${slug},published_url.ilike.%${slug}%`)
+      .select('id, published_url');
+
+    if (isUuid) {
+      query = query.or(`id.eq.${slug},published_url.ilike.%${slug}%`);
+    } else {
+      query = query.ilike('published_url', `%${slug}%`);
+    }
+
+    const { data: site, error } = await query
       .order('updated_at', { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -2380,7 +2403,7 @@ app.get('/api/rsvp/resolve-site', async (req, res) => {
       return res.json({ success: false, siteId: null });
     }
 
-    return res.json({ success: true, siteId: site.id, slug: site.slug });
+    return res.json({ success: true, siteId: site.id, publishedUrl: site.published_url });
   } catch (e) {
     return res.status(500).json({ success: false, error: e.message });
   }
@@ -3352,7 +3375,7 @@ const runAutomationWorker = async () => {
     // Evaluate RSVPs pending
     const { data: activeWeddings } = await supabase
       .from('wedding_sites')
-      .select('id, slug, content')
+      .select('id, content')
       .eq('status', 'published')
       .limit(10);
 
@@ -3669,8 +3692,8 @@ app.get('/api/health', (req, res) => {
     status: 'healthy',
     engine: 'Supabase PostgreSQL + Node.js Express Gateway',
     timestamp: new Date().toISOString(),
-    razorpayConfigured: Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET),
-    supabaseConfigured: Boolean(process.env.VITE_SUPABASE_URL && !process.env.VITE_SUPABASE_URL.includes('demo'))
+    razorpayConfigured: Boolean(RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET && !RAZORPAY_KEY_ID.includes('placeholder')),
+    supabaseConfigured: Boolean(SUPABASE_URL && !SUPABASE_URL.includes('demo'))
   });
 });
 

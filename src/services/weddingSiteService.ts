@@ -30,29 +30,24 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
         templateUuid = tpl?.id || null;
       } catch (e) {}
 
+      const isValidUserUuid = typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+
       // 2. Check if a site already exists for this slug or user template
       let existingSiteQuery = supabase.from('wedding_sites').select('id');
-      if (userId && templateUuid) {
-        existingSiteQuery = existingSiteQuery.or(`slug.eq.${slug},and(user_id.eq.${userId},template_id.eq.${templateUuid})`);
+      if (isValidUserUuid && templateUuid) {
+        existingSiteQuery = existingSiteQuery.or(`published_url.ilike.%${slug}%,and(user_id.eq.${userId},template_id.eq.${templateUuid})`);
       } else {
-        existingSiteQuery = existingSiteQuery.eq('slug', slug);
+        existingSiteQuery = existingSiteQuery.ilike('published_url', `%${slug}%`);
       }
 
       const { data: existingSite } = await existingSiteQuery.limit(1).maybeSingle();
 
-      const isValidUserUuid = typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
-
       if (existingSite?.id) {
         siteUuid = existingSite.id;
         const updatePayload: any = {
-          slug: slug,
           status: 'published',
           is_locked: true,
-          editing_status: 'locked',
-          publication_status: 'published',
-          payment_status: 'paid',
-          content: state, // Latest customized state with new theme & names
-          draft_content: state,
+          content: state,
           published_url: publishedUrl,
           published_at: now,
           updated_at: now,
@@ -64,22 +59,17 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
           .from('wedding_sites')
           .update(updatePayload)
           .eq('id', existingSite.id);
-      } else {
+      } else if (isValidUserUuid && templateUuid) {
         const insertPayload: any = {
-          slug: slug,
+          user_id: userId,
+          template_id: templateUuid,
           status: 'published',
           is_locked: true,
-          editing_status: 'locked',
-          publication_status: 'published',
-          payment_status: 'paid',
           content: state,
-          draft_content: state,
           published_url: publishedUrl,
           published_at: now,
           updated_at: now,
         };
-        if (templateUuid) insertPayload.template_id = templateUuid;
-        if (isValidUserUuid) insertPayload.user_id = userId;
 
         const { data: newSite, error: insErr } = await supabase
           .from('wedding_sites')

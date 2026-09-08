@@ -342,7 +342,7 @@ function MainApp() {
 
   // If opening pure couple link, render ONLY the full-screen Kankotri!
   if (isStandaloneView) {
-    return <StandaloneInvitationView initialState={state} />;
+    return <StandaloneInvitationView />;
   }
 
   const showToast = (msg: string) => {

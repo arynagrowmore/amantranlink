@@ -31,3 +31,18 @@ dist-ssr
 .env.production.local
 serviceAccountKey.json
 firebase-admin-key.json
+
+# MeshCrew MCP configs (contain API key)
+opencode.json
+.mcp.json
+.gemini/settings.json
+.qwen/settings.json
+.cursor/mcp.json
+.meshmemory
+.kiro/settings/mcp.json
+.grok/config.toml
+.agents/mcp_config.json
+meshmcp.local.ps1
+crush.json
+.factory/mcp.json
+.mimo-code.json
