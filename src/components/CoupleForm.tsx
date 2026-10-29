@@ -208,13 +208,13 @@ export const CoupleForm: React.FC<CoupleFormProps> = ({
             type="text"
             value={couple.groomEn}
             onChange={(e) => handleGroomEnChange(e.target.value)}
-            placeholder={isEngagement ? 'e.g. Aarav' : 'e.g. Rudra'}
+            placeholder={isEngagement ? 'e.g. Kabir' : 'Groom Name (e.g. Kabir)'}
             className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5]/60 border border-[#E8DCC8] text-xs font-bold text-[#241A17] hover:border-[#C49A35]/60 focus-visible:outline-none focus-visible:bg-white focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35]/25 transition-all shadow-2xs"
           />
         </div>
 
         {/* Trilingual Grid */}
-        <div className="grid grid-cols-2 gap-3 pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
           <div>
             <label htmlFor="groom-hi-name" className="block text-[11px] text-[#75675C] mb-1 font-medium cursor-pointer">
               नाम (हिन्दी में)
@@ -225,7 +225,7 @@ export const CoupleForm: React.FC<CoupleFormProps> = ({
               type="text"
               value={couple.groomHi}
               onChange={(e) => onChange({ groomHi: e.target.value })}
-              placeholder={isEngagement ? 'उदा. आरव' : 'उदा. रुद्र'}
+              placeholder={isEngagement ? 'उदा. कबीर' : 'वर का नाम (उदा. कबीर)'}
               className="w-full px-3 py-2 rounded-xl bg-[#FAF8F5]/60 border border-[#E8DCC8] text-xs font-bold text-[#241A17] hover:border-[#C49A35]/60 focus-visible:outline-none focus-visible:bg-white focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35]/25 transition-all shadow-2xs"
             />
           </div>
@@ -239,7 +239,7 @@ export const CoupleForm: React.FC<CoupleFormProps> = ({
               type="text"
               value={couple.groomGu}
               onChange={(e) => onChange({ groomGu: e.target.value })}
-              placeholder={isEngagement ? 'દા.ત. આરવ' : 'દા.ત. રુદ્ર'}
+              placeholder={isEngagement ? 'દા.ત. કબીર' : 'વરરાજાનું નામ (દા.ત. કબીર)'}
               className="w-full px-3 py-2 rounded-xl bg-[#FAF8F5]/60 border border-[#E8DCC8] text-xs font-bold text-[#241A17] hover:border-[#C49A35]/60 focus-visible:outline-none focus-visible:bg-white focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35]/25 transition-all shadow-2xs"
             />
           </div>
@@ -273,13 +273,13 @@ export const CoupleForm: React.FC<CoupleFormProps> = ({
             type="text"
             value={couple.brideEn}
             onChange={(e) => handleBrideEnChange(e.target.value)}
-            placeholder={isEngagement ? 'e.g. Riya' : 'e.g. Ishani'}
+            placeholder={isEngagement ? 'e.g. Ananya' : 'Bride Name (e.g. Ananya)'}
             className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5]/60 border border-[#E8DCC8] text-xs font-bold text-[#241A17] hover:border-[#C49A35]/60 focus-visible:outline-none focus-visible:bg-white focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35]/25 transition-all shadow-2xs"
           />
         </div>
 
         {/* Trilingual Grid */}
-        <div className="grid grid-cols-2 gap-3 pt-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
           <div>
             <label htmlFor="bride-hi-name" className="block text-[11px] text-[#75675C] mb-1 font-medium cursor-pointer">
               नाम (हिन्दी में)
@@ -290,7 +290,7 @@ export const CoupleForm: React.FC<CoupleFormProps> = ({
               type="text"
               value={couple.brideHi}
               onChange={(e) => onChange({ brideHi: e.target.value })}
-              placeholder={isEngagement ? 'उदा. रिया' : 'उदा. ईशानी'}
+              placeholder={isEngagement ? 'उदा. अनन्या' : 'वधू का नाम (उदा. अनन्या)'}
               className="w-full px-3 py-2 rounded-xl bg-[#FAF8F5]/60 border border-[#E8DCC8] text-xs font-bold text-[#241A17] hover:border-[#C49A35]/60 focus-visible:outline-none focus-visible:bg-white focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35]/25 transition-all shadow-2xs"
             />
           </div>
@@ -304,7 +304,7 @@ export const CoupleForm: React.FC<CoupleFormProps> = ({
               type="text"
               value={couple.brideGu}
               onChange={(e) => onChange({ brideGu: e.target.value })}
-              placeholder={isEngagement ? 'દા.ત. રિયા' : 'દા.ત. ઈશાની'}
+              placeholder={isEngagement ? 'દા.ત. અનન્યા' : 'કન્યાનું નામ (દા.ત. અનન્યા)'}
               className="w-full px-3 py-2 rounded-xl bg-[#FAF8F5]/60 border border-[#E8DCC8] text-xs font-bold text-[#241A17] hover:border-[#C49A35]/60 focus-visible:outline-none focus-visible:bg-white focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35]/25 transition-all shadow-2xs"
             />
           </div>

@@ -27,34 +27,34 @@ export const IPhoneHardwareFrame: React.FC<IPhoneHardwareFrameProps> = ({
 
   return (
     <div
-      className={`relative w-[366px] sm:w-[380px] h-[750px] max-h-[calc(100vh-110px)] shrink-0 my-auto transition-transform duration-300 select-none ${className}`}
+      className={`relative w-[calc(100vw-36px)] max-w-[366px] sm:max-w-[380px] h-[calc(100vh-170px)] sm:h-[750px] max-h-[820px] shrink-0 my-auto transition-transform duration-300 select-none ${className}`}
       style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }}
     >
       {/* 🔘 Physical Titanium Side Buttons (Flush, tactile CNC chamfered edges) */}
       {/* Left: Action Button */}
       <div
-        className="absolute -left-[5.5px] top-[102px] w-[3px] h-[17px] bg-[#5C5963] rounded-l-[1.5px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)] border-r border-[#2C2A30]"
+        className="hidden min-[410px]:block absolute -left-[5.5px] top-[102px] w-[3px] h-[17px] bg-[#5C5963] rounded-l-[1.5px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)] border-r border-[#2C2A30]"
         title="Action Button"
       />
       {/* Left: Volume Up */}
       <div
-        className="absolute -left-[5.5px] top-[134px] w-[3px] h-[35px] bg-[#5C5963] rounded-l-[1.5px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)] border-r border-[#2C2A30]"
+        className="hidden min-[410px]:block absolute -left-[5.5px] top-[134px] w-[3px] h-[35px] bg-[#5C5963] rounded-l-[1.5px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)] border-r border-[#2C2A30]"
         title="Volume Up"
       />
       {/* Left: Volume Down */}
       <div
-        className="absolute -left-[5.5px] top-[178px] w-[3px] h-[35px] bg-[#5C5963] rounded-l-[1.5px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)] border-r border-[#2C2A30]"
+        className="hidden min-[410px]:block absolute -left-[5.5px] top-[178px] w-[3px] h-[35px] bg-[#5C5963] rounded-l-[1.5px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)] border-r border-[#2C2A30]"
         title="Volume Down"
       />
 
       {/* Right: Side / Power Button */}
       <div
-        className="absolute -right-[5.5px] top-[138px] w-[3px] h-[52px] bg-[#5C5963] rounded-r-[1.5px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)] border-l border-[#2C2A30]"
+        className="hidden min-[410px]:block absolute -right-[5.5px] top-[138px] w-[3px] h-[52px] bg-[#5C5963] rounded-r-[1.5px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)] border-l border-[#2C2A30]"
         title="Side / Power Button"
       />
       {/* Right: Camera Control Button (iPhone 16 Pro Signature Sapphire Flush Button) */}
       <div
-        className="absolute -right-[5px] top-[242px] w-[2.5px] h-[40px] bg-[#434047] rounded-r-[1.5px] shadow-inner border-l border-white/15"
+        className="hidden min-[410px]:block absolute -right-[5px] top-[242px] w-[2.5px] h-[40px] bg-[#434047] rounded-r-[1.5px] shadow-inner border-l border-white/15"
         title="Camera Control Sapphire Button"
       />
 

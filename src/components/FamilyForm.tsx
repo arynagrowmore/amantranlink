@@ -110,7 +110,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ family, onChange, onSave
               type="text"
               value={family.groomParentsEn}
               onChange={(e) => handleGroomParentsEnChange(e.target.value)}
-              placeholder="Mr. Nalinkumar & Mrs. Kalpuben"
+              placeholder="e.g. Mr. & Mrs. Verma"
               className="artisan-input w-full px-2.5 py-1.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#6B1420]/30 focus:border-[#6B1420]"
             />
           </div>
@@ -120,7 +120,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ family, onChange, onSave
               type="text"
               value={family.groomParentsHi}
               onChange={(e) => onChange({ groomParentsHi: e.target.value })}
-              placeholder="श्री नलिनकुमार एवं श्रीमती कल्पूबेन"
+              placeholder="उदा. श्री एवं श्रीमती वर्मा"
               className="artisan-input w-full px-2.5 py-1.5 rounded-xl text-xs font-baloo font-semibold focus:ring-2 focus:ring-[#6B1420]/30 focus:border-[#6B1420]"
             />
           </div>
@@ -130,7 +130,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ family, onChange, onSave
               type="text"
               value={family.groomParentsGu}
               onChange={(e) => onChange({ groomParentsGu: e.target.value })}
-              placeholder="શ્રી નલિનકુમાર અને શ્રીમતી કલ્પૂબેન"
+              placeholder="દા.ત. શ્રી અને શ્રીમતી વર્મા"
               className="artisan-input w-full px-2.5 py-1.5 rounded-xl text-xs font-baloo font-bold text-[#6B1420] focus:ring-2 focus:ring-[#6B1420]/30 focus:border-[#6B1420]"
             />
           </div>
@@ -159,7 +159,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ family, onChange, onSave
               type="text"
               value={family.brideParentsEn}
               onChange={(e) => handleBrideParentsEnChange(e.target.value)}
-              placeholder="Mr. & Mrs. Sharma"
+              placeholder="e.g. Mr. & Mrs. Sharma"
               className="artisan-input w-full px-2.5 py-1.5 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[#6B1420]/30 focus:border-[#6B1420]"
             />
           </div>
@@ -169,7 +169,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ family, onChange, onSave
               type="text"
               value={family.brideParentsHi}
               onChange={(e) => onChange({ brideParentsHi: e.target.value })}
-              placeholder="श्री एवं श्रीमती शर्मा"
+              placeholder="उदा. श्री एवं श्रीमती शर्मा"
               className="artisan-input w-full px-2.5 py-1.5 rounded-xl text-xs font-baloo font-semibold focus:ring-2 focus:ring-[#6B1420]/30 focus:border-[#6B1420]"
             />
           </div>
@@ -179,7 +179,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ family, onChange, onSave
               type="text"
               value={family.brideParentsGu}
               onChange={(e) => onChange({ brideParentsGu: e.target.value })}
-              placeholder="શ્રી અને શ્રીમતી શર્મા"
+              placeholder="દા.ત. શ્રી અને શ્રીમતી શર્મા"
               className="artisan-input w-full px-2.5 py-1.5 rounded-xl text-xs font-baloo font-bold text-[#6B1420] focus:ring-2 focus:ring-[#6B1420]/30 focus:border-[#6B1420]"
             />
           </div>
@@ -201,14 +201,14 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ family, onChange, onSave
               type="text"
               value={family.rsvp1Name}
               onChange={(e) => onChange({ rsvp1Name: e.target.value })}
-              placeholder="Name (e.g. Nalinkumar)"
+              placeholder="Coordinator Name (e.g. Ramesh Bhai)"
               className="artisan-input w-full px-2.5 py-1.5 rounded-xl text-xs mb-1 font-semibold focus:ring-2 focus:ring-[#6B1420]/30 focus:border-[#6B1420]"
             />
             <input
               type="text"
               value={family.rsvp1Phone}
               onChange={(e) => onChange({ rsvp1Phone: e.target.value })}
-              placeholder="Phone (e.g. +91 98251 45678)"
+              placeholder="Phone (e.g. +91 98765 43210)"
               className="artisan-input w-full px-2.5 py-1.5 rounded-xl text-xs font-mono focus:ring-2 focus:ring-[#6B1420]/30 focus:border-[#6B1420]"
             />
           </div>
@@ -220,14 +220,14 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ family, onChange, onSave
               type="text"
               value={family.rsvp2Name}
               onChange={(e) => onChange({ rsvp2Name: e.target.value })}
-              placeholder="Name (e.g. Helpdesk)"
+              placeholder="Helpdesk (e.g. Family Coordinator)"
               className="artisan-input w-full px-2.5 py-1.5 rounded-xl text-xs mb-1 font-semibold focus:ring-2 focus:ring-[#6B1420]/30 focus:border-[#6B1420]"
             />
             <input
               type="text"
               value={family.rsvp2Phone}
               onChange={(e) => onChange({ rsvp2Phone: e.target.value })}
-              placeholder="Phone (e.g. +91 98982 34567)"
+              placeholder="Phone (e.g. +91 98765 43211)"
               className="artisan-input w-full px-2.5 py-1.5 rounded-xl text-xs font-mono focus:ring-2 focus:ring-[#6B1420]/30 focus:border-[#6B1420]"
             />
           </div>

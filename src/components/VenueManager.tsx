@@ -49,7 +49,7 @@ export const VenueManager: React.FC<VenueManagerProps> = ({
             type="text"
             value={couple.venueName || ''}
             onChange={(e) => onChange({ venueName: e.target.value })}
-            placeholder={isEngagement ? 'e.g. The Grand Palace, Udaipur' : 'e.g. The Milestone Palace & Resort'}
+            placeholder={isEngagement ? 'e.g. The Grand Palace, Udaipur' : 'e.g. Taj Lake Palace, Udaipur'}
             className="w-full px-4 py-3 rounded-xl bg-[#FFFDF8] border border-[#E8D5AD] focus:border-[#C49A35] text-[#241A17] text-xs font-medium focus:ring-1 focus:ring-[#C49A35] outline-none shadow-xs transition-all"
           />
         </div>
@@ -63,7 +63,7 @@ export const VenueManager: React.FC<VenueManagerProps> = ({
             rows={3}
             value={couple.venueAddress || ''}
             onChange={(e) => onChange({ venueAddress: e.target.value })}
-            placeholder={isEngagement ? 'e.g. Near Lake Pichola, Haridas Ji Ki Magri, Udaipur, Rajasthan 313001' : 'e.g. Near Malpur Road, Bypass Highway, Modasa, Gujarat 383315'}
+            placeholder={isEngagement ? 'e.g. Near Lake Pichola, Udaipur, Rajasthan 313001' : 'e.g. Near Lake Pichola, City Palace Complex, Udaipur, Rajasthan 313001'}
             className="w-full px-4 py-3 rounded-xl bg-[#FFFDF8] border border-[#E8D5AD] focus:border-[#C49A35] text-[#241A17] text-xs font-medium focus:ring-1 focus:ring-[#C49A35] outline-none shadow-xs transition-all resize-none"
           />
         </div>

@@ -74,10 +74,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           return (
             <button
               key={step.id}
+              ref={(el) => {
+                if (isActive && el && typeof window !== 'undefined' && window.innerWidth < 1024) {
+                  el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+              }}
               type="button"
               onClick={() => onTabChange(step.id)}
               aria-current={isActive ? 'step' : undefined}
-              className={`px-3 py-2.5 rounded-xl text-left transition-all duration-200 cursor-pointer flex items-center justify-between gap-2 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] ${
+              className={`px-3 py-2 sm:py-2.5 rounded-xl text-left transition-all duration-200 cursor-pointer flex items-center justify-between gap-2 border shrink-0 min-w-[100px] sm:min-w-[120px] lg:min-w-0 lg:w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] ${
                 isActive
                   ? 'bg-[#6E1020] border-l-[3px] border-l-[#C49A35] border-y-[#6E1020] border-r-[#6E1020] text-[#FFFDF8] shadow-[0_4px_14px_rgba(110,16,32,0.22)]'
                   : isCompleted

@@ -157,7 +157,7 @@ export const EventsManager: React.FC<EventsManagerProps> = ({
             </div>
 
             {/* Trilingual Event Names */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] text-[#75675C] mb-1 font-medium">हिन्दी नाम</label>
                 <input
@@ -165,7 +165,7 @@ export const EventsManager: React.FC<EventsManagerProps> = ({
                   value={evt.nameHi}
                   onChange={(e) => updateEvent(idx, 'nameHi', e.target.value)}
                   placeholder="उदा. संगीत संध्या"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-[#E8D5AD] text-xs font-bold text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white border border-[#E8D5AD] text-xs font-bold text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
                 />
               </div>
               <div>
@@ -175,13 +175,13 @@ export const EventsManager: React.FC<EventsManagerProps> = ({
                   value={evt.nameGu}
                   onChange={(e) => updateEvent(idx, 'nameGu', e.target.value)}
                   placeholder="દા.ત. સંગીત સંધ્યા"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-[#E8D5AD] text-xs font-bold text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white border border-[#E8D5AD] text-xs font-bold text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
                 />
               </div>
             </div>
 
             {/* Date & Time */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] text-[#75675C] mb-1 font-semibold flex items-center gap-1">
                   <Calendar className="w-3 h-3 text-[#C49A35]" />
@@ -191,8 +191,8 @@ export const EventsManager: React.FC<EventsManagerProps> = ({
                   type="text"
                   value={evt.date}
                   onChange={(e) => updateEvent(idx, 'date', e.target.value)}
-                  placeholder="Date (e.g. 1 Dec 2026)"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-[#E8D5AD] text-xs font-semibold text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
+                  placeholder="Date (e.g. 10 Dec 2026)"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white border border-[#E8D5AD] text-xs font-semibold text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
                 />
               </div>
               <div>
@@ -205,13 +205,13 @@ export const EventsManager: React.FC<EventsManagerProps> = ({
                   value={evt.time}
                   onChange={(e) => updateEvent(idx, 'time', e.target.value)}
                   placeholder="Time (e.g. 07:00 PM)"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-[#E8D5AD] text-xs font-semibold text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white border border-[#E8D5AD] text-xs font-semibold text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
                 />
               </div>
             </div>
 
             {/* Venue & Dress Code */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] text-[#75675C] mb-1 font-semibold flex items-center gap-1">
                   <MapPin className="w-3 h-3 text-[#C49A35]" />
@@ -221,8 +221,8 @@ export const EventsManager: React.FC<EventsManagerProps> = ({
                   type="text"
                   value={evt.venue}
                   onChange={(e) => updateEvent(idx, 'venue', e.target.value)}
-                  placeholder="e.g. The Milestone Garden"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-[#E8D5AD] text-xs font-semibold text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
+                  placeholder="e.g. Royal Palace Garden, Udaipur"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white border border-[#E8D5AD] text-xs font-semibold text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
                 />
               </div>
               <div>
@@ -235,7 +235,7 @@ export const EventsManager: React.FC<EventsManagerProps> = ({
                   value={evt.dressCode || ''}
                   onChange={(e) => updateEvent(idx, 'dressCode', e.target.value)}
                   placeholder="e.g. Royal Ethnic / Festive"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-[#E8D5AD] text-xs text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white border border-[#E8D5AD] text-xs text-[#241A17] focus:outline-none focus:border-[#C49A35] shadow-2xs"
                 />
               </div>
             </div>

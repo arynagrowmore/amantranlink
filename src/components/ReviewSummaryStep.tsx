@@ -32,7 +32,7 @@ export const ReviewSummaryStep: React.FC<ReviewSummaryStepProps> = ({
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [copiedMsg, setCopiedMsg] = useState<boolean>(false);
 
-  const coupleSlug = `${(state.couple.groomEn || 'rudra').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(state.couple.brideEn || 'ishani').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+  const coupleSlug = `${(state.couple.groomEn || 'groom').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(state.couple.brideEn || 'bride').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://amantranlink.com';
   const personalizedUrl = guestName.trim()
     ? `${origin}/i/${coupleSlug}?guest=${encodeURIComponent(guestName.trim())}`

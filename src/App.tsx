@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { WeddingProjectState, PhotoSlot, ViewMode, Language, ThemeId, WeddingSite, PackageType } from './types/wedding';
 import { Navbar, SaveStatus } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
@@ -158,6 +158,7 @@ function MainApp() {
   const [previewModalTheme, setPreviewModalTheme] = useState<ThemeId | null>(null);
   const [royalPaymentPackage, setRoyalPaymentPackage] = useState<PackageType>('silver');
   const [mobileStudioPane, setMobileStudioPane] = useState<'form' | 'preview'>('form');
+  const formScrollRef = useRef<HTMLDivElement>(null);
   const [isPartnerModalOpen, setIsPartnerModalOpen] = useState<boolean>(Boolean(initialRoute.openPartnerModal));
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
   const [isDownloadHubOpen, setIsDownloadHubOpen] = useState<boolean>(false);
@@ -401,6 +402,7 @@ function MainApp() {
       setIsPublishModalOpen(true);
     } else {
       setActiveTab(nextTab);
+      formScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }
     showToast(`✓ Saved ${currentTab.toUpperCase()}! Moving to next step.`);
   };
@@ -419,6 +421,7 @@ function MainApp() {
       return;
     }
     setActiveTab(tabId);
+    formScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleViewModeChange = (mode: ViewMode) => {
@@ -937,7 +940,7 @@ function MainApp() {
         {/* Zone 2: Center Editorial Form Workspace */}
         <aside className={`w-full lg:w-[480px] xl:w-[560px] 2xl:w-[620px] bg-white border-r border-[#E8DCC8] flex flex-col shrink-0 overflow-hidden shadow-[2px_0_12px_rgba(67,9,20,0.02)] z-10 ${mobileStudioPane === 'preview' ? 'hidden lg:flex' : 'flex'}`}>
           {/* Scrollable Form Body with Steps */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+          <div ref={formScrollRef} className="flex-1 overflow-y-auto p-4 sm:p-6 pb-28 lg:pb-6 space-y-6">
             {/* Step 01: Theme Selection */}
             {activeTab === 'theme' && (
               <ThemeSelector
@@ -1052,10 +1055,85 @@ function MainApp() {
         </aside>
 
         {/* Zone 3: Right Live Visualizer Canvas (Large Hero Preview) */}
-        <section className={`flex-1 bg-[#FAF8F5] flex flex-col items-center justify-center p-2 sm:p-4 lg:p-6 overflow-hidden relative ${mobileStudioPane === 'form' ? 'hidden lg:flex' : 'flex'}`}>
+        <section className={`flex-1 bg-[#FAF8F5] flex flex-col items-center justify-center p-2 sm:p-4 lg:p-6 pb-24 lg:pb-6 overflow-hidden relative ${mobileStudioPane === 'form' ? 'hidden lg:flex' : 'flex'}`}>
           <LivePreviewCanvas state={state} refreshKey={refreshKey} siteId={activeSite?.siteId || activeSite?.id} />
         </section>
       </main>
+
+      {/* 📱 Mobile Studio Floating Bottom Dock (< 1024px) for Thumb-Friendly Customization */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E8DCC8] px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-[0_-6px_25px_rgba(0,0,0,0.08)] select-none">
+        {/* Toggle Form vs Preview */}
+        <div className="flex items-center bg-[#FAF6EE] p-0.5 rounded-xl border border-[#E8DCC8] shrink-0 text-xs font-semibold">
+          <button
+            type="button"
+            onClick={() => setMobileStudioPane('form')}
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+              mobileStudioPane === 'form'
+                ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
+                : 'text-[#75675C]'
+            }`}
+          >
+            <span>✏️ Edit</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileStudioPane('preview')}
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+              mobileStudioPane === 'preview'
+                ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
+                : 'text-[#75675C]'
+            }`}
+          >
+            <span>👁️ Preview</span>
+          </button>
+        </div>
+
+        {/* Action Button: Next or Publish */}
+        {mobileStudioPane === 'form' ? (
+          <div className="flex items-center gap-2">
+            {activeTab === 'review' ? (
+              <button
+                type="button"
+                onClick={() => setIsPublishModalOpen(true)}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#6E1020] to-[#8C1322] text-[#FFFDF8] border border-[#C49A35] font-semibold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+              >
+                <span>🚀 Publish</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  const stepOrder = ['theme', 'couple', 'typography', 'events', 'venue', 'media', 'music', 'shagun', 'rsvp', 'review'];
+                  const curIdx = stepOrder.indexOf(activeTab);
+                  if (curIdx >= 0 && curIdx < stepOrder.length - 1) {
+                    handleTabSaveAndNext(activeTab, stepOrder[curIdx + 1]);
+                  }
+                }}
+                className="px-4 py-2 rounded-xl bg-[#6E1020] hover:bg-[#590A14] text-[#FFFDF8] font-semibold text-xs flex items-center gap-1.5 shadow-xs active:scale-95 transition-all cursor-pointer"
+              >
+                <span>Next Step →</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setMobileStudioPane('form')}
+              className="px-3.5 py-2 rounded-xl bg-[#FAF6EE] text-[#6E1020] border border-[#E8DCC8] font-semibold text-xs flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer"
+            >
+              <span>✏️ Edit Form</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsPublishModalOpen(true)}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#6E1020] to-[#8C1322] text-[#FFFDF8] border border-[#C49A35] font-semibold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+            >
+              <span>🚀 Publish</span>
+            </button>
+          </div>
+        )}
+      </div>
 
 
       {/* 🚀 Publish & Share Hub Modal */}
