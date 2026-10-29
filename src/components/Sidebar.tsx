@@ -62,7 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const steps = isEngagement ? ENGAGEMENT_STUDIO_STEPS : WEDDING_STUDIO_STEPS;
 
   return (
-    <nav aria-label="Studio steps" className="bg-white border-r border-[#E8DCC8] p-2.5 sm:p-3 shrink-0 font-sans select-none flex flex-row lg:flex-col justify-between overflow-x-auto lg:overflow-y-auto w-full lg:w-[185px] h-auto lg:h-full">
+    <nav aria-label="Studio steps" className="bg-white border-b lg:border-r border-[#E8DCC8] p-2 sm:p-2.5 shrink-0 font-sans select-none flex flex-row lg:flex-col justify-between overflow-x-auto lg:overflow-y-auto w-full lg:w-[185px] h-auto lg:h-full overscroll-x-contain touch-pan-x" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
       
       {/* Step Sequence Items */}
       <div className="flex flex-row lg:flex-col gap-1.5 w-full">

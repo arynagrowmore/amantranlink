@@ -963,12 +963,13 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
       {effectiveViewMode === 'mobile' && (
         <div className="w-full h-full flex items-center justify-center">
           {/* On phones (<640px), show clean edge-to-edge frame that feels native without bulky outer chassis */}
-          <div className="sm:hidden w-full h-[calc(100dvh-130px)] rounded-3xl overflow-hidden shadow-2xl border-2 border-[#C49A35]/40 bg-white relative">
+          <div className="sm:hidden w-full h-[calc(100dvh-150px)] rounded-2xl overflow-hidden shadow-2xl border border-[#C49A35]/50 bg-white relative touch-pan-y overscroll-contain">
             <iframe
               ref={iframeRef}
               src={targetUrl}
               title="Mobile Wedding Invitation Preview"
               className="w-full h-full border-none block"
+              style={{ WebkitOverflowScrolling: 'touch' }}
               onLoad={handleIframeLoad}
               allow="autoplay; encrypted-media; fullscreen"
             />

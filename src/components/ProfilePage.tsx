@@ -124,7 +124,14 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         setLoadingData(true);
 
         // 1. Fetch Purchases
-        const isCyberVip = Boolean(user?.email && user.email.toLowerCase().includes('cyberpatel6001@gmail.com'));
+        const isCyberVip = Boolean(
+          user?.isVipAdmin ||
+          user?.role === 'admin' ||
+          (user?.email && (
+            user.email.toLowerCase().includes('cyberpatel6001@gmail.com') ||
+            user.email.toLowerCase().includes('krisha6pc@gmail.com')
+          ))
+        );
         let dbPurchases: any[] = [];
         if (user?.uid && isSupabaseConfigured) {
           const { data } = await supabase
@@ -140,6 +147,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             const allRoyalTemplates: PurchaseItem[] = [
               { id: 'vip_1', template_id: '1', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'rajmahal', name: 'The Rajmahal 3D Palace', preview_image: '/previews/theme-rajmahal.webp', price: 229900, category: 'heritage' } },
               { id: 'vip_2', template_id: '2', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'royaldawn', name: 'The Royal Dawn (Udaipur Lakefront)', preview_image: '/previews/theme-royaldawn.webp', price: 229900, category: 'heritage' } },
+              { id: 'vip_ring', template_id: 'ring', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'royalring', name: 'The Royal Ring (Diamond Engagement)', preview_image: '/previews/theme-royalring.webp', price: 199900, category: 'engagement' } },
               { id: 'vip_3', template_id: '3', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'jharokha', name: 'The Jharokha Mandap', preview_image: '/previews/theme-jharokha.webp', price: 129900, category: 'traditional' } },
               { id: 'vip_4', template_id: '4', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'mayura', name: 'The Mayura Peacock', preview_image: '/previews/theme-mayura.webp', price: 129900, category: 'traditional' } },
               { id: 'vip_5', template_id: '5', status: 'unlocked', payment_reference: 'VIP_LIFETIME_UNLOCKED', unlocked_at: new Date().toISOString(), templates: { slug: 'jodi', name: 'The Shubh Jodi (Gold Thaali)', preview_image: '/previews/theme-jodi.webp', price: 129900, category: 'traditional' } },
@@ -250,29 +258,53 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         if (isMounted) {
           setWeddingSites(mergedSites);
 
-          // 4. Fetch RSVPs strictly per wedding_site_id
+          // 4. Fetch RSVPs robustly by wedding_site_id and wedding_slug with local fallback
           const siteMap: Record<string, RsvpSummary> = {};
-          if (isSupabaseConfigured) {
-            for (const site of mergedSites) {
+          for (const site of mergedSites) {
+            const siteSlug = (site.slug || site.published_url?.replace(/^\/i\//, '') || '').toLowerCase().trim();
+            let siteRsvps: RsvpRecord[] = [];
+
+            if (isSupabaseConfigured) {
               try {
-                const { data: siteDbRsvps } = await supabase
-                  .from('rsvps')
-                  .select('*')
-                  .eq('wedding_site_id', site.id)
-                  .order('created_at', { ascending: false });
+                let rsvpQuery = supabase.from('rsvps').select('*');
+                if (site.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(site.id)) {
+                  if (siteSlug) {
+                    rsvpQuery = rsvpQuery.or(`wedding_site_id.eq.${site.id},wedding_slug.eq.${siteSlug},wedding_slug.eq.${site.id}`);
+                  } else {
+                    rsvpQuery = rsvpQuery.eq('wedding_site_id', site.id);
+                  }
+                } else if (siteSlug) {
+                  rsvpQuery = rsvpQuery.or(`wedding_slug.eq.${siteSlug},wedding_slug.eq.${site.id}`);
+                }
 
-                const siteRsvps: RsvpRecord[] = (siteDbRsvps || []) as any;
-                const totalAttending = siteRsvps.reduce((acc, r) => r.attending ? acc + (Number(r.attendees_count) || 1) : acc, 0);
-                const totalRegrets = siteRsvps.filter(r => !r.attending).length;
-
-                siteMap[site.id] = {
-                  totalRsvps: siteRsvps.length,
-                  totalAttendingCount: totalAttending,
-                  totalRegretsCount: totalRegrets,
-                  rsvps: siteRsvps,
-                };
+                const { data: siteDbRsvps } = await rsvpQuery.order('created_at', { ascending: false });
+                if (siteDbRsvps && siteDbRsvps.length > 0) {
+                  siteRsvps = siteDbRsvps as any;
+                }
               } catch (e) {}
             }
+
+            // Fallback to local storage if empty
+            if (siteRsvps.length === 0) {
+              try {
+                const localKey = `SHAHI_RSVPS_${siteSlug || site.id}`;
+                const raw = localStorage.getItem(localKey) || localStorage.getItem(`SHAHI_RSVPS_${site.id}`);
+                if (raw) {
+                  const parsed = JSON.parse(raw);
+                  if (Array.isArray(parsed)) siteRsvps = parsed;
+                }
+              } catch (e) {}
+            }
+
+            const totalAttending = siteRsvps.reduce((acc, r) => r.attending ? acc + (Number(r.attendees_count) || 1) : acc, 0);
+            const totalRegrets = siteRsvps.filter(r => !r.attending).length;
+
+            siteMap[site.id] = {
+              totalRsvps: siteRsvps.length,
+              totalAttendingCount: totalAttending,
+              totalRegretsCount: totalRegrets,
+              rsvps: siteRsvps,
+            };
           }
 
           if (isMounted) {

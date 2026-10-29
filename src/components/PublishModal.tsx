@@ -91,7 +91,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
     ? window.location.origin 
     : 'https://amantranlink.com';
   const cleanDomain = origin.replace(/^https?:\/\//, '');
-  const fullUrl = `${origin}/i/${slug}`;
+  const fullUrl = `${origin}/i/${slug}?theme=${state.theme}`;
 
   // WhatsApp Language
   const initialLang: Language = (state?.language === 'hi' || state?.language === 'gu') ? state.language : 'en';
@@ -188,14 +188,18 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
     }, 2500);
   };
 
-  const finalizePublishing = () => {
-    savePublishedInvitation(slug, state);
-    publishWeddingSite({
-      userId: user?.uid || `user_${Date.now()}`,
-      themeId: state.theme,
-      state,
-      customSlug: slug,
-    });
+  const finalizePublishing = async () => {
+    savePublishedInvitation(slug, { ...state, theme: state.theme });
+    try {
+      await publishWeddingSite({
+        userId: user?.uid || '4fe4383d-9cd0-49df-b8ff-2b833db40f17',
+        themeId: state.theme,
+        state: { ...state, theme: state.theme },
+        customSlug: slug,
+      });
+    } catch (e) {
+      console.warn('Publish sync note:', e);
+    }
 
     setStage('completed');
     confetti({

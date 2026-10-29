@@ -86,6 +86,7 @@ const SITES_STORAGE_KEY = 'SHAHI_USER_SITES';
 // 👑 3 Master VIP Unlimited Accounts (Lifetime 100% Free, All 8 Themes, Unlimited Publishes)
 export const VIP_MASTER_ACCOUNTS = [
   'cyberpatel6001@gmail.com',
+  'krisha6pc@gmail.com',
   'admin@amantranlink.com',
   'vip@amantranlink.com',
   'partner@amantranlink.com',

@@ -31,14 +31,13 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
       } catch (e) {}
 
       const isValidUserUuid = typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+      const effectiveUserId = isValidUserUuid ? userId : '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
+      const effectiveTemplateUuid = templateUuid || '1c338d20-1746-4327-ba90-87a967086088';
+      const safeContent = { ...state, theme: themeId };
 
       // 2. Check if a site already exists for this slug or user template
       let existingSiteQuery = supabase.from('wedding_sites').select('id');
-      if (isValidUserUuid && templateUuid) {
-        existingSiteQuery = existingSiteQuery.or(`published_url.ilike.%${slug}%,and(user_id.eq.${userId},template_id.eq.${templateUuid})`);
-      } else {
-        existingSiteQuery = existingSiteQuery.ilike('published_url', `%${slug}%`);
-      }
+      existingSiteQuery = existingSiteQuery.or(`published_url.ilike.%${slug}%,and(user_id.eq.${effectiveUserId},template_id.eq.${effectiveTemplateUuid})`);
 
       const { data: existingSite } = await existingSiteQuery.limit(1).maybeSingle();
 
@@ -47,25 +46,25 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
         const updatePayload: any = {
           status: 'published',
           is_locked: true,
-          content: state,
+          content: safeContent,
           published_url: publishedUrl,
           published_at: now,
           updated_at: now,
+          template_id: effectiveTemplateUuid,
+          user_id: effectiveUserId,
         };
-        if (templateUuid) updatePayload.template_id = templateUuid;
-        if (isValidUserUuid) updatePayload.user_id = userId;
 
         await supabase
           .from('wedding_sites')
           .update(updatePayload)
           .eq('id', existingSite.id);
-      } else if (isValidUserUuid && templateUuid) {
+      } else {
         const insertPayload: any = {
-          user_id: userId,
-          template_id: templateUuid,
+          user_id: effectiveUserId,
+          template_id: effectiveTemplateUuid,
           status: 'published',
           is_locked: true,
-          content: state,
+          content: safeContent,
           published_url: publishedUrl,
           published_at: now,
           updated_at: now,
@@ -81,6 +80,21 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
           siteUuid = newSite.id;
         }
       }
+
+      // 3. Fallback server-side publish dispatch
+      try {
+        const apiBase = (typeof window !== 'undefined' && ((window as any).VITE_API_BASE_URL || (window as any).API_BASE_URL)) || '';
+        await fetch(`${apiBase}/api/invitations/publish`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: effectiveUserId,
+            themeId,
+            invitationState: safeContent,
+            slug,
+          }),
+        });
+      } catch (srvErr) {}
     }
   } catch (err: any) {
     console.warn('Error during Supabase publish sync:', err);

@@ -11,9 +11,11 @@
   function getActiveWeddingMetadata() {
     var urlParams = new URLSearchParams(window.location.search);
     var parentParams = null;
+    var parentPath = '';
     try {
       if (window.parent && window.parent.location) {
         parentParams = new URLSearchParams(window.parent.location.search);
+        parentPath = window.parent.location.pathname || '';
       }
     } catch (e) {}
 
@@ -27,20 +29,28 @@
     var slug = 
       (window.LIVE_WEDDING_SLUG) || 
       (window.parent && window.parent.LIVE_WEDDING_SLUG) ||
-      (urlParams.get('invite')) || 
-      (parentParams && parentParams.get('invite')) || 
       (urlParams.get('slug')) || 
+      (urlParams.get('invite')) || 
       (parentParams && parentParams.get('slug')) || 
-      window.LIVE_WEDDING_SLUG ||
+      (parentParams && parentParams.get('invite')) || 
       '';
+
+    if (!slug && parentPath) {
+      var pParts = parentPath.split('/').filter(Boolean);
+      if (pParts.length > 0 && (pParts[0] === 'wedding' || pParts[0] === 'i' || pParts[0] === 'invitation' || pParts[0] === 'invite') && pParts[1]) {
+        slug = pParts[1];
+      }
+    }
 
     if (!slug) {
       var pathParts = window.location.pathname.split('/').filter(Boolean);
       if (pathParts.length > 0 && (pathParts[0] === 'wedding' || pathParts[0] === 'i' || pathParts[0] === 'invite') && pathParts[1]) {
         slug = pathParts[1];
-      } else {
-        slug = window.LIVE_WEDDING_SLUG || 'royal-wedding';
       }
+    }
+
+    if (!slug) {
+      slug = 'royal-wedding';
     }
 
     return {
@@ -342,6 +352,23 @@
           // Persist response locally for "Already Responded" return view
           try {
             localStorage.setItem(storageKey, JSON.stringify(payload));
+
+            // Sync into Couple Dashboard array cache (SHAHI_RSVPS_${slug})
+            var rsvpArrayKey = 'SHAHI_RSVPS_' + (meta.slug || 'royal-wedding');
+            var existingRaw = localStorage.getItem(rsvpArrayKey);
+            var rsvpList = existingRaw ? JSON.parse(existingRaw) : [];
+            if (!Array.isArray(rsvpList)) rsvpList = [];
+            var newEntry = Object.assign({ id: 'rsvp_' + Date.now(), created_at: new Date().toISOString() }, payload);
+            var existingIdx = rsvpList.findIndex(function (r) { return r.guest_phone === guestPhone; });
+            if (existingIdx >= 0) {
+              rsvpList[existingIdx] = newEntry;
+            } else {
+              rsvpList.unshift(newEntry);
+            }
+            localStorage.setItem(rsvpArrayKey, JSON.stringify(rsvpList));
+            if (validSiteId) {
+              localStorage.setItem('SHAHI_RSVPS_' + validSiteId, JSON.stringify(rsvpList));
+            }
           } catch (e) {}
 
           // Populate Confirmation Screen with Contextual Message

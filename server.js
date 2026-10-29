@@ -152,6 +152,7 @@ const getAuthoritativePrice = (templateSlug, packageId, isPartner = false) => {
 // 👑 VIP Master Accounts (Lifetime Free Access)
 const VIP_MASTER_ACCOUNTS = [
   'cyberpatel6001@gmail.com',
+  'krisha6pc@gmail.com',
   'admin@amantranlink.com',
   'vip@amantranlink.com',
   'partner@amantranlink.com',

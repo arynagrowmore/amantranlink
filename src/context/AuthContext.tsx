@@ -150,8 +150,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    const isCyberVip = Boolean(authUser.email && authUser.email.toLowerCase().includes('cyberpatel6001@gmail.com'));
-    const name = dbProfile?.name || (isCyberVip ? 'Cyber Patel (VIP Royalty)' : googleName);
+    const isCyberVip = Boolean(
+      authUser.email && (
+        authUser.email.toLowerCase().includes('cyberpatel6001@gmail.com') ||
+        authUser.email.toLowerCase().includes('krisha6pc@gmail.com')
+      )
+    );
+    const vipDefaultName = authUser.email?.toLowerCase().includes('krisha6pc@gmail.com')
+      ? 'Krisha Patel (VIP Royalty)'
+      : 'Cyber Patel (VIP Royalty)';
+    const name = dbProfile?.name || (isCyberVip ? vipDefaultName : googleName);
     const avatarUrl = dbProfile?.avatar_url || googleAvatar;
     const phone = dbProfile?.phone || authUser.user_metadata?.phone || defaultPhone || '+91 9409360336';
     const rawRole = dbProfile?.role;

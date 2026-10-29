@@ -899,7 +899,7 @@ function MainApp() {
       )}
 
       {/* Main 3-Zone Studio Workspace: Left Rail (~185px) + Center Editorial Form + Right Hero Preview */}
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-[#FAF7F2]">
+      <main className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden bg-[#FAF7F2]">
         {/* Zone 1: Left Vertical Navigation Rail */}
         <Sidebar
           activeTab={activeTab}
@@ -913,9 +913,9 @@ function MainApp() {
         />
 
         {/* Zone 2: Center Editorial Form Workspace */}
-        <aside className={`w-full lg:w-[480px] xl:w-[560px] 2xl:w-[620px] bg-white border-r border-[#E8DCC8] flex flex-col shrink-0 overflow-hidden shadow-[2px_0_12px_rgba(67,9,20,0.02)] z-10 ${mobileStudioPane === 'preview' ? 'hidden lg:flex' : 'flex'}`}>
+        <aside className={`w-full lg:w-[480px] xl:w-[560px] 2xl:w-[620px] bg-white border-r border-[#E8DCC8] flex-1 lg:flex-initial flex flex-col min-h-0 overflow-hidden shadow-[2px_0_12px_rgba(67,9,20,0.02)] z-10 ${mobileStudioPane === 'preview' ? 'hidden lg:flex' : 'flex'}`}>
           {/* Scrollable Form Body with Steps */}
-          <div ref={formScrollRef} className="flex-1 overflow-y-auto p-4 sm:p-6 pb-28 lg:pb-6 space-y-6">
+          <div ref={formScrollRef} className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 pb-36 lg:pb-8 space-y-6 overscroll-contain">
             {/* Step 01: Theme Selection */}
             {activeTab === 'theme' && (
               <ThemeSelector
@@ -1030,19 +1030,19 @@ function MainApp() {
         </aside>
 
         {/* Zone 3: Right Live Visualizer Canvas (Large Hero Preview) */}
-        <section className={`flex-1 bg-[#FAF8F5] flex flex-col items-center justify-center p-2 sm:p-4 lg:p-6 pb-24 lg:pb-6 overflow-hidden relative ${mobileStudioPane === 'form' ? 'hidden lg:flex' : 'flex'}`}>
+        <section className={`flex-1 min-h-0 bg-[#FAF8F5] flex flex-col items-center justify-center p-2 sm:p-4 lg:p-6 pb-28 lg:pb-6 overflow-hidden relative ${mobileStudioPane === 'form' ? 'hidden lg:flex' : 'flex'}`}>
           <LivePreviewCanvas state={state} refreshKey={refreshKey} siteId={activeSite?.siteId || activeSite?.id} />
         </section>
       </main>
 
       {/* 📱 Mobile Studio Floating Bottom Dock (< 1024px) for Thumb-Friendly Customization */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E8DCC8] px-3.5 py-2.5 flex items-center justify-between gap-2 shadow-[0_-6px_25px_rgba(0,0,0,0.08)] select-none">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E8DCC8] px-3 pt-2.5 pb-[max(0.65rem,env(safe-area-inset-bottom))] flex items-center justify-between gap-2 shadow-[0_-6px_25px_rgba(0,0,0,0.1)] select-none">
         {/* Toggle Form vs Preview */}
-        <div className="flex items-center bg-[#FAF6EE] p-0.5 rounded-xl border border-[#E8DCC8] shrink-0 text-xs font-semibold">
+        <div className="flex items-center bg-[#FAF6EE] p-0.5 rounded-xl border border-[#E8DCC8] shrink-0 text-xs font-semibold shadow-inner">
           <button
             type="button"
             onClick={() => setMobileStudioPane('form')}
-            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
               mobileStudioPane === 'form'
                 ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
                 : 'text-[#75675C]'
@@ -1053,7 +1053,7 @@ function MainApp() {
           <button
             type="button"
             onClick={() => setMobileStudioPane('preview')}
-            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-2 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
               mobileStudioPane === 'preview'
                 ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
                 : 'text-[#75675C]'
@@ -1063,9 +1063,25 @@ function MainApp() {
           </button>
         </div>
 
-        {/* Action Button: Next or Publish */}
+        {/* Action Button: Prev / Next or Publish */}
         {mobileStudioPane === 'form' ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            {/* Previous Step (if not step 0) */}
+            {(() => {
+              const stepOrder = ['theme', 'couple', 'typography', 'events', 'venue', 'media', 'music', 'shagun', 'rsvp', 'review'];
+              const curIdx = stepOrder.indexOf(activeTab);
+              return curIdx > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab(stepOrder[curIdx - 1])}
+                  className="px-2.5 py-2 rounded-xl bg-[#FAF6EE] text-[#75675C] border border-[#E8DCC8] font-semibold text-xs active:scale-95 transition-all cursor-pointer"
+                  title="Previous Step"
+                >
+                  <span>←</span>
+                </button>
+              ) : null;
+            })()}
+
             {activeTab === 'review' ? (
               <button
                 type="button"

@@ -1010,6 +1010,37 @@ export const applyInvitationDataToTemplateDOM = (
       }
     } catch (shagunErr) {}
 
+    // 👑 12.5. Official Amantranlink Footer Branding (Guaranteed in every template & kankotri)
+    try {
+      let brandingEl = doc.getElementById('amantran-crafted-branding');
+      if (!brandingEl) {
+        brandingEl = doc.createElement('div');
+        brandingEl.id = 'amantran-crafted-branding';
+        brandingEl.className = 'amantran-crafted-branding-container';
+        doc.body.appendChild(brandingEl);
+      } else {
+        // Ensure it is always pinned to the very bottom of the document
+        if (brandingEl.parentNode && brandingEl.nextSibling !== null) {
+          brandingEl.parentNode.appendChild(brandingEl);
+        }
+      }
+
+      brandingEl.innerHTML = `
+        <div style="text-align: center; padding: 32px 16px 44px 16px; background: rgba(18, 6, 9, 0.96); border-top: 1.5px solid rgba(196, 154, 53, 0.4); font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; position: relative; z-index: 99; margin-top: 50px; width: 100%; box-sizing: border-box; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+          <div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; max-width: 500px; margin: 0 auto;">
+            <a href="https://amantranlink.in" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 9px; text-decoration: none; padding: 9px 22px; border-radius: 9999px; background: linear-gradient(135deg, rgba(110, 16, 32, 0.75) 0%, rgba(196, 154, 53, 0.3) 100%); border: 1.5px solid rgba(196, 154, 53, 0.75); transition: all 0.25s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.35); cursor: pointer;">
+              <span style="font-size: 15px; filter: drop-shadow(0 0 6px rgba(196,154,53,0.9));">👑</span>
+              <span style="font-family: 'Cinzel', serif, Georgia; font-size: 13.5px; font-weight: 700; color: #FFFDF8; letter-spacing: 0.12em; text-transform: uppercase;">Crafted with Amantranlink.in</span>
+              <span style="color: #E8CD7E; font-size: 12px;">✦</span>
+            </a>
+            <p style="margin: 0; font-size: 11.5px; color: rgba(232, 213, 173, 0.85); letter-spacing: 0.08em; font-family: 'Cinzel', serif, Georgia; text-transform: uppercase;">
+              India's Royal Luxury Digital Invitations Platform
+            </p>
+          </div>
+        </div>
+      `;
+    } catch (brandingErr) {}
+
     // 13. Broadcast window postMessage
     if (typeof win.postMessage === 'function') {
       win.postMessage({ type: 'UPDATE_STATE', state: normalized }, '*');

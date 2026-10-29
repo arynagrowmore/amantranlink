@@ -9,6 +9,7 @@ import { RoyalCrestIcon } from './ShahiIcons';
 import { PersonalizedGuestBanner } from './Guest/PersonalizedGuestBanner';
 import { AdvancedRsvpModal } from './Guest/AdvancedRsvpModal';
 import { submitWeddingMemory } from '../services/memoryService';
+import { submitAdvancedGuestRsvp } from '../services/rsvpService';
 
 interface StandaloneInvitationViewProps {
   initialState?: WeddingProjectState;
@@ -54,7 +55,15 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   const [siteId, setSiteId] = useState<string | null>(null);
   const [studioBadge, setStudioBadge] = useState<string | null>(null);
   const [resolvedSlug, setResolvedSlug] = useState<string>('dhruv-shreya');
-  const [themeId, setThemeId] = useState<ThemeId>('rajmahal');
+  const [themeId, setThemeId] = useState<ThemeId>(() => {
+    if (typeof window !== 'undefined') {
+      const qTheme = new URLSearchParams(window.location.search).get('theme') || new URLSearchParams(window.location.search).get('t');
+      if (qTheme && ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'].includes(qTheme)) {
+        return qTheme as ThemeId;
+      }
+    }
+    return initialState?.theme || 'rajmahal';
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const countdownIntervalRef = useRef<any>(null);
   const [isNotFound, setIsNotFound] = useState<boolean>(false);
@@ -245,7 +254,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   // Convert raw state into Authoritative Normalized Invitation Model
   const normalizedData = normalizeInvitationData(rawState, resolvedSlug, siteId || undefined, studioBadge || undefined);
   const activeTheme = rawState.theme || themeId || 'rajmahal';
-  const templateUrl = `/templates/${activeTheme}-template/index.html`;
+  const templateUrl = `/templates/${activeTheme}-template/index.html?slug=${encodeURIComponent(resolvedSlug)}&siteId=${encodeURIComponent(siteId || '')}`;
 
   // ⏰ Universal Live Countdown Timer
   const startUniversalCountdown = () => {
@@ -331,6 +340,21 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
           guest_name: event.data.guestName,
           message: event.data.message,
         }).catch((e) => console.warn('Memory submit note:', e));
+      }
+      if (event.data?.type === 'SHAHI_RSVP_SUBMITTED') {
+        const payload = event.data.data;
+        if (payload) {
+          submitAdvancedGuestRsvp({
+            wedding_site_id: siteId || payload.wedding_site_id || '',
+            wedding_slug: resolvedSlug || payload.wedding_slug || '',
+            guest_name: payload.guest_name,
+            guest_phone: payload.guest_phone,
+            attendance_status: payload.attendance_status || (payload.attending ? 'Attending' : 'Not Attending'),
+            attending_member_count: payload.attendees_count || 1,
+            meal_preference: payload.meal_preference,
+            wishes: payload.wishes,
+          }).catch((err) => console.warn('Standalone RSVP sync note:', err));
+        }
       }
     };
     window.addEventListener('message', handleMessage);

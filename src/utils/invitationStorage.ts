@@ -127,6 +127,49 @@ export const resolveInvitationState = (
           }
         } catch (e) {}
       }
+
+      // If slug has couple format (groom-bride), derive state gracefully with exact names & theme
+      if (cleanTarget.includes('-')) {
+        const parts = cleanTarget.split('-').filter(Boolean);
+        if (parts.length >= 2) {
+          const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+          const groom = cap(parts[0]);
+          const bride = cap(parts[1]);
+          const qTheme = urlParams.get('theme') || urlParams.get('t') || 'rajmahal';
+          return {
+            theme: qTheme as any,
+            viewMode: 'desktop',
+            previewZoom: 1,
+            language: 'en',
+            couple: {
+              groomEn: groom,
+              groomHi: groom,
+              groomGu: groom,
+              brideEn: bride,
+              brideHi: bride,
+              brideGu: bride,
+              weddingDate: 'Wedding Day',
+              venueName: 'The Palace Gardens',
+            },
+            events: [
+              { name: 'Shubh Vivah', date: 'Wedding Day', time: '7:00 PM onwards', venue: 'The Palace Gardens' }
+            ],
+            family: {
+              groomParentsEn: 'Family & Elders',
+              brideParentsEn: 'Family & Elders',
+              rsvp1Name: 'Family Helpdesk',
+              rsvp1Phone: '+91 9409360336',
+              rsvp2Name: 'RSVP Helpline',
+              rsvp2Phone: '+91 9409360336',
+            },
+            media: {
+              audioName: 'FinalSong.mp3 (Default)',
+              audioBlob: null,
+              photoSlots: {},
+            },
+          } as WeddingProjectState;
+        }
+      }
       return initialFallback || null;
     }
 

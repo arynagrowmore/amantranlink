@@ -28,6 +28,13 @@ const VIP_USERS = [
     password: 'Royal@VIP#2026',
     role: 'master_vip',
     phone: '+91 9409360336'
+  },
+  {
+    name: 'Krisha Patel (VIP Royalty)',
+    email: 'krisha6pc@gmail.com',
+    password: 'Shahi@Krisha#2026',
+    role: 'admin',
+    phone: '+91 9409360336'
   }
 ];
 
