@@ -27,7 +27,7 @@ export const IPhoneHardwareFrame: React.FC<IPhoneHardwareFrameProps> = ({
 
   return (
     <div
-      className={`relative w-[calc(100vw-36px)] max-w-[366px] sm:max-w-[380px] h-[calc(100vh-170px)] sm:h-[750px] max-h-[820px] shrink-0 my-auto transition-transform duration-300 select-none ${className}`}
+      className={`relative w-[calc(100vw-32px)] max-w-[360px] sm:max-w-[380px] h-[calc(100dvh-170px)] min-h-[500px] sm:h-[750px] max-h-[820px] shrink-0 mx-auto my-auto transition-transform duration-300 select-none ${className}`}
       style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }}
     >
       {/* 🔘 Physical Titanium Side Buttons (Flush, tactile CNC chamfered edges) */}

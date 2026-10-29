@@ -15,7 +15,7 @@ export const ShagunManager: React.FC<ShagunManagerProps> = ({
 }) => {
   const currentShagun: DigitalShagun = state.shagun || {
     enabled: true,
-    recipientName: `${state.couple.groomEn || 'Rudra'} & ${state.couple.brideEn || 'Ishani'}`,
+    recipientName: (state.couple.groomEn && state.couple.brideEn) ? `${state.couple.groomEn} & ${state.couple.brideEn}` : 'Groom & Bride',
     upiId: '',
     upiNumber: state.family.rsvp1Phone ? state.family.rsvp1Phone.replace(/\D/g, '') : '',
     customMessage: 'Your gracious presence and heartfelt blessings are our greatest treasure. For digital shagun & tokens of love:',

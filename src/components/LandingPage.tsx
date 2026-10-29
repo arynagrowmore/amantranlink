@@ -407,9 +407,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <button
               type="button"
               onClick={() => onEnterStudio('rajmahal')}
-              className="px-4.5 sm:px-5 lg:px-6 h-10 rounded-full bg-[#6E1020] hover:bg-[#5C0D1A] text-[#FFFDF8] font-manrope font-bold text-[11.5px] sm:text-xs uppercase tracking-[0.06em] shadow-[0_2px_8px_-2px_rgba(110,16,32,0.25)] hover:shadow-[0_4px_14px_-2px_rgba(110,16,32,0.35)] border border-[#C49A35]/60 hover:brightness-105 active:scale-[0.98] transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5"
+              className="px-3 sm:px-5 lg:px-6 h-9 sm:h-10 rounded-full bg-[#6E1020] hover:bg-[#5C0D1A] text-[#FFFDF8] font-manrope font-bold text-[11px] sm:text-xs uppercase tracking-[0.06em] shadow-[0_2px_8px_-2px_rgba(110,16,32,0.25)] hover:shadow-[0_4px_14px_-2px_rgba(110,16,32,0.35)] border border-[#C49A35]/60 hover:brightness-105 active:scale-[0.98] transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5"
             >
-              <span>+ Create Invitation</span>
+              <span className="hidden sm:inline">+ Create Invitation</span>
+              <span className="sm:hidden">+ Create</span>
             </button>
 
             {/* Mobile Menu Toggle Button (<1024px) */}

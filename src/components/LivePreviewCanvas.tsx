@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause, Volume2, ShieldCheck, Lock, Share2, RotateCw, Wifi, BatteryCharging, Sparkles } from 'lucide-react';
-import { WeddingProjectState, PhotoFilterType } from '../types/wedding';
+import { WeddingProjectState, PhotoFilterType, ViewMode } from '../types/wedding';
 import { normalizeInvitationData, applyInvitationDataToTemplateDOM } from '../utils/invitationAdapter';
 import { themes } from './ThemeSelector';
 import { stopAllIframesAudio } from '../services/audioCoordinator';
@@ -847,6 +847,9 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
   const zoomScale = state.previewZoom || 1;
   const domainUrl = `https://${(state.couple.groomEn || 'dhruv').toLowerCase()}-${(state.couple.brideEn || 'shreya').toLowerCase()}.wedding.app`;
 
+  const isMobileScreen = typeof window !== 'undefined' && window.innerWidth < 1024;
+  const effectiveViewMode: ViewMode = isMobileScreen ? 'mobile' : state.viewMode;
+
   return (
     <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden p-2 sm:p-6 select-none font-sans bg-[#F8F6F1] border-l border-[#E8DCC8]/60">
       {/* 🟢 Live Synchronization Status Badge */}
@@ -896,7 +899,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
       {/* 💻 Triple Device Hardware Mockup Frames */}
 
       {/* 1. DESKTOP VIEW: MacBook Pro 16" Space Black */}
-      {state.viewMode === 'desktop' && (
+      {!isMobileScreen && state.viewMode === 'desktop' && (
         <div
           className="w-[1020px] max-w-full h-[640px] bg-[#141414] rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.45)] border-[8px] border-[#2B2B2B] flex flex-col overflow-hidden transition-all duration-300 ring-1 ring-white/10"
           style={{ transform: `scale(${zoomScale})`, transformOrigin: 'center center' }}
@@ -934,7 +937,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
       )}
 
       {/* 2. TABLET VIEW: Apple iPad Air Frame */}
-      {state.viewMode === 'tablet' && (
+      {!isMobileScreen && state.viewMode === 'tablet' && (
         <div
           className="w-[768px] max-w-full h-[620px] bg-[#1A1A1A] rounded-[36px] shadow-[0_25px_60px_rgba(0,0,0,0.45)] border-[12px] border-[#2E2E2E] flex flex-col overflow-hidden transition-all duration-300 ring-1 ring-white/10 relative"
           style={{ transform: `scale(${zoomScale})`, transformOrigin: 'center center' }}
@@ -956,18 +959,34 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
         </div>
       )}
 
-      {/* 3. MOBILE VIEW: Authentic Apple iPhone 16/17 Pro Hardware Frame */}
-      {state.viewMode === 'mobile' && (
-        <IPhoneHardwareFrame scale={zoomScale}>
-          <iframe
-            ref={iframeRef}
-            src={targetUrl}
-            title="iPhone 16 Pro Mobile Wedding Invitation Preview"
-            className="w-full h-full border-none block"
-            onLoad={handleIframeLoad}
-            allow="autoplay; encrypted-media; fullscreen"
-          />
-        </IPhoneHardwareFrame>
+      {/* 3. MOBILE VIEW: Native Full Edge-to-Edge on Mobile Devices + Hardware Frame on Desktop */}
+      {effectiveViewMode === 'mobile' && (
+        <div className="w-full h-full flex items-center justify-center">
+          {/* On phones (<640px), show clean edge-to-edge frame that feels native without bulky outer chassis */}
+          <div className="sm:hidden w-full h-[calc(100dvh-130px)] rounded-3xl overflow-hidden shadow-2xl border-2 border-[#C49A35]/40 bg-white relative">
+            <iframe
+              ref={iframeRef}
+              src={targetUrl}
+              title="Mobile Wedding Invitation Preview"
+              className="w-full h-full border-none block"
+              onLoad={handleIframeLoad}
+              allow="autoplay; encrypted-media; fullscreen"
+            />
+          </div>
+          {/* On tablets / desktops (>640px), show the photorealistic iPhone hardware mockup */}
+          <div className="hidden sm:block">
+            <IPhoneHardwareFrame scale={zoomScale}>
+              <iframe
+                ref={iframeRef}
+                src={targetUrl}
+                title="iPhone 16 Pro Mobile Wedding Invitation Preview"
+                className="w-full h-full border-none block"
+                onLoad={handleIframeLoad}
+                allow="autoplay; encrypted-media; fullscreen"
+              />
+            </IPhoneHardwareFrame>
+          </div>
+        </div>
       )}
     </div>
   );

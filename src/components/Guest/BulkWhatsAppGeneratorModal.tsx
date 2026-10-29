@@ -239,34 +239,34 @@ export const BulkWhatsAppGeneratorModal: React.FC<BulkWhatsAppGeneratorModalProp
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn font-sans"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn font-sans"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="bulk-whatsapp-title"
     >
       <div 
-        className="relative w-full max-w-5xl bg-[#FFFDF8] rounded-3xl border border-[#E8DCC8] shadow-2xl text-[#1A1715] flex flex-col h-[90vh] max-h-[850px] overflow-hidden"
+        className="relative w-full max-w-5xl bg-[#FFFDF8] rounded-2xl sm:rounded-3xl border border-[#E8DCC8] shadow-2xl text-[#1A1715] flex flex-col h-[94vh] sm:h-[90vh] max-h-[850px] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ========================================================= */}
         {/* 1. FIXED TOP HEADER (Luminous Royal Light Theme)         */}
         {/* ========================================================= */}
-        <header className="bg-white border-b border-[#E8DCC8] px-6 py-4 flex items-center justify-between gap-4 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-[#167A5A] text-white flex items-center justify-center shadow-xs shrink-0">
-              <MessageCircle className="w-6 h-6 text-[#F4D06F]" aria-hidden="true" />
+        <header className="bg-white border-b border-[#E8DCC8] px-3.5 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-[#167A5A] text-white flex items-center justify-center shadow-xs shrink-0">
+              <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-[#F4D06F]" aria-hidden="true" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 id="bulk-whatsapp-title" className="font-serif text-xl sm:text-2xl font-bold text-[#6E1020] leading-tight">
-                  Bulk Guest WhatsApp Generator
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <h2 id="bulk-whatsapp-title" className="font-serif text-lg sm:text-2xl font-bold text-[#6E1020] leading-tight truncate">
+                  Bulk Guest WhatsApp
                 </h2>
-                <span className="text-[10px] font-mono font-bold bg-[#167A5A]/15 text-[#167A5A] border border-[#167A5A]/30 px-2.5 py-0.5 rounded-full uppercase">
+                <span className="text-[9px] sm:text-[10px] font-mono font-bold bg-[#167A5A]/15 text-[#167A5A] border border-[#167A5A]/30 px-2 py-0.5 rounded-full uppercase">
                   1-Click Dispatch
                 </span>
               </div>
-              <p className="text-xs text-[#75675C] mt-0.5 font-normal">
+              <p className="text-[11px] sm:text-xs text-[#75675C] mt-0.5 font-normal truncate hidden sm:block">
                 Generate personalized (?to=GuestName) links with 1-click WhatsApp send &amp; CSV export for all your guests.
               </p>
             </div>
@@ -275,7 +275,7 @@ export const BulkWhatsAppGeneratorModal: React.FC<BulkWhatsAppGeneratorModalProp
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-[#FAF6EE] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8DCC8] hover:border-[#C49A35] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#FAF6EE] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8DCC8] hover:border-[#C49A35] flex items-center justify-center transition-colors cursor-pointer shrink-0"
             aria-label="Close dialog"
           >
             <X className="w-4 h-4" />
@@ -285,7 +285,7 @@ export const BulkWhatsAppGeneratorModal: React.FC<BulkWhatsAppGeneratorModalProp
         {/* ========================================================= */}
         {/* 2. SUB-HEADER TOOLBAR (Tabs + Language Switcher)         */}
         {/* ========================================================= */}
-        <div className="bg-[#FAF8F5] border-b border-[#E8DCC8] px-6 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div className="bg-[#FAF8F5] border-b border-[#E8DCC8] px-3.5 sm:px-6 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2 sm:gap-3 shrink-0">
           
           {/* Source Tabs */}
           <div role="tablist" className="inline-flex p-1 bg-white rounded-xl border border-[#E8DCC8] shadow-2xs">
@@ -432,7 +432,7 @@ export const BulkWhatsAppGeneratorModal: React.FC<BulkWhatsAppGeneratorModalProp
         {/* ========================================================= */}
         {/* 4. METRICS & SEARCH TOOLBAR (Always Visible & Fixed)      */}
         {/* ========================================================= */}
-        <div className="bg-[#FFFDF8] border-b border-[#E8DCC8] px-6 py-3 flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-2xs">
+        <div className="bg-[#FFFDF8] border-b border-[#E8DCC8] px-3.5 sm:px-6 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-3 sm:gap-4 shrink-0 shadow-2xs">
           
           {/* Quick Metrics */}
           <div className="flex items-center gap-4 text-xs">

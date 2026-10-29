@@ -21,7 +21,8 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
   onSelectAndCustomize,
 }) => {
   const { user } = useAuth();
-  const [viewMode, setViewMode] = useState<ViewMode>('desktop');
+  const isMobileDevice = typeof window !== 'undefined' && window.innerWidth < 1024;
+  const [viewMode, setViewMode] = useState<ViewMode>(isMobileDevice ? 'mobile' : 'desktop');
   const modalIframeRef = useRef<HTMLIFrameElement>(null);
 
   // 🔇 Stop any background audio when modal opens, switches theme, or closes
@@ -151,16 +152,32 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
       {/* 📱 Interactive Preview Frame Canvas */}
       <main className="flex-1 flex items-center justify-center p-3 sm:p-6 overflow-hidden relative">
         {viewMode === 'mobile' ? (
-          <IPhoneHardwareFrame>
-            <iframe
-              ref={modalIframeRef}
-              key={`${themeId}-${viewMode}`}
-              src={`${currentTheme.url}?preview=true&theme=${themeId}`}
-              title={`Preview of ${currentTheme.name}`}
-              className="w-full h-full border-0"
-              allow="autoplay; clipboard-write"
-            />
-          </IPhoneHardwareFrame>
+          <div className="w-full h-full flex items-center justify-center">
+            {/* Native Edge-to-Edge on mobile screens (<640px) */}
+            <div className="sm:hidden w-full h-[calc(100dvh-130px)] rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-white">
+              <iframe
+                ref={modalIframeRef}
+                key={`${themeId}-${viewMode}`}
+                src={`${currentTheme.url}?preview=true&theme=${themeId}`}
+                title={`Preview of ${currentTheme.name}`}
+                className="w-full h-full border-0"
+                allow="autoplay; clipboard-write"
+              />
+            </div>
+            {/* Photorealistic iPhone on desktop / tablet screens */}
+            <div className="hidden sm:block">
+              <IPhoneHardwareFrame>
+                <iframe
+                  ref={modalIframeRef}
+                  key={`${themeId}-${viewMode}`}
+                  src={`${currentTheme.url}?preview=true&theme=${themeId}`}
+                  title={`Preview of ${currentTheme.name}`}
+                  className="w-full h-full border-0"
+                  allow="autoplay; clipboard-write"
+                />
+              </IPhoneHardwareFrame>
+            </div>
+          </div>
         ) : (
           <div className={`transition-all duration-300 overflow-hidden bg-white relative flex flex-col ${getContainerWidth()}`}>
             <iframe

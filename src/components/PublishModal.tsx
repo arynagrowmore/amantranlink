@@ -82,7 +82,9 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
   const finalPayableAmount = isAlreadyUnlocked ? 0 : paymentDetails.finalAmountInr;
 
   // Slug
-  const coupleSlug = `${(state.couple.groomEn || 'rudra').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(state.couple.brideEn || 'ishani').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+  const groomSlug = (state.couple.groomEn || 'groom').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const brideSlug = (state.couple.brideEn || 'bride').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const coupleSlug = `${groomSlug}-${brideSlug}`;
   const [slug, setSlug] = useState<string>(coupleSlug);
 
   const origin = typeof window !== 'undefined' && window.location.origin 

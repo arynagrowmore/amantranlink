@@ -48,15 +48,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isPartner = user?.role === 'partner' || user?.role === 'photographer' || user?.role === 'studio_partner';
 
   return (
-    <header className="h-14 bg-white border-b border-[#E8DCC8] px-3 sm:px-6 flex items-center justify-between shrink-0 z-30 font-sans shadow-[0_1px_4px_rgba(67,9,20,0.02)]">
+    <header className="h-14 bg-white border-b border-[#E8DCC8] px-2 sm:px-6 flex items-center justify-between shrink-0 z-30 font-sans shadow-[0_1px_4px_rgba(67,9,20,0.02)] max-w-full overflow-hidden">
       
       {/* LEFT: Royal Brand Identity & Home Back */}
-      <div className="flex items-center gap-3 select-none">
+      <div className="flex items-center gap-1.5 sm:gap-3 select-none shrink-0 min-w-0">
         {onNavigateHome && (
           <button
             type="button"
             onClick={onNavigateHome}
-            className="w-8 h-8 rounded-lg bg-transparent hover:bg-[#FAF6EE] border border-transparent hover:border-[#E8DCC8] text-[#430914] flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35]"
+            className="w-8 h-8 rounded-lg bg-transparent hover:bg-[#FAF6EE] border border-transparent hover:border-[#E8DCC8] text-[#430914] flex items-center justify-center transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35]"
             title="Back to Home"
             aria-label="Back to Home"
           >
@@ -67,7 +67,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button 
           type="button"
           onClick={onNavigateHome}
-          className="flex items-center gap-3 cursor-pointer group shrink-0 select-none bg-transparent border-0 p-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] rounded-lg"
+          className="flex items-center gap-2 sm:gap-3 cursor-pointer group shrink-0 select-none bg-transparent border-0 p-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] rounded-lg"
           title="AmantranLink · Royal Digital Invitations"
           aria-label="AmantranLink Royal Digital Invitations Home"
         >
@@ -312,12 +312,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenPublish}
-            className="px-4 py-1.5 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-xs font-semibold tracking-wide flex items-center gap-1.5 transition-all cursor-pointer shadow-[0_4px_12px_rgba(110,16,32,0.22)] whitespace-nowrap shrink-0 border border-[#C49A35]/50 hover:border-[#C49A35] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35]"
+            className="px-2.5 sm:px-4 py-1.5 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-xs font-semibold tracking-wide flex items-center gap-1.5 transition-all cursor-pointer shadow-[0_4px_12px_rgba(110,16,32,0.22)] whitespace-nowrap shrink-0 border border-[#C49A35]/50 hover:border-[#C49A35] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35]"
             title="Generate Shareable Kankotri Link"
             aria-label="Publish and Share your invitation"
           >
             <Share2 className="w-3.5 h-3.5 text-[#C49A35] shrink-0" aria-hidden="true" />
-            <span>Publish &amp; Share</span>
+            <span className="hidden sm:inline">Publish &amp; Share</span>
+            <span className="sm:hidden">Publish</span>
           </button>
         )}
 

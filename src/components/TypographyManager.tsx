@@ -11,14 +11,14 @@ interface TypographyManagerProps {
 }
 
 const COUPLE_FONT_OPTIONS = [
-  { id: 'Great Vibes', name: 'Great Vibes', type: 'Cursive Royal Calligraphy', preview: 'Rudra & Ishani', fontClass: 'font-vibes' },
-  { id: 'Alex Brush', name: 'Alex Brush', type: 'Flowing Signature Script', preview: 'Rudra & Ishani', fontClass: 'font-alex' },
-  { id: 'Pinyon Script', name: 'Pinyon Script', type: 'High Aristocracy Vintage', preview: 'Rudra & Ishani', fontClass: 'font-pinyon' },
-  { id: 'Cinzel Decorative', name: 'Cinzel Decorative', type: 'Imperial Palace Roman', preview: 'RUDRA & ISHANI', fontClass: 'font-cinzel-dec' },
-  { id: 'Playfair Display', name: 'Playfair Display', type: 'Luxury Editorial Serif', preview: 'Rudra & Ishani', fontClass: 'font-playfair' },
-  { id: 'Bodoni Moda', name: 'Bodoni Moda', type: 'Vogue Couture Serif', preview: 'RUDRA & ISHANI', fontClass: 'font-bodoni' },
-  { id: 'Rozha One', name: 'Rozha One', type: 'Devanagari Royal Bold', preview: 'रुद्र एवं ईशानी', fontClass: 'font-rozha' },
-  { id: 'Marcellus', name: 'Marcellus', type: 'Classic Temple Stone', preview: 'RUDRA & ISHANI', fontClass: 'font-marcellus' },
+  { id: 'Great Vibes', name: 'Great Vibes', type: 'Cursive Royal Calligraphy', preview: 'Groom & Bride', fontClass: 'font-vibes' },
+  { id: 'Alex Brush', name: 'Alex Brush', type: 'Flowing Signature Script', preview: 'Groom & Bride', fontClass: 'font-alex' },
+  { id: 'Pinyon Script', name: 'Pinyon Script', type: 'High Aristocracy Vintage', preview: 'Groom & Bride', fontClass: 'font-pinyon' },
+  { id: 'Cinzel Decorative', name: 'Cinzel Decorative', type: 'Imperial Palace Roman', preview: 'GROOM & BRIDE', fontClass: 'font-cinzel-dec' },
+  { id: 'Playfair Display', name: 'Playfair Display', type: 'Luxury Editorial Serif', preview: 'Groom & Bride', fontClass: 'font-playfair' },
+  { id: 'Bodoni Moda', name: 'Bodoni Moda', type: 'Vogue Couture Serif', preview: 'GROOM & BRIDE', fontClass: 'font-bodoni' },
+  { id: 'Rozha One', name: 'Rozha One', type: 'Devanagari Royal Bold', preview: 'वर एवं वधू', fontClass: 'font-rozha' },
+  { id: 'Marcellus', name: 'Marcellus', type: 'Classic Temple Stone', preview: 'GROOM & BRIDE', fontClass: 'font-marcellus' },
 ];
 
 const HEADINGS_FONT_OPTIONS = [
@@ -178,7 +178,7 @@ export const TypographyManager: React.FC<TypographyManagerProps> = ({
                 {/* Live Preview Strip */}
                 <div className="mt-3 pt-3 border-t border-border/60 flex items-center justify-between">
                   <div className="text-sm font-semibold text-burgundy truncate" style={{ fontFamily: `"${preset.coupleFont}", serif` }}>
-                    {state.couple.groomEn || 'Rudra'} & {state.couple.brideEn || 'Ishani'}
+                    {(state.couple.groomEn && state.couple.brideEn) ? `${state.couple.groomEn} & ${state.couple.brideEn}` : 'Groom & Bride'}
                   </div>
                   <span className="text-[11px] font-mono text-muted-text bg-ivory px-2 py-0.5 rounded border border-border">
                     {preset.coupleFont}

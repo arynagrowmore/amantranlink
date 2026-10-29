@@ -8,7 +8,6 @@ import { GuestRecord } from '../types/guest';
 import { RoyalCrestIcon } from './ShahiIcons';
 import { PersonalizedGuestBanner } from './Guest/PersonalizedGuestBanner';
 import { AdvancedRsvpModal } from './Guest/AdvancedRsvpModal';
-import { RoyalWaxSealEnvelope } from './RoyalWaxSealEnvelope';
 import { submitWeddingMemory } from '../services/memoryService';
 
 interface StandaloneInvitationViewProps {
@@ -63,7 +62,6 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   // 👑 Personalized Guest & Audio State
   const [guest, setGuest] = useState<GuestRecord | null>(null);
   const [isRsvpModalOpen, setIsRsvpModalOpen] = useState<boolean>(false);
-  const [isEnvelopeOpened, setIsEnvelopeOpened] = useState<boolean>(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
   const internalAudioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -384,20 +382,6 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         </div>
       ) : (
         <div className="w-full h-full relative flex flex-col overflow-hidden bg-[#FDF6EB]">
-          {/* 💌 Royal Wax-Seal Envelope Gate (First Impression Cinematic Reveal) */}
-          {!isEnvelopeOpened && (
-            <RoyalWaxSealEnvelope
-              state={rawState}
-              guestName={guest ? (guest.family_name ? `${guest.full_name} & ${guest.family_name}` : guest.full_name) : undefined}
-              onOpenComplete={() => {
-                setIsEnvelopeOpened(true);
-                if (internalAudioRef.current) {
-                  internalAudioRef.current.play().then(() => setIsPlayingAudio(true)).catch(() => {});
-                }
-              }}
-            />
-          )}
-
           {/* 👑 Floating Personalized Guest Banner (if opened via ?guest=token) */}
           {guest && (
             <PersonalizedGuestBanner

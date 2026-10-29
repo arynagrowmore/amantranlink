@@ -202,10 +202,11 @@ function MainApp() {
     };
   }, []);
 
+  const isMobileClient = typeof window !== 'undefined' && window.innerWidth < 1024;
   const defaultStudioState: WeddingProjectState = {
     theme: 'rajmahal',
-    viewMode: 'desktop',
-    previewZoom: 0.9, // 90% Default Zoom for Desktop
+    viewMode: isMobileClient ? 'mobile' : 'desktop',
+    previewZoom: isMobileClient ? 1 : 0.9,
     language: 'en',
     couple: {
       groomEn: '',
@@ -881,32 +882,6 @@ function MainApp() {
           navigateToRoute('/admin');
         }}
       />
-
-      {/* 📱 Mobile Form vs Live Preview Switcher (< 1024px) */}
-      <div className="lg:hidden flex items-center bg-white border-b border-[#E8DCC8] p-1.5 text-xs font-semibold shrink-0">
-        <button
-          type="button"
-          onClick={() => setMobileStudioPane('form')}
-          className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all ${
-            mobileStudioPane === 'form'
-              ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
-              : 'text-[#75675C]'
-          }`}
-        >
-          <span>Studio Editor</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setMobileStudioPane('preview')}
-          className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all ${
-            mobileStudioPane === 'preview'
-              ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
-              : 'text-[#75675C]'
-          }`}
-        >
-          <span>Live Preview</span>
-        </button>
-      </div>
 
       {/* 🔒 Top Locked / Published Re-Lock Banner */}
       {lockInfo.isLocked && (
