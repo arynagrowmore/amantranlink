@@ -492,6 +492,8 @@ export const applyInvitationDataToTemplateDOM = (
     });
 
     // 7. Bind Dynamic Events & Venue Cards
+    const isHindiLang = normalized.language === 'hi';
+    const isGujaratiLang = normalized.language === 'gu';
     const eventCards = doc.querySelectorAll('.rjm-event, .event-card, .timeline-item, .rasam-card, .jhr-event-card, .myr-event-card, .dak-event-card, article');
     events.forEach((evt, idx) => {
       if (eventCards[idx]) {
@@ -509,6 +511,39 @@ export const applyInvitationDataToTemplateDOM = (
         if (venueEl && evt.venue) venueEl.textContent = evt.venue;
         if (addrEl && venue) addrEl.textContent = venue;
         if (mapLink && evt.mapUrl) mapLink.setAttribute('href', evt.mapUrl);
+
+        // 🌟 Smart Action Bar (Add to Google Calendar + Google Maps Directions + Dress Code)
+        let actionsBar = card.querySelector('.amantran-event-smart-actions') as HTMLElement | null;
+        if (!actionsBar) {
+          actionsBar = doc.createElement('div');
+          actionsBar.className = 'amantran-event-smart-actions';
+          card.appendChild(actionsBar);
+        }
+
+        const calTitle = encodeURIComponent(`${evt.name} · ${coupleTitle}`);
+        const calDetails = encodeURIComponent(`Auspicious Wedding Celebration of ${coupleTitle} at ${evt.venue || venue}. We cordially invite you with family!`);
+        const calLoc = encodeURIComponent(`${evt.venue || venue}, ${wedding.venueAddress || ''}`);
+        const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${calTitle}&details=${calDetails}&location=${calLoc}`;
+        const mapNavUrl = evt.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((evt.venue || venue) + ' ' + (wedding.venueAddress || ''))}`;
+
+        actionsBar.style.cssText = 'display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(196,154,53,0.3);';
+
+        actionsBar.innerHTML = `
+          ${evt.dressCode ? `
+            <div style="width: 100%; display: flex; align-items: center; gap: 5px; font-size: 11px; color: #C49A35; font-weight: 700; margin-bottom: 2px;">
+              <span>👗</span>
+              <span>${isHindiLang ? 'परिधान' : isGujaratiLang ? 'વેશભૂષા' : 'Dress Code'}: <strong style="color: inherit; font-weight: 800;">${evt.dressCode}</strong></span>
+            </div>
+          ` : ''}
+          <a href="${calUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 5px; background: rgba(196,154,53,0.14); border: 1px solid rgba(196,154,53,0.5); padding: 5px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; color: #8A6526; text-decoration: none; transition: all 0.2s; cursor: pointer;">
+            <span>📅</span>
+            <span>${isHindiLang ? 'कैलेंडर में जोड़ें' : isGujaratiLang ? 'કેલેન્ડરમાં ઉમેરો' : 'Add to Calendar'}</span>
+          </a>
+          <a href="${mapNavUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 5px; background: rgba(110,16,32,0.08); border: 1px solid rgba(110,16,32,0.3); padding: 5px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; color: #6E1020; text-decoration: none; transition: all 0.2s; cursor: pointer;">
+            <span>📍</span>
+            <span>${isHindiLang ? 'रास्ता देखें (Maps)' : isGujaratiLang ? 'દિશાનિર્દેશ (Maps)' : 'Get Directions'}</span>
+          </a>
+        `;
       }
     });
 
@@ -762,6 +797,137 @@ export const applyInvitationDataToTemplateDOM = (
         });
       }
     } catch (guestErr) {}
+
+    // 🌸 11.5 Live Family Blessings & Wishes Wall (Interactive Guestbook)
+    try {
+      const isHindi = normalized.language === 'hi';
+      const isGujarati = normalized.language === 'gu';
+      let blessingsWall = doc.getElementById('amantran-live-blessings-wall');
+      if (!blessingsWall) {
+        blessingsWall = doc.createElement('section');
+        blessingsWall.id = 'amantran-live-blessings-wall';
+        blessingsWall.className = 'amantran-blessings-section';
+        const footer = doc.querySelector('footer, .rjm-foot, .jhr-foot, .myr-foot, .dak-desk, .foot');
+        if (footer && footer.parentNode) {
+          footer.parentNode.insertBefore(blessingsWall, footer);
+        } else {
+          (doc.querySelector('main, #root, #app') || doc.body).appendChild(blessingsWall);
+        }
+      }
+
+      if (blessingsWall) {
+        const wallTitle = isHindi
+          ? '॥ मंगल आशीर्वाद एवं शुभकामनाएं ॥'
+          : isGujarati
+          ? '॥ મંગલ આશીર્વાદ અને શુભેચ્છાઓ ॥'
+          : '॥ Auspicious Blessings & Wishes Wall ॥';
+
+        const wallSubtitle = isHindi
+          ? 'वर-वधू के नव-दाम्पत्य जीवन हेतु अपने स्नेहमयी आशीर्वाद व मंगल संदेश यहां प्रेषित करें:'
+          : isGujarati
+          ? 'નવદંપતીના સુખી દાંપત્ય જીવન માટે આપના સ્નેહભર્યા આશીર્વાદ અહીં આપો:'
+          : 'Share your heartfelt congratulations, love and auspicious blessings for the royal couple:';
+
+        const namePlaceholder = isHindi ? 'आपका शुभ नाम (उदा. शर्मा परिवार)' : isGujarati ? 'આપનું નામ' : 'Your Full Name (e.g. Sharma Family)';
+        const msgPlaceholder = isHindi ? 'आपकी मंगल कामनाएं... (उदा. सदा खुश रहो! 🌸)' : isGujarati ? 'આપના શુભ આશીર્વાદ...' : 'Your heartfelt blessing message...';
+        const btnText = isHindi ? '🌸 आशीर्वाद भेजें' : isGujarati ? '🌸 આશીર્વાદ મોકલો' : '🌸 Send Shubh Aashirwad';
+
+        blessingsWall.innerHTML = `
+          <div style="max-width: 600px; width: calc(100% - 32px); margin: 60px auto 30px auto; padding: 36px 24px; background: linear-gradient(135deg, #FFFDF8 0%, #FAF6EE 100%); border: 1.5px solid #C49A35; border-radius: 28px; text-align: center; color: #241A17; box-shadow: 0 16px 45px rgba(0,0,0,0.08); font-family: 'Plus Jakarta Sans', system-ui, sans-serif;">
+            <div style="font-size: 24px; margin-bottom: 6px;">👑 🌸 👑</div>
+            <h3 style="font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 700; color: #6E1020; margin: 0 0 8px 0; letter-spacing: 0.04em;">${wallTitle}</h3>
+            <p style="font-size: 13px; color: #75675C; margin: 0 auto 20px auto; max-width: 460px; line-height: 1.5;">${wallSubtitle}</p>
+
+            <!-- Interactive Blessings Input Form -->
+            <div style="background: #FFFFFF; border: 1px solid rgba(196,154,53,0.35); border-radius: 20px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 24px; text-align: left;">
+              <input id="amantran-guest-name-input" type="text" placeholder="${namePlaceholder}" style="width: 100%; box-sizing: border-box; padding: 10px 14px; border: 1px solid #E8D5AD; border-radius: 12px; font-size: 13px; margin-bottom: 10px; font-family: inherit; outline: none;" />
+              <textarea id="amantran-guest-msg-input" rows="2" placeholder="${msgPlaceholder}" style="width: 100%; box-sizing: border-box; padding: 10px 14px; border: 1px solid #E8D5AD; border-radius: 12px; font-size: 13px; margin-bottom: 12px; font-family: inherit; resize: none; outline: none;"></textarea>
+              <button id="amantran-submit-blessing-btn" type="button" style="width: 100%; background: linear-gradient(135deg, #6E1020 0%, #8C1322 100%); color: #FFFDF8; border: 1px solid #C49A35; padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 12.5px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: all 0.2s;">
+                ${btnText}
+              </button>
+              <div id="amantran-blessing-success" style="display: none; color: #166534; background: #DCFCE7; border: 1px solid #86EFAC; border-radius: 8px; padding: 8px; margin-top: 10px; font-size: 12px; text-align: center; font-weight: 600;">
+                ✓ आपका मंगल आशीर्वाद सादर प्राप्त हुआ! हार्दिक धन्यवाद। 🌸
+              </div>
+            </div>
+
+            <!-- Live Blessings Stream Container -->
+            <div id="amantran-blessings-stream" style="display: flex; flex-direction: column; gap: 10px; max-height: 280px; overflow-y: auto; text-align: left; padding-right: 4px;">
+              <div style="background: rgba(196,154,53,0.08); border-left: 3.5px solid #C49A35; border-radius: 12px; padding: 12px 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <strong style="color: #6E1020; font-size: 13px;">Sharma Parivar (जयपुर)</strong>
+                  <span style="font-size: 10.5px; color: #75675C; font-family: monospace;">Auspicious Blessing</span>
+                </div>
+                <p style="font-size: 12.5px; color: #241A17; margin: 0; line-height: 1.45; font-style: italic;">
+                  "सदा सुहागिन रहो और दोनों का साथ सदा बना रहे! ईश्वर का असीम आशीर्वाद आप दोनों के नव-जीवन पर बना रहे। 🌸✨"
+                </p>
+              </div>
+              <div style="background: rgba(196,154,53,0.08); border-left: 3.5px solid #C49A35; border-radius: 12px; padding: 12px 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <strong style="color: #6E1020; font-size: 13px;">Uncle, Aunt &amp; Family</strong>
+                  <span style="font-size: 10.5px; color: #75675C; font-family: monospace;">Heartfelt Wishes</span>
+                </div>
+                <p style="font-size: 12.5px; color: #241A17; margin: 0; line-height: 1.45; font-style: italic;">
+                  "Wishing the royal couple a lifetime of joy, harmony, and togetherness! Lots of love and blessings! 💖"
+                </p>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Attach client-side interaction script
+        const btn = doc.getElementById('amantran-submit-blessing-btn');
+        if (btn && !(btn as any).__hasListener) {
+          (btn as any).__hasListener = true;
+          btn.addEventListener('click', () => {
+            const nameInput = doc.getElementById('amantran-guest-name-input') as HTMLInputElement;
+            const msgInput = doc.getElementById('amantran-guest-msg-input') as HTMLTextAreaElement;
+            const successDiv = doc.getElementById('amantran-blessing-success') as HTMLDivElement;
+            const stream = doc.getElementById('amantran-blessings-stream') as HTMLDivElement;
+
+            const name = (nameInput?.value || '').trim();
+            const msg = (msgInput?.value || '').trim();
+
+            if (!name || !msg) {
+              alert('कृपया अपना नाम और आशीर्वाद संदेश दोनों लिखें। (Please enter both your name and blessing)');
+              return;
+            }
+
+            const newCard = doc.createElement('div');
+            newCard.style.cssText = 'background: rgba(196,154,53,0.12); border-left: 3.5px solid #6E1020; border-radius: 12px; padding: 12px 16px; animation: fadeIn 0.4s ease;';
+            newCard.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <strong style="color: #6E1020; font-size: 13px;">${name}</strong>
+                <span style="font-size: 10.5px; color: #166534; font-weight: 700;">Just now ✨</span>
+              </div>
+              <p style="font-size: 12.5px; color: #241A17; margin: 0; line-height: 1.45; font-style: italic;">
+                "${msg}"
+              </p>
+            `;
+
+            if (stream) {
+              stream.insertBefore(newCard, stream.firstChild);
+            }
+
+            if (nameInput) nameInput.value = '';
+            if (msgInput) msgInput.value = '';
+            if (successDiv) {
+              successDiv.style.display = 'block';
+              setTimeout(() => { successDiv.style.display = 'none'; }, 5000);
+            }
+
+            // Post message to parent frame so Supabase / LocalStorage can capture it
+            if (win && win.parent) {
+              win.parent.postMessage({
+                type: 'SUBMIT_BLESSING',
+                guestName: name,
+                message: msg,
+                slug: normalized.slug
+              }, '*');
+            }
+          });
+        }
+      }
+    } catch (blessingErr) {}
 
     // 🪙 12. Digital Shagun & UPI QR Section (Always Placed at the Bottom / Sabse Niche)
     try {

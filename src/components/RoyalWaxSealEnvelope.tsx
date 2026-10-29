@@ -18,8 +18,8 @@ export const RoyalWaxSealEnvelope: React.FC<RoyalWaxSealEnvelopeProps> = ({
   const [isRendered, setIsRendered] = useState<boolean>(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const groomName = state?.couple?.groomEn || state?.couple?.groomHi || 'Rudra';
-  const brideName = state?.couple?.brideEn || state?.couple?.brideHi || 'Ishani';
+  const groomName = state?.couple?.groomEn || state?.couple?.groomHi || 'Groom';
+  const brideName = state?.couple?.brideEn || state?.couple?.brideHi || 'Bride';
   const gInit = (groomName.trim().charAt(0) || 'R').toUpperCase();
   const bInit = (brideName.trim().charAt(0) || 'I').toUpperCase();
   const monogram = `${gInit} & ${bInit}`;
@@ -203,6 +203,18 @@ export const RoyalWaxSealEnvelope: React.FC<RoyalWaxSealEnvelopeProps> = ({
           backgroundSize: '32px 32px'
         }}
       />
+
+      {/* Skip Envelope CTA for quick access */}
+      <button
+        type="button"
+        onClick={() => {
+          setIsRendered(false);
+          if (onOpenComplete) onOpenComplete();
+        }}
+        className="absolute top-4 right-4 z-40 px-3.5 py-1.5 rounded-full bg-black/40 hover:bg-black/60 border border-[#D4AF37]/40 text-[#E8D5AD] text-[11px] font-sans tracking-wide transition-all cursor-pointer backdrop-blur-md"
+      >
+        Skip / सीधे देखें →
+      </button>
 
       {/* Central Envelope Stage */}
       <div className="relative z-10 w-full max-w-[440px] px-4 flex flex-col items-center">
