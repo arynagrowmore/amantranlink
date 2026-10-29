@@ -46,3 +46,6 @@ meshmcp.local.ps1
 crush.json
 .factory/mcp.json
 .mimo-code.json
+
+# Vercel
+.vercel

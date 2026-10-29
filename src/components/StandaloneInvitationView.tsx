@@ -87,16 +87,40 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         return;
       }
 
-      // Look for Guest Token in URL: ?guest=token or ?g=token
+      // Look for Guest Token or Name in URL: ?guest=token/name or ?g=token
       const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-      const guestToken = searchParams?.get('guest') || searchParams?.get('g');
-      if (guestToken && targetSlug) {
+      const guestToken = searchParams?.get('guest') || searchParams?.get('g') || searchParams?.get('to') || searchParams?.get('invitee');
+      if (guestToken && isMounted) {
         try {
           const guestRecord = await fetchGuestByToken(guestToken, targetSlug);
           if (guestRecord && isMounted) {
             setGuest(guestRecord);
+          } else if (isMounted) {
+            setGuest({
+              id: 'param_guest',
+              invitation_id: targetSlug,
+              full_name: decodeURIComponent(guestToken),
+              family_name: decodeURIComponent(guestToken),
+              is_family: true,
+              guest_count: 2,
+              max_additional_guests: 2,
+              status: 'invited',
+            } as any);
           }
-        } catch (e) {}
+        } catch (e) {
+          if (isMounted) {
+            setGuest({
+              id: 'param_guest',
+              invitation_id: targetSlug,
+              full_name: decodeURIComponent(guestToken),
+              family_name: decodeURIComponent(guestToken),
+              is_family: true,
+              guest_count: 2,
+              max_additional_guests: 2,
+              status: 'invited',
+            } as any);
+          }
+        }
       }
 
       // Attempt 1: Fetch from Supabase (Source of Truth)

@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { ThemeId } from '../../types/wedding';
 import { RoyalCrestIcon, DiyaIcon } from '../ShahiIcons';
+import { IPhoneHardwareFrame } from '../IPhoneHardwareFrame';
 
 interface RoyalLiveDemoProps {
   onEnterStudio: (themeId: ThemeId) => void;
@@ -101,24 +102,24 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
   };
 
   return (
-    <section id="demo" className="py-20 sm:py-28 px-4 sm:px-8 max-w-7xl mx-auto w-full font-manrope">
+    <section id="demo" className="py-20 sm:py-28 px-4 sm:px-8 max-w-7xl mx-auto w-full font-sans">
       {/* Header */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto mb-16">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E8D5AD]/60 border border-[#C49A35]/50 text-[#6E1020] text-xs font-manrope font-semibold tracking-wider uppercase">
+      <div className="text-center space-y-4 max-w-3xl mx-auto mb-14">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8DCC8] text-[#6E1020] text-xs font-sans font-semibold tracking-wider uppercase shadow-2xs">
           <Smartphone className="w-3.5 h-3.5 text-[#C49A35]" />
-          <span>INTERACTIVE MOBILE EXPERIENCE</span>
+          <span>Interactive Mobile Experience</span>
         </div>
 
-        <h2 className="font-cormorant font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
-          EXPERIENCE THE ROYAL INVITATION
+        <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
+          Experience the Royal Invitation
         </h2>
 
         <p className="text-sm sm:text-base text-[#75675C] font-normal max-w-xl mx-auto leading-relaxed">
-          Preview how your guests will experience your invitation on mobile.
+          Preview how your wedding guests will interact with each royal motif on an authentic mobile display.
         </p>
 
         {/* 7 Theme Switcher Buttons */}
-        <div className="flex flex-wrap justify-center gap-2 pt-4">
+        <div className="flex flex-wrap justify-center gap-2 pt-3">
           {DEMO_THEMES.map((theme, idx) => {
             const isSelected = activeIndex === idx;
             return (
@@ -126,10 +127,10 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
                 key={theme.id}
                 type="button"
                 onClick={() => handleSelectTheme(idx)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-manrope font-semibold transition-all cursor-pointer ${
+                className={`px-4 py-1.5 rounded-full text-xs font-sans font-semibold transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-[#6E1020] text-[#FFFDF8] shadow-md border border-[#C49A35]'
-                    : 'bg-[#F8F3E8] text-[#241A17] border border-[#E8D5AD] hover:bg-[#FFFDF8]'
+                    ? 'bg-[#6E1020] text-[#FFFDF8] shadow-sm border border-[#C49A35]'
+                    : 'bg-white text-[#241A17] border border-[#E8DCC8] hover:bg-[#FAF6EE] hover:border-[#C49A35]/50'
                 }`}
               >
                 {theme.name}
@@ -139,15 +140,15 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
         </div>
       </div>
 
-      {/* Main Interactive Stage: Smartphone Simulator + Feature Showcase */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+      {/* Main Interactive Stage: Authentic iPhone 16 Pro Frame + Feature Details */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
         
         {/* Left Side: Theme Details and Highlights */}
         <div className="lg:col-span-6 space-y-6">
-          <div className="p-8 sm:p-10 rounded-3xl bg-[#FFFDF8] border border-[#E8D5AD] shadow-[0_10px_30px_-5px_rgba(67,9,20,0.06)] space-y-6">
+          <div className="p-8 sm:p-10 rounded-3xl bg-white border border-[#E8DCC8] shadow-[0_4px_24px_-4px_rgba(67,9,20,0.06)] space-y-6">
             
-            <div className="flex items-center justify-between border-b border-[#E8D5AD]/60 pb-4">
-              <span className="text-xs font-manrope font-bold uppercase tracking-widest text-[#C49A35] bg-[#F8F3E8] px-3 py-1 rounded-full border border-[#E8D5AD]">
+            <div className="flex items-center justify-between border-b border-[#E8DCC8] pb-4">
+              <span className="text-xs font-sans font-bold uppercase tracking-wider text-[#8E6725] bg-[#FAF6EE] px-3 py-1 rounded-full border border-[#E8DCC8]">
                 {current.badge}
               </span>
               <span className="text-xs text-[#75675C] font-serif italic">
@@ -156,16 +157,16 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
             </div>
 
             <div className="space-y-2">
-              <h3 className="font-cormorant font-bold text-3xl sm:text-4xl text-[#6E1020]">
+              <h3 className="font-serif font-bold text-3xl sm:text-4xl text-[#6E1020]">
                 {current.name}
               </h3>
-              <p className="text-sm text-[#241A17]/80 font-normal leading-relaxed">
+              <p className="text-sm text-[#4A3E39] font-normal leading-relaxed">
                 {current.tagline}
               </p>
             </div>
 
             {/* 3 Genuine Highlights */}
-            <div className="space-y-3 pt-2 text-xs text-[#241A17]">
+            <div className="space-y-3 pt-2 text-xs text-[#241A17]/85 font-medium">
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
                 <span>Lossless Shehnai & Auspicious Welcome Music</span>
@@ -185,16 +186,16 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
               <button
                 type="button"
                 onClick={() => onEnterStudio(current.id)}
-                className="flex-1 py-3.5 px-5 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-manrope font-semibold text-xs sm:text-sm uppercase tracking-wider shadow-md border border-[#C49A35] flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-105"
+                className="flex-1 py-3.5 px-5 rounded-2xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-sans font-semibold text-xs sm:text-sm tracking-wider uppercase shadow-md border border-[#C49A35] flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-[1.02]"
               >
-                <span>CUSTOMIZE {current.name.toUpperCase()}</span>
+                <span>Customise {current.name}</span>
                 <ArrowRight className="w-4 h-4 text-[#C49A35]" />
               </button>
 
               <button
                 type="button"
                 onClick={() => onPreviewTheme(current.id)}
-                className="py-3.5 px-5 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] text-[#6E1020] font-manrope font-semibold text-xs sm:text-sm border border-[#E8D5AD] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                className="py-3.5 px-5 rounded-2xl bg-white hover:bg-[#FAF6EE] text-[#6E1020] font-sans font-semibold text-xs sm:text-sm border border-[#E8DCC8] flex items-center justify-center gap-1.5 transition-colors cursor-pointer hover:border-[#C49A35]"
               >
                 <Eye className="w-4 h-4 text-[#C49A35]" />
                 <span>Interactive Preview</span>
@@ -204,67 +205,62 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
           </div>
         </div>
 
-        {/* Right Side: Ultra-Refined Smartphone Mockup */}
-        <div className="lg:col-span-6 flex justify-center">
-          <div className="relative w-[280px] sm:w-[320px] h-[580px] sm:h-[640px] bg-[#1A0B0E] rounded-[48px] p-3.5 shadow-[0_25px_60px_-15px_rgba(43,9,20,0.3)] border-4 border-[#C49A35]">
-            
-            {/* Dynamic Island */}
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-20 flex items-center justify-end px-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#3D6B4A]/80 animate-pulse" />
-            </div>
+        {/* Right Side: Authentic Apple iPhone 16 Pro Hardware Chassis */}
+        <div className="lg:col-span-6 flex justify-center py-2">
+          <div className="scale-[0.80] sm:scale-[0.88] lg:scale-[0.92] origin-top sm:origin-center drop-shadow-[0_25px_50px_rgba(43,9,20,0.18)]">
+            <IPhoneHardwareFrame>
+              <div className="w-full h-full relative overflow-hidden bg-black flex flex-col justify-between">
+                
+                {/* Active Theme Preview Image */}
+                <img
+                  src={current.previewImg}
+                  alt={current.name}
+                  className="w-full h-full object-cover object-center transition-all duration-500"
+                />
 
-            {/* Smartphone Inner Screen */}
-            <div className="w-full h-full rounded-[38px] overflow-hidden bg-black relative flex flex-col justify-between">
-              
-              {/* Active Theme Preview Image */}
-              <img
-                src={current.previewImg}
-                alt={current.name}
-                className="w-full h-full object-cover object-center animate-fade-in"
-              />
-
-              {/* Top Overlay Bar */}
-              <div className="absolute top-7 inset-x-4 flex items-center justify-between text-[#FFFDF8] z-10">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-black/60 backdrop-blur-md px-2 py-0.5 rounded">
-                  {current.name}
-                </span>
-                <span className="text-[10px] font-mono text-[#C49A35] bg-black/60 backdrop-blur-md px-2 py-0.5 rounded flex items-center gap-1">
-                  <Volume2 className="w-3 h-3 text-[#C49A35]" />
-                  <span>Audio On</span>
-                </span>
-              </div>
-
-              {/* Bottom Interactive Bar inside Phone */}
-              <div className="absolute bottom-4 inset-x-4 bg-black/75 backdrop-blur-md p-3.5 rounded-2xl border border-[#C49A35]/40 text-[#FFFDF8] space-y-2 z-10">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-cormorant font-bold text-base text-[#C49A35]">
-                    Dhruv & Shreya
+                {/* Top Overlay Badge Inside iPhone Display */}
+                <div className="absolute top-14 inset-x-4 flex items-center justify-between text-[#FFFDF8] z-10">
+                  <span className="text-[10px] font-sans font-semibold uppercase tracking-wider bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 shadow-xs">
+                    {current.name}
                   </span>
-                  <span className="text-[10px] font-mono text-emerald-400">
-                    Live Preview
+                  <span className="text-[10px] font-sans font-medium text-[#FAF6EE] bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/10 shadow-xs">
+                    <Volume2 className="w-3 h-3 text-[#C49A35]" />
+                    <span>Shehnai On</span>
                   </span>
                 </div>
 
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => onPreviewTheme(current.id)}
-                    className="flex-1 py-1.5 rounded-lg bg-[#6E1020] text-[#FFFDF8] text-[11px] font-manrope font-semibold uppercase tracking-wider flex items-center justify-center gap-1 cursor-pointer"
-                  >
-                    <Eye className="w-3 h-3 text-[#C49A35]" />
-                    <span>Open Live</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onEnterStudio(current.id)}
-                    className="px-2.5 py-1.5 rounded-lg bg-[#F8F3E8] text-[#6E1020] text-[11px] font-manrope font-semibold cursor-pointer"
-                  >
-                    Customize
-                  </button>
-                </div>
-              </div>
+                {/* Bottom Interactive Floating Control Card Inside iPhone */}
+                <div className="absolute bottom-6 inset-x-4 bg-[#140D0B]/85 backdrop-blur-md p-3.5 rounded-2xl border border-[#C49A35]/40 text-[#FFFDF8] space-y-2 z-10 shadow-2xl">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-serif font-bold text-base text-[#FAF6EE]">
+                      Dhruv &amp; Shreya
+                    </span>
+                    <span className="text-[10px] font-sans font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                      Live Preview
+                    </span>
+                  </div>
 
-            </div>
+                  <div className="flex gap-2 pt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => onPreviewTheme(current.id)}
+                      className="flex-1 py-2 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-[11px] font-sans font-semibold flex items-center justify-center gap-1.5 cursor-pointer shadow-md border border-[#C49A35]/50 transition-all hover:scale-[1.02]"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-[#C49A35]" />
+                      <span>Open 3D Preview</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onEnterStudio(current.id)}
+                      className="py-2 px-3.5 rounded-xl bg-[#FAF6EE] hover:bg-[#FFFFFF] text-[#6E1020] text-[11px] font-sans font-semibold cursor-pointer border border-[#E8DCC8] transition-all hover:scale-[1.02]"
+                    >
+                      Customise
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </IPhoneHardwareFrame>
           </div>
         </div>
 

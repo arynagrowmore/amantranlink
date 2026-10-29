@@ -201,7 +201,7 @@ export const StandardizedTemplateCard: React.FC<{
         {/* Graceful Fallback if image fails */}
         {imageError ? (
           <div className="absolute inset-0 bg-[#24060B] flex flex-col items-center justify-center p-4 text-center">
-            <ImageIcon className="w-8 h-8 text-[#C49A35]/60 mb-2" />
+            <ImageIcon className="w-8 h-8 text-[#C49A35]/60 mb-2" aria-hidden="true" />
             <span className="font-cormorant text-base font-bold text-[#FFFDF8]">{template.name}</span>
             <span className="text-[10px] font-mono text-[#E8D5AD]/70 mt-0.5">Preview Rendering</span>
           </div>
@@ -209,6 +209,8 @@ export const StandardizedTemplateCard: React.FC<{
           <img
             src={template.previewImg}
             alt={template.name}
+            width={600}
+            height={375}
             loading="lazy"
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
@@ -231,11 +233,11 @@ export const StandardizedTemplateCard: React.FC<{
         <div className="absolute top-3 right-3 z-10 pointer-events-none">
           {isLive ? (
             <span className="text-[8.5px] font-mono font-bold tracking-wider bg-[#167A5A] text-white px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md border border-white/20">
-              <Check className="w-3 h-3" /> LIVE
+              <Check className="w-3 h-3" aria-hidden="true" /> LIVE
             </span>
           ) : isUnlocked ? (
             <span className="text-[8.5px] font-mono font-bold tracking-wider bg-[#167A5A] text-white px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-md border border-white/20">
-              <Unlock className="w-3 h-3" /> UNLOCKED
+              <Unlock className="w-3 h-3" aria-hidden="true" /> UNLOCKED
             </span>
           ) : (
             <span className="text-[8.5px] font-mono font-bold tracking-wider bg-black/75 backdrop-blur-md text-[#E8D5AD] px-2.5 py-0.5 rounded-full border border-[#C49A35]/40 shadow-xs uppercase">
@@ -245,13 +247,14 @@ export const StandardizedTemplateCard: React.FC<{
         </div>
 
         {/* Centered Hover Quick-Preview Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#160408]/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#160408]/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200 flex items-center justify-center p-4">
           <button
             type="button"
             onClick={() => onPreview(template.slug)}
-            className="px-4 py-2 rounded-xl bg-[#FFFDF8] hover:bg-[#F8F3E8] text-[#6E1020] font-manrope font-bold text-xs flex items-center gap-1.5 shadow-xl hover:scale-105 transition-transform cursor-pointer border border-[#C49A35]"
+            className="px-4 py-2 rounded-xl bg-[#FFFDF8] hover:bg-[#F8F3E8] text-[#6E1020] font-manrope font-bold text-xs flex items-center gap-1.5 shadow-xl hover:scale-105 transition-transform cursor-pointer border border-[#C49A35] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35]"
+            aria-label={`Interactive 3D Preview of ${template.name}`}
           >
-            <Eye className="w-4 h-4 text-[#C49A35]" />
+            <Eye className="w-4 h-4 text-[#C49A35]" aria-hidden="true" />
             <span>Interactive 3D Preview</span>
           </button>
         </div>
@@ -273,7 +276,7 @@ export const StandardizedTemplateCard: React.FC<{
           </div>
 
           <div>
-            <h3 className="font-cormorant font-bold text-2xl sm:text-[26px] text-[#6E1020] leading-tight">
+            <h3 className="font-cormorant font-bold text-2xl sm:text-[26px] text-[#6E1020] leading-tight text-balance">
               {template.name}
             </h3>
 
@@ -291,7 +294,7 @@ export const StandardizedTemplateCard: React.FC<{
         <div className="space-y-1.5 pt-3 border-t border-[#E8D5AD]/60 text-xs text-[#241A17]/85">
           {template.features.slice(0, 3).map((feat, idx) => (
             <div key={idx} className="flex items-center gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#167A5A] shrink-0" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#167A5A] shrink-0" aria-hidden="true" />
               <span className="truncate">{feat}</span>
             </div>
           ))}
@@ -307,10 +310,10 @@ export const StandardizedTemplateCard: React.FC<{
           {isPartner ? (
             <div>
               <div className="flex items-baseline gap-2">
-                <span className="text-lg sm:text-xl font-mono font-bold text-[#167A5A]">
+                <span className="text-lg sm:text-xl font-mono font-bold text-[#167A5A] tabular-nums">
                   ₹{priceInfo.finalAmountInr.toLocaleString('en-IN')}
                 </span>
-                <span className="text-xs font-mono text-[#75675C] line-through">
+                <span className="text-xs font-mono text-[#75675C] line-through tabular-nums">
                   ₹{priceInfo.retailPriceInr.toLocaleString('en-IN')}
                 </span>
               </div>
@@ -321,7 +324,7 @@ export const StandardizedTemplateCard: React.FC<{
           ) : (
             <div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-lg sm:text-xl font-mono font-bold text-[#6E1020]">
+                <span className="text-lg sm:text-xl font-mono font-bold text-[#6E1020] tabular-nums">
                   ₹{template.priceInr.toLocaleString('en-IN')}
                 </span>
                 <span className="text-[10px] text-[#75675C]">
@@ -344,20 +347,21 @@ export const StandardizedTemplateCard: React.FC<{
           <button
             type="button"
             onClick={() => onPreview(template.slug)}
-            className="py-3 px-3.5 sm:px-4 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] text-[#6E1020] border border-[#E8D5AD] hover:border-[#C49A35] font-manrope font-semibold text-xs transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1.5"
+            className="py-3 px-3.5 sm:px-4 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] text-[#6E1020] border border-[#E8D5AD] hover:border-[#C49A35] font-manrope font-semibold text-xs transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35]"
             title={`Live 3D Preview ${template.name}`}
+            aria-label={`Live 3D Preview ${template.name}`}
           >
-            <Eye className="w-3.5 h-3.5 text-[#C49A35]" />
+            <Eye className="w-3.5 h-3.5 text-[#C49A35]" aria-hidden="true" />
             <span>LIVE PREVIEW</span>
           </button>
 
           <button
             type="button"
             onClick={() => onSelect(template.slug)}
-            className="flex-1 py-3 px-4 rounded-xl bg-[#6E1020] hover:bg-[#5C0D1A] text-[#FFFDF8] font-manrope font-bold text-xs uppercase tracking-wider shadow-xs border border-[#C49A35]/80 hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 group/btn"
+            className="flex-1 py-3 px-4 rounded-xl bg-[#6E1020] hover:bg-[#5C0D1A] text-[#FFFDF8] font-manrope font-bold text-xs uppercase tracking-wider shadow-xs border border-[#C49A35]/80 hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 group/btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] focus-visible:ring-offset-1"
           >
             <span>{isLive ? 'VIEW KANKOTRI' : isUnlocked ? 'EDIT INVITATION' : 'SELECT THEME'}</span>
-            <ArrowRight className="w-3.5 h-3.5 text-[#C49A35] group-hover/btn:translate-x-1 transition-transform" />
+            <ArrowRight className="w-3.5 h-3.5 text-[#C49A35] group-hover/btn:translate-x-1 transition-transform" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -484,7 +488,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
       </section>
 
       {/* 🏷️ Filter Categories */}
-      <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none px-4">
+      <div role="group" aria-label="Template categories" className="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none px-4">
         {categories.map((cat) => {
           const isActive = selectedCategory === cat.id;
           return (
@@ -492,7 +496,8 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-xs font-manrope font-semibold transition-all whitespace-nowrap cursor-pointer ${
+              aria-pressed={isActive}
+              className={`px-4 py-2 rounded-full text-xs font-manrope font-semibold transition-all whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] focus-visible:ring-offset-1 ${
                 isActive
                   ? 'bg-[#6E1020] text-[#FFFDF8] shadow-md border border-[#C49A35]'
                   : 'bg-[#F8F3E8] hover:bg-[#FFFDF8] border border-[#E8D5AD] text-[#241A17]'

@@ -14,6 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import { themes } from './ThemeSelector';
 import { THEME_PACKAGE_MAP, calculatePaymentDetails, OFFICIAL_PACKAGES } from '../config/pricing';
 import { formatWhatsAppWeddingMessage, openWhatsAppShare, executeNativeOrWhatsAppShare } from '../utils/whatsappShare';
+import { BulkWhatsAppGeneratorModal } from './Guest/BulkWhatsAppGeneratorModal';
 
 const getLocalizedCardTitle = (state: WeddingProjectState, lang: Language): string => {
   const groom = (lang === 'hi' ? state.couple.groomHi : lang === 'gu' ? state.couple.groomGu : state.couple.groomEn) || state.couple.groomEn;
@@ -54,6 +55,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
   const [stage, setStage] = useState<ModalStage>('overview');
   const [isConfirmingPublish, setIsConfirmingPublish] = useState<boolean>(false);
   const [showQrModal, setShowQrModal] = useState<boolean>(false);
+  const [showBulkWhatsAppModal, setShowBulkWhatsAppModal] = useState<boolean>(false);
 
   // Razorpay Processing State
   const [isVerifyingPayment, setIsVerifyingPayment] = useState<boolean>(false);
@@ -232,44 +234,50 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
     link.click();
   };
 
+  const isUnlockedOrCompleted = stage === 'completed' || isAlreadyUnlocked || finalPayableAmount === 0;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn font-manrope">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn font-sans">
       <div className="relative w-full max-w-5xl bg-[#FFFDF8] rounded-3xl border border-[#E8D5AD] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* ========================================================= */}
-        {/* 👑 HERO & ATELIER HEADER (Section 2) */}
+        {/* 👑 HERO & ATELIER HEADER (Luminous Royal Light Theme)     */}
         {/* ========================================================= */}
-        <header className="bg-[#24060B] border-b border-[#C49A35]/30 px-6 sm:px-8 py-5 text-white shrink-0 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-full bg-radial from-[#C49A35]/15 via-transparent to-transparent pointer-events-none" />
+        <header className="bg-white border-b border-[#E8DCC8] px-6 sm:px-8 py-5 text-[#1A1715] shrink-0 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-80 h-full bg-radial from-[#C49A35]/10 via-transparent to-transparent pointer-events-none" />
           
           <div className="relative z-10 flex items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#C49A35]">
-                  AMANTRANLINK · INVITATION ATELIER
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#C49A35] font-mono">
+                  AMANTRANLINK · ROYAL INVITATION ATELIER
                 </span>
-                <span className="text-[#C49A35]/40 text-xs">·</span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#E8D5AD] bg-[#3A0811] px-2.5 py-0.5 rounded-full border border-[#C49A35]/30">
+                <span className="text-[#E8DCC8] text-xs">·</span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#6E1020] bg-[#FAF6EE] px-2.5 py-0.5 rounded-full border border-[#E8DCC8]">
                   <Palette className="w-3 h-3 text-[#C49A35]" />
-                  {currentThemeObj.name.toUpperCase()} · SELECTED THEME
+                  {currentThemeObj.name} · Selected Theme
                 </span>
               </div>
-              <h2 className="font-cormorant text-2xl sm:text-3xl font-bold tracking-tight text-[#FFFDF8]">
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#6E1020]">
                 {stage === 'completed' 
-                  ? 'Your invitation is ready to share.' 
-                  : 'Your invitation is ready to go live.'}
+                  ? 'Your Royal Invitation is Officially Live!' 
+                  : finalPayableAmount > 0 
+                  ? 'Unlock & Publish Your Royal Invitation'
+                  : 'Your Royal Invitation is Ready to Publish'}
               </h2>
-              <p className="text-xs text-[#E8D5AD]/85 font-light mt-0.5">
+              <p className="text-xs text-[#75675C] mt-0.5 font-normal">
                 {stage === 'completed'
-                  ? 'One beautiful link for your family, friends, and every guest joining your celebration.'
-                  : 'Review your invitation once, then publish it and share it with your guests.'}
+                  ? 'One elegant link for your family, relatives, and every guest joining your sacred celebration.'
+                  : finalPayableAmount > 0
+                  ? 'Complete your one-time payment to publish your invitation, activate cloud hosting, and unlock WhatsApp sharing.'
+                  : 'Review your invitation details, then publish to update all guest links in real time.'}
               </p>
             </div>
 
             <button
               type="button"
               onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-[#FFFDF8] flex items-center justify-center transition-colors cursor-pointer border border-white/10 shrink-0"
+              className="w-10 h-10 rounded-full bg-[#FAF6EE] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8DCC8] hover:border-[#C49A35] flex items-center justify-center transition-colors cursor-pointer shrink-0"
               aria-label="Close Studio"
             >
               <X className="w-4 h-4" />
@@ -341,13 +349,13 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
             {/* ========================================================= */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               
-              {/* LEFT (Desktop Col 5): Large Live Invitation Preview Card */}
+              {/* LEFT (Desktop Col 5): Large Invitation Preview Card */}
               <div className="lg:col-span-5 flex flex-col items-center">
                 <div className="relative w-full max-w-[320px] bg-white rounded-3xl p-4 border-2 border-[#C49A35]/60 shadow-[0_12px_40px_rgba(110,16,32,0.12)] space-y-3">
                   <div className="flex items-center justify-between border-b border-[#E8D5AD]/60 pb-2">
                     <span className="text-[9px] font-mono uppercase font-bold tracking-widest text-[#6E1020] flex items-center gap-1">
                       <Sparkles className="w-3 h-3 text-[#C49A35]" />
-                      <span>LIVE INVITATION</span>
+                      <span>{isUnlockedOrCompleted ? 'LIVE INVITATION' : 'CEREMONIAL PROOF'}</span>
                     </span>
                     <span className="text-[9px] text-[#75675C] font-mono">
                       {currentThemeObj.name}
@@ -362,7 +370,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
                       ✦ SHUBH VIVAH ✦
                     </span>
                     
-                    <h3 className="font-cormorant text-2xl font-bold text-[#FFFDF8] leading-tight">
+                    <h3 className="font-serif text-2xl font-bold text-[#FFFDF8] leading-tight">
                       {groomName} &amp; {brideName}
                     </h3>
                     
@@ -375,21 +383,28 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
 
                     <div className="pt-2">
                       <span className="inline-block py-1 px-3 rounded-full bg-[#3A0811] text-[#E8D5AD] text-[10px] font-mono border border-[#C49A35]/30">
-                        {fullUrl.replace(/^https?:\/\//, '')}
+                        {isUnlockedOrCompleted ? fullUrl.replace(/^https?:\/\//, '') : 'amantranlink.com/i/••••••••'}
                       </span>
                     </div>
                   </div>
 
                   {/* Discreet Guest View Action */}
-                  <a
-                    href={fullUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full py-2.5 px-4 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] hover:border-[#C49A35] text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <span>Open Guest View</span>
-                    <ExternalLink className="w-3.5 h-3.5 text-[#C49A35]" />
-                  </a>
+                  {isUnlockedOrCompleted ? (
+                    <a
+                      href={fullUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full py-2.5 px-4 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] hover:border-[#C49A35] text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <span>Open Live Guest View</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-[#C49A35]" />
+                    </a>
+                  ) : (
+                    <div className="w-full py-2.5 px-4 rounded-xl bg-[#FAF5EC] text-[#75675C] border border-[#E8D5AD] text-xs font-medium flex items-center justify-center gap-2">
+                      <Lock className="w-3.5 h-3.5 text-[#C49A35]" />
+                      <span>Live link unlocks after payment</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -400,143 +415,417 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
                 <div className="p-4 bg-[#FAF5EC] rounded-2xl border border-[#E8D5AD] flex items-center justify-between">
                   <div>
                     <span className="text-[10px] font-mono uppercase tracking-widest text-[#75675C] block font-semibold">
-                      YOUR INVITATION
+                      YOUR INVITATION STATUS
                     </span>
-                    <h4 className="font-cormorant text-xl font-bold text-[#241A17] mt-0.5">
-                      {stage === 'completed' ? 'Live & ready to share' : 'Saved as draft'}
+                    <h4 className="font-serif text-xl font-bold text-[#241A17] mt-0.5">
+                      {isUnlockedOrCompleted 
+                        ? 'Live & Published on Cloud' 
+                        : 'Customization Saved · Awaiting Unlock'}
                     </h4>
                   </div>
                   <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
-                    stage === 'completed'
+                    isUnlockedOrCompleted
                       ? 'bg-[#167A5A]/10 text-[#167A5A] border-[#167A5A]/30'
                       : 'bg-[#C49A35]/10 text-[#6E1020] border-[#C49A35]/30'
                   }`}>
-                    {stage === 'completed' ? 'Active on Cloud' : 'Draft Proof'}
+                    {isUnlockedOrCompleted ? 'Active on Cloud' : 'Draft Proof'}
                   </span>
                 </div>
 
-                {/* 10. PUBLISH BUTTON (If Unpublished) */}
-                {stage !== 'completed' && (
-                  <div className="p-5 rounded-3xl bg-white border border-[#E8D5AD] shadow-xs space-y-4">
-                    <div>
-                      <h4 className="font-cormorant text-2xl font-bold text-[#6E1020]">
-                        Publish Your Invitation
-                      </h4>
-                      <p className="text-xs text-[#75675C] mt-0.5">
-                        Your guests will be able to open the latest saved invitation.
-                      </p>
+                {/* GATING: If not unlocked, show Payment Checkout Card */}
+                {!isUnlockedOrCompleted ? (
+                  <div className="p-6 rounded-3xl bg-white border-2 border-[#C49A35]/40 shadow-md space-y-5">
+                    <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD] pb-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[10px] font-mono uppercase font-bold tracking-widest text-[#C49A35]">
+                            ROYAL INVITATION PACKAGE
+                          </span>
+                        </div>
+                        <h4 className="font-serif text-2xl font-bold text-[#6E1020]">
+                          Unlock &amp; Publish Invitation
+                        </h4>
+                        <p className="text-xs text-[#75675C] mt-1 leading-relaxed">
+                          Publish your wedding website to Palace Cloud and get your official shareable link, WhatsApp dispatches, and QR codes.
+                        </p>
+                      </div>
+
+                      <div className="text-right shrink-0 bg-[#FAF6EE] px-4 py-2.5 rounded-2xl border border-[#E8DCC8]">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-[#75675C] block">
+                          One-Time Fee
+                        </span>
+                        <span className="font-serif text-2xl font-bold text-[#6E1020]">
+                          ₹{finalPayableAmount}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Human Confirmation Box */}
-                    {isConfirmingPublish ? (
-                      <div className="p-4 bg-[#FAF5EC] rounded-2xl border border-[#C49A35]/60 space-y-3 animate-fadeIn">
-                        <div className="space-y-1">
-                          <h5 className="font-bold text-sm text-[#241A17]">Ready to welcome your guests?</h5>
-                          <p className="text-xs text-[#75675C]">
-                            Your invitation will be available through the shared link.
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3 pt-1">
-                          <button
-                            type="button"
-                            onClick={triggerPublishSequence}
-                            disabled={isVerifyingPayment}
-                            className="flex-1 py-3 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-bold text-xs uppercase tracking-wider shadow-sm border border-[#C49A35] transition-all cursor-pointer flex items-center justify-center gap-2"
-                          >
-                            {isVerifyingPayment ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin text-[#C49A35]" />
-                                <span>Publishing...</span>
-                              </>
-                            ) : finalPayableAmount > 0 ? (
-                              <>
-                                <CreditCard className="w-4 h-4 text-[#C49A35]" />
-                                <span>Pay ₹{finalPayableAmount} &amp; Publish</span>
-                              </>
-                            ) : (
-                              <span>Publish Invitation Now</span>
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setIsConfirmingPublish(false)}
-                            className="py-3 px-4 rounded-xl bg-white border border-[#E8D5AD] text-xs font-semibold text-[#75675C] hover:text-[#241A17] cursor-pointer"
-                          >
-                            Not Yet
-                          </button>
-                        </div>
+                    {/* Features checklist */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-[#241A17]">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                        <span>Official Live URL ({slug})</span>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                        <span>Royal Shehnai &amp; Music Player</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                        <span>1-Tap Google Maps GPS Directions</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                        <span>Interactive RSVP &amp; Meal Tracker</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                        <span>Bulk Guest WhatsApp Link Generator</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                        <span>Print-Ready Golden QR Code</span>
+                      </div>
+                    </div>
+
+                    {/* Checkout CTA Button */}
+                    <div className="space-y-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={triggerPublishSequence}
+                        disabled={isVerifyingPayment}
+                        className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#6E1020] via-[#851829] to-[#6E1020] hover:from-[#5A0B18] hover:to-[#5A0B18] text-[#FFFDF8] font-bold text-sm tracking-wide flex items-center justify-center gap-3 shadow-lg border border-[#C49A35] transition-all cursor-pointer hover:scale-[1.01]"
+                      >
+                        {isVerifyingPayment ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin text-[#C49A35]" />
+                            <span>Connecting to Secure Gateway...</span>
+                          </>
+                        ) : (
+                          <>
+                            <CreditCard className="w-5 h-5 text-[#C49A35]" />
+                            <span>PAY ₹{finalPayableAmount} &amp; PUBLISH ROYAL INVITATION</span>
+                            <ArrowRight className="w-4 h-4 text-[#C49A35]" />
+                          </>
+                        )}
+                      </button>
+
+                      <div className="flex items-center justify-center gap-4 text-[11px] text-[#75675C] text-center">
+                        <span className="flex items-center gap-1">
+                          <ShieldCheck className="w-3.5 h-3.5 text-[#167A5A]" />
+                          256-bit Encrypted SSL
+                        </span>
+                        <span>·</span>
+                        <span>Razorpay / UPI / Cards / NetBanking</span>
+                        <span>·</span>
+                        <span>Instant Activation</span>
+                      </div>
+                    </div>
+
+                    {/* Locked notice */}
+                    <div className="p-3.5 rounded-xl bg-[#FAF5EC] border border-[#E8D5AD] flex items-center gap-3 text-xs text-[#75675C]">
+                      <Lock className="w-4 h-4 text-[#C49A35] shrink-0" />
+                      <span>
+                        The live link, WhatsApp 1-click shares, QR codes, and Bulk Guest Generator will unlock immediately after payment.
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* 6. INVITATION LINK PRESENTATION (Unlocked) */}
+                    <div className="p-5 rounded-3xl bg-white border border-[#E8D5AD] shadow-xs space-y-3">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#6E1020] block">
+                        YOUR INVITATION LINK (OFFICIALLY LIVE)
+                      </span>
+                      
+                      <div className="bg-[#FAF5EC] border border-[#E8D5AD] p-3 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
+                        <div className="truncate text-xs font-mono font-bold text-[#6E1020] flex items-center gap-2" title={fullUrl}>
+                          <Globe className="w-4 h-4 text-[#C49A35] shrink-0" />
+                          <span className="truncate">{fullUrl}</span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleCopyLink}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer shrink-0 shadow-xs ${
+                            copied 
+                              ? 'bg-[#167A5A] text-white' 
+                              : 'bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] border border-[#C49A35]'
+                          }`}
+                        >
+                          {copied ? 'Copied ✓' : 'Copy Link'}
+                        </button>
+                      </div>
+
+                      {copied && (
+                        <p className="text-[11px] text-[#167A5A] font-medium animate-fadeIn">
+                          ✓ Invitation link copied to clipboard.
+                        </p>
+                      )}
+                      {sharedNotice && (
+                        <p className="text-[11px] text-[#167A5A] font-medium animate-fadeIn">
+                          ✓ Ready to share with your family.
+                        </p>
+                      )}
+                    </div>
+
+                    {/* 5. MAIN SHARE PANEL (Unlocked) */}
+                    <div className="p-5 rounded-3xl bg-white border border-[#E8D5AD] shadow-xs space-y-4">
+                      <div>
+                        <h4 className="font-serif text-2xl font-bold text-[#241A17]">
+                          Share with your family
+                        </h4>
+                        <p className="text-xs text-[#75675C] mt-0.5">
+                          Send the royal invitation directly to your guests on WhatsApp.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <button
+                          type="button"
+                          onClick={handleWhatsAppShare}
+                          className="py-3 px-4 rounded-xl bg-[#167A5A] hover:bg-[#126349] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          <span>Share on WhatsApp</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowQrModal(true)}
+                          className="py-3 px-4 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] hover:border-[#C49A35] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
+                        >
+                          <QrIcon className="w-4 h-4 text-[#C49A35]" />
+                          <span>Show QR Code</span>
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+              </div>
+
+            </div>
+
+            {/* ========================================================= */}
+            {/* GATING: SECTIONS 7, 8, 9 (LOCKED UNTIL PAYMENT / UNLOCKED) */}
+            {/* ========================================================= */}
+            {!isUnlockedOrCompleted ? (
+              <section className="bg-white rounded-3xl border border-[#E8DCC8] p-8 sm:p-10 text-center space-y-5 shadow-xs">
+                <div className="w-16 h-16 rounded-2xl bg-[#FAF6EE] border border-[#C49A35]/40 text-[#6E1020] flex items-center justify-center mx-auto shadow-xs">
+                  <Lock className="w-7 h-7 text-[#C49A35]" />
+                </div>
+                <div className="max-w-lg mx-auto space-y-2">
+                  <span className="text-[10px] font-mono uppercase font-bold tracking-widest text-[#C49A35]">
+                    LOCKED UNTIL PUBLISHED
+                  </span>
+                  <h3 className="font-serif text-2xl font-bold text-[#1A1715]">
+                    Unlock 1-Click WhatsApp Shares &amp; Bulk Guest Links
+                  </h3>
+                  <p className="text-xs text-[#75675C] leading-relaxed">
+                    Once published, you get instant access to the personalized Bulk Guest WhatsApp Generator, high-resolution Golden QR Code download, and real-time RSVP dashboard.
+                  </p>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={triggerPublishSequence}
+                    disabled={isVerifyingPayment}
+                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#6E1020] to-[#851829] hover:from-[#5A0B18] hover:to-[#5A0B18] text-[#FFFDF8] text-xs font-bold uppercase tracking-wider border border-[#C49A35] cursor-pointer shadow-md transition-all hover:scale-[1.01]"
+                  >
+                    {isVerifyingPayment ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-[#C49A35]" />
+                        <span>Connecting...</span>
+                      </>
                     ) : (
+                      <>
+                        <CreditCard className="w-4 h-4 text-[#C49A35]" />
+                        <span>Pay ₹{finalPayableAmount} &amp; Unlock All Features</span>
+                        <ArrowRight className="w-4 h-4 text-[#C49A35]" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </section>
+            ) : (
+              <>
+                {/* ========================================================= */}
+                {/* 7. PERSONALIZED GUEST LINKS */}
+                {/* ========================================================= */}
+                <section className="bg-white rounded-3xl border border-[#E8D5AD] p-6 shadow-xs space-y-4">
+                  <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD]/60 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-[#FAF5EC] border border-[#C49A35]/40 text-[#6E1020] flex items-center justify-center shrink-0">
+                        <Users className="w-5 h-5 text-[#C49A35]" />
+                      </div>
+                      <div>
+                        <h3 className="font-serif text-2xl font-bold text-[#241A17]">
+                          Personal invitations
+                        </h3>
+                        <p className="text-xs text-[#75675C] mt-0.5">
+                          Give every guest a more personal welcome.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <p className="text-xs text-[#75675C] leading-relaxed max-w-2xl">
+                      Guests can receive a link prepared especially for them, while their RSVP remains connected to your wedding. Each personalized link pre-fills the guest's name and preserves their individual response.
+                    </p>
+
+                    <div className="p-4 bg-[#FAF5EC] rounded-2xl border border-[#E8D5AD] text-xs text-[#241A17] flex items-center justify-between flex-wrap gap-3">
+                      <div className="flex items-center gap-2">
+                        <HeartHandshake className="w-4 h-4 text-[#6E1020]" />
+                        <span className="font-semibold">Manage and dispatch personalized guest links</span>
+                      </div>
                       <button
                         type="button"
                         onClick={() => {
-                          if (isAllValid) {
-                            setIsConfirmingPublish(true);
-                          } else {
-                            setIsConfirmingPublish(true);
+                          onClose();
+                          if (typeof window !== 'undefined') {
+                            window.location.hash = '#guest-book';
                           }
                         }}
-                        className="w-full py-4 rounded-2xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md border border-[#C49A35] transition-all cursor-pointer hover:scale-[1.01]"
+                        className="px-4 py-2 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-xs font-bold transition-all cursor-pointer"
                       >
-                        <span>PUBLISH INVITATION →</span>
+                        Open Family Guest Book →
                       </button>
-                    )}
+                    </div>
                   </div>
-                )}
+                </section>
 
-                {/* 6. INVITATION LINK PRESENTATION */}
-                <div className="p-5 rounded-3xl bg-white border border-[#E8D5AD] shadow-xs space-y-3">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#6E1020] block">
-                    YOUR INVITATION LINK
-                  </span>
-                  
-                  <div className="bg-[#FAF5EC] border border-[#E8D5AD] p-3 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
-                    <div className="truncate text-xs font-mono font-bold text-[#6E1020] flex items-center gap-2" title={fullUrl}>
-                      <Globe className="w-4 h-4 text-[#C49A35] shrink-0" />
-                      <span className="truncate">{fullUrl}</span>
+                {/* ========================================================= */}
+                {/* 8. QR SHARE SECTION */}
+                {/* ========================================================= */}
+                <section className="bg-white rounded-3xl border border-[#E8D5AD] p-6 shadow-xs space-y-6">
+                  <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD]/60 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-[#FAF5EC] border border-[#C49A35]/40 text-[#6E1020] flex items-center justify-center shrink-0">
+                        <QrIcon className="w-5 h-5 text-[#C49A35]" />
+                      </div>
+                      <div>
+                        <h3 className="font-serif text-2xl font-bold text-[#241A17]">
+                          Share by QR
+                        </h3>
+                        <p className="text-xs text-[#75675C] mt-0.5">
+                          Perfect for family groups, printed cards, and reception desks.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    <div className="md:col-span-4 flex justify-center bg-[#FAF5EC] p-4 rounded-2xl border border-[#E8D5AD]">
+                      <img
+                        src={qrCodeApiUrl}
+                        alt="Invitation QR Code"
+                        className="w-44 h-44 rounded-xl shadow-xs border border-[#C49A35]/40"
+                      />
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={handleCopyLink}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer shrink-0 shadow-xs ${
-                        copied 
-                          ? 'bg-[#167A5A] text-white' 
-                          : 'bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] border border-[#C49A35]'
-                      }`}
-                    >
-                      {copied ? 'Copied ✓' : 'Copy Link'}
-                    </button>
+                    <div className="md:col-span-8 space-y-4">
+                      <p className="text-xs text-[#75675C] leading-relaxed">
+                        Scannable with any smartphone camera. Guests will be taken directly to your digital invitation with royal background music, rasams, GPS directions, and RSVP portal.
+                      </p>
+
+                      <div className="flex items-center gap-3 pt-2 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={downloadQrCode}
+                          className="py-3 px-5 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-sm border border-[#C49A35] transition-all cursor-pointer"
+                        >
+                          <Download className="w-4 h-4 text-[#C49A35]" />
+                          <span>Download QR</span>
+                        </button>
+
+                        <a
+                          href={fullUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="py-3 px-5 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5 text-[#C49A35]" />
+                          <span>Open Invitation</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                {/* ========================================================= */}
+                {/* 9. WHATSAPP EXPERIENCE (Send it to the family) */}
+                {/* ========================================================= */}
+                <section className="bg-white rounded-3xl border border-[#E8D5AD] p-6 shadow-xs space-y-6">
+                  <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD]/60 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-[#FAF5EC] border border-[#C49A35]/40 text-[#167A5A] flex items-center justify-center shrink-0">
+                        <MessageCircle className="w-5 h-5 text-[#167A5A]" />
+                      </div>
+                      <div>
+                        <h3 className="font-serif text-2xl font-bold text-[#241A17]">
+                          Send it to the family
+                        </h3>
+                        <p className="text-xs text-[#75675C] mt-0.5">
+                          Send it personally to the people who matter.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Language Switcher */}
+                    <div className="flex items-center gap-1 bg-[#FAF5EC] p-1 rounded-xl border border-[#E8D5AD]">
+                      {(['en', 'hi', 'gu'] as Language[]).map((lang) => (
+                        <button
+                          key={lang}
+                          type="button"
+                          onClick={() => setSelectedLanguage(lang)}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer ${
+                            selectedLanguage === lang
+                              ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
+                              : 'text-[#75675C] hover:text-[#241A17]'
+                          }`}
+                        >
+                          {lang === 'en' ? 'English' : lang === 'hi' ? 'हिन्दी' : 'ગુજરાતી'}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  {copied && (
-                    <p className="text-[11px] text-[#167A5A] font-medium animate-fadeIn">
-                      ✓ Invitation link copied.
-                    </p>
-                  )}
-                  {sharedNotice && (
-                    <p className="text-[11px] text-[#167A5A] font-medium animate-fadeIn">
-                      ✓ Ready to share with your family.
-                    </p>
-                  )}
-                </div>
+                  {/* Visual Sequence: YOUR INVITATION -> COPY / SHARE -> FAMILY & FRIENDS */}
+                  <div className="p-4 bg-[#FAF5EC] rounded-2xl border border-[#E8D5AD] flex items-center justify-around text-center text-xs text-[#75675C]">
+                    <div>
+                      <span className="font-bold text-[#6E1020] block">YOUR INVITATION</span>
+                      <span className="text-[10px]">Ceremonial Design</span>
+                    </div>
+                    <span className="text-[#C49A35] font-bold text-lg">→</span>
+                    <div>
+                      <span className="font-bold text-[#6E1020] block">COPY / SHARE</span>
+                      <span className="text-[10px]">Pre-composed Text</span>
+                    </div>
+                    <span className="text-[#C49A35] font-bold text-lg">→</span>
+                    <div>
+                      <span className="font-bold text-[#167A5A] block">FAMILY &amp; FRIENDS</span>
+                      <span className="text-[10px]">Warm Welcome</span>
+                    </div>
+                  </div>
 
-                {/* 5. MAIN SHARE PANEL */}
-                <div className="p-5 rounded-3xl bg-white border border-[#E8D5AD] shadow-xs space-y-4">
-                  <div>
-                    <h4 className="font-cormorant text-2xl font-bold text-[#241A17]">
-                      Share with your family
-                    </h4>
-                    <p className="text-xs text-[#75675C] mt-0.5">
-                      Send the same beautiful invitation wherever your guests are.
+                  {/* Message Preview Box */}
+                  <div className="bg-[#FAF5EC] p-4 rounded-2xl border border-[#E8D5AD] space-y-2">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#6E1020] block">
+                      MESSAGE PREVIEW ({selectedLanguage.toUpperCase()})
+                    </span>
+                    <p className="text-xs text-[#241A17] whitespace-pre-wrap leading-relaxed font-sans bg-white p-3.5 rounded-xl border border-[#E8D5AD]">
+                      {whatsappMessage}
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  {/* WhatsApp Actions */}
+                  <div className="flex items-center gap-3 pt-1 flex-wrap">
                     <button
                       type="button"
                       onClick={handleWhatsAppShare}
-                      className="py-3 px-4 rounded-xl bg-[#167A5A] hover:bg-[#126349] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                      className="flex-1 py-3 px-5 rounded-xl bg-[#167A5A] hover:bg-[#126349] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span>Share on WhatsApp</span>
@@ -544,210 +833,45 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
 
                     <button
                       type="button"
-                      onClick={() => setShowQrModal(true)}
-                      className="py-3 px-4 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] hover:border-[#C49A35] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      onClick={handleCopyMessage}
+                      className="py-3 px-5 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
                     >
-                      <QrIcon className="w-4 h-4 text-[#C49A35]" />
-                      <span>Show QR Code</span>
+                      {copiedMsg ? <Check className="w-3.5 h-3.5 text-[#167A5A]" /> : <Copy className="w-3.5 h-3.5 text-[#C49A35]" />}
+                      <span>{copiedMsg ? 'Message Copied!' : 'Copy Text'}</span>
                     </button>
                   </div>
-                </div>
 
-              </div>
+                  {/* 📲 BULK GUEST WHATSAPP GENERATOR CALLOUT */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-[#167A5A]/10 via-[#C49A35]/15 to-[#6E1020]/10 border border-[#167A5A]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#167A5A] text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <Users className="w-5 h-5 text-[#F4D06F]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-[#241A17]">Bulk Guest WhatsApp Link Generator</span>
+                          <span className="px-2 py-0.5 rounded-full bg-[#167A5A] text-white text-[9px] font-mono font-bold uppercase tracking-wider">
+                            Feature #1
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-[#75675C] mt-0.5">
+                          Generate personalized (?to=GuestName) links with 1-click WhatsApp send &amp; CSV export for all 50+ guests.
+                        </p>
+                      </div>
+                    </div>
 
-            </div>
-
-            {/* ========================================================= */}
-            {/* 7. PERSONALIZED GUEST LINKS */}
-            {/* ========================================================= */}
-            <section className="bg-white rounded-3xl border border-[#E8D5AD] p-6 shadow-xs space-y-4">
-              <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD]/60 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-[#FAF5EC] border border-[#C49A35]/40 text-[#6E1020] flex items-center justify-center shrink-0">
-                    <Users className="w-5 h-5 text-[#C49A35]" />
-                  </div>
-                  <div>
-                    <h3 className="font-cormorant text-2xl font-bold text-[#241A17]">
-                      Personal invitations
-                    </h3>
-                    <p className="text-xs text-[#75675C] mt-0.5">
-                      Give every guest a more personal welcome.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-xs text-[#75675C] leading-relaxed max-w-2xl">
-                  Guests can receive a link prepared especially for them, while their RSVP remains connected to your wedding. Each personalized link pre-fills the guest's name and preserves their individual response.
-                </p>
-
-                <div className="p-4 bg-[#FAF5EC] rounded-2xl border border-[#E8D5AD] text-xs text-[#241A17] flex items-center justify-between flex-wrap gap-3">
-                  <div className="flex items-center gap-2">
-                    <HeartHandshake className="w-4 h-4 text-[#6E1020]" />
-                    <span className="font-semibold">Manage and dispatch personalized guest links</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onClose();
-                      if (typeof window !== 'undefined') {
-                        window.location.hash = '#guest-book';
-                      }
-                    }}
-                    className="px-4 py-2 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-xs font-bold transition-all cursor-pointer"
-                  >
-                    Open Family Guest Book →
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            {/* ========================================================= */}
-            {/* 8. QR SHARE SECTION */}
-            {/* ========================================================= */}
-            <section className="bg-white rounded-3xl border border-[#E8D5AD] p-6 shadow-xs space-y-6">
-              <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD]/60 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-[#FAF5EC] border border-[#C49A35]/40 text-[#6E1020] flex items-center justify-center shrink-0">
-                    <QrIcon className="w-5 h-5 text-[#C49A35]" />
-                  </div>
-                  <div>
-                    <h3 className="font-cormorant text-2xl font-bold text-[#241A17]">
-                      Share by QR
-                    </h3>
-                    <p className="text-xs text-[#75675C] mt-0.5">
-                      Perfect for family groups, printed cards, and reception desks.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                <div className="md:col-span-4 flex justify-center bg-[#FAF5EC] p-4 rounded-2xl border border-[#E8D5AD]">
-                  <img
-                    src={qrCodeApiUrl}
-                    alt="Invitation QR Code"
-                    className="w-44 h-44 rounded-xl shadow-xs border border-[#C49A35]/40"
-                  />
-                </div>
-
-                <div className="md:col-span-8 space-y-4">
-                  <p className="text-xs text-[#75675C] leading-relaxed">
-                    Scannable with any smartphone camera. Guests will be taken directly to your digital invitation with royal background music, rasams, GPS directions, and RSVP portal.
-                  </p>
-
-                  <div className="flex items-center gap-3 pt-2 flex-wrap">
                     <button
                       type="button"
-                      onClick={downloadQrCode}
-                      className="py-3 px-5 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-sm border border-[#C49A35] transition-all cursor-pointer"
+                      onClick={() => setShowBulkWhatsAppModal(true)}
+                      className="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-[#167A5A] hover:bg-[#126349] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs shrink-0"
                     >
-                      <Download className="w-4 h-4 text-[#C49A35]" />
-                      <span>Download QR</span>
+                      <MessageCircle className="w-4 h-4 text-[#F4D06F]" />
+                      <span>Open Bulk Generator</span>
                     </button>
-
-                    <a
-                      href={fullUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="py-3 px-5 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5 text-[#C49A35]" />
-                      <span>Open Invitation</span>
-                    </a>
                   </div>
-                </div>
-              </div>
-            </section>
-
-            {/* ========================================================= */}
-            {/* 9. WHATSAPP EXPERIENCE (Send it to the family) */}
-            {/* ========================================================= */}
-            <section className="bg-white rounded-3xl border border-[#E8D5AD] p-6 shadow-xs space-y-6">
-              <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD]/60 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-[#FAF5EC] border border-[#C49A35]/40 text-[#167A5A] flex items-center justify-center shrink-0">
-                    <MessageCircle className="w-5 h-5 text-[#167A5A]" />
-                  </div>
-                  <div>
-                    <h3 className="font-cormorant text-2xl font-bold text-[#241A17]">
-                      Send it to the family
-                    </h3>
-                    <p className="text-xs text-[#75675C] mt-0.5">
-                      Send it personally to the people who matter.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Language Switcher */}
-                <div className="flex items-center gap-1 bg-[#FAF5EC] p-1 rounded-xl border border-[#E8D5AD]">
-                  {(['en', 'hi', 'gu'] as Language[]).map((lang) => (
-                    <button
-                      key={lang}
-                      type="button"
-                      onClick={() => setSelectedLanguage(lang)}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer ${
-                        selectedLanguage === lang
-                          ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
-                          : 'text-[#75675C] hover:text-[#241A17]'
-                      }`}
-                    >
-                      {lang === 'en' ? 'English' : lang === 'hi' ? 'हिन्दी' : 'ગુજરાતી'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Visual Sequence: YOUR INVITATION -> COPY / SHARE -> FAMILY & FRIENDS */}
-              <div className="p-4 bg-[#FAF5EC] rounded-2xl border border-[#E8D5AD] flex items-center justify-around text-center text-xs text-[#75675C]">
-                <div>
-                  <span className="font-bold text-[#6E1020] block">YOUR INVITATION</span>
-                  <span className="text-[10px]">Ceremonial Design</span>
-                </div>
-                <span className="text-[#C49A35] font-bold text-lg">→</span>
-                <div>
-                  <span className="font-bold text-[#6E1020] block">COPY / SHARE</span>
-                  <span className="text-[10px]">Pre-composed Text</span>
-                </div>
-                <span className="text-[#C49A35] font-bold text-lg">→</span>
-                <div>
-                  <span className="font-bold text-[#167A5A] block">FAMILY &amp; FRIENDS</span>
-                  <span className="text-[10px]">Warm Welcome</span>
-                </div>
-              </div>
-
-              {/* Message Preview Box */}
-              <div className="bg-[#FAF5EC] p-4 rounded-2xl border border-[#E8D5AD] space-y-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#6E1020] block">
-                  MESSAGE PREVIEW ({selectedLanguage.toUpperCase()})
-                </span>
-                <p className="text-xs text-[#241A17] whitespace-pre-wrap leading-relaxed font-sans bg-white p-3.5 rounded-xl border border-[#E8D5AD]">
-                  {whatsappMessage}
-                </p>
-              </div>
-
-              {/* WhatsApp Actions */}
-              <div className="flex items-center gap-3 pt-1 flex-wrap">
-                <button
-                  type="button"
-                  onClick={handleWhatsAppShare}
-                  className="flex-1 py-3 px-5 rounded-xl bg-[#167A5A] hover:bg-[#126349] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Share on WhatsApp</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleCopyMessage}
-                  className="py-3 px-5 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  {copiedMsg ? <Check className="w-3.5 h-3.5 text-[#167A5A]" /> : <Copy className="w-3.5 h-3.5 text-[#C49A35]" />}
-                  <span>{copiedMsg ? 'Message Copied!' : 'Copy Text'}</span>
-                </button>
-              </div>
-            </section>
+                </section>
+              </>
+            )}
 
             {/* ========================================================= */}
             {/* 11. BEFORE YOU SEND IT (Editorial Checklist) */}
@@ -842,12 +966,12 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
         )}
 
         {/* ========================================================= */}
-        {/* 🌟 ATELIER FOOTER */}
+        {/* 🌟 ATELIER FOOTER (Luminous Light Theme)                  */}
         {/* ========================================================= */}
-        <footer className="h-14 bg-[#24060B] border-t border-[#C49A35]/30 px-6 sm:px-8 flex items-center justify-between text-[11px] text-[#E8D5AD] shrink-0 font-manrope">
+        <footer className="bg-white border-t border-[#E8DCC8] px-6 sm:px-8 py-3.5 flex items-center justify-between text-xs text-[#75675C] shrink-0 font-sans">
           <div className="flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5 text-[#C49A35]" />
-            <span>AmantranLink Royal Invitation Atelier</span>
+            <span className="font-medium text-[#241A17]">AmantranLink Royal Vivah Atelier</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -858,7 +982,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
                   onClose();
                   onOpenDownloadHub();
                 }}
-                className="text-xs text-[#C49A35] hover:text-[#FFFDF8] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                className="text-xs text-[#6E1020] hover:text-[#430914] font-bold flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <span>Open Download Hub</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -868,7 +992,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-[#FFFDF8] font-semibold text-xs transition-colors cursor-pointer"
+              className="px-5 py-1.5 rounded-xl bg-[#FAF6EE] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8DCC8] font-semibold text-xs transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -879,10 +1003,10 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
 
       {/* QR Code Fullscreen Modal Popover */}
       {showQrModal && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn font-sans">
           <div className="bg-[#FFFDF8] rounded-3xl p-6 border-2 border-[#C49A35] max-w-sm w-full text-center space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#E8D5AD] pb-3">
-              <h4 className="font-cormorant text-xl font-bold text-[#6E1020]">
+              <h4 className="font-serif text-xl font-bold text-[#6E1020]">
                 Invitation QR Code
               </h4>
               <button
@@ -923,6 +1047,14 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
           </div>
         </div>
       )}
+
+      {/* 📲 Bulk Guest WhatsApp Link Generator Modal */}
+      <BulkWhatsAppGeneratorModal
+        isOpen={showBulkWhatsAppModal}
+        onClose={() => setShowBulkWhatsAppModal(false)}
+        state={state}
+        weddingSlug={slug}
+      />
 
     </div>
   );

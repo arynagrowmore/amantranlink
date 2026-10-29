@@ -4,42 +4,35 @@
 
 @layer base {
   :root {
-    --base: #EDE0C8;
-    --surface: #F7F0DD;
-    --maroon: #6B1420;
-    --maroon-dark: #4A0C14;
-    --gold: #A67C3D;
-    --gold-light: #D4B37F;
+    --base: #FAF8F5;
+    --surface: #FFFFFF;
+    --surface-warm: #FFFDF9;
+    --maroon: #6E1020;
+    --maroon-dark: #430914;
+    --gold: #C49A35;
+    --gold-light: #E8D5AD;
+    --gold-subtle: #F6EEDF;
     --indigo-accent: #2C3E5C;
-    --vermillion: #C4522A;
-    --vermillion-hover: #B0431D;
-    --ink: #2B1810;
-    --ink-muted: #6B5A4A;
-    --border-hairline: #D8C7AA;
+    --vermillion: #7E1827;
+    --vermillion-hover: #5A101C;
+    --ink: #241A17;
+    --ink-muted: #75675C;
+    --border-hairline: #E8DCC8;
+    --shadow-royal: 0 12px 36px -8px rgba(67, 9, 20, 0.08), 0 2px 6px -1px rgba(196, 154, 53, 0.05);
   }
 
   body {
     background-color: var(--base);
     color: var(--ink);
-    font-family: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
-    /* Subtle 3.5% Rajasthani Jaali Lattice Pattern */
-    background-image: 
-      radial-gradient(#A67C3D 0.65px, transparent 0.65px), 
-      radial-gradient(#6B1420 0.65px, #EDE0C8 0.65px);
-    background-size: 28px 28px;
-    background-position: 0 0, 14px 14px;
-    -webkit-user-select: none !important;
-    -moz-user-select: none !important;
-    -ms-user-select: none !important;
-    user-select: none !important;
-    -webkit-touch-callout: none !important;
+    font-family: 'Plus Jakarta Sans', 'Manrope', system-ui, -apple-system, sans-serif;
+    background-image: radial-gradient(circle at 50% 0%, rgba(196, 154, 53, 0.05) 0%, transparent 60%);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /* Allow typing in input fields */
   input, textarea, [contenteditable="true"], .select-all {
-    -webkit-user-select: text !important;
-    -moz-user-select: text !important;
-    -ms-user-select: text !important;
     user-select: text !important;
   }
 
@@ -50,11 +43,12 @@
     }
   }
 
-  /* Explicit Typography Hierarchy */
+  /* Explicit Human-Readable Typography Hierarchy */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Fraunces', Georgia, serif;
+    font-family: 'Playfair Display', 'Plus Jakarta Sans', Georgia, serif;
     font-optical-sizing: auto;
-    color: var(--maroon);
+    letter-spacing: -0.015em;
+    color: #1A1715;
   }
 
   /* Multi-script Language Fallbacks */
@@ -67,9 +61,9 @@
   }
 }
 
-/* 🏷️ Engraved / Stamped Utility Label (Fraunces Small-Caps Italic) */
+/* 🏷️ Engraved / Stamped Utility Label */
 .stamped-label {
-  font-family: 'Fraunces', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -81,65 +75,66 @@
 .shahi-card-flat {
   background: var(--surface);
   border: 1px solid var(--border-hairline);
-  border-radius: 16px;
+  border-radius: 20px;
   position: relative;
-  transition: border-color 0.25s ease, transform 0.25s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .shahi-card-flat:hover {
   border-color: var(--gold);
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(67, 9, 20, 0.08);
 }
 
 .shahi-card-elevated {
-  background: var(--surface);
+  background: var(--surface-warm);
   border: 1px solid var(--border-hairline);
-  border-radius: 20px;
-  box-shadow: 0 4px 16px -2px rgba(107, 20, 32, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px -6px rgba(67, 9, 20, 0.06), 0 2px 8px -2px rgba(196, 154, 53, 0.04);
   position: relative;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .shahi-card-elevated:hover {
   border-color: var(--gold);
-  box-shadow: 0 12px 28px -4px rgba(166, 124, 61, 0.18), 0 2px 6px rgba(107, 20, 32, 0.04);
+  box-shadow: 0 16px 36px -6px rgba(196, 154, 53, 0.15), 0 4px 12px rgba(67, 9, 20, 0.06);
   transform: translateY(-2px);
 }
 
 /* 💌 Stamped Wax-Seal Letterpress Note (Testimonials) */
 .wax-seal-note {
-  background: #FAF3E3;
-  border: 1px solid #D5C2A3;
-  border-radius: 14px;
+  background: #FFFDF9;
+  border: 1px solid var(--border-hairline);
+  border-radius: 20px;
   position: relative;
-  box-shadow: 0 3px 12px rgba(107, 20, 32, 0.04);
-  background-image: radial-gradient(#A67C3D 0.4px, transparent 0.4px);
-  background-size: 16px 16px;
+  box-shadow: 0 4px 16px -2px rgba(67, 9, 20, 0.04);
   transition: all 0.25s ease;
 }
 
 .wax-seal-note:hover {
   border-color: var(--gold);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(166, 124, 61, 0.12);
+  box-shadow: 0 12px 28px rgba(196, 154, 53, 0.12);
 }
 
-/* 👑 Primary Vermillion Action Button */
-.btn-vermillion {
-  background: linear-gradient(135deg, #D45D33 0%, #C4522A 50%, #A83E18 100%);
-  border: 1px solid #A67C3D;
-  color: #FFFDF9;
-  font-family: 'Fraunces', serif;
+/* 👑 Primary Royal Crimson Action Button */
+.btn-vermillion,
+.btn-royal {
+  background: linear-gradient(135deg, #7E1827 0%, #6E1020 50%, #430914 100%);
+  border: 1px solid var(--gold);
+  color: #FFFDF8;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   letter-spacing: 0.06em;
-  box-shadow: 0 4px 14px rgba(196, 82, 42, 0.24);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(110, 16, 32, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.btn-vermillion:hover {
-  background: linear-gradient(135deg, #E0673D 0%, #CE5930 50%, #B84720 100%);
-  border-color: #D4B37F;
-  box-shadow: 0 6px 20px rgba(196, 82, 42, 0.35);
+.btn-vermillion:hover,
+.btn-royal:hover {
+  background: linear-gradient(135deg, #8E1C2C 0%, #761623 50%, #520E16 100%);
+  border-color: #E8D5AD;
+  box-shadow: 0 8px 24px rgba(110, 16, 32, 0.35);
   transform: translateY(-1px);
 }
 

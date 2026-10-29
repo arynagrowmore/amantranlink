@@ -189,7 +189,7 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/65 backdrop-blur-xs animate-fadeIn font-manrope overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/65 backdrop-blur-xs animate-fadeIn font-manrope overflow-y-auto overscroll-contain"
       onClick={() => setShowAuthModal(false)}
       role="dialog"
       aria-modal="true"
@@ -207,10 +207,10 @@ export const AuthModal: React.FC = () => {
         <button
           type="button"
           onClick={() => setShowAuthModal(false)}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#FAF5EB] hover:bg-[#EFE5D3] text-[#7A6B65] hover:text-[#241A17] flex items-center justify-center transition-colors cursor-pointer border border-[#E8D5AD]/60 focus:outline-none focus:ring-2 focus:ring-[#C49A35]"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#FAF5EB] hover:bg-[#EFE5D3] text-[#7A6B65] hover:text-[#241A17] flex items-center justify-center transition-colors cursor-pointer border border-[#E8D5AD]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35]"
           aria-label="Close dialog"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4" aria-hidden="true" />
         </button>
 
         {/* Top Header Branding */}
@@ -291,16 +291,16 @@ export const AuthModal: React.FC = () => {
 
         {/* Success Alert */}
         {successMessage && (
-          <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-medium flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div aria-live="polite" className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-medium flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" aria-hidden="true" />
             <span>{successMessage}</span>
           </div>
         )}
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-medium flex items-start gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1.5" />
+          <div aria-live="polite" className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-medium flex items-start gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-1.5" aria-hidden="true" />
             <span className="leading-snug">{error}</span>
           </div>
         )}
@@ -312,16 +312,16 @@ export const AuthModal: React.FC = () => {
               type="button"
               onClick={handleGoogleLogin}
               disabled={isBusy}
-              className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-[#FAF5EB] border border-[#D5C29E] text-xs font-semibold text-[#241A17] flex items-center justify-center gap-2.5 transition-all cursor-pointer h-11 shadow-xs hover:border-[#C49A35] disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#C49A35]"
+              className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-[#FAF5EB] border border-[#D5C29E] text-xs font-semibold text-[#241A17] flex items-center justify-center gap-2.5 transition-all cursor-pointer h-11 shadow-xs hover:border-[#C49A35] disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] focus-visible:ring-offset-1"
             >
               {isGoogleLoading ? (
                 <div className="flex items-center gap-2 text-[#6E1020]">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Connecting with Google...</span>
+                  <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                  <span>Connecting with Google…</span>
                 </div>
               ) : (
                 <>
-                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
@@ -349,31 +349,37 @@ export const AuthModal: React.FC = () => {
             {activeTab === 'signup' && (
               <div className="space-y-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-[#241A17] block">
+                  <label htmlFor="auth-name" className="text-xs font-semibold text-[#241A17] block cursor-pointer">
                     {isPartner ? 'Contact / Lead Name' : 'Full Name'}
                   </label>
                   <input
+                    id="auth-name"
+                    name="name"
                     type="text"
                     required
+                    autoComplete="name"
                     placeholder={isPartner ? 'e.g. Vikram Sharma' : 'e.g. Rudra & Ishani'}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus:bg-white focus:outline-none focus:border-[#C49A35] focus:ring-1 focus:ring-[#C49A35] transition-colors h-10"
+                    className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus-visible:bg-white focus-visible:outline-none focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35] transition-colors h-10"
                   />
                 </div>
 
                 {isPartner && (
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-[#241A17] block">
+                    <label htmlFor="auth-studio-name" className="text-xs font-semibold text-[#241A17] block cursor-pointer">
                       Studio / Photography Brand Name
                     </label>
                     <input
+                      id="auth-studio-name"
+                      name="studioName"
                       type="text"
                       required
+                      autoComplete="organization"
                       placeholder="e.g. Royal Lens Photography"
                       value={studioName}
                       onChange={(e) => setStudioName(e.target.value)}
-                      className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus:bg-white focus:outline-none focus:border-[#C49A35] focus:ring-1 focus:ring-[#C49A35] transition-colors h-10"
+                      className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus-visible:bg-white focus-visible:outline-none focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35] transition-colors h-10"
                     />
                   </div>
                 )}
@@ -382,30 +388,35 @@ export const AuthModal: React.FC = () => {
 
             {/* Email Address */}
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#241A17] block">
+              <label htmlFor="auth-email" className="text-xs font-semibold text-[#241A17] block cursor-pointer">
                 Email Address
               </label>
               <input
+                id="auth-email"
+                name="email"
                 type="email"
+                inputMode="email"
+                spellCheck={false}
+                autoComplete="email"
                 required
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus:bg-white focus:outline-none focus:border-[#C49A35] focus:ring-1 focus:ring-[#C49A35] transition-colors h-10"
+                className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus-visible:bg-white focus-visible:outline-none focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35] transition-colors h-10"
               />
             </div>
 
             {/* Password */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[#241A17] block">
+                <label htmlFor="auth-password" className="text-xs font-semibold text-[#241A17] block cursor-pointer">
                   Password
                 </label>
                 {activeTab === 'signin' && (
                   <button
                     type="button"
                     onClick={() => handleTabChange('forgot')}
-                    className="text-[11px] font-medium text-[#6E1020] hover:underline cursor-pointer"
+                    className="text-[11px] font-medium text-[#6E1020] hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E1020] rounded-sm"
                   >
                     Forgot password?
                   </button>
@@ -413,21 +424,24 @@ export const AuthModal: React.FC = () => {
               </div>
               <div className="relative">
                 <input
+                  id="auth-password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete={activeTab === 'signup' ? 'new-password' : 'current-password'}
                   required
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-3.5 pr-10 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus:bg-white focus:outline-none focus:border-[#C49A35] focus:ring-1 focus:ring-[#C49A35] transition-colors h-10"
+                  className="w-full pl-3.5 pr-10 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus-visible:bg-white focus-visible:outline-none focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35] transition-colors h-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A73] hover:text-[#241A17] cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C7A73] hover:text-[#241A17] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] rounded-sm p-0.5"
                   title={showPassword ? 'Hide password' : 'Show password'}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" aria-hidden="true" /> : <Eye className="w-4 h-4" aria-hidden="true" />}
                 </button>
               </div>
             </div>
@@ -435,17 +449,21 @@ export const AuthModal: React.FC = () => {
             {/* Phone for Signup */}
             {activeTab === 'signup' && (
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[#241A17] flex items-center justify-between">
+                <label htmlFor="auth-phone" className="text-xs font-semibold text-[#241A17] flex items-center justify-between cursor-pointer">
                   <span>WhatsApp / Phone</span>
                   {!isPartner && <span className="text-[10px] text-[#8C7A73] font-normal">Optional</span>}
                 </label>
                 <input
+                  id="auth-phone"
+                  name="phone"
                   type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   required={isPartner}
                   placeholder="+91 98765 43210"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus:bg-white focus:outline-none focus:border-[#C49A35] focus:ring-1 focus:ring-[#C49A35] transition-colors h-10"
+                  className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus-visible:bg-white focus-visible:outline-none focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35] transition-colors h-10"
                 />
               </div>
             )}
@@ -454,12 +472,12 @@ export const AuthModal: React.FC = () => {
             <button
               type="submit"
               disabled={isBusy}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#6E1020] hover:bg-[#560D1A] text-white text-xs font-bold tracking-wide uppercase transition-all cursor-pointer disabled:opacity-60 h-11 shadow-sm mt-2 border border-[#C49A35]/30 focus:outline-none focus:ring-2 focus:ring-[#C49A35]"
+              className="w-full py-2.5 px-4 rounded-xl bg-[#6E1020] hover:bg-[#560D1A] text-white text-xs font-bold tracking-wide uppercase transition-all cursor-pointer disabled:opacity-60 h-11 shadow-sm mt-2 border border-[#C49A35]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] focus-visible:ring-offset-2"
             >
               {actionLoading ? (
                 <div className="flex items-center justify-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>Please wait...</span>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" aria-hidden="true" />
+                  <span>Please wait…</span>
                 </div>
               ) : (
                 <span>{activeTab === 'signin' ? 'Sign In' : 'Create Account'}</span>
@@ -472,28 +490,33 @@ export const AuthModal: React.FC = () => {
         {activeTab === 'forgot' && (
           <form onSubmit={handleForgotSubmit} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#241A17] block">
+              <label htmlFor="auth-forgot-email" className="text-xs font-semibold text-[#241A17] block cursor-pointer">
                 Email Address
               </label>
               <input
+                id="auth-forgot-email"
+                name="email"
                 type="email"
+                inputMode="email"
+                spellCheck={false}
+                autoComplete="email"
                 required
                 placeholder="Enter your registered email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus:bg-white focus:outline-none focus:border-[#C49A35] focus:ring-1 focus:ring-[#C49A35] transition-colors h-10"
+                className="w-full px-3.5 py-2 text-xs rounded-xl bg-[#FAF5EB] border border-[#E0D2BC] text-[#241A17] placeholder-[#8C7A73]/70 focus-visible:bg-white focus-visible:outline-none focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35] transition-colors h-10"
               />
             </div>
 
             <button
               type="submit"
               disabled={isBusy}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#6E1020] hover:bg-[#560D1A] text-white text-xs font-bold tracking-wide uppercase transition-all cursor-pointer disabled:opacity-60 h-11 shadow-sm border border-[#C49A35]/30 focus:outline-none focus:ring-2 focus:ring-[#C49A35]"
+              className="w-full py-2.5 px-4 rounded-xl bg-[#6E1020] hover:bg-[#560D1A] text-white text-xs font-bold tracking-wide uppercase transition-all cursor-pointer disabled:opacity-60 h-11 shadow-sm border border-[#C49A35]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] focus-visible:ring-offset-2"
             >
               {actionLoading ? (
                 <div className="flex items-center justify-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>Sending Link...</span>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" aria-hidden="true" />
+                  <span>Sending Link…</span>
                 </div>
               ) : (
                 <span>Send Password Reset Link</span>
@@ -503,9 +526,9 @@ export const AuthModal: React.FC = () => {
             <button
               type="button"
               onClick={() => handleTabChange('signin')}
-              className="w-full py-2 text-xs font-semibold text-[#6D5D57] hover:text-[#241A17] flex items-center justify-center gap-1.5 cursor-pointer"
+              className="w-full py-2 text-xs font-semibold text-[#6D5D57] hover:text-[#241A17] flex items-center justify-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] rounded-md"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
+              <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
               <span>Back to Sign In</span>
             </button>
           </form>
@@ -520,7 +543,7 @@ export const AuthModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleTabChange('signup')}
-                  className="font-bold text-[#6E1020] hover:underline cursor-pointer ml-1"
+                  className="font-bold text-[#6E1020] hover:underline cursor-pointer ml-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E1020] rounded-sm"
                 >
                   Create Account
                 </button>

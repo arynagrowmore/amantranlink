@@ -10,6 +10,8 @@ import { FamilyForm } from './components/FamilyForm';
 import { MediaUploader } from './components/MediaUploader';
 import { MusicManager } from './components/MusicManager';
 import { RsvpSettingsManager } from './components/RsvpSettingsManager';
+import { TypographyManager } from './components/TypographyManager';
+import { ShagunManager } from './components/ShagunManager';
 import { ReviewSummaryStep } from './components/ReviewSummaryStep';
 import { LivePreviewCanvas } from './components/LivePreviewCanvas';
 import { PublishModal } from './components/PublishModal';
@@ -23,6 +25,7 @@ import { RoyalPaymentModal } from './components/RoyalPaymentModal';
 import { LockedEditorBanner } from './components/LockedEditorBanner';
 import { TemplatePreviewModal } from './components/TemplatePreviewModal';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { DEFAULT_TYPOGRAPHY, AUSPICIOUS_SHLOKAS } from './utils/invitationAdapter';
 import { AuthModal } from './components/AuthModal';
 import { PartnerAttributionBanner } from './components/PartnerAttributionBanner';
 import { RoleIndicatorBanner } from './components/RoleIndicatorBanner';
@@ -128,11 +131,11 @@ const initialPhotoSlots: Record<string, PhotoSlot> = {
 };
 
 const initialEvents = [
-  { id: '1', name: '💛 Haldi Ceremony', nameHi: 'हल्दी', nameGu: 'પીઠી / હળદર', date: '1 December 2024', time: '10:00 AM', venue: 'The Milestone Garden', color: 'yellow', icon: '💛', dressCode: 'Traditional Yellow Kurta / Saree', mapUrl: 'https://maps.google.com' },
-  { id: '2', name: '💚 Mehendi Rasam', nameHi: 'मेहंदी', nameGu: 'મહેંદી રસમ', date: '2 December 2024', time: '03:00 PM', venue: 'The Milestone Courtyard', color: 'green', icon: '💚', dressCode: 'Pastel Floral / Ethnic', mapUrl: 'https://maps.google.com' },
-  { id: '3', name: '🎶 Sangeet Night', nameHi: 'संगीत', nameGu: 'સંગીત સંધ્યા', date: '2 December 2024', time: '07:30 PM', venue: 'Royal Darbar Banquet', color: 'purple', icon: '🎶', dressCode: 'Indo-Western Bollywood Glam', mapUrl: 'https://maps.google.com' },
-  { id: '4', name: '💍 Shubh Vivah / Pheras', nameHi: 'शुभ विवाह', nameGu: 'શુભ લગ્ન / ફેરા', date: '3 December 2024', time: '06:30 PM Muhurat', venue: 'The Milestone Palace Ground', color: 'gold', icon: '💍', dressCode: 'Royal Shahi Traditional', mapUrl: 'https://maps.google.com' },
-  { id: '5', name: '🥂 Grand Reception', nameHi: 'रिसेप्शन', nameGu: 'સ્નેહમિલન / રિસેપ્શન', date: '4 December 2024', time: '08:00 PM', venue: 'The Milestone Grand Ballroom', color: 'red', icon: '🥂', dressCode: 'Black-Tie / Velvet Elegance', mapUrl: 'https://maps.google.com' },
+  { id: '1', name: '💛 Haldi Ceremony', nameHi: 'हल्दी', nameGu: 'પીઠી / હળદર', date: '11 December 2026', time: '10:00 AM', venue: 'Royal Palace Gardens', color: 'yellow', icon: '💛', dressCode: 'Traditional Yellow Kurta / Saree', mapUrl: 'https://maps.google.com' },
+  { id: '2', name: '💚 Mehendi Rasam', nameHi: 'मेहंदी', nameGu: 'મહેંદી રસમ', date: '11 December 2026', time: '03:00 PM', venue: 'Courtyard Lawn', color: 'green', icon: '💚', dressCode: 'Pastel Floral / Ethnic', mapUrl: 'https://maps.google.com' },
+  { id: '3', name: '🎶 Sangeet Night', nameHi: 'संगीत', nameGu: 'સંગીત સંધ્યા', date: '12 December 2026', time: '07:30 PM', venue: 'Grand Banquet Hall', color: 'purple', icon: '🎶', dressCode: 'Indo-Western Bollywood Glam', mapUrl: 'https://maps.google.com' },
+  { id: '4', name: '💍 Shubh Vivah / Pheras', nameHi: 'शुभ विवाह', nameGu: 'શુભ લગ્ન / ફેરા', date: '13 December 2026', time: '06:30 PM Muhurat', venue: 'Palace Mandap Ground', color: 'gold', icon: '💍', dressCode: 'Royal Shahi Traditional', mapUrl: 'https://maps.google.com' },
+  { id: '5', name: '🥂 Grand Reception', nameHi: 'रिसेप्शन', nameGu: 'સ્નેહમિલન / રિસેપ્શન', date: '14 December 2026', time: '08:00 PM', venue: 'Royal Grand Ballroom', color: 'red', icon: '🥂', dressCode: 'Black-Tie / Velvet Elegance', mapUrl: 'https://maps.google.com' },
 ];
 
 function MainApp() {
@@ -204,37 +207,50 @@ function MainApp() {
     previewZoom: 0.9, // 90% Default Zoom for Desktop
     language: 'en',
     couple: {
-      groomEn: 'Rudra',
-      groomHi: 'रुद्र',
-      groomGu: 'રુદ્ર',
-      brideEn: 'Ishani',
-      brideHi: 'ईशानी',
-      brideGu: 'ઈશાની',
-      mark: 'R · I',
-      hashtag: '#RudraWedsIshani',
-      weddingDate: '3 December 2026 · 06:30 PM',
+      groomEn: '',
+      groomHi: '',
+      groomGu: '',
+      brideEn: '',
+      brideHi: '',
+      brideGu: '',
+      mark: '',
+      hashtag: '',
+      weddingDate: '13 December 2026 · 06:30 PM',
       muhuratTime: '06:30 PM',
-      venueName: 'The Milestone, Modasa, Gujarat',
-      venueAddress: 'The Milestone Highway, Modasa',
-      mapUrl: 'https://maps.google.com',
+      venueName: '',
+      venueAddress: '',
+      mapUrl: '',
     },
     events: initialEvents,
     family: {
-      groomParentsEn: 'Mr. Nalinkumar & Mrs. Kalpuben',
-      groomParentsHi: 'श्री नलिनकुमार एवं श्रीमती कल्पूबेन',
-      groomParentsGu: 'શ્રી નલિનકુમાર અને શ્રીમતી કલ્પૂબેન',
-      brideParentsEn: 'Mr. & Mrs. Sharma',
-      brideParentsHi: 'श्री एवं श्रीमती शर्मा',
-      brideParentsGu: 'શ્રી અને શ્રીમતી શર્મા',
-      rsvp1Name: 'Nalinkumar',
-      rsvp1Phone: '+91 9409360336',
-      rsvp2Name: 'Family Helpdesk',
-      rsvp2Phone: '+91 9409360336',
+      groomParentsEn: '',
+      groomParentsHi: '',
+      groomParentsGu: '',
+      brideParentsEn: '',
+      brideParentsHi: '',
+      brideParentsGu: '',
+      rsvp1Name: '',
+      rsvp1Phone: '',
+      rsvp2Name: '',
+      rsvp2Phone: '',
     },
     media: {
       audioName: 'FinalSong.mp3 (Default)',
       audioBlob: null,
       photoSlots: initialPhotoSlots,
+    },
+    typography: DEFAULT_TYPOGRAPHY,
+    shagun: {
+      enabled: false,
+      recipientName: '',
+      upiId: '',
+      upiNumber: '',
+      customMessage: 'Your gracious presence and heartfelt blessings are our greatest treasure. For digital tokens of love:',
+    },
+    auspiciousBlessing: {
+      shlokaKey: 'ganesh',
+      shlokaText: AUSPICIOUS_SHLOKAS.ganesh.text,
+      shlokaMeaning: AUSPICIOUS_SHLOKAS.ganesh.meaning,
     },
   };
 
@@ -447,6 +463,18 @@ function MainApp() {
         ...updated,
       },
     }));
+  };
+
+  const updateTypography = (typography: WeddingProjectState['typography']) => {
+    setState((prev) => ({ ...prev, typography }));
+  };
+
+  const updateShagun = (shagun: WeddingProjectState['shagun']) => {
+    setState((prev) => ({ ...prev, shagun }));
+  };
+
+  const updateAuspiciousBlessing = (auspiciousBlessing: WeddingProjectState['auspiciousBlessing']) => {
+    setState((prev) => ({ ...prev, auspiciousBlessing }));
   };
 
   // When publishing completes, update site lock state (MANDATORY AUTOMATIC RE-LOCK) & persist
@@ -814,13 +842,13 @@ function MainApp() {
 
   // 🎨 Otherwise, render the AmantranLink Customizer 2.0
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col antialiased bg-[#FFFDF8] text-[#241A17] relative font-manrope">
+    <div className="h-screen w-screen overflow-hidden flex flex-col antialiased bg-[#FAF7F2] text-[#241A17] relative font-sans">
       {/* 📸 Partner Attribution Banner */}
       <PartnerAttributionBanner />
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-[#6E1020] text-[#FFFDF8] text-xs font-semibold border border-[#C49A35] shadow-2xl flex items-center gap-2 animate-bounce">
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full bg-[#6E1020] text-[#FFFDF8] text-xs font-semibold border border-[#C49A35] shadow-2xl flex items-center gap-2">
           <span className="text-[#C49A35]">👑</span>
           <span>{toastMessage}</span>
         </div>
@@ -852,7 +880,7 @@ function MainApp() {
       />
 
       {/* 📱 Mobile Form vs Live Preview Switcher (< 1024px) */}
-      <div className="lg:hidden flex items-center bg-[#F8F3E8] border-b border-[#E8D5AD] p-1.5 text-xs font-semibold shrink-0">
+      <div className="lg:hidden flex items-center bg-white border-b border-[#E8DCC8] p-1.5 text-xs font-semibold shrink-0">
         <button
           type="button"
           onClick={() => setMobileStudioPane('form')}
@@ -862,7 +890,7 @@ function MainApp() {
               : 'text-[#75675C]'
           }`}
         >
-          <span>📝 Studio Editor</span>
+          <span>Studio Editor</span>
         </button>
         <button
           type="button"
@@ -873,7 +901,7 @@ function MainApp() {
               : 'text-[#75675C]'
           }`}
         >
-          <span>👁️ Live Preview</span>
+          <span>Live Preview</span>
         </button>
       </div>
 
@@ -892,9 +920,9 @@ function MainApp() {
         />
       )}
 
-      {/* Main 3-Zone Studio Workspace: Left Rail (~175px) + Center Editorial Form + Right Hero Preview */}
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-[#FAF8F5]">
-        {/* Zone 1: Left Vertical Navigation Rail (~175px on desktop, horizontal bar on mobile) */}
+      {/* Main 3-Zone Studio Workspace: Left Rail (~185px) + Center Editorial Form + Right Hero Preview */}
+      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-[#FAF7F2]">
+        {/* Zone 1: Left Vertical Navigation Rail */}
         <Sidebar
           activeTab={activeTab}
           completedTabs={completedTabs}
@@ -906,8 +934,8 @@ function MainApp() {
           state={state}
         />
 
-        {/* Zone 2: Center Editorial Form Workspace (~680-730px max on desktop) */}
-        <aside className={`w-full lg:w-[480px] xl:w-[560px] 2xl:w-[620px] bg-[#FFFDF8] border-r border-[#E8D5AD]/70 flex flex-col shrink-0 overflow-hidden shadow-xs z-10 ${mobileStudioPane === 'preview' ? 'hidden lg:flex' : 'flex'}`}>
+        {/* Zone 2: Center Editorial Form Workspace */}
+        <aside className={`w-full lg:w-[480px] xl:w-[560px] 2xl:w-[620px] bg-white border-r border-[#E8DCC8] flex flex-col shrink-0 overflow-hidden shadow-[2px_0_12px_rgba(67,9,20,0.02)] z-10 ${mobileStudioPane === 'preview' ? 'hidden lg:flex' : 'flex'}`}>
           {/* Scrollable Form Body with Steps */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
             {/* Step 01: Theme Selection */}
@@ -927,11 +955,21 @@ function MainApp() {
                 theme={state.theme}
                 invitationType={state.invitation_type || 'wedding'}
                 onChange={updateCouple}
-                onSaveAndNext={() => handleTabSaveAndNext('couple', 'events')}
+                onSaveAndNext={() => handleTabSaveAndNext('couple', 'typography')}
               />
             )}
 
-            {/* Step 03: Mangal Rasam Events */}
+            {/* Step 03: Royal Typography & Fonts */}
+            {activeTab === 'typography' && (
+              <TypographyManager
+                state={state}
+                onChangeTypography={updateTypography}
+                onChangeAuspiciousBlessing={updateAuspiciousBlessing}
+                onSaveAndNext={() => handleTabSaveAndNext('typography', 'events')}
+              />
+            )}
+
+            {/* Step 04: Mangal Rasam Events */}
             {activeTab === 'events' && (
               <EventsManager
                 events={state.events}
@@ -942,7 +980,7 @@ function MainApp() {
               />
             )}
 
-            {/* Step 04: Venue & Google Maps Navigation */}
+            {/* Step 05: Venue & Google Maps Navigation */}
             {activeTab === 'venue' && (
               <VenueManager
                 couple={state.couple}
@@ -953,7 +991,7 @@ function MainApp() {
               />
             )}
 
-            {/* Step 05: Photos & Moments Gallery */}
+            {/* Step 06: Photos & Moments Gallery */}
             {activeTab === 'media' && (
               <MediaUploader
                 theme={state.theme}
@@ -964,18 +1002,27 @@ function MainApp() {
               />
             )}
 
-            {/* Step 06: Background Music & Audio */}
+            {/* Step 07: Background Music & Audio */}
             {activeTab === 'music' && (
               <MusicManager
                 theme={state.theme}
                 invitationType={state.invitation_type || 'wedding'}
                 media={state.media}
                 onChange={updateMedia}
-                onSaveAndNext={() => handleTabSaveAndNext('music', 'rsvp')}
+                onSaveAndNext={() => handleTabSaveAndNext('music', 'shagun')}
               />
             )}
 
-            {/* Step 07: Live RSVP Configuration */}
+            {/* Step 08: Digital Shagun & UPI */}
+            {activeTab === 'shagun' && (
+              <ShagunManager
+                state={state}
+                onChangeShagun={updateShagun}
+                onSaveAndNext={() => handleTabSaveAndNext('shagun', 'rsvp')}
+              />
+            )}
+
+            {/* Step 09: Live RSVP Configuration */}
             {activeTab === 'rsvp' && (
               <RsvpSettingsManager
                 theme={state.theme}
@@ -992,7 +1039,7 @@ function MainApp() {
               />
             )}
 
-            {/* Step 08: Final Inspection Review */}
+            {/* Step 10: Final Inspection Review */}
             {activeTab === 'review' && (
               <ReviewSummaryStep
                 state={state}

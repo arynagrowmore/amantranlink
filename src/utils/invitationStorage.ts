@@ -11,9 +11,14 @@ export const encodeInvitationData = (state: WeddingProjectState): string => {
       f: state.family,
       m: {
         audioName: state.media.audioName,
+        audioUrl: state.media.audioUrl,
         // Exclude raw blob to keep URL lightweight, include photo urls
         photoSlots: state.media.photoSlots,
-      }
+      },
+      typ: state.typography,
+      shg: state.shagun,
+      bls: state.auspiciousBlessing,
+      rsv: state.rsvpConfig,
     };
     const jsonStr = JSON.stringify(minified);
     return btoa(unescape(encodeURIComponent(jsonStr)));
@@ -36,9 +41,14 @@ export const decodeInvitationData = (encodedStr: string): Partial<WeddingProject
       family: parsed.f,
       media: {
         audioName: parsed.m?.audioName || 'FinalSong.mp3 (Default)',
+        audioUrl: parsed.m?.audioUrl,
         audioBlob: null,
         photoSlots: parsed.m?.photoSlots || {},
       },
+      typography: parsed.typ,
+      shagun: parsed.shg,
+      auspiciousBlessing: parsed.bls,
+      rsvpConfig: parsed.rsv,
     };
   } catch (e) {
     console.error('Failed to decode invitation state from URL:', e);

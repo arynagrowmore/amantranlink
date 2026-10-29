@@ -8,7 +8,7 @@
  * - All 8 Royal Theme Templates
  */
 
-import { ThemeId, PhotoFilterType } from './wedding';
+import { ThemeId, PhotoFilterType, WeddingTypography, DigitalShagun, AuspiciousBlessing } from './wedding';
 
 export interface NormalizedInvitationData {
   invitationId: string;
@@ -97,4 +97,8 @@ export interface NormalizedInvitationData {
   studioBadge?: string;
   isLocked: boolean;
   status: 'draft' | 'published';
+  typography?: WeddingTypography;
+  shagun?: DigitalShagun;
+  guestName?: string;
+  auspiciousBlessing?: AuspiciousBlessing;
 }

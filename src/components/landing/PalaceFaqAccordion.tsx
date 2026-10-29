@@ -157,17 +157,17 @@ export const PalaceFaqAccordion: React.FC = () => {
   }, [activeCategory, searchQuery]);
 
   return (
-    <section id="faq" className="py-20 sm:py-28 px-4 sm:px-8 max-w-5xl mx-auto w-full font-manrope">
+    <section id="faq" className="py-20 sm:py-28 px-4 sm:px-8 max-w-5xl mx-auto w-full font-sans">
       
       {/* 👑 Section Top Brand Tag & Header */}
       <div className="text-center space-y-4 max-w-3xl mx-auto mb-12">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E8D5AD]/60 border border-[#C49A35]/50 text-[#6E1020] text-xs font-manrope font-semibold tracking-wider uppercase shadow-2xs">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8DCC8] text-[#6E1020] text-xs font-sans font-semibold tracking-wider uppercase shadow-2xs">
           <HelpCircle className="w-3.5 h-3.5 text-[#C49A35]" />
-          <span>ROYAL KNOWLEDGE BASE &amp; FAQ</span>
+          <span>Royal Knowledge Base &amp; FAQ</span>
         </div>
 
-        <h2 className="font-cormorant font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
-          EVERYTHING YOU NEED TO KNOW
+        <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
+          Everything You Need to Know
         </h2>
 
         <p className="text-sm sm:text-base text-[#75675C] font-normal max-w-xl mx-auto leading-relaxed">

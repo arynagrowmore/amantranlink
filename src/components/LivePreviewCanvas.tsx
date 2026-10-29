@@ -4,6 +4,7 @@ import { WeddingProjectState, PhotoFilterType } from '../types/wedding';
 import { normalizeInvitationData, applyInvitationDataToTemplateDOM } from '../utils/invitationAdapter';
 import { themes } from './ThemeSelector';
 import { stopAllIframesAudio } from '../services/audioCoordinator';
+import { IPhoneHardwareFrame } from './IPhoneHardwareFrame';
 
 interface LivePreviewCanvasProps {
   state: WeddingProjectState;
@@ -268,44 +269,41 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
         try { win.initShahiRsvp(); } catch (e) {}
       }
 
-      const groomEn = state.couple.groomEn || 'Dhruv';
-      const brideEn = state.couple.brideEn || 'Shreya';
-      const groomHi = state.couple.groomHi || groomEn;
-      const brideHi = state.couple.brideHi || brideEn;
-      const groomGu = state.couple.groomGu || groomEn;
-      const brideGu = state.couple.brideGu || brideEn;
+      const groomEn = state.couple.groomEn?.trim() || '';
+      const brideEn = state.couple.brideEn?.trim() || '';
+      const groomHi = state.couple.groomHi?.trim() || groomEn;
+      const brideHi = state.couple.brideHi?.trim() || brideEn;
+      const groomGu = state.couple.groomGu?.trim() || groomEn;
+      const brideGu = state.couple.brideGu?.trim() || brideEn;
 
       const isHindi = state.language === 'hi';
       const isGujarati = state.language === 'gu';
 
-      let displayGroom = groomEn;
-      let displayBride = brideEn;
-      let displayGroomParents = state.family.groomParentsEn || 'Mr. Nalinkumar & Mrs. Kalpuben';
-      let displayBrideParents = state.family.brideParentsEn || 'Mr. & Mrs. Sharma';
+      const fallbackGroom = isHindi ? 'वर का नाम' : isGujarati ? 'વરનું નામ' : 'Groom Name';
+      const fallbackBride = isHindi ? 'वधू का नाम' : isGujarati ? 'કન્યાનું નામ' : 'Bride Name';
+
+      let displayGroom = (isHindi ? groomHi : isGujarati ? groomGu : groomEn) || fallbackGroom;
+      let displayBride = (isHindi ? brideHi : isGujarati ? brideGu : brideEn) || fallbackBride;
+      let displayGroomParents = (isHindi ? state.family.groomParentsHi : isGujarati ? state.family.groomParentsGu : state.family.groomParentsEn) || '';
+      let displayBrideParents = (isHindi ? state.family.brideParentsHi : isGujarati ? state.family.brideParentsGu : state.family.brideParentsEn) || '';
       let amp = '&';
 
       if (isHindi) {
-        displayGroom = groomHi;
-        displayBride = brideHi;
-        displayGroomParents = state.family.groomParentsHi || displayGroomParents;
-        displayBrideParents = state.family.brideParentsHi || displayBrideParents;
         amp = 'एवं';
       } else if (isGujarati) {
-        displayGroom = groomGu;
-        displayBride = brideGu;
-        displayGroomParents = state.family.groomParentsGu || displayGroomParents;
-        displayBrideParents = state.family.brideParentsGu || displayBrideParents;
         amp = 'અને';
       }
 
-      const date = state.couple.weddingDate || '3 December 2026 · 06:30 PM';
-      const venue = state.couple.venueName || 'The Milestone, Himmatnagar';
-      const mark = state.couple.mark || `${groomEn.charAt(0)} · ${brideEn.charAt(0)}`;
-      const hashtag = state.couple.hashtag || `#${groomEn}Ki${brideEn}`;
-      const rsvp1Name = state.family.rsvp1Name || 'Family Contact';
-      const rsvp1Phone = state.family.rsvp1Phone || '+91 98251 45678';
-      const rsvp2Name = state.family.rsvp2Name || 'Helpdesk';
-      const rsvp2Phone = state.family.rsvp2Phone || '+91 98982 34567';
+      const date = state.couple.weddingDate?.trim() || '13 December 2026 · 06:30 PM';
+      const venue = state.couple.venueName?.trim() || (isHindi ? 'विवाह स्थल' : 'Wedding Venue & City');
+      const gInitial = groomEn ? groomEn.charAt(0).toUpperCase() : 'G';
+      const bInitial = brideEn ? brideEn.charAt(0).toUpperCase() : 'B';
+      const mark = state.couple.mark || `${gInitial} · ${bInitial}`;
+      const hashtag = state.couple.hashtag || (groomEn && brideEn ? `#${groomEn}Weds${brideEn}` : '#ShubhVivah');
+      const rsvp1Name = state.family.rsvp1Name?.trim() || '';
+      const rsvp1Phone = state.family.rsvp1Phone?.trim() || '';
+      const rsvp2Name = state.family.rsvp2Name?.trim() || '';
+      const rsvp2Phone = state.family.rsvp2Phone?.trim() || '';
       const slots = state.media.photoSlots || {};
 
       // 1. Update Window Config
@@ -492,20 +490,53 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
 
       // 11. Footer & RSVP Section Contacts & Phone Numbers
       const contactLinks = doc.querySelectorAll('.rjm-foot-contacts a, .foot-contacts a, .contact-links a');
+      const hasRsvp1 = Boolean(rsvp1Name && rsvp1Phone);
+      const hasRsvp2 = Boolean(rsvp2Name && rsvp2Phone);
+
       if (contactLinks.length >= 2) {
-        contactLinks[0].textContent = `${rsvp1Name} · ${rsvp1Phone}`;
-        contactLinks[0].setAttribute('href', `tel:${rsvp1Phone.replace(/\s+/g, '')}`);
-        contactLinks[1].textContent = `${rsvp2Name} · ${rsvp2Phone}`;
-        contactLinks[1].setAttribute('href', `tel:${rsvp2Phone.replace(/\s+/g, '')}`);
+        if (hasRsvp1) {
+          contactLinks[0].textContent = `${rsvp1Name} · ${rsvp1Phone}`;
+          contactLinks[0].setAttribute('href', `tel:${rsvp1Phone.replace(/\s+/g, '')}`);
+          (contactLinks[0] as HTMLElement).style.display = '';
+        } else {
+          (contactLinks[0] as HTMLElement).style.display = 'none';
+        }
+
+        if (hasRsvp2) {
+          contactLinks[1].textContent = `${rsvp2Name} · ${rsvp2Phone}`;
+          contactLinks[1].setAttribute('href', `tel:${rsvp2Phone.replace(/\s+/g, '')}`);
+          (contactLinks[1] as HTMLElement).style.display = '';
+        } else {
+          (contactLinks[1] as HTMLElement).style.display = 'none';
+        }
+
+        const footContactsWrap = doc.querySelector('.rjm-foot-contacts, .foot-contacts');
+        if (footContactsWrap) {
+          (footContactsWrap as HTMLElement).style.display = (hasRsvp1 || hasRsvp2) ? '' : 'none';
+        }
       }
 
       // Sync dedicated RSVP contact spans
-      doc.querySelectorAll('.data-rsvp1-name').forEach((el) => { el.textContent = rsvp1Name; });
-      doc.querySelectorAll('.data-rsvp1-phone').forEach((el) => { el.textContent = rsvp1Phone; });
-      doc.querySelectorAll('.data-rsvp1-link').forEach((el) => { el.setAttribute('href', `tel:${rsvp1Phone.replace(/\s+/g, '')}`); });
-      doc.querySelectorAll('.data-rsvp2-name').forEach((el) => { el.textContent = rsvp2Name; });
-      doc.querySelectorAll('.data-rsvp2-phone').forEach((el) => { el.textContent = rsvp2Phone; });
-      doc.querySelectorAll('.data-rsvp2-link').forEach((el) => { el.setAttribute('href', `tel:${rsvp2Phone.replace(/\s+/g, '')}`); });
+      doc.querySelectorAll('.data-rsvp1-name').forEach((el) => { el.textContent = rsvp1Name || displayGroom; });
+      doc.querySelectorAll('.data-rsvp1-phone').forEach((el) => { el.textContent = rsvp1Phone || ''; });
+      doc.querySelectorAll('.data-rsvp1-link').forEach((el) => { 
+        if (rsvp1Phone) {
+          el.setAttribute('href', `tel:${rsvp1Phone.replace(/\s+/g, '')}`);
+          (el as HTMLElement).style.display = '';
+        } else {
+          (el as HTMLElement).style.display = 'none';
+        }
+      });
+      doc.querySelectorAll('.data-rsvp2-name').forEach((el) => { el.textContent = rsvp2Name || ''; });
+      doc.querySelectorAll('.data-rsvp2-phone').forEach((el) => { el.textContent = rsvp2Phone || ''; });
+      doc.querySelectorAll('.data-rsvp2-link').forEach((el) => { 
+        if (rsvp2Phone) {
+          el.setAttribute('href', `tel:${rsvp2Phone.replace(/\s+/g, '')}`);
+          (el as HTMLElement).style.display = '';
+        } else {
+          (el as HTMLElement).style.display = 'none';
+        }
+      });
 
       // Sync RSVP wishes textarea placeholder with dynamic couple names
       const wishesTextarea = doc.querySelector('textarea[name="wishes"]') as HTMLTextAreaElement;
@@ -817,11 +848,11 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
   const domainUrl = `https://${(state.couple.groomEn || 'dhruv').toLowerCase()}-${(state.couple.brideEn || 'shreya').toLowerCase()}.wedding.app`;
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden p-2 sm:p-6 select-none font-manrope bg-[#FAF8F5]">
+    <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden p-2 sm:p-6 select-none font-sans bg-[#F8F6F1] border-l border-[#E8DCC8]/60">
       {/* 🟢 Live Synchronization Status Badge */}
-      <div className="absolute top-3 left-4 z-40 bg-[#FFFDF8]/90 backdrop-blur-xs px-2.5 py-1 rounded-md border border-[#E8D5AD]/60 flex items-center gap-1.5 shadow-2xs">
+      <div className="absolute top-3 left-4 z-40 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full border border-[#E8DCC8] flex items-center gap-1.5 shadow-2xs">
         <span className={`w-1.5 h-1.5 rounded-full ${isSyncing ? 'bg-[#C49A35] animate-pulse' : 'bg-[#167A5A]'}`} />
-        <span className="text-[9.5px] font-mono font-medium tracking-widest text-[#75675C] uppercase">
+        <span className="text-[9.5px] font-mono font-bold tracking-widest text-[#75675C] uppercase">
           {isSyncing ? 'UPDATING…' : 'LIVE PREVIEW'}
         </span>
       </div>
@@ -843,16 +874,17 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
             <button
               type="button"
               onClick={toggleAudio}
-              className="flex items-center gap-1.5 text-xs font-semibold text-[#6E1020] hover:text-[#430914] transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-xs font-semibold text-[#6E1020] hover:text-[#430914] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A35] rounded-full px-2 py-0.5"
+              aria-label={isPlayingAudio ? 'Pause invitation audio music' : 'Play invitation audio music'}
             >
               {isPlayingAudio ? (
                 <>
-                  <Pause className="w-3.5 h-3.5 text-[#C49A35] fill-[#C49A35] animate-pulse" />
+                  <Pause className="w-3.5 h-3.5 text-[#C49A35] fill-[#C49A35] animate-pulse" aria-hidden="true" />
                   <span>Pause Music</span>
                 </>
               ) : (
                 <>
-                  <Play className="w-3.5 h-3.5 text-[#C49A35] fill-[#C49A35]" />
+                  <Play className="w-3.5 h-3.5 text-[#C49A35] fill-[#C49A35]" aria-hidden="true" />
                   <span>Play Audio</span>
                 </>
               )}
@@ -870,7 +902,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
           style={{ transform: `scale(${zoomScale})`, transformOrigin: 'center center' }}
         >
           {/* macOS Titlebar */}
-          <div className="h-9 bg-[#1E1E1E] border-b border-[#333] flex items-center px-4 justify-between select-none shrink-0">
+          <div className="h-9 bg-[#1E1E1E] border-b border-[#333] flex items-center px-4 justify-between select-none shrink-0" aria-hidden="true">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E] inline-block shadow-sm"></span>
               <span className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123] inline-block shadow-sm"></span>
@@ -878,12 +910,12 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
             </div>
             {/* Safari Search/URL Pill */}
             <div className="bg-[#121212] px-4 py-1 rounded-md text-[11px] font-mono text-white/70 border border-white/10 flex items-center gap-2 max-w-sm truncate shadow-inner">
-              <Lock className="w-3 h-3 text-[#27C93F]" />
+              <Lock className="w-3 h-3 text-[#27C93F]" aria-hidden="true" />
               <span className="truncate">{domainUrl}</span>
             </div>
             <div className="flex items-center gap-2 text-white/40">
-              <RotateCw className="w-3.5 h-3.5" />
-              <Share2 className="w-3.5 h-3.5" />
+              <RotateCw className="w-3.5 h-3.5" aria-hidden="true" />
+              <Share2 className="w-3.5 h-3.5" aria-hidden="true" />
             </div>
           </div>
 
@@ -924,63 +956,18 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
         </div>
       )}
 
-      {/* 3. MOBILE VIEW: Apple iPhone 17 Pro Natural Titanium Frame (Fits 100% in Viewport) */}
+      {/* 3. MOBILE VIEW: Authentic Apple iPhone 16/17 Pro Hardware Frame */}
       {state.viewMode === 'mobile' && (
-        <div
-          className="relative h-[680px] w-[326px] max-h-[calc(100vh-100px)] p-[3px] bg-[#3E3D40] rounded-[48px] shadow-[0_20px_70px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.12)] flex flex-col transition-all duration-300 shrink-0 my-auto"
-          style={{ transform: `scale(${zoomScale})`, transformOrigin: 'center center' }}
-        >
-          {/* 🔘 Slim Titanium Side Buttons (Flush, accurate edge placement) */}
-          <div className="absolute -left-[4px] top-[90px] w-[2px] h-[14px] bg-[#5C5B5E] rounded-l-[1px]" title="Action Button"></div>
-          <div className="absolute -left-[4px] top-[116px] w-[2px] h-[30px] bg-[#5C5B5E] rounded-l-[1px]" title="Volume Up"></div>
-          <div className="absolute -left-[4px] top-[154px] w-[2px] h-[30px] bg-[#5C5B5E] rounded-l-[1px]" title="Volume Down"></div>
-          <div className="absolute -right-[4px] top-[124px] w-[2px] h-[46px] bg-[#5C5B5E] rounded-r-[1px]" title="Power Button"></div>
-
-          {/* Ultra-thin Uniform Screen Bezel (2.5px) */}
-          <div className="w-full h-full p-[2px] bg-[#0E0E10] rounded-[45px] flex flex-col overflow-hidden">
-            {/* Screen Inner (True Squircle Curve) */}
-            <div className="w-full h-full bg-black rounded-[43px] flex flex-col overflow-hidden relative">
-              
-              {/* 🏝️ Top Status Bar & Single Clean Dynamic Island Pill */}
-              <div className="h-9 bg-black text-white px-5 pt-0.5 flex items-center justify-between select-none shrink-0 z-30 text-xs font-semibold relative">
-                {/* Live Clock (Left Safe Zone) */}
-                <span className="text-[11px] font-sans font-semibold tracking-tight text-white/95 pl-1">
-                  {currentTimeStr}
-                </span>
-
-                {/* iPhone 17 Pro Dynamic Island: ONE Solid Single Pill */}
-                <div 
-                  className="w-[84px] h-[20px] bg-black rounded-full border border-white/5 shadow-inner"
-                  title="Dynamic Island"
-                ></div>
-
-                {/* Signal, 5G & Battery (Right Safe Zone) */}
-                <div className="flex items-center gap-1 text-white/90 pr-1">
-                  <Wifi className="w-3 h-3" />
-                  <span className="text-[9px] font-mono font-bold">5G</span>
-                  <BatteryCharging className="w-3.5 h-3.5 text-emerald-400" />
-                </div>
-              </div>
-
-              {/* Invitation Iframe Viewport */}
-              <div className="flex-1 bg-white overflow-hidden relative">
-                <iframe
-                  ref={iframeRef}
-                  src={targetUrl}
-                  title="iPhone 17 Pro Mobile Wedding Invitation Preview"
-                  className="w-full h-full border-none block"
-                  onLoad={handleIframeLoad}
-                  allow="autoplay; encrypted-media; fullscreen"
-                />
-              </div>
-
-              {/* iOS Floating Home Indicator Gesture Bar */}
-              <div className="h-4 bg-black flex items-center justify-center select-none shrink-0 z-30 pb-0.5">
-                <div className="w-24 h-[3.5px] bg-white/70 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <IPhoneHardwareFrame scale={zoomScale}>
+          <iframe
+            ref={iframeRef}
+            src={targetUrl}
+            title="iPhone 16 Pro Mobile Wedding Invitation Preview"
+            className="w-full h-full border-none block"
+            onLoad={handleIframeLoad}
+            allow="autoplay; encrypted-media; fullscreen"
+          />
+        </IPhoneHardwareFrame>
       )}
     </div>
   );

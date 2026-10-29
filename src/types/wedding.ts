@@ -5,6 +5,31 @@ export type PhotoFilterType = 'none' | 'gold-glow' | 'vintage' | 'rose-blush' | 
 export type PackageType = 'silver' | 'gold' | 'platinum';
 export type InvitationType = 'wedding' | 'engagement';
 
+export type FontPresetId = 'raj-darbar' | 'vintage-romance' | 'vedic-heritage' | 'royal-calligraphy' | 'modern-luxury' | 'custom';
+
+export interface WeddingTypography {
+  preset: FontPresetId;
+  coupleFont: string;       // e.g. 'Great Vibes', 'Cinzel Decorative', 'Alex Brush', 'Rozha One', 'Playfair Display'
+  headingsFont: string;     // e.g. 'Cinzel', 'Marcellus', 'Yatra One', 'Bodoni Moda'
+  bodyFont: string;         // e.g. 'Cormorant Garamond', 'Plus Jakarta Sans', 'Tiro Devanagari Hindi'
+  auspiciousFont: string;   // e.g. 'Rozha One', 'Tiro Devanagari Hindi', 'Gotu'
+}
+
+export interface DigitalShagun {
+  enabled: boolean;
+  recipientName: string;
+  upiId: string;
+  upiNumber?: string;
+  qrImageUrl?: string;
+  customMessage?: string;
+}
+
+export interface AuspiciousBlessing {
+  shlokaKey: 'ganesh' | 'vakratunda' | 'mangalyam' | 'radhakrishna' | 'custom';
+  shlokaText: string;
+  shlokaMeaning?: string;
+}
+
 export interface PhotoSlot {
   id: string;
   title: string;
@@ -107,6 +132,9 @@ export interface WeddingProjectState {
     deadline?: string;
     note?: string;
   };
+  typography?: WeddingTypography;
+  shagun?: DigitalShagun;
+  auspiciousBlessing?: AuspiciousBlessing;
 }
 
 // 👤 User Profile Schema

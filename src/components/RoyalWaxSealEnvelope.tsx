@@ -5,11 +5,13 @@ import { WeddingProjectState } from '../types/wedding';
 interface RoyalWaxSealEnvelopeProps {
   state: WeddingProjectState;
   onOpenComplete?: () => void;
+  guestName?: string;
 }
 
 export const RoyalWaxSealEnvelope: React.FC<RoyalWaxSealEnvelopeProps> = ({
   state,
   onOpenComplete,
+  guestName,
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
@@ -208,18 +210,35 @@ export const RoyalWaxSealEnvelope: React.FC<RoyalWaxSealEnvelopeProps> = ({
         {/* Top Auspicious Inscription */}
         <div className="text-center space-y-1 mb-5 animate-fadeIn">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#3D0A13]/90 border border-[#C49A35]/50 text-[#F8E7C5] text-[11px] font-semibold tracking-widest uppercase shadow-lg">
-            <Sparkles className="w-3 h-3 text-[#D4AF37]" />
+            <Sparkles className="w-3 h-3 text-[#D4AF37]" aria-hidden="true" />
             <span>॥ श्री गणेशाय नमः ॥</span>
           </div>
           <h2 className="font-cinzel text-xs uppercase tracking-[0.25em] text-[#D4AF37] font-semibold pt-1">
             Royal Vivah Invitation
           </h2>
+          {guestName && (
+            <div className="pt-1.5">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#4A0A14] via-[#6E1020] to-[#4A0A14] border border-[#D4AF37]/80 text-[#FDF6EB] text-xs font-serif tracking-wide shadow-xl">
+                <span className="text-[#D4AF37] text-[11px]">सादर आमंत्रित:</span>
+                <strong className="text-[#FFFDF8] font-bold text-sm tracking-normal">{guestName}</strong>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ✉️ 3D Royal Velvet Envelope Container */}
         <div 
           onClick={handleBreakSeal}
-          className={`relative w-full aspect-[4/3] rounded-2xl cursor-pointer group transition-all duration-700 ${
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleBreakSeal();
+            }
+          }}
+          aria-label="Royal Wax Seal Wedding Envelope. Tap to break seal and view invitation."
+          className={`relative w-full aspect-[4/3] rounded-2xl cursor-pointer group transition-all duration-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] ${
             isAnimating ? 'scale-102' : 'hover:scale-[1.02]'
           }`}
           style={{
@@ -243,7 +262,7 @@ export const RoyalWaxSealEnvelope: React.FC<RoyalWaxSealEnvelopeProps> = ({
               }`}
             >
               <div className="w-8 h-8 rounded-full bg-[#6E1020] text-[#D4AF37] flex items-center justify-center mb-1 border border-[#C49A35] shadow-xs">
-                <Crown className="w-4 h-4" />
+                <Crown className="w-4 h-4" aria-hidden="true" />
               </div>
               <h3 className="font-cinzel font-bold text-xl sm:text-2xl text-[#500A15] tracking-wide leading-tight">
                 {groomName}
@@ -258,6 +277,11 @@ export const RoyalWaxSealEnvelope: React.FC<RoyalWaxSealEnvelopeProps> = ({
               <p className="text-[11px] font-manrope font-semibold uppercase tracking-widest text-[#75675C]">
                 {weddingDate}
               </p>
+              {guestName && (
+                <p className="text-[10px] font-serif italic text-[#6E1020] font-bold mt-1">
+                  आपकी गरिमामयी उपस्थिति प्रार्थनीय है
+                </p>
+              )}
             </div>
 
             {/* Bottom & Side Fold Flaps */}
@@ -338,9 +362,10 @@ export const RoyalWaxSealEnvelope: React.FC<RoyalWaxSealEnvelopeProps> = ({
           <button
             type="button"
             onClick={handleBreakSeal}
-            className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-[#6E1020] via-[#8C1322] to-[#6E1020] hover:from-[#8C1322] hover:to-[#A31829] text-[#FFFDF8] text-xs font-cinzel font-bold tracking-widest uppercase border border-[#C49A35] shadow-[0_8px_25px_rgba(110,16,32,0.6)] hover:shadow-[0_10px_30px_rgba(196,154,53,0.5)] hover:scale-105 transition-all cursor-pointer"
+            className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-[#6E1020] via-[#8C1322] to-[#6E1020] hover:from-[#8C1322] hover:to-[#A31829] text-[#FFFDF8] text-xs font-cinzel font-bold tracking-widest uppercase border border-[#C49A35] shadow-[0_8px_25px_rgba(110,16,32,0.6)] hover:shadow-[0_10px_30px_rgba(196,154,53,0.5)] hover:scale-105 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] focus-visible:ring-offset-2"
+            aria-label="Break the royal wax seal to open the wedding invitation"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37] animate-spin" style={{ animationDuration: '4s' }} />
+            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37] animate-spin" style={{ animationDuration: '4s' }} aria-hidden="true" />
             <span>BREAK THE ROYAL SEAL</span>
           </button>
           

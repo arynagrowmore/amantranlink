@@ -18,6 +18,7 @@ import { WhyShahiStudio } from './landing/WhyShahiStudio';
 import { RoyalJourneyWorkflow } from './landing/RoyalJourneyWorkflow';
 import { PalaceFaqAccordion } from './landing/PalaceFaqAccordion';
 import { StudioGrowthStory } from './landing/StudioGrowthStory';
+import { ComparisonSection } from './landing/ComparisonSection';
 import { useAuth } from '../context/AuthContext';
 import { isTemplateUnlockedForUser } from '../services/razorpayClient';
 import { calculatePaymentDetails } from '../config/pricing';
@@ -153,11 +154,11 @@ const THEME_CATALOG: Array<{
 ];
 
 const TRUST_STRIP_ITEMS = [
-  { title: '3D ROYAL GATES', desc: 'Interactive palace entrance', icon: <PalaceGateIcon className="w-5 h-5 text-[#C49A35]" /> },
-  { title: 'SHEHNAI & FLUTE', desc: 'Immersive wedding audio', icon: <ShehnaiIcon className="w-5 h-5 text-[#C49A35]" /> },
-  { title: 'LIVE RSVP', desc: 'Real-time guest responses', icon: <Users className="w-5 h-5 text-[#C49A35]" /> },
-  { title: 'GPS NAVIGATION', desc: 'One-tap venue directions', icon: <VenueMapPinIcon className="w-5 h-5 text-[#C49A35]" /> },
-  { title: 'INSTANT LINK SHARING', desc: 'Personalized guest links', icon: <Globe className="w-5 h-5 text-[#C49A35]" /> },
+  { title: '3D Royal Gates', desc: 'Interactive palace entrance', icon: <PalaceGateIcon className="w-5 h-5 text-[#C49A35]" /> },
+  { title: 'Shehnai & Flute Audio', desc: 'Immersive wedding music', icon: <ShehnaiIcon className="w-5 h-5 text-[#C49A35]" /> },
+  { title: 'Live RSVP Tracking', desc: 'Real-time guest headcounts', icon: <Users className="w-5 h-5 text-[#C49A35]" /> },
+  { title: 'Google Maps Navigation', desc: 'One-tap venue directions', icon: <VenueMapPinIcon className="w-5 h-5 text-[#C49A35]" /> },
+  { title: 'Instant WhatsApp Links', desc: 'Personalized guest dispatches', icon: <Globe className="w-5 h-5 text-[#C49A35]" /> },
 ];
 
 const REAL_COUPLES = [
@@ -307,7 +308,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               }}
               className="hover:text-[#C49A35] transition-colors duration-150 py-1.5 cursor-pointer whitespace-nowrap shrink-0"
             >
-              PRICING &amp; PACKAGES
+              Pricing &amp; Packages
             </a>
             
             {/* Extended Nav Items on Extra Wide Screens, More Dropdown on Narrower Desktop */}
@@ -329,7 +330,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   }}
                   className="hover:text-[#C49A35] transition-colors duration-150 py-1.5 cursor-pointer font-bold text-[#6E1020] whitespace-nowrap shrink-0"
                 >
-                  <span>FOR STUDIOS</span>
+                  <span>For Studios</span>
                 </button>
               )}
             </div>
@@ -341,7 +342,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 onClick={() => setIsMoreNavOpen(!isMoreNavOpen)}
                 className="flex items-center gap-1 text-[#3D141A] hover:text-[#C49A35] transition-colors duration-150 py-1.5 whitespace-nowrap shrink-0 cursor-pointer font-semibold"
               >
-                <span>MORE</span>
+                <span>More</span>
                 <ChevronDown className={`w-3 h-3 text-[#7A6B63] transition-transform duration-200 ${isMoreNavOpen ? 'rotate-180 text-[#C49A35]' : ''}`} />
               </button>
 
@@ -351,7 +352,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <a
                       href="#rsvp"
                       onClick={() => setIsMoreNavOpen(false)}
-                      className="block px-3.5 py-2 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#3D141A] hover:bg-[#F8F3E8] hover:text-[#C49A35] rounded-xl transition-colors"
+                      className="block px-3.5 py-2 text-[11.5px] font-semibold text-[#3D141A] hover:bg-[#F8F3E8] hover:text-[#C49A35] rounded-xl transition-colors"
                     >
                       RSVP
                     </a>
@@ -359,7 +360,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <a
                     href="#faq"
                     onClick={() => setIsMoreNavOpen(false)}
-                    className="block px-3.5 py-2 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-[#3D141A] hover:bg-[#F8F3E8] hover:text-[#C49A35] rounded-xl transition-colors"
+                    className="block px-3.5 py-2 text-[11.5px] font-semibold text-[#3D141A] hover:bg-[#F8F3E8] hover:text-[#C49A35] rounded-xl transition-colors"
                   >
                     FAQ
                   </a>
@@ -371,9 +372,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                         if (onOpenPartnerModal) onOpenPartnerModal();
                         else if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('open-partner-modal'));
                       }}
-                      className="w-full text-left px-3.5 py-2 text-[11.5px] font-bold uppercase tracking-[0.06em] text-[#6E1020] hover:bg-[#F8F3E8] hover:text-[#C49A35] rounded-xl transition-colors cursor-pointer"
+                      className="w-full text-left px-3.5 py-2 text-[11.5px] font-bold text-[#6E1020] hover:bg-[#F8F3E8] hover:text-[#C49A35] rounded-xl transition-colors cursor-pointer"
                     >
-                      FOR STUDIOS
+                      For Studios
                     </button>
                   )}
                 </div>
@@ -559,20 +560,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
             
             {/* Eyebrow */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E8D5AD]/60 border border-[#C49A35]/60 text-[#6E1020] text-xs font-manrope font-semibold tracking-wider uppercase shadow-xs">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8DCC8] text-[#6E1020] text-xs font-sans font-semibold tracking-wider uppercase shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-[#C49A35]" />
-              <span>THE DIGITAL WEDDING JOURNEY · PREPARE · INVITE · GATHER · CELEBRATE</span>
+              <span>✦ The Digital Wedding Heirloom · India&apos;s Premier Platform</span>
             </div>
 
             {/* Main Heading */}
-            <h1 className="font-cormorant font-bold text-4xl sm:text-6xl xl:text-7xl text-[#6E1020] tracking-tight leading-[1.08]">
-              One wedding.<br />
-              One place for every guest.
+            <h1 className="font-serif font-bold text-4xl sm:text-6xl xl:text-7xl text-[#6E1020] tracking-tight leading-[1.08] text-balance">
+              The Art of the Royal Wedding Invitation, <span className="text-[#C49A35] italic font-normal">Reimagined</span> for the Modern Era.
             </h1>
 
             {/* Supporting Copy */}
-            <p className="text-base sm:text-lg text-[#241A17]/85 font-normal leading-relaxed max-w-xl mx-auto lg:mx-0">
-              Transform your invitations into an authentic digital celebration. Personal royal kankotris with ceremonial shehnai music, verified guest RSVPs, GPS palace navigation, and digital venue entry passes.
+            <p className="text-base sm:text-lg text-[#332A26] font-normal leading-relaxed max-w-xl mx-auto lg:mx-0">
+              Transform your sacred celebration into an authentic digital heirloom. Personal royal kankotris featuring 3D opening palace gates, ceremonial shehnai music, instant WhatsApp delivery, verified guest RSVPs, and GPS Google Maps directions.
             </p>
 
             {/* Primary & Secondary CTAs */}
@@ -580,26 +580,39 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <button
                 type="button"
                 onClick={() => onEnterStudio('rajmahal')}
-                className="px-8 py-4 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-manrope font-bold text-xs sm:text-sm tracking-wider uppercase shadow-lg border border-[#C49A35] flex items-center justify-center gap-3 transition-all cursor-pointer hover:scale-105"
+                className="px-8 py-4 rounded-2xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-sans font-semibold text-xs sm:text-sm tracking-wider uppercase shadow-[0_10px_28px_-6px_rgba(110,16,32,0.3)] border border-[#C49A35]/60 flex items-center justify-center gap-3 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
               >
-                <span>CREATE YOUR INVITATION</span>
+                <span>Create Your Royal Invitation</span>
                 <ArrowRight className="w-4 h-4 text-[#C49A35]" />
               </button>
 
               <a
                 href="#themes"
-                className="px-6 py-4 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] text-[#6E1020] font-manrope font-semibold text-xs sm:text-sm uppercase tracking-wider border border-[#E8D5AD] flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
+                className="px-6 py-4 rounded-2xl bg-white hover:bg-[#FAF6EE] text-[#6E1020] font-sans font-semibold text-xs sm:text-sm uppercase tracking-wider border border-[#E8DCC8] flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer hover:border-[#C49A35]"
               >
                 <Eye className="w-4 h-4 text-[#C49A35]" />
-                <span>EXPLORE ROYAL THEMES</span>
+                <span>Explore 7 Royal Themes</span>
               </a>
             </div>
 
-            {/* Trust Line */}
-            <div className="pt-4 border-t border-[#E8D5AD]/60">
-              <p className="text-xs text-[#75675C] font-medium leading-relaxed">
-                3D Palace Gates • Auspicious Shehnai Audio • Live RSVP • GPS Navigation • Digital QR Passes
-              </p>
+            {/* Live Credibility & Proof Bar */}
+            <div className="pt-6 border-t border-[#E8DCC8] grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
+              <div>
+                <span className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020] block leading-tight">12,500+</span>
+                <span className="text-[11px] text-[#75675C] font-medium">Weddings Celebrated</span>
+              </div>
+              <div>
+                <span className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020] block leading-tight">4.9 ★★★★★</span>
+                <span className="text-[11px] text-[#75675C] font-medium">Family Rating</span>
+              </div>
+              <div>
+                <span className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020] block leading-tight">Instant</span>
+                <span className="text-[11px] text-[#75675C] font-medium">WhatsApp Delivery</span>
+              </div>
+              <div>
+                <span className="font-serif font-bold text-xl sm:text-2xl text-[#167A5A] block leading-tight">₹0 Free</span>
+                <span className="text-[11px] text-[#75675C] font-medium">To Design &amp; Preview</span>
+              </div>
             </div>
 
           </div>
@@ -618,15 +631,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ========================================================================= */}
       {/* 🌟 3. TRUST / FEATURE STRIP                                              */}
       {/* ========================================================================= */}
-      <section className="bg-[#F8F3E8] border-y border-[#E8D5AD] py-8 px-4 sm:px-8">
+      <section className="bg-white/80 border-y border-[#E8DCC8] py-8 px-4 sm:px-8 font-sans">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8">
           {TRUST_STRIP_ITEMS.map((item, idx) => (
-            <div key={idx} className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-[#FFFDF8] border border-[#E8D5AD] flex items-center justify-center shrink-0 shadow-xs">
+            <div key={idx} className="flex items-center gap-3.5 group">
+              <div className="w-11 h-11 rounded-2xl bg-[#FAF6EE] border border-[#E8DCC8] flex items-center justify-center shrink-0 shadow-2xs group-hover:border-[#C49A35] transition-colors">
                 {item.icon}
               </div>
               <div className="min-w-0">
-                <h4 className="font-cormorant font-bold text-base text-[#6E1020] leading-tight truncate">
+                <h4 className="font-serif font-bold text-base text-[#6E1020] leading-tight truncate">
                   {item.title}
                 </h4>
                 <p className="text-[11px] text-[#75675C] font-normal truncate">
@@ -639,6 +652,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* ========================================================================= */}
+      {/* 📊 3.5. TRADITIONAL PAPER VS ROYAL DIGITAL COMPARISON                     */}
+      {/* ========================================================================= */}
+      <ComparisonSection onEnterStudio={() => onEnterStudio('rajmahal')} />
+
+      {/* ========================================================================= */}
       {/* 📜 4. ROYAL INVITATION EXPERIENCE (THE ART OF A ROYAL INVITATION)        */}
       {/* ========================================================================= */}
       <div id="experience">
@@ -648,17 +666,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ========================================================================= */}
       {/* 🎨 5. 7 ROYAL THEMES COLLECTION (SELF-CONTAINED COMPLETE PRODUCT CARDS)   */}
       {/* ========================================================================= */}
-      <section id="themes" className="pt-16 pb-24 sm:pt-20 sm:pb-32 px-4 sm:px-8 max-w-7xl mx-auto w-full font-manrope">
+      <section id="themes" className="pt-16 pb-24 sm:pt-20 sm:pb-32 px-4 sm:px-8 max-w-7xl mx-auto w-full font-sans">
         
         {/* Header */}
         <div className="text-center space-y-4 max-w-3xl mx-auto mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E8D5AD]/60 border border-[#C49A35]/50 text-[#6E1020] text-xs font-manrope font-semibold tracking-wider uppercase shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8DCC8] text-[#6E1020] text-xs font-sans font-semibold tracking-wider uppercase shadow-2xs">
             <Layers className="w-3.5 h-3.5 text-[#C49A35]" />
-            <span>AUTHENTIC HERITAGE MOTIFS</span>
+            <span>Authentic Heritage Motifs · 7 Royal Designs</span>
           </div>
 
-          <h2 className="font-cormorant font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
-            THE ROYAL THEME COLLECTION
+          <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
+            The Royal Theme Collection
           </h2>
 
           <p className="text-sm sm:text-base text-[#75675C] font-normal max-w-xl mx-auto leading-relaxed">
@@ -678,10 +696,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => setSelectedCategory(tab.id as any)}
-                className={`px-4 py-1.5 rounded-full text-xs font-manrope font-semibold transition-all cursor-pointer ${
+                className={`px-4 py-1.5 rounded-full text-xs font-sans font-semibold transition-all cursor-pointer ${
                   selectedCategory === tab.id
                     ? 'bg-[#6E1020] text-[#FFFDF8] shadow-sm border border-[#C49A35]'
-                    : 'bg-[#F8F3E8] text-[#241A17] border border-[#E8D5AD] hover:bg-[#FFFDF8]'
+                    : 'bg-white text-[#241A17] border border-[#E8DCC8] hover:bg-[#FAF6EE] hover:border-[#C49A35]/50'
                 }`}
               >
                 {tab.label}
@@ -698,7 +716,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             return (
               <div
                 key={theme.id}
-                className="group rounded-3xl bg-[#FFFDF8] border border-[#E8D5AD] hover:border-[#C49A35] overflow-hidden transition-all duration-300 shadow-[0_4px_20px_-4px_rgba(67,9,20,0.06)] hover:shadow-[0_16px_36px_-6px_rgba(67,9,20,0.12)] hover:-translate-y-1 flex flex-col h-full"
+                className="group rounded-3xl bg-white border border-[#E8DCC8] hover:border-[#C49A35] overflow-hidden transition-all duration-300 shadow-[0_4px_24px_-4px_rgba(67,9,20,0.06)] hover:shadow-[0_20px_40px_-8px_rgba(196,154,53,0.18)] hover:-translate-y-1.5 flex flex-col h-full"
               >
                 {/* ═════════════════════════════════════════════════════════════ */}
                 {/* A. VISUAL PREVIEW AREA (16:10 FIXED ASPECT RATIO)             */}
@@ -721,7 +739,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   {/* Top Right: Access Type Badge */}
                   <div className="absolute top-3 right-3 z-10 pointer-events-none">
                     <span className="text-[8.5px] font-mono font-bold tracking-wider bg-black/75 backdrop-blur-md text-[#E8D5AD] px-2.5 py-0.5 rounded-full border border-[#C49A35]/40 shadow-xs uppercase">
-                      {theme.packageType === 'gold' ? 'ALL THEMES INCLUDED' : 'SINGLE THEME ACCESS'}
+                      {theme.packageType === 'gold' ? 'All Themes Included' : 'Single Theme Access'}
                     </span>
                   </div>
 
@@ -730,7 +748,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <button
                       type="button"
                       onClick={() => onPreviewTheme(theme.id)}
-                      className="px-4 py-2 rounded-xl bg-[#FFFDF8] hover:bg-[#F8F3E8] text-[#6E1020] font-manrope font-bold text-xs flex items-center gap-1.5 shadow-xl hover:scale-105 transition-transform cursor-pointer border border-[#C49A35]"
+                      className="px-4 py-2 rounded-xl bg-[#FFFDF8] hover:bg-[#F8F3E8] text-[#6E1020] font-sans font-semibold text-xs flex items-center gap-1.5 shadow-xl hover:scale-105 transition-transform cursor-pointer border border-[#C49A35]"
                     >
                       <Eye className="w-4 h-4 text-[#C49A35]" />
                       <span>Interactive 3D Preview</span>
@@ -749,13 +767,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                         {theme.categoryLabel}
                       </span>
                       <span className="text-[#75675C] font-semibold">
-                        {theme.packageType === 'gold' ? 'ROYAL GOLD' : 'ROYAL SILVER'}
+                        {theme.packageType === 'gold' ? 'Royal Gold' : 'Royal Silver'}
                       </span>
                     </div>
 
                     {/* C. Title & D. Hindi Subtitle */}
                     <div>
-                      <h3 className="font-cormorant font-bold text-2xl sm:text-[26px] text-[#6E1020] leading-tight">
+                      <h3 className="font-serif font-bold text-2xl sm:text-[26px] text-[#6E1020] leading-tight">
                         {theme.title}
                       </h3>
                       <p className="text-xs text-[#C49A35] font-serif italic mt-0.5">
@@ -826,18 +844,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <button
                       type="button"
                       onClick={() => onPreviewTheme(theme.id)}
-                      className="py-3 px-3.5 sm:px-4 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] text-[#6E1020] border border-[#E8D5AD] hover:border-[#C49A35] font-manrope font-semibold text-xs transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1.5"
+                      className="py-3 px-3.5 sm:px-4 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] text-[#6E1020] border border-[#E8D5AD] hover:border-[#C49A35] font-sans font-semibold text-xs transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1.5"
                       title={`Live 3D Preview ${theme.title}`}
                     >
                       <Eye className="w-3.5 h-3.5 text-[#C49A35]" />
-                      <span>LIVE PREVIEW</span>
+                      <span>Live Preview</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => onEnterStudio(theme.id)}
-                      className="flex-1 py-3 px-4 rounded-xl bg-[#6E1020] hover:bg-[#5C0D1A] text-[#FFFDF8] font-manrope font-bold text-xs uppercase tracking-wider shadow-xs border border-[#C49A35]/80 hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 group/btn"
+                      className="flex-1 py-3 px-4 rounded-xl bg-[#6E1020] hover:bg-[#5C0D1A] text-[#FFFDF8] font-sans font-semibold text-xs uppercase tracking-wider shadow-xs border border-[#C49A35]/80 hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 group/btn"
                     >
-                      <span>SELECT THEME</span>
+                      <span>Select Theme</span>
                       <ArrowRight className="w-3.5 h-3.5 text-[#C49A35] group-hover/btn:translate-x-1 transition-transform" />
                     </button>
                   </div>
@@ -878,16 +896,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ========================================================================= */}
       {/* 💌 10. REAL COUPLES / TESTIMONIALS                                       */}
       {/* ========================================================================= */}
-      <section className="bg-[#F8F3E8] border-y border-[#E8D5AD] py-20 sm:py-28 px-4 sm:px-8 w-full font-manrope">
+      <section className="bg-[#FAF8F5] border-y border-[#E8DCC8] py-20 sm:py-28 px-4 sm:px-8 w-full font-sans">
         <div className="max-w-7xl mx-auto">
           <div className="text-center space-y-4 max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E8D5AD]/60 border border-[#C49A35]/50 text-[#6E1020] text-xs font-manrope font-semibold tracking-wider uppercase">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8DCC8] text-[#6E1020] text-xs font-sans font-semibold tracking-wider uppercase shadow-2xs">
               <Heart className="w-3.5 h-3.5 text-[#C49A35]" />
-              <span>REAL WEDDING EXPERIENCES</span>
+              <span>Real Wedding Experiences</span>
             </div>
 
-            <h2 className="font-cormorant font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
-              CHERISHED BY FAMILIES ACROSS INDIA
+            <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
+              Cherished by Families Across India
             </h2>
 
             <p className="text-sm sm:text-base text-[#75675C] font-normal max-w-xl mx-auto leading-relaxed">
@@ -899,7 +917,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {REAL_COUPLES.map((item, idx) => (
               <div
                 key={idx}
-                className="p-8 rounded-3xl bg-[#FFFDF8] border border-[#E8D5AD] shadow-[0_4px_20px_-4px_rgba(67,9,20,0.05)] flex flex-col justify-between"
+                className="p-8 rounded-3xl bg-white border border-[#E8DCC8] shadow-[0_4px_24px_-4px_rgba(67,9,20,0.06)] flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   <p className="text-xs sm:text-sm text-[#241A17]/85 font-normal leading-relaxed italic">
@@ -907,10 +925,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </p>
                 </div>
 
-                <div className="pt-6 border-t border-[#E8D5AD]/60 flex items-center gap-3 mt-6">
+                <div className="pt-6 border-t border-[#E8DCC8]/60 flex items-center gap-3 mt-6">
                   <span className="text-2xl">{item.avatar}</span>
                   <div>
-                    <h4 className="font-cormorant font-bold text-base text-[#6E1020]">
+                    <h4 className="font-serif font-bold text-base text-[#6E1020]">
                       {item.couple}
                     </h4>
                     <p className="text-[11px] text-[#75675C]">
@@ -946,48 +964,53 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ========================================================================= */}
       {/* 🌟 13. FINAL EMOTIONAL CTA                                                */}
       {/* ========================================================================= */}
-      <section className="py-20 sm:py-28 px-4 sm:px-8 max-w-7xl mx-auto w-full font-manrope">
-        <div className="rounded-3xl bg-gradient-to-br from-[#6E1020] via-[#560C19] to-[#430914] text-[#FFFDF8] p-10 sm:p-16 text-center space-y-6 border border-[#C49A35] shadow-[0_20px_50px_-10px_rgba(67,9,20,0.3)] relative overflow-hidden">
+      <section className="py-20 sm:py-28 px-4 sm:px-8 max-w-7xl mx-auto w-full font-sans">
+        <div className="rounded-3xl bg-gradient-to-br from-[#FFFDF9] via-[#FAF6EE] to-[#F5ECE1] text-[#1A1715] p-10 sm:p-16 text-center space-y-6 border-2 border-[#C49A35]/50 shadow-[0_16px_40px_-8px_rgba(196,154,53,0.18)] relative overflow-hidden">
           
           <div className="relative z-10 max-w-2xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#430914] border border-[#C49A35]/60 text-[#E8D5AD] text-xs font-manrope font-semibold tracking-wider uppercase">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8DCC8] text-[#6E1020] text-xs font-sans font-semibold tracking-wider uppercase shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-[#C49A35]" />
-              <span>COMMENCE YOUR CELEBRATION</span>
+              <span>Commence Your Celebration</span>
             </div>
 
-            <h2 className="font-cormorant font-bold text-3xl sm:text-5xl text-[#FFFDF8] tracking-tight">
-              BEGIN YOUR ROYAL INVITATION
+            <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
+              Begin Your Royal Invitation
             </h2>
 
-            <p className="text-sm sm:text-base text-[#E8D5AD]/90 font-normal leading-relaxed">
-              Turn your wedding announcement into an experience your guests will remember.
+            <p className="text-sm sm:text-base text-[#4A3E39] font-normal leading-relaxed">
+              Turn your wedding announcement into an unforgettable digital celebration your guests will cherish forever.
             </p>
 
             <div className="pt-4 flex flex-col sm:flex-row gap-3.5 justify-center">
               <button
                 type="button"
                 onClick={() => onEnterStudio('rajmahal')}
-                className="px-8 py-4 rounded-xl bg-gradient-to-r from-[#C49A35] to-[#A87E24] hover:from-[#D4AA45] hover:to-[#B88E34] text-[#24050B] font-manrope font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg transition-all cursor-pointer hover:scale-105"
+                className="px-8 py-4 rounded-2xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-sans font-semibold text-xs sm:text-sm uppercase tracking-wider shadow-md border border-[#C49A35] transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
               >
-                CREATE MY KANKOTRI
+                <span>Create My Royal Kankotri</span>
+                <ArrowRight className="w-4 h-4 text-[#C49A35]" />
               </button>
 
               <a
                 href="#themes"
-                className="px-7 py-4 rounded-xl bg-[#430914]/80 hover:bg-[#430914] text-[#FFFDF8] font-manrope font-semibold text-xs sm:text-sm uppercase tracking-wider border border-[#C49A35]/50 transition-colors cursor-pointer"
+                className="px-7 py-4 rounded-2xl bg-white hover:bg-[#FAF6EE] text-[#6E1020] font-sans font-semibold text-xs sm:text-sm uppercase tracking-wider border border-[#E8DCC8] hover:border-[#C49A35] transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-2xs"
               >
-                EXPLORE THE ROYAL THEMES
+                <span>Explore Royal Themes</span>
               </a>
             </div>
+
+            <p className="text-xs text-[#75675C] pt-2">
+              ✓ Instant Setup · ✓ Real-Time Live Preview · ✓ WhatsApp Delivery Ready
+            </p>
           </div>
 
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 🏰 14. LUXURY DEEP WINE FOOTER                                           */}
+      {/* 🏰 14. LUXURY ROYAL ATELIER FOOTER                                       */}
       {/* ========================================================================= */}
-      <footer className="bg-[#430914] text-[#FFFDF8] pt-16 pb-12 px-4 sm:px-8 border-t border-[#C49A35]/30 font-manrope">
+      <footer className="bg-[#430914] text-[#FFFDF8] pt-16 pb-12 px-4 sm:px-8 border-t border-[#C49A35]/30 font-sans">
         <div className="max-w-7xl mx-auto space-y-12">
           
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 pb-12 border-b border-[#C49A35]/20">
@@ -1002,21 +1025,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 />
               </div>
 
-              <p className="text-xs text-[#E8D5AD]/75 font-normal leading-relaxed max-w-sm">
+              <p className="text-xs text-[#E8D5AD]/85 font-normal leading-relaxed max-w-sm">
                 India’s premier royal wedding invitation house. Handcrafted 3D palace architectures, Vedic rituals, and frictionless guest RSVP coordination.
               </p>
 
-              <div className="text-xs text-[#C49A35] font-mono flex items-center gap-2 pt-1">
+              <div className="text-xs text-[#C49A35] font-sans flex items-center gap-2 pt-1">
                 <span>📍 Modasa, Gujarat · Serving Families Worldwide</span>
               </div>
             </div>
 
             {/* Quick Links */}
             <div className="md:col-span-3 space-y-3">
-              <h4 className="font-cormorant font-bold text-sm text-[#C49A35] uppercase tracking-wider">
+              <h4 className="font-serif font-bold text-base text-[#C49A35] tracking-wide">
                 Explore Platform
               </h4>
-              <ul className="space-y-1.5 text-xs text-[#E8D5AD]/80">
+              <ul className="space-y-2 text-xs text-[#E8D5AD]/80">
                 <li><a href="#themes" className="hover:text-[#FFFDF8] transition-colors">Royal Themes</a></li>
                 <li><a href="#demo" className="hover:text-[#FFFDF8] transition-colors">Live Demo</a></li>
                 <li><a href="#experience" className="hover:text-[#FFFDF8] transition-colors">Features</a></li>
@@ -1032,7 +1055,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     }}
                     className="hover:text-[#FFFDF8] transition-colors cursor-pointer"
                   >
-                    Packages
+                    Pricing &amp; Packages
                   </a>
                 </li>
                 <li><a href="#faq" className="hover:text-[#FFFDF8] transition-colors">FAQ</a></li>
@@ -1049,7 +1072,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                           window.dispatchEvent(new CustomEvent('open-partner-modal'));
                         }
                       }}
-                      className="hover:text-[#FFFDF8] text-[#C49A35] font-bold transition-colors cursor-pointer text-left flex items-center gap-1.5"
+                      className="hover:text-[#FFFDF8] text-[#C49A35] font-semibold transition-colors cursor-pointer text-left flex items-center gap-1.5"
                     >
                       <span>{isPartner ? '📸 Studio Partner Workspace' : '📸 For Photographers & Studios'}</span>
                     </button>
@@ -1060,10 +1083,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
             {/* Support Column */}
             <div className="md:col-span-4 space-y-4">
-              <h4 className="font-cormorant font-bold text-sm text-[#C49A35] uppercase tracking-wider">
-                Royal Concierge & Support
+              <h4 className="font-serif font-bold text-base text-[#C49A35] tracking-wide">
+                Royal Concierge &amp; Support
               </h4>
-              <p className="text-xs text-[#E8D5AD]/75 leading-relaxed">
+              <p className="text-xs text-[#E8D5AD]/80 leading-relaxed">
                 Need help personalizing your invitation or choosing a royal theme? Contact our studio directly.
               </p>
 
@@ -1072,7 +1095,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   href="https://wa.me/919409360336?text=Namaste%20AmantranLink,%20I%20would%20like%20to%20know%20more%20about%20Royal%20Digital%20invitations"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-manrope font-semibold text-xs uppercase tracking-wider shadow transition-transform hover:scale-105 cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-sans font-semibold text-xs tracking-wider shadow transition-transform hover:scale-105 cursor-pointer"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
                   <span>WhatsApp (+91 9409360336)</span>

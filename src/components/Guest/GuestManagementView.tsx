@@ -5,7 +5,7 @@ import {
   XCircle, Clock, Sparkles, ExternalLink, 
   ArrowUpRight, Check, ChevronDown, ChevronRight,
   HelpCircle, Utensils, ArrowUpDown, AlertCircle, Eye, BarChart3, List,
-  QrCode, UserCheck, Heart, Crown, Phone, Mail, BookOpen
+  QrCode, UserCheck, Heart, Crown, Phone, Mail, BookOpen, MessageCircle
 } from 'lucide-react';
 import { fetchWeddingGuests, calculateGuestMetrics, deleteGuest, exportGuestsToCSV } from '../../services/guestService';
 import { GuestRecord, GuestCategory, AttendanceStatus } from '../../types/guest';
@@ -17,6 +17,7 @@ import { GuestDetailDrawer } from './GuestDetailDrawer';
 import { DeleteGuestModal } from './DeleteGuestModal';
 import { RsvpAnalyticsView } from './RsvpAnalyticsView';
 import { DigitalEntryPassModal } from './DigitalEntryPassModal';
+import { BulkWhatsAppGeneratorModal } from './BulkWhatsAppGeneratorModal';
 
 interface GuestManagementViewProps {
   state: WeddingProjectState;
@@ -63,6 +64,7 @@ export const GuestManagementView: React.FC<GuestManagementViewProps> = ({
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isBulkWhatsAppOpen, setIsBulkWhatsAppOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Modals & Drawer
@@ -347,6 +349,16 @@ export const GuestManagementView: React.FC<GuestManagementViewProps> = ({
                 <span>Venue Check-In</span>
               </button>
             )}
+
+            <button
+              type="button"
+              onClick={() => setIsBulkWhatsAppOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-white hover:bg-[#FAF6EE] text-[#167A5A] border border-[#167A5A]/30 text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-2xs hover:border-[#167A5A]"
+              title="Generate personalized WhatsApp invitation links for all guests"
+            >
+              <MessageCircle className="w-3.5 h-3.5 text-[#167A5A]" />
+              <span>Bulk WhatsApp Links</span>
+            </button>
 
             <button
               type="button"
@@ -862,6 +874,15 @@ export const GuestManagementView: React.FC<GuestManagementViewProps> = ({
           loadGuests();
           showToast(`${count} guests welcomed to your celebration list`);
         }}
+      />
+
+      {/* 📲 Bulk Guest WhatsApp Link Generator Modal */}
+      <BulkWhatsAppGeneratorModal
+        isOpen={isBulkWhatsAppOpen}
+        onClose={() => setIsBulkWhatsAppOpen(false)}
+        state={state}
+        weddingSlug={weddingSlug}
+        existingGuests={guests}
       />
 
     </div>

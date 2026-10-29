@@ -5,6 +5,7 @@ import { themes } from './ThemeSelector';
 import { useAuth } from '../context/AuthContext';
 import { THEME_PACKAGE_MAP, OFFICIAL_PACKAGES, calculatePaymentDetails } from '../config/pricing';
 import { stopAllIframesAudio } from '../services/audioCoordinator';
+import { IPhoneHardwareFrame } from './IPhoneHardwareFrame';
 
 interface TemplatePreviewModalProps {
   themeId: ThemeId | null;
@@ -149,16 +150,29 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({
 
       {/* 📱 Interactive Preview Frame Canvas */}
       <main className="flex-1 flex items-center justify-center p-3 sm:p-6 overflow-hidden relative">
-        <div className={`transition-all duration-300 overflow-hidden bg-white relative flex flex-col ${getContainerWidth()}`}>
-          <iframe
-            ref={modalIframeRef}
-            key={`${themeId}-${viewMode}`}
-            src={`${currentTheme.url}?preview=true&theme=${themeId}`}
-            title={`Preview of ${currentTheme.name}`}
-            className="w-full h-full border-0"
-            allow="autoplay; clipboard-write"
-          />
-        </div>
+        {viewMode === 'mobile' ? (
+          <IPhoneHardwareFrame>
+            <iframe
+              ref={modalIframeRef}
+              key={`${themeId}-${viewMode}`}
+              src={`${currentTheme.url}?preview=true&theme=${themeId}`}
+              title={`Preview of ${currentTheme.name}`}
+              className="w-full h-full border-0"
+              allow="autoplay; clipboard-write"
+            />
+          </IPhoneHardwareFrame>
+        ) : (
+          <div className={`transition-all duration-300 overflow-hidden bg-white relative flex flex-col ${getContainerWidth()}`}>
+            <iframe
+              ref={modalIframeRef}
+              key={`${themeId}-${viewMode}`}
+              src={`${currentTheme.url}?preview=true&theme=${themeId}`}
+              title={`Preview of ${currentTheme.name}`}
+              className="w-full h-full border-0"
+              allow="autoplay; clipboard-write"
+            />
+          </div>
+        )}
       </main>
 
       {/* 🌟 Footer Trust & Feature Ribbon */}
