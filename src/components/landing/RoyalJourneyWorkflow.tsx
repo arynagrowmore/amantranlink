@@ -64,11 +64,11 @@ export const RoyalJourneyWorkflow: React.FC<{ onEnterStudio: () => void }> = ({ 
           <span>FROM FIRST DRAFT TO PALACE GATES</span>
         </div>
 
-        <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#1A1715] tracking-tight">
+        <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
           Your Digital Wedding in 4 Simple Steps
         </h2>
 
-        <p className="text-sm sm:text-base text-[#5C524B] font-normal max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
           A wedding is not software — it is a sacred sequence of moments. AmantranLink connects every stage seamlessly from your first draft to the wedding reception gates.
         </p>
       </div>
@@ -78,7 +78,7 @@ export const RoyalJourneyWorkflow: React.FC<{ onEnterStudio: () => void }> = ({ 
         {JOURNEY_STAGES.map((stage) => (
           <div
             key={stage.stageNumber}
-            className="p-6 sm:p-7 rounded-2xl bg-white border border-[#E8DCC8] hover:border-[#C49A35] transition-all duration-300 shadow-[0_4px_20px_-4px_rgba(67,9,20,0.05)] hover:shadow-[0_12px_32px_-6px_rgba(196,154,53,0.14)] hover:-translate-y-1 flex flex-col justify-between"
+            className="p-6 sm:p-7 rounded-2xl bg-white border-2 border-[#E8D5AD] hover:border-[#C49A35] transition-all duration-300 shadow-[0_6px_24px_-4px_rgba(67,9,20,0.06)] hover:shadow-[0_14px_36px_-6px_rgba(196,154,53,0.18)] hover:-translate-y-1 flex flex-col justify-between"
           >
             <div className="space-y-4">
               {/* Stage Header */}
@@ -90,7 +90,7 @@ export const RoyalJourneyWorkflow: React.FC<{ onEnterStudio: () => void }> = ({ 
                   <span className="font-mono font-bold text-2xl text-[#8E6725] block leading-none tabular-nums">
                     {stage.stageNumber}
                   </span>
-                  <span className="text-[10px] uppercase font-mono tracking-widest text-[#75675C] font-semibold">
+                  <span className="text-[10px] uppercase font-mono tracking-widest text-[#8B1528] font-bold">
                     STEP
                   </span>
                 </div>
@@ -99,17 +99,17 @@ export const RoyalJourneyWorkflow: React.FC<{ onEnterStudio: () => void }> = ({ 
               {/* Stage Title */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-serif font-bold text-xl text-[#1A1715] tracking-tight">
+                  <h3 className="font-serif font-bold text-xl text-[#1A1412] tracking-tight">
                     {stage.stageName}
                   </h3>
-                  <span className="text-xs text-[#8E6725] font-semibold">
+                  <span className="text-xs text-[#8B1528] font-bold">
                     ({stage.hindiTitle})
                   </span>
                 </div>
-                <h4 className="text-xs font-semibold text-[#6E1020] leading-snug pt-0.5">
+                <h4 className="text-xs font-bold text-[#6E1020] leading-snug pt-0.5">
                   {stage.headline}
                 </h4>
-                <p className="text-xs text-[#5C524B] font-normal leading-relaxed pt-1.5">
+                <p className="text-xs sm:text-[13px] text-[#1A1412] font-semibold leading-relaxed pt-1.5">
                   {stage.description}
                 </p>
               </div>
@@ -117,7 +117,7 @@ export const RoyalJourneyWorkflow: React.FC<{ onEnterStudio: () => void }> = ({ 
               {/* Highlights */}
               <div className="pt-3 border-t border-[#E8DCC8]/60 space-y-1.5">
                 {stage.highlights.map((h, i) => (
-                  <div key={i} className="flex items-center gap-2 text-[11px] text-[#5C524B]">
+                  <div key={i} className="flex items-center gap-2 text-xs text-[#1A1412] font-semibold">
                     <Check className="w-3.5 h-3.5 text-[#167A5A] shrink-0" />
                     <span>{h}</span>
                   </div>

@@ -61,12 +61,15 @@ export const ArtOfRoyalInvitation: React.FC<{ onEnterStudio: () => void }> = ({ 
           <span>IMMERSIVE DIGITAL CELEBRATION</span>
         </div>
 
-        <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#1A1715] tracking-tight">
+        <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
           The Art of the Royal Invitation
         </h2>
 
-        <p className="text-sm sm:text-base text-[#5C524B] font-normal max-w-xl mx-auto leading-relaxed">
-          Traditional Indian wedding aesthetics, brought to life as an unforgettable digital celebration.
+        <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+          Traditional Indian wedding aesthetics, brought to life as an{' '}
+          <span className="text-[#8B1528] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">
+            unforgettable digital heirloom
+          </span>.
         </p>
       </div>
 
@@ -78,10 +81,10 @@ export const ArtOfRoyalInvitation: React.FC<{ onEnterStudio: () => void }> = ({ 
             <div
               key={stage.number}
               onClick={() => setActiveStage(idx)}
-              className={`p-6 sm:p-7 rounded-2xl border transition-all duration-300 cursor-pointer flex flex-col justify-between ${
+              className={`p-6 sm:p-7 rounded-2xl border-2 transition-all duration-300 cursor-pointer flex flex-col justify-between ${
                 isSelected
                   ? 'bg-white border-[#C49A35] shadow-[0_16px_36px_-6px_rgba(196,154,53,0.18)] -translate-y-1.5'
-                  : 'bg-white/80 border-[#E8DCC8] hover:border-[#C49A35]/60 hover:bg-white shadow-2xs'
+                  : 'bg-white border-[#E8D5AD] hover:border-[#C49A35] hover:bg-white shadow-[0_4px_16px_-4px_rgba(67,9,20,0.06)]'
               }`}
             >
               <div className="space-y-4">
@@ -95,22 +98,22 @@ export const ArtOfRoyalInvitation: React.FC<{ onEnterStudio: () => void }> = ({ 
                 </div>
 
                 <div>
-                  <h3 className="font-serif font-bold text-lg sm:text-xl text-[#1A1715] leading-tight">
+                  <h3 className="font-serif font-bold text-lg sm:text-xl text-[#1A1412] leading-tight">
                     {stage.title}
                   </h3>
-                  <p className="text-xs text-[#8E6725] font-semibold pt-1">
+                  <p className="text-xs sm:text-[13px] text-[#8B1528] font-bold pt-1">
                     {stage.subtitle}
                   </p>
                 </div>
 
-                <p className="text-xs text-[#5C524B] leading-relaxed">
+                <p className="text-xs sm:text-[13px] text-[#1A1412] font-semibold leading-relaxed">
                   {stage.description}
                 </p>
               </div>
 
               <div className="pt-4 border-t border-[#E8DCC8]/70 mt-4">
-                <span className="text-[11px] text-[#6E1020] font-semibold flex items-center gap-1">
-                  <span>✦</span>
+                <span className="text-xs text-[#065F46] font-bold flex items-center gap-1.5">
+                  <span className="text-[#C49A35]">✦</span>
                   <span>{stage.highlight}</span>
                 </span>
               </div>

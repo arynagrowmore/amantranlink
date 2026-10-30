@@ -114,8 +114,11 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
           Experience the Royal Invitation
         </h2>
 
-        <p className="text-sm sm:text-base text-[#75675C] font-normal max-w-xl mx-auto leading-relaxed">
-          Preview how your wedding guests will interact with each royal motif on an authentic mobile display.
+        <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+          Preview how your wedding guests will interact with each royal motif on an{' '}
+          <span className="text-[#8B1528] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">
+            authentic mobile display
+          </span>.
         </p>
 
         {/* 7 Theme Switcher Buttons */}
@@ -127,10 +130,10 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
                 key={theme.id}
                 type="button"
                 onClick={() => handleSelectTheme(idx)}
-                className={`px-4 py-1.5 rounded-full text-xs font-sans font-semibold transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-full text-xs sm:text-sm font-sans font-bold transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-[#6E1020] text-[#FFFDF8] shadow-sm border border-[#C49A35]'
-                    : 'bg-white text-[#241A17] border border-[#E8DCC8] hover:bg-[#FAF6EE] hover:border-[#C49A35]/50'
+                    ? 'bg-[#6E1020] text-[#FFFDF8] shadow-md border-2 border-[#C49A35]'
+                    : 'bg-white text-[#1A1412] border border-[#E8D5AD] hover:bg-[#FAF6EE] hover:border-[#C49A35]'
                 }`}
               >
                 {theme.name}
@@ -145,13 +148,13 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
         
         {/* Left Side: Theme Details and Highlights */}
         <div className="lg:col-span-6 space-y-6">
-          <div className="p-8 sm:p-10 rounded-3xl bg-white border border-[#E8DCC8] shadow-[0_4px_24px_-4px_rgba(67,9,20,0.06)] space-y-6">
+          <div className="p-8 sm:p-10 rounded-3xl bg-white border-2 border-[#E8D5AD] shadow-[0_10px_32px_-4px_rgba(67,9,20,0.08)] space-y-6">
             
             <div className="flex items-center justify-between border-b border-[#E8DCC8] pb-4">
-              <span className="text-xs font-sans font-bold uppercase tracking-wider text-[#8E6725] bg-[#FAF6EE] px-3 py-1 rounded-full border border-[#E8DCC8]">
+              <span className="text-xs font-sans font-bold uppercase tracking-wider text-[#8E6725] bg-[#FAF6EE] px-3.5 py-1 rounded-full border border-[#E8D5AD] shadow-2xs">
                 {current.badge}
               </span>
-              <span className="text-xs text-[#75675C] font-serif italic">
+              <span className="text-xs sm:text-sm text-[#1A1412] font-serif font-bold italic">
                 {current.subtitle}
               </span>
             </div>
@@ -160,13 +163,13 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
               <h3 className="font-serif font-bold text-3xl sm:text-4xl text-[#6E1020]">
                 {current.name}
               </h3>
-              <p className="text-sm text-[#4A3E39] font-normal leading-relaxed">
+              <p className="text-sm sm:text-base text-[#1A1412] font-semibold leading-relaxed">
                 {current.tagline}
               </p>
             </div>
 
             {/* 3 Genuine Highlights */}
-            <div className="space-y-3 pt-2 text-xs text-[#241A17]/85 font-medium">
+            <div className="space-y-3 pt-2 text-xs sm:text-sm text-[#1A1412] font-bold">
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
                 <span>Lossless Shehnai & Auspicious Welcome Music</span>

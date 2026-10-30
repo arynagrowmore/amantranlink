@@ -633,22 +633,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
 
             {/* Live Credibility & Proof Bar */}
-            <div className="pt-6 border-t border-[#E8DCC8] grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
+            <div className="pt-6 border-t-2 border-[#E8D5AD] grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
               <div>
                 <span className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020] block leading-tight">12,500+</span>
-                <span className="text-[11px] text-[#75675C] font-medium">Weddings Celebrated</span>
+                <span className="text-xs text-[#1A1412] font-bold">Weddings Celebrated</span>
               </div>
               <div>
                 <span className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020] block leading-tight">4.9 ★★★★★</span>
-                <span className="text-[11px] text-[#75675C] font-medium">Family Rating</span>
+                <span className="text-xs text-[#1A1412] font-bold">Family Rating</span>
               </div>
               <div>
                 <span className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020] block leading-tight">Instant</span>
-                <span className="text-[11px] text-[#75675C] font-medium">WhatsApp Delivery</span>
+                <span className="text-xs text-[#1A1412] font-bold">WhatsApp Delivery</span>
               </div>
               <div>
                 <span className="font-serif font-bold text-xl sm:text-2xl text-[#167A5A] block leading-tight">₹0 Free</span>
-                <span className="text-[11px] text-[#75675C] font-medium">To Design &amp; Preview</span>
+                <span className="text-xs text-[#1A1412] font-bold">To Design &amp; Preview</span>
               </div>
             </div>
 
@@ -734,7 +734,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             The Royal Theme Collection
           </h2>
 
-          <p className="text-sm sm:text-base text-[#75675C] font-normal max-w-xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
             Seven distinctive expressions of Indian wedding grandeur. Every design crafted with authentic cultural motifs, fluid animation, and live RSVP.
           </p>
 
@@ -963,7 +963,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               Cherished by Families Across India
             </h2>
 
-            <p className="text-sm sm:text-base text-[#75675C] font-normal max-w-xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
               Stories from couples who chose digital royal invitations for their wedding celebrations.
             </p>
           </div>

@@ -79,31 +79,31 @@ export const RsvpShowcase: React.FC<{ onEnterStudio: () => void }> = ({ onEnterS
             <span>REAL-TIME GUEST HOSPITALITY</span>
           </div>
 
-          <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#1A1715] tracking-tight">
+          <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
             Live RSVP &amp; Guest Command Center
           </h2>
 
-          <p className="text-sm sm:text-base text-[#5C524B] font-normal max-w-xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
             Eliminate wedding planning guesswork. Track confirmed family headcounts, meal preferences, and heartfelt blessings in real time.
           </p>
         </div>
 
         {/* Luminous Light Theme Dashboard Card */}
-        <div className="max-w-5xl mx-auto bg-white border border-[#E8DCC8] rounded-3xl p-6 sm:p-10 shadow-[0_16px_40px_-12px_rgba(67,9,20,0.06)] space-y-8">
+        <div className="max-w-5xl mx-auto bg-white border-2 border-[#E8D5AD] rounded-3xl p-6 sm:p-10 shadow-[0_16px_40px_-12px_rgba(67,9,20,0.08)] space-y-8">
           
           {/* Top Bar: Wedding Info & Export CSV Button */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E8DCC8]/70 pb-6">
             <div>
               <div className="flex items-center gap-2.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#167A5A] animate-pulse" />
-                <h3 className="text-base sm:text-lg font-bold text-[#1A1715]">
+                <h3 className="text-base sm:text-lg font-bold text-[#1A1412]">
                   Dhruv &amp; Shreya’s Royal Vivah
                 </h3>
                 <span className="text-[10px] font-mono font-bold bg-[#FAF6EE] text-[#6E1020] border border-[#E8DCC8] px-2.5 py-0.5 rounded-full uppercase">
                   LIVE TRACKING
                 </span>
               </div>
-              <p className="text-xs text-[#75675C] mt-1">
+              <p className="text-xs sm:text-[13px] text-[#1A1412] font-semibold mt-1">
                 The Milestone Palace, Himmatnagar · 3 December 2026
               </p>
             </div>
@@ -121,47 +121,47 @@ export const RsvpShowcase: React.FC<{ onEnterStudio: () => void }> = ({ onEnterS
           {/* 4 Summary Stat Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#F4F9F6] border border-[#167A5A]/25 space-y-1 shadow-2xs">
-              <span className="text-[11px] font-semibold text-[#167A5A] uppercase tracking-wider block">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#F4F9F6] border border-[#167A5A]/30 space-y-1 shadow-2xs">
+              <span className="text-[11px] font-bold text-[#167A5A] uppercase tracking-wider block">
                 Confirmed Attending
               </span>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl sm:text-3xl font-mono font-extrabold text-[#167A5A] tabular-nums">
                   124
                 </span>
-                <span className="text-xs text-[#167A5A]/80 font-medium">Guests</span>
+                <span className="text-xs text-[#167A5A] font-bold">Guests</span>
               </div>
-              <span className="text-[10px] text-[#167A5A]/70 block pt-0.5">
+              <span className="text-xs text-[#167A5A] font-semibold block pt-0.5">
                 42 Families Confirmed
               </span>
             </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFDF9] border border-[#C49A35]/35 space-y-1 shadow-2xs">
-              <span className="text-[11px] font-semibold text-[#8E6725] uppercase tracking-wider block">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFDF9] border border-[#C49A35]/40 space-y-1 shadow-2xs">
+              <span className="text-[11px] font-bold text-[#8E6725] uppercase tracking-wider block">
                 Awaiting Response
               </span>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl sm:text-3xl font-mono font-extrabold text-[#8E6725] tabular-nums">
                   18
                 </span>
-                <span className="text-xs text-[#8E6725]/80 font-medium">Families</span>
+                <span className="text-xs text-[#8E6725] font-bold">Families</span>
               </div>
-              <span className="text-[10px] text-[#75675C] block pt-0.5">
+              <span className="text-xs text-[#8E6725] font-semibold block pt-0.5">
                 Automated reminder ready
               </span>
             </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border border-[#E8DCC8] space-y-1 shadow-2xs">
-              <span className="text-[11px] font-semibold text-[#75675C] uppercase tracking-wider block">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FDF2F4] border border-[#8B1528]/25 space-y-1 shadow-2xs">
+              <span className="text-[11px] font-bold text-[#8B1528] uppercase tracking-wider block">
                 Unable to Attend
               </span>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-mono font-extrabold text-[#75675C] tabular-nums">
+                <span className="text-2xl sm:text-3xl font-mono font-extrabold text-[#8B1528] tabular-nums">
                   6
                 </span>
-                <span className="text-xs text-[#75675C] font-medium">Regrets</span>
+                <span className="text-xs text-[#8B1528] font-bold">Regrets</span>
               </div>
-              <span className="text-[10px] text-[#75675C] block pt-0.5">
+              <span className="text-xs text-[#8B1528] font-semibold block pt-0.5">
                 Sent blessings online
               </span>
             </div>

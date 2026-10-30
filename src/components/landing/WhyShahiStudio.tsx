@@ -64,12 +64,12 @@ export const WhyShahiStudio: React.FC = () => {
           <span>HANDCRAFTED ROYAL CRAFTSMANSHIP</span>
         </div>
 
-        <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#1A1715] tracking-tight">
+        <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
           Why Modern Families Choose AmantranLink
         </h2>
 
-        <p className="text-sm sm:text-base text-[#5C524B] font-normal max-w-xl mx-auto leading-relaxed">
-          Traditional Indian heritage aesthetics combined with refined digital precision for your family's biggest celebration.
+        <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+          Traditional Indian heritage aesthetics combined with refined digital precision for your family&apos;s biggest celebration.
         </p>
       </div>
 
@@ -78,7 +78,7 @@ export const WhyShahiStudio: React.FC = () => {
         {DIFFERENTIATORS.map((item, idx) => (
           <div
             key={idx}
-            className="p-7 sm:p-8 rounded-2xl bg-white border border-[#E8DCC8] hover:border-[#C49A35] transition-all duration-300 shadow-[0_4px_20px_-4px_rgba(67,9,20,0.05)] hover:shadow-[0_12px_32px_-6px_rgba(196,154,53,0.14)] hover:-translate-y-1 flex flex-col justify-between"
+            className="p-7 sm:p-8 rounded-2xl bg-white border-2 border-[#E8D5AD] hover:border-[#C49A35] transition-all duration-300 shadow-[0_6px_24px_-4px_rgba(67,9,20,0.06)] hover:shadow-[0_14px_36px_-6px_rgba(196,154,53,0.18)] hover:-translate-y-1 flex flex-col justify-between"
           >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-xl bg-[#FAF8F5] border border-[#E8DCC8] flex items-center justify-center shadow-xs">
@@ -86,20 +86,20 @@ export const WhyShahiStudio: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#1A1715] tracking-tight">
+                <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#1A1412] tracking-tight">
                   {item.title}
                 </h3>
-                <p className="text-xs text-[#8E6725] font-semibold pt-1">
+                <p className="text-xs sm:text-[13px] text-[#8B1528] font-bold pt-1">
                   {item.subtitle}
                 </p>
               </div>
 
-              <p className="text-xs sm:text-sm text-[#5C524B] font-normal leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#1A1412] font-semibold leading-relaxed">
                 {item.description}
               </p>
             </div>
 
-            <div className="pt-5 border-t border-[#E8DCC8]/70 text-[11px] text-[#75675C] font-medium flex items-center gap-1.5 mt-4">
+            <div className="pt-5 border-t border-[#E8DCC8]/70 text-xs text-[#065F46] font-bold flex items-center gap-1.5 mt-4">
               <Sparkles className="w-3.5 h-3.5 text-[#C49A35]" />
               <span>Standard in all AmantranLink invitations</span>
             </div>
