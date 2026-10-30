@@ -24,6 +24,7 @@ import { isTemplateUnlockedForUser } from '../services/razorpayClient';
 import { calculatePaymentDetails } from '../config/pricing';
 import { UserAccountDropdown } from './UserAccountDropdown';
 import { RoleIndicatorBanner } from './RoleIndicatorBanner';
+import { stopAllIframesAudio } from '../services/audioCoordinator';
 
 interface LandingPageProps {
   state?: WeddingProjectState;
@@ -231,6 +232,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // 🔇 Silence all audio and template preview sound on Homepage
+  useEffect(() => {
+    stopAllIframesAudio();
   }, []);
 
   const filteredThemes = THEME_CATALOG.filter((t) => {
@@ -572,8 +578,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </h1>
 
             {/* Supporting Copy */}
-            <p className="text-base sm:text-lg text-[#332A26] font-normal leading-relaxed max-w-xl mx-auto lg:mx-0">
-              Transform your sacred celebration into an authentic digital heirloom. Personal royal kankotris featuring 3D opening palace gates, ceremonial shehnai music, instant WhatsApp delivery, verified guest RSVPs, and GPS Google Maps directions.
+            <p className="text-base sm:text-lg lg:text-[19px] text-[#1A1412] font-semibold leading-[1.8] max-w-xl mx-auto lg:mx-0 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+              Transform your sacred celebration into an authentic digital heirloom. Personal royal kankotris featuring{' '}
+              <span className="text-[#8B1528] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">3D opening palace gates</span>,{' '}
+              <span className="text-[#9E6E16] font-bold">ceremonial shehnai music</span>,{' '}
+              <span className="text-[#0F6D48] font-bold">instant WhatsApp delivery</span>,{' '}
+              <span className="text-[#8B1528] font-bold">verified guest RSVPs</span>, and{' '}
+              <span className="text-[#1A528E] font-bold">GPS Google Maps directions</span>.
             </p>
 
             {/* Primary & Secondary CTAs */}

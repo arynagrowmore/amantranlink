@@ -327,7 +327,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const audioEl = document.getElementById('wedding-audio');
   let isAudioPlaying = false;
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const isAudioDisabled = urlParams.get('noaudio') === 'true' || urlParams.get('mute') === '1' || urlParams.get('preview') === 'hero' || window.LIVE_AUDIO_DISABLED === true;
+
+  if (isAudioDisabled && audioEl) {
+    audioEl.muted = true;
+    audioEl.pause();
+    audioEl.currentTime = 0;
+  }
+
+  window.addEventListener('message', (e) => {
+    if (e.data && (e.data.type === 'PAUSE_AUDIO' || e.data.type === 'STOP_AUDIO')) {
+      pauseAudio();
+    }
+  });
+
   window.rjmForcePlayAudio = function() {
+    if (isAudioDisabled || window.LIVE_AUDIO_DISABLED) return;
     if (!audioEl) return;
     audioEl.volume = 0.85;
     audioEl.loop = true;
@@ -349,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function toggleMusic() {
+    if (isAudioDisabled || window.LIVE_AUDIO_DISABLED) return;
     if (!audioEl) return;
     if (isAudioPlaying) {
       pauseAudio();
@@ -357,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (musicBtn) {
+  if (musicBtn && !isAudioDisabled) {
     musicBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       toggleMusic();
@@ -366,6 +383,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (audioEl) {
     audioEl.addEventListener('play', () => {
+      if (isAudioDisabled || window.LIVE_AUDIO_DISABLED) {
+        audioEl.pause();
+        return;
+      }
       isAudioPlaying = true;
       if (musicBtn) musicBtn.classList.add('is-playing');
     });
@@ -376,29 +397,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     audioEl.addEventListener('ended', () => {
+      if (isAudioDisabled || window.LIVE_AUDIO_DISABLED) return;
       audioEl.currentTime = 0;
       audioEl.play().catch(() => {});
     });
   }
 
-  const globalTriggers = ['pointerdown', 'touchstart', 'mousedown', 'click', 'scroll', 'wheel', 'keydown'];
-  function globalUnlockHandler() {
-    if (!isAudioPlaying) {
-      window.rjmForcePlayAudio();
+  if (!isAudioDisabled) {
+    const globalTriggers = ['pointerdown', 'touchstart', 'mousedown', 'click', 'scroll', 'wheel', 'keydown'];
+    function globalUnlockHandler() {
+      if (!isAudioPlaying) {
+        window.rjmForcePlayAudio();
+      }
     }
-  }
 
-  globalTriggers.forEach(evt => {
-    window.addEventListener(evt, globalUnlockHandler, { passive: true });
-    document.addEventListener(evt, globalUnlockHandler, { passive: true });
-  });
-
-  window.rjmForcePlayAudio();
-
-  const ctaBtn = document.querySelector('.myr-hero-cta, .rjm-hero-cta, a[href*="#"]');
-  if (ctaBtn) {
-    ctaBtn.addEventListener('click', () => {
-      window.rjmForcePlayAudio();
+    globalTriggers.forEach(evt => {
+      window.addEventListener(evt, globalUnlockHandler, { passive: true });
+      document.addEventListener(evt, globalUnlockHandler, { passive: true });
     });
+
+    window.rjmForcePlayAudio();
+
+    const ctaBtn = document.querySelector('.myr-hero-cta, .rjm-hero-cta, a[href*="#"]');
+    if (ctaBtn) {
+      ctaBtn.addEventListener('click', () => {
+        window.rjmForcePlayAudio();
+      });
+    }
   }
 });
