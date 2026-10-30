@@ -164,8 +164,8 @@ const TRUST_STRIP_ITEMS = [
   { 
     title: 'Shehnai & Flute Audio', 
     desc: 'Immersive wedding music', 
-    icon: <ShehnaiIcon className="w-5 h-5 text-[#800020]" />,
-    accent: 'border-[#800020]/25 bg-[#FAF0F2] text-[#800020]' 
+    icon: <ShehnaiIcon className="w-5 h-5 text-[#6E1020]" />,
+    accent: 'border-[#6E1020]/25 bg-[#FAF0F2] text-[#6E1020]' 
   },
   { 
     title: 'Live RSVP Tracking', 
@@ -176,8 +176,8 @@ const TRUST_STRIP_ITEMS = [
   { 
     title: 'Google Maps Navigation', 
     desc: 'One-tap venue directions', 
-    icon: <VenueMapPinIcon className="w-5 h-5 text-[#800020]" />,
-    accent: 'border-[#800020]/25 bg-[#FAF0F2] text-[#800020]' 
+    icon: <VenueMapPinIcon className="w-5 h-5 text-[#6E1020]" />,
+    accent: 'border-[#6E1020]/25 bg-[#FAF0F2] text-[#6E1020]' 
   },
   { 
     title: 'Instant WhatsApp Links', 
@@ -603,13 +603,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </h1>
 
             {/* Supporting Copy */}
-            <p className="text-base sm:text-lg lg:text-[19px] text-[#5A0C1A] font-semibold leading-[1.8] max-w-xl mx-auto lg:mx-0 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
-              Transform your sacred celebration into an authentic digital heirloom. Personal royal kankotris featuring{' '}
-              <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">3D opening palace gates</span>,{' '}
-              <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">ceremonial shehnai music</span>,{' '}
-              <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">instant WhatsApp delivery</span>,{' '}
-              <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">verified guest RSVPs</span>, and{' '}
-              <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">GPS Google Maps directions</span>.
+            <p className="text-base sm:text-lg lg:text-[19px] text-[#6E1020] font-bold leading-[1.8] max-w-xl mx-auto lg:mx-0 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+              Transform your sacred celebration into an authentic digital heirloom. Personal royal kankotris featuring 3D opening palace gates, ceremonial shehnai music, instant WhatsApp delivery, verified guest RSVPs, and GPS Google Maps directions.
             </p>
 
             {/* Primary & Secondary CTAs */}
@@ -696,7 +691,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <h4 className="font-serif font-bold text-[15px] sm:text-base text-[#6E1020] leading-snug">
                     {item.title}
                   </h4>
-                  <p className="text-xs sm:text-[13px] text-[#7A1526] font-bold leading-normal mt-0.5">
+                  <p className="text-xs sm:text-[13px] text-[#6E1020] font-bold leading-normal mt-0.5">
                     {item.desc}
                   </p>
                 </div>
@@ -734,7 +729,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             The Royal Theme Collection
           </h2>
 
-          <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+          <p className="text-base sm:text-lg text-[#6E1020] font-bold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
             Seven distinctive expressions of Indian wedding grandeur. Every design crafted with authentic cultural motifs, fluid animation, and live RSVP.
           </p>
 
@@ -963,7 +958,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               Cherished by Families Across India
             </h2>
 
-            <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+            <p className="text-base sm:text-lg text-[#6E1020] font-bold max-w-xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
               Stories from couples who chose digital royal invitations for their wedding celebrations.
             </p>
           </div>

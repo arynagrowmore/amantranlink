@@ -68,7 +68,7 @@ export const RoyalJourneyWorkflow: React.FC<{ onEnterStudio: () => void }> = ({ 
           Your Digital Wedding in 4 Simple Steps
         </h2>
 
-        <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+        <p className="text-base sm:text-lg text-[#6E1020] font-bold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
           A wedding is not software — it is a sacred sequence of moments. AmantranLink connects every stage seamlessly from your first draft to the wedding reception gates.
         </p>
       </div>

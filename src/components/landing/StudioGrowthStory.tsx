@@ -53,7 +53,7 @@ export const StudioGrowthStory: React.FC<StudioGrowthStoryProps> = ({
             <p className="text-base sm:text-xl text-[#6E1020] font-serif italic tracking-wide font-normal">
               Give every wedding client an interactive digital heirloom they can share and remember forever.
             </p>
-            <p className="text-sm sm:text-base text-[#1A1412] font-semibold leading-relaxed max-w-2xl">
+            <p className="text-sm sm:text-base text-[#6E1020] font-bold leading-relaxed max-w-2xl">
               You capture the memories. AmantranLink helps your studio deliver the living digital celebration around them — earn wholesale studio rates and delighted client referrals.
             </p>
           </div>

@@ -66,12 +66,8 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onEnterStu
           Traditional Paper Cards vs. AmantranLink Royal Digital
         </h2>
 
-        <p className="text-base sm:text-lg text-[#5A0C1A] font-semibold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
-          See why modern couples and prominent Indian families choose{' '}
-          <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">
-            interactive royal digital invitations
-          </span>{' '}
-          over conventional paper cards.
+        <p className="text-base sm:text-lg text-[#6E1020] font-bold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+          See why modern couples and prominent Indian families choose interactive royal digital invitations over conventional paper cards.
         </p>
       </div>
 
@@ -94,7 +90,7 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onEnterStu
           <table className="w-full text-left border-collapse min-w-[720px]">
             <thead>
               <tr className="bg-[#FAF6EE] border-b-2 border-[#E8D5AD]">
-                <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-serif font-bold uppercase tracking-wider text-[#5A0C1A] w-[26%]">
+                <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-serif font-bold uppercase tracking-wider text-[#6E1020] w-[26%]">
                   Experience Dimension
                 </th>
                 <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-sans font-bold uppercase tracking-wider text-[#991B1B] w-[34%]">
@@ -122,7 +118,7 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onEnterStu
                 >
                   {/* Experience Dimension Aspect */}
                   <td className="py-5 px-6 sm:px-8 align-top">
-                    <span className="font-serif font-bold text-[15px] sm:text-base text-[#1A1412] block leading-snug">
+                    <span className="font-serif font-bold text-[15px] sm:text-base text-[#6E1020] block leading-snug">
                       {row.aspect}
                     </span>
                   </td>
@@ -162,10 +158,10 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onEnterStu
               <ShieldCheck className="w-5 h-5 text-[#167A5A]" />
             </div>
             <div>
-              <h4 className="font-serif font-bold text-base text-[#1A1412]">
+              <h4 className="font-serif font-bold text-base text-[#6E1020]">
                 Ready to Experience Royal Grandeur?
               </h4>
-              <p className="text-xs sm:text-[13px] text-[#2A1E1A] font-medium">
+              <p className="text-xs sm:text-[13px] text-[#6E1020] font-semibold">
                 Free to design and preview in real-time. Only pay when ready to publish.
               </p>
             </div>

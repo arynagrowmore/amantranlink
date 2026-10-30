@@ -83,7 +83,7 @@ export const RsvpShowcase: React.FC<{ onEnterStudio: () => void }> = ({ onEnterS
             Live RSVP &amp; Guest Command Center
           </h2>
 
-          <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+          <p className="text-base sm:text-lg text-[#6E1020] font-bold max-w-xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
             Eliminate wedding planning guesswork. Track confirmed family headcounts, meal preferences, and heartfelt blessings in real time.
           </p>
         </div>

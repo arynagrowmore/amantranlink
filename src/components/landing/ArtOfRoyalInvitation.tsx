@@ -65,11 +65,8 @@ export const ArtOfRoyalInvitation: React.FC<{ onEnterStudio: () => void }> = ({ 
           The Art of the Royal Invitation
         </h2>
 
-        <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
-          Traditional Indian wedding aesthetics, brought to life as an{' '}
-          <span className="text-[#8B1528] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">
-            unforgettable digital heirloom
-          </span>.
+        <p className="text-base sm:text-lg text-[#6E1020] font-bold max-w-xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+          Traditional Indian wedding aesthetics, brought to life as an unforgettable digital heirloom.
         </p>
       </div>
 
