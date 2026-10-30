@@ -66,9 +66,9 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onEnterStu
           Traditional Paper Cards vs. AmantranLink Royal Digital
         </h2>
 
-        <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+        <p className="text-base sm:text-lg text-[#5A0C1A] font-semibold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
           See why modern couples and prominent Indian families choose{' '}
-          <span className="text-[#8B1528] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">
+          <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">
             interactive royal digital invitations
           </span>{' '}
           over conventional paper cards.

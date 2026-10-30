@@ -158,32 +158,32 @@ const TRUST_STRIP_ITEMS = [
   { 
     title: '3D Royal Gates', 
     desc: 'Interactive palace entrance', 
-    icon: <PalaceGateIcon className="w-5 h-5 text-[#8B1528]" />,
-    accent: 'border-[#8B1528]/25 bg-[#FDF2F4] text-[#8B1528]' 
+    icon: <PalaceGateIcon className="w-5 h-5 text-[#6E1020]" />,
+    accent: 'border-[#6E1020]/25 bg-[#FAF0F2] text-[#6E1020]' 
   },
   { 
     title: 'Shehnai & Flute Audio', 
     desc: 'Immersive wedding music', 
-    icon: <ShehnaiIcon className="w-5 h-5 text-[#9E6E16]" />,
-    accent: 'border-[#9E6E16]/25 bg-[#FEF9EE] text-[#9E6E16]' 
+    icon: <ShehnaiIcon className="w-5 h-5 text-[#800020]" />,
+    accent: 'border-[#800020]/25 bg-[#FAF0F2] text-[#800020]' 
   },
   { 
     title: 'Live RSVP Tracking', 
     desc: 'Real-time guest headcounts', 
-    icon: <Users className="w-5 h-5 text-[#0F6D48]" />,
-    accent: 'border-[#0F6D48]/25 bg-[#F0FDF4] text-[#0F6D48]' 
+    icon: <Users className="w-5 h-5 text-[#6E1020]" />,
+    accent: 'border-[#6E1020]/25 bg-[#FAF0F2] text-[#6E1020]' 
   },
   { 
     title: 'Google Maps Navigation', 
     desc: 'One-tap venue directions', 
-    icon: <VenueMapPinIcon className="w-5 h-5 text-[#1A528E]" />,
-    accent: 'border-[#1A528E]/25 bg-[#EFF6FF] text-[#1A528E]' 
+    icon: <VenueMapPinIcon className="w-5 h-5 text-[#800020]" />,
+    accent: 'border-[#800020]/25 bg-[#FAF0F2] text-[#800020]' 
   },
   { 
     title: 'Instant WhatsApp Links', 
     desc: 'Personalized guest dispatches', 
-    icon: <MessageCircle className="w-5 h-5 text-[#0F6D48]" />,
-    accent: 'border-[#0F6D48]/25 bg-[#F0FDF4] text-[#0F6D48]' 
+    icon: <MessageCircle className="w-5 h-5 text-[#6E1020]" />,
+    accent: 'border-[#6E1020]/25 bg-[#FAF0F2] text-[#6E1020]' 
   },
 ];
 
@@ -603,13 +603,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </h1>
 
             {/* Supporting Copy */}
-            <p className="text-base sm:text-lg lg:text-[19px] text-[#1A1412] font-semibold leading-[1.8] max-w-xl mx-auto lg:mx-0 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+            <p className="text-base sm:text-lg lg:text-[19px] text-[#5A0C1A] font-semibold leading-[1.8] max-w-xl mx-auto lg:mx-0 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
               Transform your sacred celebration into an authentic digital heirloom. Personal royal kankotris featuring{' '}
-              <span className="text-[#8B1528] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">3D opening palace gates</span>,{' '}
-              <span className="text-[#9E6E16] font-bold">ceremonial shehnai music</span>,{' '}
-              <span className="text-[#0F6D48] font-bold">instant WhatsApp delivery</span>,{' '}
-              <span className="text-[#8B1528] font-bold">verified guest RSVPs</span>, and{' '}
-              <span className="text-[#1A528E] font-bold">GPS Google Maps directions</span>.
+              <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">3D opening palace gates</span>,{' '}
+              <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">ceremonial shehnai music</span>,{' '}
+              <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">instant WhatsApp delivery</span>,{' '}
+              <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">verified guest RSVPs</span>, and{' '}
+              <span className="text-[#800020] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">GPS Google Maps directions</span>.
             </p>
 
             {/* Primary & Secondary CTAs */}
@@ -696,7 +696,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   <h4 className="font-serif font-bold text-[15px] sm:text-base text-[#6E1020] leading-snug">
                     {item.title}
                   </h4>
-                  <p className="text-xs sm:text-[13px] text-[#1A1412] font-semibold leading-normal mt-0.5">
+                  <p className="text-xs sm:text-[13px] text-[#7A1526] font-bold leading-normal mt-0.5">
                     {item.desc}
                   </p>
                 </div>
