@@ -56,7 +56,7 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onEnterStu
     <section className="py-20 sm:py-28 px-4 sm:px-8 max-w-7xl mx-auto w-full font-sans">
       
       {/* Eyebrow & Title */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto mb-14 sm:mb-16">
+      <div className="text-center space-y-4 max-w-3xl mx-auto mb-12 sm:mb-16">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8DCC8] text-[#6E1020] text-xs font-semibold tracking-wider uppercase shadow-2xs">
           <Sparkles className="w-3.5 h-3.5 text-[#C49A35]" />
           <span>The Modern Wedding Heirloom</span>
@@ -66,80 +66,106 @@ export const ComparisonSection: React.FC<ComparisonSectionProps> = ({ onEnterStu
           Traditional Paper Cards vs. AmantranLink Royal Digital
         </h2>
 
-        <p className="text-sm sm:text-base text-[#75675C] font-normal max-w-2xl mx-auto leading-relaxed">
-          See why modern couples and prominent Indian families choose interactive royal digital invitations over conventional paper cards.
+        <p className="text-base sm:text-lg text-[#1A1412] font-semibold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
+          See why modern couples and prominent Indian families choose{' '}
+          <span className="text-[#8B1528] font-bold underline decoration-[#C49A35] decoration-2 underline-offset-4">
+            interactive royal digital invitations
+          </span>{' '}
+          over conventional paper cards.
         </p>
       </div>
 
-      {/* Comparison Table / Grid */}
-      <div className="bg-white rounded-3xl border border-[#E8DCC8] shadow-[0_8px_32px_-6px_rgba(67,9,20,0.06)] overflow-hidden">
+      {/* Comparison Table / Grid (Full Table-Wise Layout on Mobile & Desktop) */}
+      <div className="bg-white rounded-3xl border-2 border-[#E8D5AD] shadow-[0_10px_36px_-6px_rgba(67,9,20,0.08)] overflow-hidden">
         
-        {/* Table Header */}
-        <div className="grid grid-cols-1 md:grid-cols-12 bg-[#FAF6EE] border-b border-[#E8DCC8] py-4 px-6 sm:px-8 text-xs font-bold uppercase tracking-wider text-[#6E1020]">
-          <div className="hidden md:block md:col-span-3 text-[#75675C]">
-            Experience Dimension
-          </div>
-          <div className="md:col-span-4 text-[#8C2A3C] flex items-center gap-2">
-            <XCircle className="w-4 h-4 text-[#A84A5B] shrink-0" />
-            <span>Traditional Printed Cards</span>
-          </div>
-          <div className="md:col-span-5 text-[#167A5A] flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
-            <span>AmantranLink Royal Digital Invitation</span>
-          </div>
+        {/* Mobile Swipe Hint Badge */}
+        <div className="md:hidden flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#FAF6EE] via-[#FFFDF9] to-[#FAF6EE] border-b border-[#E8DCC8] text-[#6E1020]">
+          <span className="text-xs font-serif font-bold flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-[#C49A35]" />
+            Side-by-Side Comparison Table
+          </span>
+          <span className="text-[11px] font-sans font-bold text-[#8B1528] bg-white border border-[#E8DCC8] px-2.5 py-0.5 rounded-full shadow-2xs flex items-center gap-1">
+            Swipe table ➔
+          </span>
         </div>
 
-        {/* Rows */}
-        <div className="divide-y divide-[#E8DCC8]/60">
-          {COMPARISON_DATA.map((row, index) => (
-            <div 
-              key={index}
-              className={`grid grid-cols-1 md:grid-cols-12 p-5 sm:p-6 sm:px-8 gap-4 sm:gap-6 items-center transition-colors ${
-                index % 2 === 1 ? 'bg-[#FAF8F5]/50' : 'bg-white'
-              }`}
-            >
-              {/* Aspect */}
-              <div className="md:col-span-3">
-                <span className="font-semibold text-sm sm:text-base text-[#1A1715] block">
-                  {row.aspect}
-                </span>
-              </div>
+        {/* Responsive Horizontal Scroll Container to maintain real table structure on mobile */}
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-[#C49A35]/40 -webkit-overflow-scrolling-touch">
+          <table className="w-full text-left border-collapse min-w-[720px]">
+            <thead>
+              <tr className="bg-[#FAF6EE] border-b-2 border-[#E8D5AD]">
+                <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-serif font-bold uppercase tracking-wider text-[#5A0C1A] w-[26%]">
+                  Experience Dimension
+                </th>
+                <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-sans font-bold uppercase tracking-wider text-[#991B1B] w-[34%]">
+                  <div className="flex items-center gap-2">
+                    <XCircle className="w-4 h-4 text-[#DC2626] shrink-0" />
+                    <span>Traditional Printed Cards</span>
+                  </div>
+                </th>
+                <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-sans font-bold uppercase tracking-wider text-[#065F46] w-[40%]">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#059669] shrink-0" />
+                    <span>AmantranLink Royal Digital Invitation</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
 
-              {/* Traditional Paper */}
-              <div className="md:col-span-4 flex items-start gap-2.5 text-xs sm:text-sm text-[#75675C] leading-relaxed">
-                <span className="inline-block md:hidden font-bold text-xs text-[#8C2A3C] uppercase tracking-wider min-w-[70px]">
-                  Paper:
-                </span>
-                <span>{row.traditional}</span>
-              </div>
+            <tbody className="divide-y divide-[#E8DCC8]/70">
+              {COMPARISON_DATA.map((row, index) => (
+                <tr 
+                  key={index}
+                  className={`transition-colors ${
+                    index % 2 === 1 ? 'bg-[#FAF8F5]' : 'bg-white'
+                  }`}
+                >
+                  {/* Experience Dimension Aspect */}
+                  <td className="py-5 px-6 sm:px-8 align-top">
+                    <span className="font-serif font-bold text-[15px] sm:text-base text-[#1A1412] block leading-snug">
+                      {row.aspect}
+                    </span>
+                  </td>
 
-              {/* Royal Digital */}
-              <div className="md:col-span-5 flex items-start gap-3 bg-[#F4F9F6] md:bg-transparent p-3.5 md:p-0 rounded-2xl border md:border-0 border-[#167A5A]/20">
-                <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="text-xs sm:text-sm font-medium text-[#1A1715] leading-relaxed">
-                    {row.royalDigital}
-                  </p>
-                  <span className="inline-block text-[11px] font-semibold text-[#167A5A] bg-[#E8F5EE] px-2 py-0.5 rounded-md">
-                    ✦ {row.royalHighlight}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
+                  {/* Traditional Paper */}
+                  <td className="py-5 px-6 sm:px-8 align-top">
+                    <div className="flex items-start gap-2.5 text-xs sm:text-sm text-[#2A1E1A] font-semibold leading-relaxed">
+                      <XCircle className="w-4 h-4 text-[#DC2626]/80 shrink-0 mt-0.5" />
+                      <span>{row.traditional}</span>
+                    </div>
+                  </td>
+
+                  {/* Royal Digital */}
+                  <td className="py-5 px-6 sm:px-8 align-top">
+                    <div className="flex items-start gap-3 bg-[#F0FDF4] p-3.5 rounded-2xl border border-[#059669]/30 shadow-2xs">
+                      <CheckCircle2 className="w-4 h-4 text-[#059669] shrink-0 mt-0.5" />
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <p className="text-xs sm:text-sm font-bold text-[#0F172A] leading-relaxed">
+                          {row.royalDigital}
+                        </p>
+                        <span className="inline-block text-[11px] font-bold text-[#065F46] bg-[#DCFCE7] border border-[#059669]/30 px-2.5 py-0.5 rounded-full">
+                          ✦ {row.royalHighlight}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
         {/* Table Bottom Action Banner */}
-        <div className="p-6 sm:p-8 bg-gradient-to-r from-[#FAF6EE] via-[#FFFDF9] to-[#FAF6EE] border-t border-[#E8DCC8] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="p-6 sm:p-8 bg-gradient-to-r from-[#FAF6EE] via-[#FFFDF9] to-[#FAF6EE] border-t-2 border-[#E8D5AD] flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-[#E8F5EE] border border-[#167A5A]/30 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-5 h-5 text-[#167A5A]" />
             </div>
             <div>
-              <h4 className="font-serif font-bold text-base text-[#1A1715]">
+              <h4 className="font-serif font-bold text-base text-[#1A1412]">
                 Ready to Experience Royal Grandeur?
               </h4>
-              <p className="text-xs text-[#75675C]">
+              <p className="text-xs sm:text-[13px] text-[#2A1E1A] font-medium">
                 Free to design and preview in real-time. Only pay when ready to publish.
               </p>
             </div>

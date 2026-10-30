@@ -155,11 +155,36 @@ const THEME_CATALOG: Array<{
 ];
 
 const TRUST_STRIP_ITEMS = [
-  { title: '3D Royal Gates', desc: 'Interactive palace entrance', icon: <PalaceGateIcon className="w-5 h-5 text-[#C49A35]" /> },
-  { title: 'Shehnai & Flute Audio', desc: 'Immersive wedding music', icon: <ShehnaiIcon className="w-5 h-5 text-[#C49A35]" /> },
-  { title: 'Live RSVP Tracking', desc: 'Real-time guest headcounts', icon: <Users className="w-5 h-5 text-[#C49A35]" /> },
-  { title: 'Google Maps Navigation', desc: 'One-tap venue directions', icon: <VenueMapPinIcon className="w-5 h-5 text-[#C49A35]" /> },
-  { title: 'Instant WhatsApp Links', desc: 'Personalized guest dispatches', icon: <Globe className="w-5 h-5 text-[#C49A35]" /> },
+  { 
+    title: '3D Royal Gates', 
+    desc: 'Interactive palace entrance', 
+    icon: <PalaceGateIcon className="w-5 h-5 text-[#8B1528]" />,
+    accent: 'border-[#8B1528]/25 bg-[#FDF2F4] text-[#8B1528]' 
+  },
+  { 
+    title: 'Shehnai & Flute Audio', 
+    desc: 'Immersive wedding music', 
+    icon: <ShehnaiIcon className="w-5 h-5 text-[#9E6E16]" />,
+    accent: 'border-[#9E6E16]/25 bg-[#FEF9EE] text-[#9E6E16]' 
+  },
+  { 
+    title: 'Live RSVP Tracking', 
+    desc: 'Real-time guest headcounts', 
+    icon: <Users className="w-5 h-5 text-[#0F6D48]" />,
+    accent: 'border-[#0F6D48]/25 bg-[#F0FDF4] text-[#0F6D48]' 
+  },
+  { 
+    title: 'Google Maps Navigation', 
+    desc: 'One-tap venue directions', 
+    icon: <VenueMapPinIcon className="w-5 h-5 text-[#1A528E]" />,
+    accent: 'border-[#1A528E]/25 bg-[#EFF6FF] text-[#1A528E]' 
+  },
+  { 
+    title: 'Instant WhatsApp Links', 
+    desc: 'Personalized guest dispatches', 
+    icon: <MessageCircle className="w-5 h-5 text-[#0F6D48]" />,
+    accent: 'border-[#0F6D48]/25 bg-[#F0FDF4] text-[#0F6D48]' 
+  },
 ];
 
 const REAL_COUPLES = [
@@ -643,23 +668,41 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ========================================================================= */}
       {/* 🌟 3. TRUST / FEATURE STRIP                                              */}
       {/* ========================================================================= */}
-      <section className="bg-white/80 border-y border-[#E8DCC8] py-8 px-4 sm:px-8 font-sans">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6 sm:gap-8">
-          {TRUST_STRIP_ITEMS.map((item, idx) => (
-            <div key={idx} className="flex items-center gap-3.5 group">
-              <div className="w-11 h-11 rounded-2xl bg-[#FAF6EE] border border-[#E8DCC8] flex items-center justify-center shrink-0 shadow-2xs group-hover:border-[#C49A35] transition-colors">
-                {item.icon}
+      <section className="bg-gradient-to-b from-[#FFFDF8] via-[#FAF6EE] to-[#FFFDF8] border-y-2 border-[#E8D5AD] py-8 sm:py-10 px-4 sm:px-8 font-sans shadow-2xs">
+        <div className="max-w-7xl mx-auto">
+          {/* Subtle Strip Header */}
+          <div className="flex items-center justify-between mb-5">
+            <span className="text-xs sm:text-sm font-serif font-bold text-[#6E1020] uppercase tracking-wider flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#C49A35]" />
+              Signature Royal Capabilities
+            </span>
+            <span className="text-[11px] sm:text-xs font-sans font-bold text-[#8B1528] bg-white border border-[#E8DCC8] px-3 py-1 rounded-full shadow-2xs">
+              ✦ Included in All 7 Themes
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
+            {TRUST_STRIP_ITEMS.map((item, idx) => (
+              <div 
+                key={idx} 
+                className={`flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8D5AD] shadow-[0_4px_16px_-4px_rgba(67,9,20,0.06)] hover:border-[#C49A35] hover:shadow-md transition-all group ${
+                  idx === 4 ? 'sm:col-span-2 lg:col-span-1' : ''
+                }`}
+              >
+                <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform ${item.accent}`}>
+                  {item.icon}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-serif font-bold text-[15px] sm:text-base text-[#6E1020] leading-snug">
+                    {item.title}
+                  </h4>
+                  <p className="text-xs sm:text-[13px] text-[#1A1412] font-semibold leading-normal mt-0.5">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <h4 className="font-serif font-bold text-base text-[#6E1020] leading-tight truncate">
-                  {item.title}
-                </h4>
-                <p className="text-[11px] text-[#75675C] font-normal truncate">
-                  {item.desc}
-                </p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
