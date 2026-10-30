@@ -24,7 +24,8 @@ const PORT = process.env.PORT || 5000;
 // 🛡️ Middleware & Production-Ready CORS
 const productionOrigins = [
   'https://amantranlink.in',
-  'https://www.amantranlink.in'
+  'https://www.amantranlink.in',
+  'https://amantranlink-web.vercel.app'
 ];
 
 const developmentOrigins = [
@@ -47,7 +48,15 @@ app.use(cors({
     // Allow requests with no origin (like server-to-server, mobile apps, curl, or internal cron)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
+    // Permissive matching for production Vercel domains, Amantranlink domains, and local dev
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.amantranlink.in') ||
+      origin.includes('amantranlink') ||
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1')
+    ) {
       return callback(null, true);
     }
 
@@ -1738,6 +1747,9 @@ app.post('/api/invitations/save', async (req, res) => {
   }
 });
 
+// In-Memory Fast Cache for Instant Reliability
+const PUBLISHED_SITES_CACHE = new Map();
+
 // 🔒 3.1. Publish & Re-Lock Invitation State Machine API
 app.post('/api/invitations/publish', async (req, res) => {
   try {
@@ -1747,6 +1759,20 @@ app.post('/api/invitations/publish', async (req, res) => {
     const now = new Date().toISOString();
     const coupleSlug = slug || `${themeId}-${Date.now().toString(36)}`;
     const publishedUrl = `/i/${coupleSlug}`;
+
+    // Cache locally in fast memory
+    PUBLISHED_SITES_CACHE.set(coupleSlug.toLowerCase(), {
+      id: `site_${coupleSlug}`,
+      slug: coupleSlug,
+      user_id: userId,
+      template_id: themeId,
+      status: 'published',
+      is_locked: true,
+      content: invitationState,
+      published_url: publishedUrl,
+      published_at: now,
+      templates: { slug: themeId, name: `The ${themeId.toUpperCase()}` }
+    });
 
     try {
       const { data: tpl } = await supabase.from('templates').select('id').eq('slug', themeId).maybeSingle();
@@ -1900,6 +1926,18 @@ app.get(['/api/public/wedding/:slug', '/api/invitations/:slug'], async (req, res
   const { slug } = req.params;
   try {
     const cleanSlug = String(slug).toLowerCase().trim();
+
+    // Check fast in-memory cache first
+    const cached = PUBLISHED_SITES_CACHE.get(cleanSlug);
+    if (cached) {
+      return res.json({
+        success: true,
+        site: cached,
+        themeId: cached.template_id || cached.content?.theme || 'rajmahal',
+        content: cached.content,
+      });
+    }
+
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanSlug);
     
     let query = supabase

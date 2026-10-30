@@ -174,20 +174,30 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         // 3. Fallback / Merge from Local Storage for Instant Reliability
         const mergedSites: WeddingSiteItem[] = [...dbSites];
         try {
-          // Check SHAHI_USER_SITES
+          // Check SHAHI_USER_SITES across all buckets
           const rawLocalSites = localStorage.getItem('SHAHI_USER_SITES');
           if (rawLocalSites) {
             const parsed = JSON.parse(rawLocalSites);
-            const userSitesMap = user?.uid ? parsed[user.uid] || {} : parsed;
-            Object.values(userSitesMap).forEach((s: any) => {
-              if (s && s.slug && !mergedSites.some((m) => m.slug === s.slug || m.id === s.id)) {
+            const allLocalSites: any[] = [];
+            if (user?.uid && parsed[user.uid]) {
+              allLocalSites.push(...Object.values(parsed[user.uid]));
+            }
+            Object.keys(parsed).forEach((k) => {
+              if (parsed[k] && typeof parsed[k] === 'object') {
+                allLocalSites.push(...Object.values(parsed[k]));
+              }
+            });
+            allLocalSites.forEach((s: any) => {
+              if (s && (s.slug || s.publishedUrl) && !mergedSites.some((m) => (s.slug && m.slug === s.slug) || m.id === s.id)) {
+                const sSlug = s.slug || (s.publishedUrl ? s.publishedUrl.replace(/^\/i\//, '') : `vivah_${Date.now().toString(36)}`);
                 mergedSites.push({
-                  id: s.id || s.siteId || `site_${s.slug}`,
+                  id: s.id || s.siteId || `site_${sSlug}`,
+                  slug: sSlug,
                   template_id: s.templateId || s.content?.theme || 'rajmahal',
                   status: s.status || 'published',
                   is_locked: Boolean(s.isLocked),
                   content: s.content,
-                  published_url: s.publishedUrl || `/i/${s.slug}`,
+                  published_url: s.publishedUrl || `/i/${sSlug}`,
                   published_at: s.publishedAt || new Date().toISOString(),
                   updated_at: s.updatedAt || new Date().toISOString(),
                   templates: {
@@ -211,6 +221,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 if (!mergedSites.some((m) => m.slug === slug || m.published_url?.includes(slug))) {
                   mergedSites.push({
                     id: `local_${slug}`,
+                    slug: slug,
                     template_id: invState.theme || 'rajmahal',
                     status: 'published',
                     is_locked: true,
@@ -238,6 +249,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
               const slug = `${(couple?.groomEn || 'rudra').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(couple?.brideEn || 'ishani').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
               mergedSites.push({
                 id: `studio_site_${Date.now().toString(36)}`,
+                slug: slug,
                 template_id: currentStudio.theme || 'rajmahal',
                 status: 'published',
                 is_locked: false,

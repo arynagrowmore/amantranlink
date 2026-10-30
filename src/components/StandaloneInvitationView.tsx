@@ -153,7 +153,16 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
           if (!error && site && site.content && isMounted) {
             const rawTpl: any = site.templates;
             const tplSlug = Array.isArray(rawTpl) ? rawTpl[0]?.slug : rawTpl?.slug;
-            const fetchedTheme = (tplSlug || (site.content as any)?.theme || site.template_id || 'rajmahal') as ThemeId;
+            const contentTheme = (site.content as any)?.theme;
+            const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
+            const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+            const fetchedTheme = (
+              (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
+              (contentTheme && validThemes.includes(contentTheme) ? contentTheme : null) ||
+              (tplSlug && validThemes.includes(tplSlug) ? tplSlug : null) ||
+              (site.template_id && validThemes.includes(site.template_id) ? site.template_id : null) ||
+              'rajmahal'
+            ) as ThemeId;
             setThemeId(fetchedTheme);
             setLoadedState(site.content as WeddingProjectState);
             setSiteId(site.id);
@@ -186,6 +195,61 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
       if (initialState && isMounted) {
         setThemeId(initialState.theme || 'rajmahal');
         setLoadedState(initialState);
+        setIsLoading(false);
+        return;
+      }
+
+      // Attempt 4: Graceful Auto-Generation from Slug & URL Query (Zero Blank / 404 Guarantee)
+      if (targetSlug && isMounted) {
+        const parts = targetSlug.split('-');
+        let slugGroom = 'Groom';
+        let slugBride = 'Bride';
+        if (parts.length >= 2) {
+          slugGroom = parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+          slugBride = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
+        }
+        const qTheme = searchParams?.get('theme') || searchParams?.get('t');
+        const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+        const fallbackTheme = (qTheme && validThemes.includes(qTheme) ? qTheme : 'rajmahal') as ThemeId;
+        setThemeId(fallbackTheme);
+        setLoadedState({
+          theme: fallbackTheme,
+          viewMode: 'desktop',
+          previewZoom: 1,
+          language: 'en',
+          couple: {
+            groomEn: slugGroom,
+            groomHi: slugGroom,
+            groomGu: slugGroom,
+            brideEn: slugBride,
+            brideHi: slugBride,
+            brideGu: slugBride,
+            mark: `${slugGroom.charAt(0)} · ${slugBride.charAt(0)}`,
+            hashtag: `#${slugGroom}Weds${slugBride}`,
+            weddingDate: '10 December 2026 · 06:30 PM',
+            muhuratTime: '06:30 PM',
+            venueName: 'The Royal Palace Banquet',
+            venueAddress: 'Palace Road',
+            mapUrl: 'https://maps.google.com',
+          },
+          events: [
+            { id: '1', name: '💛 Sangeet Celebration', date: '9 December 2026', time: '07:00 PM', venue: 'Royal Palace Banquet', color: 'purple' },
+            { id: '2', name: '💍 Shubh Vivah', date: '10 December 2026', time: '06:30 PM', venue: 'Royal Palace Banquet', color: 'gold' },
+            { id: '3', name: '🥂 Grand Reception', date: '11 December 2026', time: '08:00 PM', venue: 'Royal Palace Banquet', color: 'red' },
+          ],
+          family: {
+            groomParentsEn: 'Royal Family',
+            brideParentsEn: 'Royal Family',
+            rsvp1Name: slugGroom,
+            rsvp1Phone: '+91 9409360336',
+            rsvp2Name: 'Event Helpdesk',
+            rsvp2Phone: '+91 9409360336',
+          },
+          media: {
+            audioName: 'FinalSong.mp3',
+            photoSlots: {},
+          },
+        } as any);
         setIsLoading(false);
         return;
       }
@@ -312,6 +376,11 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
 
       applyInvitationDataToTemplateDOM(doc, win, normalizedData);
 
+      // Forcefully reveal any deferred animation nodes so mobile screens never stay blank
+      doc.querySelectorAll('[data-tw-reveal="true"]').forEach((el) => {
+        el.classList.add('is-revealed');
+      });
+
       // If personalized guest exists, inject greeting into template
       if (guest) {
         const greetingName = guest.family_name ? `${guest.full_name} & ${guest.family_name}` : guest.full_name;
@@ -388,7 +457,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   }
 
   return (
-    <div className="fixed inset-0 w-screen h-screen overflow-hidden bg-[#1A0B0E] flex items-center justify-center z-50 select-none">
+    <div className="fixed inset-0 w-full h-[100dvh] min-h-[100dvh] overflow-hidden bg-[#1A0B0E] flex items-center justify-center z-50">
       {isLoading ? (
         <div className="w-full h-full flex flex-col items-center justify-center bg-[#1A0B0E] text-[#FDF6EB] space-y-4">
           <div className="w-14 h-14 rounded-2xl bg-[#6E1020] border-2 border-[#C08F3F] flex items-center justify-center text-[#C08F3F] animate-pulse shadow-2xl">
@@ -405,7 +474,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
           </p>
         </div>
       ) : (
-        <div className="w-full h-full relative flex flex-col overflow-hidden bg-[#FDF6EB]">
+        <div className="w-full h-full relative flex flex-col overflow-y-auto bg-[#FDF6EB]" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* 👑 Floating Personalized Guest Banner (if opened via ?guest=token) */}
           {guest && (
             <PersonalizedGuestBanner
@@ -419,11 +488,14 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
             src={templateUrl}
             title={`${normalizedData.groom.name} & ${normalizedData.bride.name} Royal Wedding Invitation`}
             className="w-full h-full border-0 block bg-[#FDF6EB]"
+            style={{ width: '100%', height: '100%', minHeight: '100dvh', WebkitOverflowScrolling: 'touch' }}
             allow="autoplay; clipboard-write"
+            scrolling="yes"
             onLoad={() => {
               performMasterSync();
-              setTimeout(performMasterSync, 300);
-              setTimeout(performMasterSync, 1000);
+              setTimeout(performMasterSync, 200);
+              setTimeout(performMasterSync, 600);
+              setTimeout(performMasterSync, 1200);
             }}
           />
 

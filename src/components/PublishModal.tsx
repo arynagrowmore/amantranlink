@@ -7,8 +7,8 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { WeddingProjectState, Language } from '../types/wedding';
-import { savePublishedInvitation } from '../utils/invitationStorage';
-import { isTemplateUnlockedForUser, initiateRazorpayCheckout } from '../services/razorpayClient';
+import { savePublishedInvitation, encodeInvitationData } from '../utils/invitationStorage';
+import { isTemplateUnlockedForUser, initiateRazorpayCheckout, saveWeddingSite } from '../services/razorpayClient';
 import { publishWeddingSite } from '../services/weddingSiteService';
 import { useAuth } from '../context/AuthContext';
 import { themes } from './ThemeSelector';
@@ -91,7 +91,8 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
     ? window.location.origin 
     : 'https://amantranlink.com';
   const cleanDomain = origin.replace(/^https?:\/\//, '');
-  const fullUrl = `${origin}/i/${slug}?theme=${state.theme}`;
+  const encodedDataParam = encodeInvitationData(state);
+  const fullUrl = `${origin}/i/${slug}?theme=${state.theme}${encodedDataParam ? `&d=${encodedDataParam}` : ''}`;
 
   // WhatsApp Language
   const initialLang: Language = (state?.language === 'hi' || state?.language === 'gu') ? state.language : 'en';
@@ -190,6 +191,24 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
 
   const finalizePublishing = async () => {
     savePublishedInvitation(slug, { ...state, theme: state.theme });
+    const siteRecord: any = {
+      id: `site_${slug}`,
+      siteId: `site_${slug}`,
+      uid: user?.uid || 'guest_user',
+      templateId: state.theme,
+      slug,
+      status: 'published',
+      publicationStatus: 'published',
+      isLocked: true,
+      editingStatus: 'locked',
+      paymentStatus: 'paid',
+      content: { ...state, theme: state.theme },
+      draftContent: { ...state, theme: state.theme },
+      publishedUrl: `/i/${slug}`,
+      publishedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    saveWeddingSite(siteRecord);
     try {
       await publishWeddingSite({
         userId: user?.uid || '4fe4383d-9cd0-49df-b8ff-2b833db40f17',

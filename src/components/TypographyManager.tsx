@@ -1,7 +1,7 @@
 import React from 'react';
-import { Type, Sparkles, Check, BookOpen, Crown, Palette } from 'lucide-react';
+import { Type, Sparkles, Check, Crown, Palette } from 'lucide-react';
 import { WeddingProjectState, WeddingTypography, FontPresetId, AuspiciousBlessing } from '../types/wedding';
-import { FONT_PRESETS, AUSPICIOUS_SHLOKAS } from '../utils/invitationAdapter';
+import { FONT_PRESETS } from '../utils/invitationAdapter';
 
 interface TypographyManagerProps {
   state: WeddingProjectState;
@@ -57,12 +57,6 @@ export const TypographyManager: React.FC<TypographyManagerProps> = ({
     auspiciousFont: 'Rozha One',
   };
 
-  const currentBlessing: AuspiciousBlessing = state.auspiciousBlessing || {
-    shlokaKey: 'ganesh',
-    shlokaText: AUSPICIOUS_SHLOKAS.ganesh.text,
-    shlokaMeaning: AUSPICIOUS_SHLOKAS.ganesh.meaning,
-  };
-
   const handleSelectPreset = (presetKey: FontPresetId) => {
     const p = FONT_PRESETS[presetKey];
     if (!p) return;
@@ -104,16 +98,6 @@ export const TypographyManager: React.FC<TypographyManagerProps> = ({
       ...currentTypography,
       preset: 'custom',
       auspiciousFont: fontName,
-    });
-  };
-
-  const handleSelectShloka = (key: string) => {
-    const s = AUSPICIOUS_SHLOKAS[key];
-    if (!s || !onChangeAuspiciousBlessing) return;
-    onChangeAuspiciousBlessing({
-      shlokaKey: key as any,
-      shlokaText: s.text,
-      shlokaMeaning: s.meaning,
     });
   };
 
@@ -230,46 +214,6 @@ export const TypographyManager: React.FC<TypographyManagerProps> = ({
                 >
                   {displayName}
                 </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Auspicious Shloka & Blessing Selector */}
-      <div className="space-y-4 pt-4 border-t border-border">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-serif font-bold text-primary-text flex items-center gap-2">
-              <BookOpen size={18} className="text-antiquegold" />
-              <span>Auspicious Shloka (शुभ श्लोक व मंगलाचरण)</span>
-            </h3>
-            <p className="text-xs text-muted-text">Traditional Vedic verses gracing the palace gateway</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {Object.entries(AUSPICIOUS_SHLOKAS).map(([key, shloka]) => {
-            const isSelected = currentBlessing.shlokaKey === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => handleSelectShloka(key)}
-                className={`p-4 rounded-xl border text-left transition-all ${
-                  isSelected
-                    ? 'border-antiquegold bg-burgundy/10 ring-2 ring-antiquegold/40'
-                    : 'border-border bg-warmwhite hover:border-antiquegold/60'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <h4 className="font-serif font-bold text-burgundy text-sm">{shloka.label}</h4>
-                  {isSelected && <Check size={14} className="text-antiquegold" strokeWidth={3} />}
-                </div>
-                <pre className="text-xs text-primary-text/90 font-serif whitespace-pre-line leading-relaxed my-2 bg-ivory/80 p-2.5 rounded-lg border border-border/60">
-                  {shloka.text}
-                </pre>
-                <p className="text-[11px] text-muted-text italic">{shloka.meaning}</p>
               </button>
             );
           })}

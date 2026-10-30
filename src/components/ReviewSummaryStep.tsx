@@ -34,9 +34,10 @@ export const ReviewSummaryStep: React.FC<ReviewSummaryStepProps> = ({
 
   const coupleSlug = `${(state.couple.groomEn || 'groom').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(state.couple.brideEn || 'bride').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://amantranlink.com';
+  const themeParam = `theme=${state.theme}`;
   const personalizedUrl = guestName.trim()
-    ? `${origin}/i/${coupleSlug}?guest=${encodeURIComponent(guestName.trim())}`
-    : `${origin}/i/${coupleSlug}`;
+    ? `${origin}/i/${coupleSlug}?${themeParam}&guest=${encodeURIComponent(guestName.trim())}`
+    : `${origin}/i/${coupleSlug}?${themeParam}`;
 
   const generatedMessage = formatWhatsAppWeddingMessage({
     state,
