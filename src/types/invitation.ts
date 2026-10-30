@@ -72,11 +72,16 @@ export interface NormalizedInvitationData {
 
   family: {
     groomParents: string;
+    groomParentsHi?: string;
+    groomParentsGu?: string;
     brideParents: string;
+    brideParentsHi?: string;
+    brideParentsGu?: string;
     rsvp1Name: string;
     rsvp1Phone: string;
     rsvp2Name: string;
     rsvp2Phone: string;
+    customNote?: string;
   };
 
   rsvpConfig: {

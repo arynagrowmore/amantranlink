@@ -237,12 +237,17 @@ export const normalizeInvitationData = (
       { id: '3', name: '🥂 Royal Reception', date: '11 December 2026', time: '08:00 PM', venue, color: 'red' },
     ],
     family: {
-      groomParents: family.groomParentsEn || 'Royal Family',
-      brideParents: family.brideParentsEn || 'Royal Family',
+      groomParents: family.groomParentsEn || '',
+      groomParentsHi: family.groomParentsHi || '',
+      groomParentsGu: family.groomParentsGu || '',
+      brideParents: family.brideParentsEn || '',
+      brideParentsHi: family.brideParentsHi || '',
+      brideParentsGu: family.brideParentsGu || '',
       rsvp1Name: family.rsvp1Name || groomName,
       rsvp1Phone: family.rsvp1Phone || '+91 9409360336',
       rsvp2Name: family.rsvp2Name || 'Event Helpdesk',
       rsvp2Phone: family.rsvp2Phone || '+91 9409360336',
+      customNote: family.customNote || '',
     },
     rsvpConfig: {
       enabled: rsvpConfig.enabled !== false,
@@ -272,6 +277,37 @@ export const normalizeInvitationData = (
 };
 
 /**
+ * Helper to update multilingual elements (<span class="l-en">, <span class="l-hi">, <span class="l-gu">)
+ * or fallback to direct textContent based on active language.
+ */
+export const setMultilingualText = (
+  container: Element | null,
+  enVal: string,
+  hiVal?: string,
+  guVal?: string,
+  currentLang: string = 'en'
+) => {
+  if (!container) return;
+  const enNode = container.querySelector('.l-en');
+  const hiNode = container.querySelector('.l-hi');
+  const guNode = container.querySelector('.l-gu');
+
+  const chosenVal = currentLang === 'hi' 
+    ? (hiVal || enVal) 
+    : currentLang === 'gu' 
+    ? (guVal || hiVal || enVal) 
+    : enVal;
+
+  if (enNode || hiNode || guNode) {
+    if (enNode) enNode.textContent = enVal;
+    if (hiNode) hiNode.textContent = hiVal || enVal;
+    if (guNode) guNode.textContent = guVal || hiVal || enVal;
+  } else {
+    container.textContent = chosenVal;
+  }
+};
+
+/**
  * 3. Sweep and replace all residual static placeholder text in template DOM
  */
 export const sweepStaticTemplateTextNodes = (
@@ -290,11 +326,18 @@ export const sweepStaticTemplateTextNodes = (
     };
     collectTextNodes(root);
 
-    const { bride, groom, wedding } = normalized;
+    const { bride, groom, wedding, family } = normalized;
     const groomName = groom.name;
     const brideName = bride.name;
     const date = wedding.rawDate;
     const venue = wedding.venueName;
+    const groomParents = family.groomParents || '';
+    const brideParents = family.brideParents || '';
+    const rsvp1Phone = family.rsvp1Phone || '';
+    const rsvp2Phone = family.rsvp2Phone || '';
+    const rsvp1Name = family.rsvp1Name || '';
+    const rsvp2Name = family.rsvp2Name || '';
+    const hashtag = normalized.hashtag || `#${groomName}Weds${brideName}`;
 
     // Comprehensive placeholder patterns to wipe out across all 8 themes
     const replacements: [RegExp, string][] = [
@@ -303,44 +346,80 @@ export const sweepStaticTemplateTextNodes = (
       [/Rudra\s*(?:&|&amp;|and|एवं|અને)\s*Shalini/gi, `${groomName} & ${brideName}`],
       [/Aryan\s*(?:&|&amp;|and|एवं|અને)\s*Aanya/gi, `${groomName} & ${brideName}`],
       [/Dhruv\s*(?:&|&amp;|and|एवं|અને)\s*Shreya/gi, `${groomName} & ${brideName}`],
+      [/Aarav\s*(?:&|&amp;|and|एवं|અને)\s*Riya/gi, `${groomName} & ${brideName}`],
+      [/Aarav\s*(?:&|&amp;|and|एवं|અને)\s*Anaya/gi, `${groomName} & ${brideName}`],
+      [/Kabir\s*(?:&|&amp;|and|एवं|અને)\s*Meera/gi, `${groomName} & ${brideName}`],
       
-      // Individual Names
+      // Individual Groom Names
       [/Rudra/gi, groomName],
+      [/Aryan/gi, groomName],
+      [/Dhruv/gi, groomName],
+      [/Aarav/gi, groomName],
+      [/Kabir/gi, groomName],
+      [/रुद्र/gi, groom.nameHi || groomName],
+      [/ध्रुव/gi, groom.nameHi || groomName],
+      [/आरव/gi, groom.nameHi || groomName],
+      [/कबीर/gi, groom.nameHi || groomName],
+      [/રુદ્ર/gi, groom.nameGu || groomName],
+      [/ધ્રુવ/gi, groom.nameGu || groomName],
+      [/આરવ/gi, groom.nameGu || groomName],
+      [/કબીર/gi, groom.nameGu || groomName],
+
+      // Individual Bride Names
       [/Ishani/gi, brideName],
       [/Shalini/gi, brideName],
-      [/Aryan/gi, groomName],
       [/Aanya/gi, brideName],
-      [/Dhruv/gi, groomName],
       [/Shreya/gi, brideName],
-      [/रुद्र/gi, groom.nameHi || groomName],
+      [/Riya/gi, brideName],
+      [/Anaya/gi, brideName],
+      [/Meera/gi, brideName],
       [/ईशानी/gi, bride.nameHi || brideName],
-      [/ध्रुव/gi, groom.nameHi || groomName],
       [/श्रेया/gi, bride.nameHi || brideName],
-      [/રુદ્ર/gi, groom.nameGu || groomName],
+      [/रिया/gi, bride.nameHi || brideName],
+      [/अनन्या/gi, bride.nameHi || brideName],
+      [/मीरा/gi, bride.nameHi || brideName],
       [/ઈશાની/gi, bride.nameGu || brideName],
-      [/ધ્રુવ/gi, groom.nameGu || groomName],
       [/શ્રેયા/gi, bride.nameGu || brideName],
+      [/રિયા/gi, bride.nameGu || brideName],
+      [/અનન્યા/gi, bride.nameGu || brideName],
+      [/મીરા/gi, bride.nameGu || brideName],
 
       // Demo Parents & Family
-      [/Mr\.\s*Nalinkumar\s*&\s*Mrs\.\s*Kalpuben/gi, normalized.family.groomParents || ''],
-      [/श्री\s*नलिनकुमार\s*एवं\s*श्रीमती\s*कल्पूबेन/gi, normalized.family.groomParents || ''],
-      [/શ્રી\s*નલિનકુમાર\s*અને\s*શ્રીમતી\s*કલ્પૂબેન/gi, normalized.family.groomParents || ''],
-      [/Mr\.\s*&\s*Mrs\.\s*Sharma/gi, normalized.family.brideParents || ''],
-      [/Nalinkumar/gi, normalized.family.rsvp1Name || ''],
+      [/Mr\.\s*Nalinkumar\s*&\s*Mrs\.\s*Kalpuben/gi, groomParents || (groomName + "'s Parents")],
+      [/श्री\s*नलिनकुमार\s*एवं\s*श्रीमती\s*कल्पूबेन/gi, family.groomParentsHi || groomParents || ''],
+      [/શ્રી\s*નલિનકુમાર\s*અને\s*શ્રીમતી\s*કલ્પૂબેન/gi, family.groomParentsGu || groomParents || ''],
+      [/Shri\s*Rajendra\s*&\s*Smt\.\s*Meera\s*Singhania/gi, groomParents || (groomName + "'s Parents")],
+      [/Shri\s*Vikram\s*&\s*Smt\.\s*Anita\s*Rathore/gi, brideParents || (brideName + "'s Parents")],
+      [/Mr\.\s*&\s*Mrs\.\s*Sharma/gi, brideParents || (brideName + "'s Parents")],
+      [/श्री\s*एवं\s*श्रीमती\s*शर्मा/gi, family.brideParentsHi || brideParents || ''],
+      [/શ્રી\s*અને\s*શ્રીમતી\s*શર્મા/gi, family.brideParentsGu || brideParents || ''],
+      [/Mr\.\s*Vikram\s*Kapoor/gi, brideParents || (brideName + "'s Father")],
+      [/श्री\s*विक्रम\s*कपूर/gi, family.brideParentsHi || brideParents || ''],
+      [/Mrs\.\s*(?:Ishani|Anjali)\s*Kapoor/gi, brideParents || (brideName + "'s Mother")],
+      [/श्रीमती\s*(?:ईशानी|अंजलि)\s*कपूर/gi, family.brideParentsHi || brideParents || ''],
+      [/Late\s*Shri\s*Mohanlal\s*Kapoor/gi, 'Elders & Family Blessings'],
+      [/स्व\.\s*श्री\s*मोहनलाल\s*कपूर/gi, 'बुजुर्गों का आशीर्वाद'],
+      [/Shri\s*Ramesh\s*Mehta/gi, 'Elders & Family Blessings'],
+      [/श्री\s*रमेश\s*मेहता/gi, 'बुजुर्गों का आशीर्वाद'],
+      [/Smt\.\s*Kamla\s*Devi\s*Singhania/gi, 'Elders & Family Blessings'],
+      [/Ananya\s*Rathore/gi, 'Family Blessings'],
+      [/Nalinkumar/gi, rsvp1Name || groomName],
       [/Kalpuben/gi, ''],
 
       // Demo Phone Numbers
-      [/\+?91[\s-]*98251[\s-]*45678/gi, normalized.family.rsvp1Phone || ''],
-      [/\+?91[\s-]*98982[\s-]*34567/gi, normalized.family.rsvp2Phone || ''],
-      [/\+?91[\s-]*94093[\s-]*60336/gi, normalized.family.rsvp1Phone || ''],
-      [/98251\s*45678/gi, normalized.family.rsvp1Phone || ''],
-      [/98982\s*34567/gi, normalized.family.rsvp2Phone || ''],
+      [/\+?91[\s-]*98251[\s-]*45678/gi, rsvp1Phone || '+91 9409360336'],
+      [/\+?91[\s-]*98982[\s-]*34567/gi, rsvp2Phone || rsvp1Phone || '+91 9409360336'],
+      [/\+?91[\s-]*94093[\s-]*60336/gi, rsvp1Phone || '+91 9409360336'],
+      [/98251\s*45678/gi, rsvp1Phone || '9409360336'],
+      [/98982\s*34567/gi, rsvp2Phone || rsvp1Phone || '9409360336'],
 
       // Demo Hashtags
-      [/#RudraKiIshani/gi, normalized.hashtag || `#${groomName}Weds${brideName}`],
-      [/#DhruvKiShreya/gi, normalized.hashtag || `#${groomName}Weds${brideName}`],
-      [/#AryanKiAanya/gi, normalized.hashtag || `#${groomName}Weds${brideName}`],
-      [/#RudraWedsIshani/gi, normalized.hashtag || `#${groomName}Weds${brideName}`],
+      [/#RudraKiIshani/gi, hashtag],
+      [/#DhruvKiShreya/gi, hashtag],
+      [/#AryanKiAanya/gi, hashtag],
+      [/#RudraWedsIshani/gi, hashtag],
+      [/#AaravKiRiya/gi, hashtag],
+      [/#AaravWedsRiya/gi, hashtag],
 
       // Demo Venues
       [/The Grand Haveli/gi, venue],
@@ -350,9 +429,15 @@ export const sweepStaticTemplateTextNodes = (
       [/Royal Darbar Banquet/gi, venue],
       [/The Milestone Grand Ballroom/gi, venue],
       [/The Milestone[\s\w,]*/gi, venue],
+      [/The Leela Palace/gi, venue],
+      [/The Grand Palace/gi, venue],
+      [/Jagmandir Island Palace/gi, venue],
+      [/Jai Mahal Palace/gi, venue],
+      [/Taj Lake Palace/gi, venue],
       [/Himmatnagar[\s\w,]*/gi, venue],
       [/Modasa[\s\w,]*/gi, venue],
-      [/Jagmandir Island Palace/gi, venue],
+      [/Udaipur, Rajasthan/gi, venue],
+      [/Jaipur, Rajasthan/gi, venue],
 
       // Demo Dates
       [/1\s+December\s+2024/gi, date],
@@ -396,17 +481,30 @@ export const applyInvitationDataToTemplateDOM = (
 
   try {
     const { bride, groom, wedding, family, events, media, rsvpConfig, language } = normalized;
-    const groomName = groom.name;
-    const brideName = bride.name;
-    const coupleTitle = normalized.coupleDisplayName;
+    const lang = language || 'en';
+    const isHi = lang === 'hi';
+    const isGu = lang === 'gu';
+
+    const groomEn = groom.name;
+    const brideEn = bride.name;
+    const groomHi = groom.nameHi || groomEn;
+    const brideHi = bride.nameHi || brideEn;
+    const groomGu = groom.nameGu || groomEn;
+    const brideGu = bride.nameGu || brideEn;
+
+    const displayGroom = (isHi ? groomHi : isGu ? groomGu : groomEn) || 'Groom';
+    const displayBride = (isHi ? brideHi : isGu ? brideGu : brideEn) || 'Bride';
+    const amp = isHi ? 'एवं' : isGu ? 'અને' : '&';
+    const coupleTitle = `${displayGroom} ${amp} ${displayBride}`;
+
     const date = wedding.rawDate;
     const venue = wedding.venueName;
 
     // 1. Assign Window Configuration
     win.WEDDING_CONFIG = {
       ...normalized,
-      groomName,
-      brideName,
+      groomName: displayGroom,
+      brideName: displayBride,
       weddingDate: date,
       city: venue,
       venue,
@@ -431,14 +529,30 @@ export const applyInvitationDataToTemplateDOM = (
     // 2. Multi-Pass Static Text Sweeper
     sweepStaticTemplateTextNodes(doc.body, normalized);
 
+    // Update document language attributes
+    doc.documentElement.setAttribute('data-lang', lang);
+    doc.documentElement.lang = lang;
+    if (typeof win.switchLanguage === 'function') {
+      try { win.switchLanguage(lang); } catch (e) {}
+    }
+
     // 3. Bind Couple Names Everywhere
-    doc.querySelectorAll('.groom-name, #groom-name, [data-bind="groom"], [data-field="groom-name"], .rjm-groom-name').forEach((el) => {
-      el.textContent = groomName;
+    doc.querySelectorAll('.groom-name, #groom-name, [data-bind="groom"], [data-field="groom-name"], .rjm-groom-name, .data-groom-name').forEach((el) => {
+      setMultilingualText(el, groomEn, groomHi, groomGu, lang);
     });
 
-    doc.querySelectorAll('.bride-name, #bride-name, [data-bind="bride"], [data-field="bride-name"], .rjm-bride-name').forEach((el) => {
-      el.textContent = brideName;
+    doc.querySelectorAll('.bride-name, #bride-name, [data-bind="bride"], [data-field="bride-name"], .rjm-bride-name, .data-bride-name').forEach((el) => {
+      setMultilingualText(el, brideEn, brideHi, brideGu, lang);
     });
+
+    // Special Ivory template top heading
+    const ivoryH1s = doc.querySelectorAll('section#top h1.g-serif, h1');
+    if (ivoryH1s.length >= 2) {
+      ivoryH1s[0].textContent = displayGroom;
+      ivoryH1s[1].textContent = displayBride;
+    } else if (ivoryH1s.length === 1 && !ivoryH1s[0].classList.contains('couple-names')) {
+      ivoryH1s[0].innerHTML = `<span>${displayGroom}</span> <span class="italic font-serif">&amp;</span> <span>${displayBride}</span>`;
+    }
 
     const nameSelectors = [
       '.rjm-hero-names', '.rjm-couple-names', '.rjm-foot-names',
@@ -447,18 +561,29 @@ export const applyInvitationDataToTemplateDOM = (
       '.jdi-hero-names', '.jdi-couple-names', '.jdi-foot-names', '.jdi-couple-name',
       '.dak-hero-names', '.dak-couple-names', '.dak-foot-names',
       'h1.couple-names', 'h2.couple-names', '.hero-names', '.couple-title',
-      '[data-field="couple-names"]', '.rjm-names', '.jhr-names', '.myr-names', '.jdi-names', '.dak-names'
+      '[data-field="couple-names"]', '.rjm-names', '.jhr-names', '.myr-names', '.jdi-names', '.dak-names',
+      '.data-couple-names'
     ];
     doc.querySelectorAll(nameSelectors.join(', ')).forEach((el) => {
-      el.textContent = coupleTitle;
+      el.innerHTML = `<span>${displayGroom}</span> <span class="rjm-amp font-serif text-[#C59B4B]">${amp}</span> <span>${displayBride}</span>`;
     });
 
     // 4. Bind Monograms & Hashtags
-    doc.querySelectorAll('.rjm-nav-mark, .nav-mark, .monogram, .couple-mark, #couple-mark, .mark-tag, .logo-monogram, .dak-navname, .myr-monogram, .jdi-monogram, .rd-monogram, [data-bind="mark"]').forEach((el) => {
-      el.textContent = normalized.monogramDot;
+    const gInit = (groomEn.charAt(0) || 'G').toUpperCase();
+    const bInit = (brideEn.charAt(0) || 'B').toUpperCase();
+    const markDot = normalized.monogramDot || `${gInit} · ${bInit}`;
+    const markAmp = normalized.monogramAmp || `${gInit} & ${bInit}`;
+
+    doc.querySelectorAll('.rjm-nav-mark, .nav-mark, .monogram, .couple-mark, #couple-mark, .mark-tag, .logo-monogram, .dak-navname, .myr-monogram, .jdi-monogram, .rd-monogram, [data-bind="mark"], a.g-serif, header a.g-serif, a.rjm-logo').forEach((el) => {
+      el.textContent = markDot;
     });
     doc.querySelectorAll('header a.jhr-script, a.jhr-script, .jhr-monogram').forEach((el) => {
-      el.textContent = normalized.monogramAmp;
+      el.textContent = markAmp;
+    });
+    doc.querySelectorAll('text.dak-mono, svg text, .dak-stamp-shadow text').forEach((tNode) => {
+      if (/^[A-Z]\s*[·&+]\s*[A-Z]$/i.test(tNode.textContent?.trim() || '')) {
+        tNode.textContent = markDot;
+      }
     });
     doc.querySelectorAll('.rjm-foot-tag, .hashtag, #wedding-hashtag, .wedding-tag, .foot-hashtag, [data-bind="hashtag"]').forEach((el) => {
       el.textContent = normalized.hashtag;
@@ -472,7 +597,8 @@ export const applyInvitationDataToTemplateDOM = (
       '.jdi-hero-date', '.jdi-date', '.jdi-foot-date',
       '.dak-postmark-date', '.dak-date', '.dak-foot-date',
       '.ivory-date', '.wedding-date', '#wedding-date', '.date-label',
-      '[data-field="wedding-date"]', '[data-field="date"]', '[data-bind="date"]'
+      '[data-field="wedding-date"]', '[data-field="date"]', '[data-bind="date"]',
+      'section#top p.g-serif.text-3xl.italic'
     ];
     doc.querySelectorAll(dateSelectors.join(', ')).forEach((el) => {
       el.textContent = date;
@@ -480,37 +606,137 @@ export const applyInvitationDataToTemplateDOM = (
 
     const venueSelectors = [
       '.rjm-venue', '.jhr-venue', '.myr-venue', '.jdi-venue', '.dak-venue', '.ivory-venue',
-      '.venue-text', '#venue-address', '[data-field="venue"]', '[data-bind="venue"]'
+      '.venue-text', '#venue-address', '[data-field="venue"]', '[data-bind="venue"]',
+      'section#top p.text-xs.font-bold.uppercase'
     ];
     doc.querySelectorAll(venueSelectors.join(', ')).forEach((el) => {
       el.textContent = venue;
     });
 
-    // 6. Bind Family Parents
-    doc.querySelectorAll('.rjm-parents, .parents-name, #groom-parents, [data-field="parents"]').forEach((el) => {
-      el.textContent = family.groomParents;
+    // 6. Comprehensive Family Parents & Members Binding
+    const parseParents = (enStr: string = '', hiStr: string = '', guStr: string = '') => {
+      const splitPair = (s: string) => {
+        if (!s) return { part1: '', part2: '' };
+        const parts = s.split(/\s*(?:&|&amp;|and|एवं|અને|\+|\bwith\b)\s*/i);
+        return {
+          part1: parts[0]?.trim() || '',
+          part2: parts[1]?.trim() || ''
+        };
+      };
+
+      const en = splitPair(enStr);
+      const hi = splitPair(hiStr || enStr);
+      const gu = splitPair(guStr || hiStr || enStr);
+
+      return {
+        fullEn: enStr.trim(),
+        fullHi: (hiStr || enStr).trim(),
+        fullGu: (guStr || hiStr || enStr).trim(),
+        fatherEn: en.part1 || enStr.trim(),
+        fatherHi: hi.part1 || (hiStr ? hiStr.trim() : en.part1 || enStr.trim()),
+        fatherGu: gu.part1 || (guStr ? guStr.trim() : en.part1 || enStr.trim()),
+        motherEn: en.part2,
+        motherHi: hi.part2 || (en.part2 ? hiStr.trim() : ''),
+        motherGu: gu.part2 || (en.part2 ? guStr.trim() : ''),
+      };
+    };
+
+    const gParents = parseParents(family.groomParents, family.groomParentsHi, family.groomParentsGu);
+    const bParents = parseParents(family.brideParents, family.brideParentsHi, family.brideParentsGu);
+
+    const activeGroomParents = isHi ? (gParents.fullHi || gParents.fullEn) : isGu ? (gParents.fullGu || gParents.fullEn) : gParents.fullEn;
+    const activeBrideParents = isHi ? (bParents.fullHi || bParents.fullEn) : isGu ? (bParents.fullGu || bParents.fullEn) : bParents.fullEn;
+
+    // A. Single-line parent selectors (e.g. royalring, royaldawn, common classes)
+    doc.querySelectorAll('.groom-parents, #groom-parents, [data-field="groom-parents"], [data-bind="groom-parents"], .rjm-parents, .parents-name, [data-field="parents"]').forEach((el) => {
+      setMultilingualText(el, gParents.fullEn, gParents.fullHi, gParents.fullGu, lang);
+    });
+    doc.querySelectorAll('.bride-parents, #bride-parents, [data-field="bride-parents"], [data-bind="bride-parents"]').forEach((el) => {
+      setMultilingualText(el, bParents.fullEn, bParents.fullHi, bParents.fullGu, lang);
+    });
+
+    // In royaldawn
+    doc.querySelectorAll('.data-groom-parents').forEach((el) => {
+      el.textContent = `With Warm Blessings from ${activeGroomParents || (groomEn + "'s Parents")}`;
+    });
+    doc.querySelectorAll('.data-bride-parents').forEach((el) => {
+      el.textContent = `With Warm Blessings from ${activeBrideParents || (brideEn + "'s Parents")}`;
+    });
+
+    // In rajmahal family grid
+    const rjmSides = doc.querySelectorAll('.rjm-family-side');
+    if (rjmSides.length >= 2) {
+      const gMembers = rjmSides[0].querySelectorAll('.rjm-family-member');
+      if (gMembers[0]) {
+        setMultilingualText(gMembers[0].querySelector('.rjm-family-name'), gParents.fatherEn || (groomEn + '\'s Father'), gParents.fatherHi, gParents.fatherGu, lang);
+      }
+      if (gMembers[1]) {
+        setMultilingualText(gMembers[1].querySelector('.rjm-family-name'), gParents.motherEn || (gParents.fatherEn ? 'Mrs. & Family' : groomEn + '\'s Mother'), gParents.motherHi, gParents.motherGu, lang);
+      }
+      if (gMembers[2]) {
+        setMultilingualText(gMembers[2].querySelector('.rjm-family-name'), 'Elders & Grandparents', 'वर के दादा-दादी एवं बुजुर्ग', 'વડીલોના આશીર્વાદ', lang);
+      }
+
+      const bMembers = rjmSides[1].querySelectorAll('.rjm-family-member');
+      if (bMembers[0]) {
+        setMultilingualText(bMembers[0].querySelector('.rjm-family-name'), bParents.fatherEn || (brideEn + '\'s Father'), bParents.fatherHi, bParents.fatherGu, lang);
+      }
+      if (bMembers[1]) {
+        setMultilingualText(bMembers[1].querySelector('.rjm-family-name'), bParents.motherEn || (bParents.fatherEn ? 'Mrs. & Family' : brideEn + '\'s Mother'), bParents.motherHi, bParents.motherGu, lang);
+      }
+      if (bMembers[2]) {
+        setMultilingualText(bMembers[2].querySelector('.rjm-family-name'), 'Elders & Grandparents', 'वधू के दादा-दादी एवं बुजुर्ग', 'વડીલોના આશીર્વાદ', lang);
+      }
+    }
+
+    // In multi-card templates (dak, ivory, jharokha, jodi, mayura)
+    doc.querySelectorAll('h3, h4, p').forEach((el) => {
+      const txt = el.textContent || '';
+      if (/Nalinkumar|नलिनकुमार/i.test(txt)) {
+        setMultilingualText(el, gParents.fatherEn || (groomEn + '\'s Father'), gParents.fatherHi, gParents.fatherGu, lang);
+      } else if (/Kalpuben|कल्पूबेन/i.test(txt)) {
+        setMultilingualText(el, gParents.motherEn || (gParents.fatherEn ? 'Mrs. & Family' : groomEn + '\'s Mother'), gParents.motherHi, gParents.motherGu, lang);
+      } else if (/Vikram\s*Kapoor|विक्रम\s*कपूर/i.test(txt)) {
+        setMultilingualText(el, bParents.fatherEn || (brideEn + '\'s Father'), bParents.fatherHi, bParents.fatherGu, lang);
+      } else if (/(?:Ishani|Anjali)\s*Kapoor|(?:ईशानी|अंजलि)\s*कपूर/i.test(txt)) {
+        setMultilingualText(el, bParents.motherEn || (bParents.fatherEn ? 'Mrs. & Family' : brideEn + '\'s Mother'), bParents.motherHi, bParents.motherGu, lang);
+      } else if (/Ramesh\s*Mehta|रमेश\s*मेहता|Mohanlal\s*Kapoor|मोहनलाल\s*कपूर|Kamla\s*Devi/i.test(txt)) {
+        setMultilingualText(el, 'Elders & Grandparents Blessings', 'बुजुर्गों का स्नेह एवं आशीर्वाद', 'વડીલોના આશીર્વાદ', lang);
+      }
     });
 
     // 7. Bind Dynamic Events & Venue Cards
-    const isHindiLang = normalized.language === 'hi';
-    const isGujaratiLang = normalized.language === 'gu';
-    const eventCards = doc.querySelectorAll('.rjm-event, .event-card, .timeline-item, .rasam-card, .jhr-event-card, .myr-event-card, .dak-event-card, article');
+    const isHindiLang = lang === 'hi';
+    const isGujaratiLang = lang === 'gu';
+    const eventCards = doc.querySelectorAll('.rjm-event, .event-card, .timeline-item, .rasam-card, .jhr-event-card, .myr-event-card, .dak-event-card, .jdi-event-card, .ivory-event, #eventsContainer > div, section#events article, article');
     events.forEach((evt, idx) => {
       if (eventCards[idx]) {
         const card = eventCards[idx];
-        const nameEl = card.querySelector('.rjm-event-name, .event-title, h3, h4');
-        const dateEl = card.querySelector('.rjm-event-date, .event-date, .date-badge');
-        const timeEl = card.querySelector('.rjm-event-time, .event-time, .time-badge, dd');
+        const nameEl = card.querySelector('.rjm-event-name, .event-title, h3, h4, .dak-display, .jdi-display');
+        const dateEl = card.querySelector('.rjm-event-date, .event-date, .date-badge, dd, time');
+        const timeEl = card.querySelector('.rjm-event-time, .event-time, .time-badge, dd, span[class*="rounded-full"]');
         const venueEl = card.querySelector('.rjm-event-venue, .event-venue, .venue-badge');
         const addrEl = card.querySelector('.rjm-event-addr, .event-addr, .address');
         const mapLink = card.querySelector('a[href*="maps"], a.rjm-link, a[href*="google.com/maps"], a.btn-map');
 
-        if (nameEl) nameEl.textContent = evt.name;
+        if (nameEl) {
+          setMultilingualText(nameEl, evt.name, evt.nameHi, evt.nameGu, lang);
+        }
         if (dateEl) dateEl.textContent = evt.date;
         if (timeEl) timeEl.textContent = evt.time;
         if (venueEl && evt.venue) venueEl.textContent = evt.venue;
         if (addrEl && venue) addrEl.textContent = venue;
         if (mapLink && evt.mapUrl) mapLink.setAttribute('href', evt.mapUrl);
+
+        // Update any existing Google Calendar links inside template HTML
+        const calLink = card.querySelector('a[href*="calendar.google.com"]');
+        const calTitle = encodeURIComponent(`${evt.name} · ${coupleTitle}`);
+        const calDetails = encodeURIComponent(`Auspicious Wedding Celebration of ${coupleTitle} at ${evt.venue || venue}. We cordially invite you with family!`);
+        const calLoc = encodeURIComponent(`${evt.venue || venue}, ${wedding.venueAddress || ''}`);
+        const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${calTitle}&details=${calDetails}&location=${calLoc}`;
+        if (calLink) {
+          calLink.setAttribute('href', calUrl);
+        }
 
         // 🌟 Smart Action Bar (Add to Google Calendar + Google Maps Directions + Dress Code)
         let actionsBar = card.querySelector('.amantran-event-smart-actions') as HTMLElement | null;
@@ -520,10 +746,6 @@ export const applyInvitationDataToTemplateDOM = (
           card.appendChild(actionsBar);
         }
 
-        const calTitle = encodeURIComponent(`${evt.name} · ${coupleTitle}`);
-        const calDetails = encodeURIComponent(`Auspicious Wedding Celebration of ${coupleTitle} at ${evt.venue || venue}. We cordially invite you with family!`);
-        const calLoc = encodeURIComponent(`${evt.venue || venue}, ${wedding.venueAddress || ''}`);
-        const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${calTitle}&details=${calDetails}&location=${calLoc}`;
         const mapNavUrl = evt.mapUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((evt.venue || venue) + ' ' + (wedding.venueAddress || ''))}`;
 
         actionsBar.style.cssText = 'display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(196,154,53,0.3);';
@@ -614,7 +836,7 @@ export const applyInvitationDataToTemplateDOM = (
       if (parent) {
         parent.style.display = rsvpConfig.collectWishes !== false ? '' : 'none';
       }
-      (el as HTMLTextAreaElement).placeholder = `Write a heartfelt blessing for ${groomName} & ${brideName}...`;
+      (el as HTMLTextAreaElement).placeholder = `Write a heartfelt blessing for ${displayGroom} & ${displayBride}...`;
     });
 
     // 📸 8.5 Bind All Photos & Filters (Hero, Groom, Bride, 6-Photo Moments Gallery)
@@ -959,7 +1181,7 @@ export const applyInvitationDataToTemplateDOM = (
 
         if (shagunCard) {
           const cleanUpi = (normalized.shagun.upiId || '').trim();
-          const recipient = normalized.shagun.recipientName || groomName;
+          const recipient = normalized.shagun.recipientName || displayGroom;
           const qrUrl = normalized.shagun.qrImageUrl || (cleanUpi
             ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=${encodeURIComponent(cleanUpi)}%26pn=${encodeURIComponent(recipient)}%26cu=INR`
             : '');

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause, Volume2, ShieldCheck, Lock, Share2, RotateCw, Wifi, BatteryCharging, Sparkles } from 'lucide-react';
 import { WeddingProjectState, PhotoFilterType, ViewMode } from '../types/wedding';
-import { normalizeInvitationData, applyInvitationDataToTemplateDOM } from '../utils/invitationAdapter';
+import { normalizeInvitationData, applyInvitationDataToTemplateDOM, setMultilingualText } from '../utils/invitationAdapter';
 import { themes } from './ThemeSelector';
 import { stopAllIframesAudio } from '../services/audioCoordinator';
 import { IPhoneHardwareFrame } from './IPhoneHardwareFrame';
@@ -415,15 +415,17 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
       });
 
       // 7. Family Parents & Relatives Sync
-      const familySides = doc.querySelectorAll('.rjm-family-side, .family-col, .family-side, .rjm-family-grid > div');
-      if (familySides.length >= 2) {
-        const groomParentEl = familySides[0].querySelector('.rjm-family-name, .parent-name, p:first-child');
-        if (groomParentEl) groomParentEl.textContent = displayGroomParents;
-        const brideParentEl = familySides[1].querySelector('.rjm-family-name, .parent-name, p:first-child');
-        if (brideParentEl) brideParentEl.textContent = displayBrideParents;
-      }
-      doc.querySelectorAll('.rjm-parents, .parents-name, #groom-parents, [data-field="parents"]').forEach((el) => {
-        el.textContent = displayGroomParents;
+      doc.querySelectorAll('.groom-parents, #groom-parents, [data-field="groom-parents"], [data-bind="groom-parents"], .rjm-parents, .parents-name, [data-field="parents"]').forEach((el) => {
+        setMultilingualText(el, state.family.groomParentsEn || displayGroomParents, state.family.groomParentsHi, state.family.groomParentsGu, state.language || 'en');
+      });
+      doc.querySelectorAll('.bride-parents, #bride-parents, [data-field="bride-parents"], [data-bind="bride-parents"]').forEach((el) => {
+        setMultilingualText(el, state.family.brideParentsEn || displayBrideParents, state.family.brideParentsHi, state.family.brideParentsGu, state.language || 'en');
+      });
+      doc.querySelectorAll('.data-groom-parents').forEach((el) => {
+        el.textContent = `With Warm Blessings from ${displayGroomParents || (displayGroom + "'s Parents")}`;
+      });
+      doc.querySelectorAll('.data-bride-parents').forEach((el) => {
+        el.textContent = `With Warm Blessings from ${displayBrideParents || (displayBride + "'s Parents")}`;
       });
 
       // 8. Event Cards (Celebrations / Schedule)
@@ -689,16 +691,26 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
         sweepDemoTextNodes(doc.body, [
           [/\+91\s*98251\s*45678/g, rsvp1Phone],
           [/\+91\s*98982\s*34567/g, rsvp2Phone],
-          [/Nalinkumar/g, rsvp1Name],
-          [/Family Helpdesk/g, rsvp2Name],
+          [/Nalinkumar/g, rsvp1Name || displayGroom],
+          [/Family Helpdesk/g, rsvp2Name || 'Helpdesk'],
+          [/Aarav\s*(?:&|&amp;|and|एवं|અને)\s*Riya/gi, `${displayGroom} ${amp} ${displayBride}`],
+          [/Rudra\s*(?:&|&amp;|and|एवं|અને)\s*Ishani/gi, `${displayGroom} ${amp} ${displayBride}`],
           [/Aarav/g, displayGroom],
+          [/Riya/g, displayBride],
+          [/Rudra/g, displayGroom],
+          [/Ishani/g, displayBride],
           [/Anaya/g, displayBride],
           [/Taj Lake Palace/gi, venue],
+          [/The Milestone[\s\w,]*/gi, venue],
           [/Udaipur, Rajasthan/gi, venue],
-          [/Mr\.\s*Nalinkumar\s*&\s*Mrs\.\s*Kalpuben/gi, displayGroomParents],
-          [/श्री\s*नलिनकुमार\s*एवं\s*श्रीमती\s*कल्पूबेन/g, displayGroomParents],
-          [/Mr\.\s*&\s*Mrs\.\s*Sharma/gi, displayBrideParents],
-          [/श्री\s*एवं\s*श्रीमती\s*शर्मा/g, displayBrideParents],
+          [/Modasa[\s\w,]*/gi, venue],
+          [/Himmatnagar[\s\w,]*/gi, venue],
+          [/Shri\s*Rajendra\s*&\s*Smt\.\s*Meera\s*Singhania/gi, displayGroomParents || (displayGroom + "'s Parents")],
+          [/Shri\s*Vikram\s*&\s*Smt\.\s*Anita\s*Rathore/gi, displayBrideParents || (displayBride + "'s Parents")],
+          [/Mr\.\s*Nalinkumar\s*&\s*Mrs\.\s*Kalpuben/gi, displayGroomParents || (displayGroom + "'s Parents")],
+          [/श्री\s*नलिनकुमार\s*एवं\s*श्रीमती\s*कल्पूबेन/g, displayGroomParents || (displayGroom + "'s Parents")],
+          [/Mr\.\s*&\s*Mrs\.\s*Sharma/gi, displayBrideParents || (displayBride + "'s Parents")],
+          [/श्री\s*एवं\s*श्रीमती\s*शर्मा/g, displayBrideParents || (displayBride + "'s Parents")],
         ]);
       }
 

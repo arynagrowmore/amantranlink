@@ -930,9 +930,11 @@ function MainApp() {
             {activeTab === 'couple' && (
               <CoupleForm
                 couple={state.couple}
+                family={state.family}
                 theme={state.theme}
                 invitationType={state.invitation_type || 'wedding'}
                 onChange={updateCouple}
+                onChangeFamily={updateFamily}
                 onSaveAndNext={() => handleTabSaveAndNext('couple', 'typography')}
               />
             )}

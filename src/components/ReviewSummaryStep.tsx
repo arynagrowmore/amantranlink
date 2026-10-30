@@ -234,8 +234,16 @@ export const ReviewSummaryStep: React.FC<ReviewSummaryStepProps> = ({
                 {isRsvpEnabled ? 'RSVP Active & Isolated' : 'RSVP Disabled'}
               </h4>
               <p className="text-[11px] text-[#75675C]">
-                Helpdesk: {state.family.rsvp1Name || 'Family Contact'} ({state.family.rsvp1Phone || '+91 9409360336'})
+                Helpdesk: {state.family.rsvp1Name || 'Organizer 1'} ({state.family.rsvp1Phone || 'Phone'})
+                {state.family.rsvp2Name ? ` · ${state.family.rsvp2Name}` : ''}
               </p>
+              {(state.family.groomParentsEn || state.family.brideParentsEn) && (
+                <p className="text-[11px] text-[#430914] font-medium pt-0.5">
+                  👨‍👩‍👧‍👦 {state.family.groomParentsEn ? `Groom Parents: ${state.family.groomParentsEn}` : ''} 
+                  {state.family.groomParentsEn && state.family.brideParentsEn ? ' | ' : ''}
+                  {state.family.brideParentsEn ? `Bride Parents: ${state.family.brideParentsEn}` : ''}
+                </p>
+              )}
             </div>
           </div>
           <button

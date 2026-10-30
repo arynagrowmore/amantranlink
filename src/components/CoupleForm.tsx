@@ -5,7 +5,9 @@ import { fetchOnlineTransliteration } from '../utils/autoTranslator';
 
 interface CoupleFormProps {
   couple: WeddingProjectState['couple'];
+  family?: WeddingProjectState['family'];
   onChange: (updated: Partial<WeddingProjectState['couple']>) => void;
+  onChangeFamily?: (updated: Partial<WeddingProjectState['family']>) => void;
   onSaveAndNext: () => void;
   theme?: WeddingProjectState['theme'];
   invitationType?: WeddingProjectState['invitation_type'];
@@ -13,7 +15,9 @@ interface CoupleFormProps {
 
 export const CoupleForm: React.FC<CoupleFormProps> = ({ 
   couple, 
+  family,
   onChange, 
+  onChangeFamily,
   onSaveAndNext,
   theme,
   invitationType,
@@ -244,6 +248,33 @@ export const CoupleForm: React.FC<CoupleFormProps> = ({
             />
           </div>
         </div>
+
+        {/* Groom's Parents Input */}
+        {onChangeFamily && (
+          <div className="pt-2.5 border-t border-[#E8DCC8]/60 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label htmlFor="groom-parents-input" className="block text-xs font-bold text-[#6E1020] cursor-pointer">
+                Groom's Parents (वर के माता-पिता का नाम)
+              </label>
+              <span className="text-[10px] text-[#75675C]">उदा. श्री नलिनकुमार एवं श्रीमती कल्पूबेन</span>
+            </div>
+            <input
+              id="groom-parents-input"
+              type="text"
+              value={family?.groomParentsEn || ''}
+              onChange={async (e) => {
+                const val = e.target.value;
+                onChangeFamily({ groomParentsEn: val });
+                if (val.trim()) {
+                  const { hi, gu } = await fetchOnlineTransliteration(val);
+                  onChangeFamily({ groomParentsEn: val, groomParentsHi: hi, groomParentsGu: gu });
+                }
+              }}
+              placeholder="e.g. Mr. Nalinkumar & Mrs. Kalpuben"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5]/60 border border-[#E8DCC8] text-xs font-bold text-[#241A17] hover:border-[#C49A35]/60 focus-visible:outline-none focus-visible:bg-white focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35]/25 transition-all shadow-2xs"
+            />
+          </div>
+        )}
       </div>
 
       {/* 2. BRIDE / PERSON 2 SECTION */}
@@ -309,6 +340,33 @@ export const CoupleForm: React.FC<CoupleFormProps> = ({
             />
           </div>
         </div>
+
+        {/* Bride's Parents Input */}
+        {onChangeFamily && (
+          <div className="pt-2.5 border-t border-[#E8DCC8]/60 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label htmlFor="bride-parents-input" className="block text-xs font-bold text-[#6E1020] cursor-pointer">
+                Bride's Parents (वधू के माता-पिता का नाम)
+              </label>
+              <span className="text-[10px] text-[#75675C]">उदा. श्री विक्रम एवं श्रीमती ईशानी कपूर</span>
+            </div>
+            <input
+              id="bride-parents-input"
+              type="text"
+              value={family?.brideParentsEn || ''}
+              onChange={async (e) => {
+                const val = e.target.value;
+                onChangeFamily({ brideParentsEn: val });
+                if (val.trim()) {
+                  const { hi, gu } = await fetchOnlineTransliteration(val);
+                  onChangeFamily({ brideParentsEn: val, brideParentsHi: hi, brideParentsGu: gu });
+                }
+              }}
+              placeholder="e.g. Mr. Vikram & Mrs. Ishani Kapoor"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF8F5]/60 border border-[#E8DCC8] text-xs font-bold text-[#241A17] hover:border-[#C49A35]/60 focus-visible:outline-none focus-visible:bg-white focus-visible:border-[#C49A35] focus-visible:ring-2 focus-visible:ring-[#C49A35]/25 transition-all shadow-2xs"
+            />
+          </div>
+        )}
       </div>
 
       {/* Monogram & Hashtag Card */}
