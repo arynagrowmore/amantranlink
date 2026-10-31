@@ -41,6 +41,7 @@ import { StudioWorkspaceNav } from './StudioWorkspaceNav';
 import { getCurrentAppOrigin } from '../../utils/origin';
 import { RoyalCrestIcon } from '../ShahiIcons';
 import { GuestManagementView } from '../Guest/GuestManagementView';
+import { StudioIdentityView } from './StudioIdentityView';
 
 import { StudioPrimaryHub, StudioWorkspaceTab, normalizeStudioTab } from '../../utils/navigation';
 export type { StudioPrimaryHub, StudioWorkspaceTab };
@@ -2182,113 +2183,18 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
           )}
 
           {/* ═════════════════════════════════════════════════════════════════ */}
-          {/* TAB 7: 🏢 STUDIO PROFILE                                          */}
+          {/* ═════════════════════════════════════════════════════════════════ */}
+          {/* TAB 6: 🏢 HUB 6 · STUDIO IDENTITY & SETTINGS                      */}
           {/* ═════════════════════════════════════════════════════════════════ */}
           {activeTab === 'profile' && (
-            <div className="max-w-3xl mx-auto bg-white rounded-3xl border border-stone-200/80 p-6 sm:p-8 shadow-xs space-y-6">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-stone-900">Studio Profile</h1>
-                <p className="text-xs text-stone-500 mt-1">Manage your studio identity, contact details, and client display information</p>
-              </div>
-
-              {settingsSuccessMsg && (
-                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{settingsSuccessMsg}</span>
-                </div>
-              )}
-
-              <form onSubmit={handleSaveSettings} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">Studio Business Name</label>
-                    <input
-                      type="text"
-                      value={settingsStudioName}
-                      onChange={(e) => setSettingsStudioName(e.target.value)}
-                      required
-                      placeholder="e.g. Aryan Patel Photography"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-[#0F766E]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">Photographer / Owner Name</label>
-                    <input
-                      type="text"
-                      value={settingsPhotographerName}
-                      onChange={(e) => setSettingsPhotographerName(e.target.value)}
-                      placeholder="e.g. Aryan Patel"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-[#0F766E]"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">Phone / WhatsApp</label>
-                    <input
-                      type="text"
-                      value={settingsPhone}
-                      onChange={(e) => setSettingsPhone(e.target.value)}
-                      placeholder="+91 9409360336"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-[#0F766E]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">Email Address</label>
-                    <input
-                      type="email"
-                      value={settingsEmail}
-                      onChange={(e) => setSettingsEmail(e.target.value)}
-                      placeholder="studio@example.com"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-[#0F766E]"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">City / Base Location</label>
-                    <input
-                      type="text"
-                      value={settingsCity}
-                      onChange={(e) => setSettingsCity(e.target.value)}
-                      placeholder="e.g. Udaipur / Mumbai"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-[#0F766E]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">Instagram Handle</label>
-                    <input
-                      type="text"
-                      value={settingsInstagram}
-                      onChange={(e) => setSettingsInstagram(e.target.value)}
-                      placeholder="@aryanpatelphotography"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-[#0F766E]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">Studio Description</label>
-                  <textarea
-                    rows={3}
-                    value={settingsDescription}
-                    onChange={(e) => setSettingsDescription(e.target.value)}
-                    placeholder="Short summary for client wedding portals..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 focus:outline-none focus:border-[#0F766E] resize-none"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSavingSettings}
-                  className="w-full py-2.5 rounded-xl bg-[#0F766E] hover:bg-[#0D655E] text-white text-xs font-semibold uppercase tracking-wider transition-colors shadow-2xs cursor-pointer"
-                >
-                  {isSavingSettings ? 'Saving Profile...' : 'Save Studio Profile'}
-                </button>
-              </form>
-            </div>
+            <StudioIdentityView
+              initialSection={identityInitialSection}
+              studioId={user?.uid || 'default_studio'}
+              user={user}
+              stats={stats}
+              onOpenAssetKit={onOpenAssetKit}
+              onSaveProfileSuccess={() => loadDashboardData()}
+            />
           )}
 
           {/* ═════════════════════════════════════════════════════════════════ */}
@@ -2312,122 +2218,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
             </div>
           )}
 
-          {/* ═════════════════════════════════════════════════════════════════ */}
-          {/* TAB 8: 🎨 STUDIO BRANDING                                         */}
-          {/* ═════════════════════════════════════════════════════════════════ */}
-          {activeTab === 'branding' && (
-            <div className="space-y-6">
-              <StudioBrandingView studioId={user?.uid || 'default_studio'} />
-            </div>
-          )}
 
-          {activeTab === 'domains' && (
-            <div className="space-y-6">
-              <CustomDomainsView studioId={user?.uid || 'default_studio'} />
-            </div>
-          )}
-
-          {/* ═════════════════════════════════════════════════════════════════ */}
-          {/* TAB 9: 👥 TEAM MEMBERS (COMING SOON ARCHITECTURE)                 */}
-          {/* ═════════════════════════════════════════════════════════════════ */}
-          {activeTab === 'team' && (
-            <div className="max-w-3xl mx-auto bg-white rounded-3xl border border-stone-200/80 p-6 sm:p-8 shadow-xs space-y-6">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-bold text-stone-900">Studio Team Members</h1>
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-stone-100 text-stone-700">
-                    COMING SOON
-                  </span>
-                </div>
-                <p className="text-xs text-stone-500 mt-1">Collaborate with associate photographers, designers, and project managers</p>
-              </div>
-
-              <div className="divide-y divide-stone-100 border border-stone-100 rounded-2xl overflow-hidden">
-                <div className="p-4 flex items-center justify-between bg-stone-50/50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#0F766E] text-white flex items-center justify-center text-xs font-bold shadow-2xs">
-                      {studioInitials}
-                    </div>
-                    <div>
-                      <span className="font-bold text-xs text-stone-900 block">{user?.name || 'Studio Owner'}</span>
-                      <span className="text-[10px] text-stone-500">{user?.email}</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                    OWNER
-                  </span>
-                </div>
-
-                <div className="p-4 flex items-center justify-between text-xs text-stone-400">
-                  <div>
-                    <span className="font-semibold text-stone-500 block">Manager / Editor Roles</span>
-                    <span className="text-[10px]">Granular invitation editing permissions will be enabled soon</span>
-                  </div>
-                  <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-500">
-                    PLANNED
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ═════════════════════════════════════════════════════════════════ */}
-          {/* TAB 10: ⚙️ REFERRAL SETTINGS                                       */}
-          {/* ═════════════════════════════════════════════════════════════════ */}
-          {activeTab === 'settings' && (
-            <div className="max-w-3xl mx-auto bg-white rounded-3xl border border-stone-200/80 p-6 sm:p-8 shadow-xs space-y-6">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-stone-900">Referral &amp; Payout Settings</h1>
-                <p className="text-xs text-stone-500 mt-1">Configure your custom referral URL slug and UPI payout destination</p>
-              </div>
-
-              {settingsSuccessMsg && (
-                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{settingsSuccessMsg}</span>
-                </div>
-              )}
-
-              <form onSubmit={handleSaveSettings} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">Custom Studio Partner Slug</label>
-                  <div className="flex items-center">
-                    <span className="px-3.5 py-2.5 bg-stone-100 border border-r-0 border-stone-200 rounded-l-xl text-xs text-stone-500 font-mono">
-                      {appOrigin}/?partner=
-                    </span>
-                    <input
-                      type="text"
-                      value={settingsSlug}
-                      onChange={(e) => setSettingsSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                      required
-                      placeholder="aryan-photography"
-                      className="flex-1 px-3.5 py-2.5 rounded-r-xl border border-stone-200 text-xs text-stone-900 font-mono focus:outline-none focus:border-[#0F766E]"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">UPI Payout Address (Instant Settlement)</label>
-                  <input
-                    type="text"
-                    value={settingsUpi}
-                    onChange={(e) => setSettingsUpi(e.target.value)}
-                    placeholder="e.g. yourname@okhdfcbank or 9409360336@upi"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-xs text-stone-900 font-mono focus:outline-none focus:border-[#0F766E]"
-                  />
-                  <p className="text-[10px] text-stone-400 mt-1">All verified commercial earnings will settle to this UPI VPA.</p>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSavingSettings}
-                  className="w-full py-2.5 rounded-xl bg-[#0F766E] hover:bg-[#0D655E] text-white text-xs font-semibold uppercase tracking-wider transition-colors shadow-2xs cursor-pointer"
-                >
-                  {isSavingSettings ? 'Saving Settings...' : 'Update Referral Settings'}
-                </button>
-              </form>
-            </div>
-          )}
 
         </main>
       </div>
