@@ -12,3 +12,7 @@
 - Task 9 pushes to GitHub and verifies live Vercel deployment.
 
 Pre-flight status: Clean, aligned with spec.
+
+- Task 1: complete — Navigation consolidated to 6 business hubs with legacy fallbacks. Tests passing. Commit: 95ee40e
+- Task 2: complete — Built unified StudioIdentityView consolidating branding, domains, marketing, and referral settings into Hub 6. Build verified. Commit: fd007ff
+- Task 3: complete — Consolidated Money & Billing Hub with wholesale margin ledger and WhatsApp quote links. Commit: pending

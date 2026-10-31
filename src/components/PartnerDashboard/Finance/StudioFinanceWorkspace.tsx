@@ -3,7 +3,7 @@ import {
   DollarSign, FileText, Receipt, Plus, Download, Copy, 
   Check, ExternalLink, RefreshCw, AlertCircle, CheckCircle2, 
   TrendingUp, Clock, Filter, Eye, Send, ArrowUpRight, 
-  SlidersHorizontal, Building2, Package, Tag, MessageSquare, ChevronRight, X
+  SlidersHorizontal, Building2, Package, Tag, MessageSquare, ChevronRight, X, Wallet
 } from 'lucide-react';
 import { 
   Quotation, 
@@ -36,16 +36,24 @@ import {
   generateReceiptPdf 
 } from '../../../services/studioFinancePdfService';
 import { fetchStudioBranding } from '../../../services/studioBrandingService';
+import { PartnerSettlementTab } from '../PartnerSettlementTab';
 
 interface StudioFinanceWorkspaceProps {
   studioId: string;
+  initialSubTab?: FinanceSubTab;
 }
 
-type FinanceSubTab = 'overview' | 'quotations' | 'invoices' | 'services' | 'settings';
+type FinanceSubTab = 'overview' | 'quotations' | 'invoices' | 'settlements' | 'services' | 'settings';
 
-export const StudioFinanceWorkspace: React.FC<StudioFinanceWorkspaceProps> = ({ studioId }) => {
-  const [activeSubTab, setActiveSubTab] = useState<FinanceSubTab>('overview');
+export const StudioFinanceWorkspace: React.FC<StudioFinanceWorkspaceProps> = ({ studioId, initialSubTab }) => {
+  const [activeSubTab, setActiveSubTab] = useState<FinanceSubTab>(initialSubTab || 'overview');
   const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setActiveSubTab(initialSubTab);
+    }
+  }, [initialSubTab]);
   
   // Data States
   const [stats, setStats] = useState<StudioFinanceOverviewStats | null>(null);
@@ -253,6 +261,7 @@ export const StudioFinanceWorkspace: React.FC<StudioFinanceWorkspaceProps> = ({ 
           { id: 'overview', label: 'Financial Overview', icon: TrendingUp },
           { id: 'quotations', label: `Quotations (${quotations.length})`, icon: FileText },
           { id: 'invoices', label: `Invoices (${invoices.length})`, icon: Receipt },
+          { id: 'settlements', label: 'Wholesale Ledger & Payouts', icon: Wallet },
           { id: 'services', label: `Service Catalog (${services.length})`, icon: Package },
           { id: 'settings', label: 'Business & GST Settings', icon: Building2 },
         ].map((tab) => {
@@ -483,6 +492,16 @@ export const StudioFinanceWorkspace: React.FC<StudioFinanceWorkspaceProps> = ({ 
                               {copiedLink === q.id ? <Check className="w-3.5 h-3.5 text-[#167A5A]" /> : <Copy className="w-3.5 h-3.5" />}
                             </button>
 
+                            <a
+                              href={q.client_phone ? `https://wa.me/${q.client_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Namaste ${q.client_name}, here is your wedding invitation quotation #${q.quotation_number} from our studio: ${quoteUrl}`)}` : `https://wa.me/?text=${encodeURIComponent(`Namaste ${q.client_name}, here is your wedding invitation quotation #${q.quotation_number} from our studio: ${quoteUrl}`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex p-1.5 rounded-lg bg-[#E7F6EC] hover:bg-[#D5EEDD] text-[#136A4E] transition-colors cursor-pointer"
+                              title="Share on WhatsApp"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                            </a>
+
                             <button
                               type="button"
                               onClick={() => generateQuotationPdf(q, profile)}
@@ -587,6 +606,16 @@ export const StudioFinanceWorkspace: React.FC<StudioFinanceWorkspaceProps> = ({ 
                               {copiedLink === inv.id ? <Check className="w-3.5 h-3.5 text-[#167A5A]" /> : <Copy className="w-3.5 h-3.5" />}
                             </button>
 
+                            <a
+                              href={inv.client_phone ? `https://wa.me/${inv.client_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Namaste ${inv.client_name}, here is your wedding service invoice #${inv.invoice_number} from our studio. You can view invoice details and make payments online here: ${payUrl}`)}` : `https://wa.me/?text=${encodeURIComponent(`Namaste ${inv.client_name}, here is your wedding service invoice #${inv.invoice_number} from our studio. You can view invoice details and make payments online here: ${payUrl}`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex p-1.5 rounded-lg bg-[#E7F6EC] hover:bg-[#D5EEDD] text-[#136A4E] transition-colors cursor-pointer"
+                              title="Share Payment Link on WhatsApp"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                            </a>
+
                             <button
                               type="button"
                               onClick={() => generateInvoicePdf(inv, profile)}
@@ -622,7 +651,30 @@ export const StudioFinanceWorkspace: React.FC<StudioFinanceWorkspaceProps> = ({ 
       )}
 
       {/* ========================================================================= */}
-      {/* 4. SERVICE CATALOG TAB                                                    */}
+      {/* 4. WHOLESALE LEDGER & PAYOUTS TAB                                         */}
+      {/* ========================================================================= */}
+      {activeSubTab === 'settlements' && (
+        <div className="space-y-4">
+          <div className="bg-[#FAF6EE] border border-[#E8DFD1] rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span className="text-[10px] font-mono tracking-widest uppercase text-[#9C772F] font-bold block">
+                Wholesale Margin &amp; Royal Earnings
+              </span>
+              <h3 className="font-cormorant text-xl font-bold text-[#350811]">
+                Platform Ledger &amp; Direct UPI Payouts
+              </h3>
+              <p className="text-xs text-[#736567] mt-0.5">
+                Track your wholesale margins, partner invitation sales, and request fast settlements into your registered UPI.
+              </p>
+            </div>
+          </div>
+
+          <PartnerSettlementTab />
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 5. SERVICE CATALOG TAB                                                    */}
       {/* ========================================================================= */}
       {activeSubTab === 'services' && (
         <div className="space-y-4">

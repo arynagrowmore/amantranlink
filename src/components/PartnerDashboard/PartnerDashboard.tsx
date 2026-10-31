@@ -2198,11 +2198,14 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
           )}
 
           {/* ═════════════════════════════════════════════════════════════════ */}
-          {/* TAB: 💰 STUDIO BUSINESS FINANCE & BILLING (PHASE 9)               */}
+          {/* TAB 5: 💰 STUDIO BUSINESS FINANCE & BILLING HUB                   */}
           {/* ═════════════════════════════════════════════════════════════════ */}
           {activeTab === 'finance' && (
             <div className="space-y-6">
-              <StudioFinanceWorkspace studioId={user?.uid || 'default_studio'} />
+              <StudioFinanceWorkspace 
+                studioId={user?.uid || 'default_studio'} 
+                initialSubTab={financeInitialSection === 'settlements' ? 'settlements' : undefined}
+              />
             </div>
           )}
 
