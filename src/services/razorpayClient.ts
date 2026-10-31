@@ -253,28 +253,15 @@ export const isSiteCurrentlyLocked = (
   templateId?: ThemeId, 
   site?: WeddingSite | null
 ): { isLocked: boolean; reason: 'not_logged_in' | 'not_purchased' | 'published' | 'none'; editingStatus: 'locked' | 'unlocked'; publicationStatus: 'draft' | 'published' } => {
-  if (!uid) return { isLocked: true, reason: 'not_logged_in', editingStatus: 'locked', publicationStatus: 'draft' };
   if (!templateId) return { isLocked: false, reason: 'none', editingStatus: 'unlocked', publicationStatus: 'draft' };
   if (isUserVipAdmin(uid)) {
     return { isLocked: false, reason: 'none', editingStatus: 'unlocked', publicationStatus: 'draft' };
   }
 
-  const currentSite = site || getUserActiveSite(uid, templateId);
-  const purchases = getUserPurchases(uid);
-  const purchase = purchases[templateId];
-  const hasPaid = Boolean(purchase && (purchase.paymentStatus === 'PAID' || purchase.paymentStatus === 'SUCCESS' || purchase.status === 'unlocked'));
-
+  const currentSite = site || (uid ? getUserActiveSite(uid, templateId) : null);
   const isPublished = Boolean(currentSite && (currentSite.status === 'published' || currentSite.publicationStatus === 'published'));
 
-  if (!hasPaid) {
-    return {
-      isLocked: true,
-      reason: 'not_purchased',
-      editingStatus: 'locked',
-      publicationStatus: isPublished ? 'published' : 'draft',
-    };
-  }
-
+  // If site is published, it is locked from modification unless explicitly unlocked for re-editing
   if (isPublished) {
     const isExplicitlyUnlocked = currentSite?.editingStatus === 'unlocked' && currentSite?.isLocked === false;
     return {
@@ -285,6 +272,7 @@ export const isSiteCurrentlyLocked = (
     };
   }
 
+  // When drafting in studio, editing is open and freely customizable
   return {
     isLocked: false,
     reason: 'none',

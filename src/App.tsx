@@ -387,16 +387,6 @@ function MainApp() {
   };
 
   const handleTabSaveAndNext = (currentTab: string, nextTab: string) => {
-    // 💳 If currently locked, require Unlock/Payment before editing
-    const currentLock = isSiteCurrentlyLocked(user?.uid, state.theme, activeSite);
-    if (currentLock.isLocked) {
-      const pkg = THEME_PACKAGE_MAP[state.theme] || 'gold';
-      setRoyalPaymentPackage(pkg);
-      setIsRoyalPaymentModalOpen(true);
-      showToast('🔒 Please unlock editing to customize your royal invitation.');
-      return;
-    }
-
     setCompletedTabs((prev) => new Set([...prev, currentTab]));
 
     if (nextTab === 'publish') {
@@ -409,14 +399,6 @@ function MainApp() {
   };
 
   const handleTabSelect = (tabId: string) => {
-    const currentLock = isSiteCurrentlyLocked(user?.uid, state.theme, activeSite);
-    if (currentLock.isLocked && tabId !== 'theme') {
-      const pkg = THEME_PACKAGE_MAP[state.theme] || 'gold';
-      setRoyalPaymentPackage(pkg);
-      setIsRoyalPaymentModalOpen(true);
-      showToast('🔒 Please unlock editing to customize this section.');
-      return;
-    }
     if (tabId === 'publish') {
       setIsPublishModalOpen(true);
       return;
@@ -511,12 +493,12 @@ function MainApp() {
     window.location.pathname.startsWith('/review/')
   );
   if (currentAppView === 'review' || isReviewRoute) {
-    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
-    const token = urlParams.get('token') || 
-                  urlParams.get('review_token') || 
-                  urlParams.get('review') ||
+    const reviewParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+    const token = reviewParams.get('token') || 
+                  reviewParams.get('review_token') || 
+                  reviewParams.get('review') ||
                   (typeof window !== 'undefined' ? window.location.pathname.replace(/^\/(?:review|preview)\/?/i, '').replace(/^#\/?/, '') : '') || '';
-    const slug = urlParams.get('slug') || activeSite?.slug || state.couple.hashtag?.replace('#', '') || 'dhruv-shreya';
+    const slug = reviewParams.get('slug') || activeSite?.slug || state.couple.hashtag?.replace('#', '') || 'dhruv-shreya';
 
     return (
       <ErrorBoundary>
@@ -688,10 +670,10 @@ function MainApp() {
 
   // 🎫 If on Digital QR Entry Pass View, render the Guest Entry Pass!
   if (currentAppView === 'pass') {
-    const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const passParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
     const pathParts = typeof window !== 'undefined' ? window.location.pathname.split('/') : [];
-    const passToken = urlParams.get('pass') || (pathParts.includes('pass') ? pathParts[pathParts.indexOf('pass') + 1] : '') || '';
-    const slug = urlParams.get('slug') || activeSite?.slug || state.couple.hashtag?.replace('#', '') || 'dhruv-shreya';
+    const passToken = passParams.get('pass') || (pathParts.includes('pass') ? pathParts[pathParts.indexOf('pass') + 1] : '') || '';
+    const slug = passParams.get('slug') || activeSite?.slug || state.couple.hashtag?.replace('#', '') || 'dhruv-shreya';
 
     return (
       <DigitalEntryPassView
@@ -717,8 +699,8 @@ function MainApp() {
 
   // 📸 If on Public Wedding Memories & Photo Drop View, render the Guest Memories Wall!
   if (currentAppView === 'memories') {
-    const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-    const slug = urlParams.get('slug') || activeSite?.slug || state.couple.hashtag?.replace('#', '') || 'dhruv-shreya';
+    const memParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const slug = memParams.get('slug') || activeSite?.slug || state.couple.hashtag?.replace('#', '') || 'dhruv-shreya';
     const coupleName = `${state.couple.groomEn || 'Dhruv'} & ${state.couple.brideEn || 'Shreya'}`;
 
     return (
@@ -733,9 +715,9 @@ function MainApp() {
 
   // 📜 If on Client Quotation Portal View, render the Quotation Acceptance Portal!
   if (currentAppView === 'quote') {
-    const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const quoteParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
     const pathParts = typeof window !== 'undefined' ? window.location.pathname.split('/') : [];
-    const quoteToken = urlParams.get('quote') || (pathParts.includes('quote') ? pathParts[pathParts.indexOf('quote') + 1] : '') || 'quo_demo';
+    const quoteToken = quoteParams.get('quote') || (pathParts.includes('quote') ? pathParts[pathParts.indexOf('quote') + 1] : '') || 'quo_demo';
 
     return (
       <ClientQuotationPortalView
@@ -747,9 +729,9 @@ function MainApp() {
 
   // 💳 If on Client Invoice Payment View, render the Invoice Payment Portal!
   if (currentAppView === 'pay') {
-    const urlParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const payParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
     const pathParts = typeof window !== 'undefined' ? window.location.pathname.split('/') : [];
-    const invToken = urlParams.get('pay') || urlParams.get('invoice') || (pathParts.includes('pay') ? pathParts[pathParts.indexOf('pay') + 1] : (pathParts.includes('invoice') ? pathParts[pathParts.indexOf('invoice') + 1] : '')) || 'inv_demo';
+    const invToken = payParams.get('pay') || payParams.get('invoice') || (pathParts.includes('pay') ? pathParts[pathParts.indexOf('pay') + 1] : (pathParts.includes('invoice') ? pathParts[pathParts.indexOf('invoice') + 1] : '')) || 'inv_demo';
 
     return (
       <ClientInvoicePaymentPortalView

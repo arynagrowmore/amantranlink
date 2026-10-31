@@ -168,15 +168,6 @@ export const isSiteCurrentlyLocked = (
   templateId: ThemeId,
   site?: WeddingSite | null
 ): { isLocked: boolean; reason: 'not_purchased' | 'published' | 'none' } => {
-  if (!uid) {
-    return { isLocked: true, reason: 'not_purchased' };
-  }
-  
-  const isUnlocked = isTemplateUnlockedForUser(uid, templateId);
-  if (!isUnlocked) {
-    return { isLocked: true, reason: 'not_purchased' };
-  }
-
   if (site && site.status === 'published' && site.isLocked) {
     return { isLocked: true, reason: 'published' };
   }
