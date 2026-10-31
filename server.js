@@ -799,7 +799,7 @@ app.post('/api/razorpay/webhook', handlePaymentWebhook);
 // 🌟 Authoritative Partner Hub Activation Endpoint (Token-Verified Security)
 app.post('/api/partner/activate', async (req, res) => {
   try {
-    const { studioName, partnerSlug, payoutUpi } = req.body;
+    const { studioName, partnerSlug, payoutUpi, phone, city, state, websiteOrInsta } = req.body;
 
     // 🔒 Security: Derive user identity strictly from verified Supabase access token
     let authenticatedUserId = null;
@@ -864,15 +864,21 @@ app.post('/api/partner/activate', async (req, res) => {
     }
 
     const nowIso = new Date().toISOString();
+    const updatePayload = {
+      role: 'partner',
+      studio_name: cleanStudioName,
+      partner_slug: cleanSlug,
+      payout_upi: cleanUpi,
+      updated_at: nowIso
+    };
+    if (phone) updatePayload.phone = String(phone).trim();
+    if (city) updatePayload.city = String(city).trim();
+    if (state) updatePayload.state = String(state).trim();
+    if (websiteOrInsta) updatePayload.instagram_url = String(websiteOrInsta).trim();
+
     const { data: updatedProfile, error: updateError } = await supabase
       .from('profiles')
-      .update({
-        role: 'partner',
-        studio_name: cleanStudioName,
-        partner_slug: cleanSlug,
-        payout_upi: cleanUpi,
-        updated_at: nowIso
-      })
+      .update(updatePayload)
       .eq('id', authenticatedUserId)
       .select()
       .single();
@@ -1499,63 +1505,6 @@ app.post('/api/admin/settlement-action', async (req, res) => {
     return res.json({ success: true, settlement: updated });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// 3. Official Razorpay Webhook Handler
-app.post('/api/razorpay/webhook', async (req, res) => {
-  const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
-  const signature = req.headers['x-razorpay-signature'];
-
-  if (!webhookSecret) {
-    console.warn('⚠️ [Razorpay Webhook] Received webhook event, but RAZORPAY_WEBHOOK_SECRET is not configured.');
-    return res.status(200).json({ status: 'ignored', message: 'WEBHOOK: NOT CONNECTED' });
-  }
-
-  if (!signature) {
-    return res.status(400).json({ error: 'Missing x-razorpay-signature header.' });
-  }
-
-  try {
-    const rawBody = JSON.stringify(req.body);
-    const expectedSignature = crypto
-      .createHmac('sha256', webhookSecret)
-      .update(rawBody)
-      .digest('hex');
-
-    if (signature !== expectedSignature) {
-      console.warn('❌ [Razorpay Webhook] Invalid signature.');
-      return res.status(400).json({ error: 'Invalid webhook signature.' });
-    }
-
-    const event = req.body.event;
-    console.log(`🔔 [Razorpay Webhook] Received verified event: ${event}`);
-
-    if (event === 'payment.captured' || event === 'order.paid') {
-      const payment = req.body.payload?.payment?.entity;
-      const notes = payment?.notes || {};
-      const templateId = notes.templateId || 'rajmahal';
-      const userId = notes.userId;
-
-      if (userId && templateId) {
-        const { data: tpl } = await supabase.from('templates').select('id').eq('slug', templateId).maybeSingle();
-        if (tpl?.id) {
-          await supabase.from('purchases').upsert({
-            user_id: userId,
-            template_id: tpl.id,
-            status: 'unlocked',
-            payment_reference: payment.id,
-            unlocked_at: new Date().toISOString()
-          }, { onConflict: 'user_id,template_id' });
-          console.log(`✅ [Razorpay Webhook] Idempotently unlocked ${templateId} for user ${userId}`);
-        }
-      }
-    }
-
-    return res.status(200).json({ status: 'ok' });
-  } catch (err) {
-    console.error('Razorpay Webhook Error:', err);
-    return res.status(500).json({ error: err.message });
   }
 });
 
@@ -2195,119 +2144,6 @@ app.get(['/i/:slug', '/invite/:slug', '/wedding/:slug', '/share/:slug'], async (
   return res.send(html);
 });
 
-// 5. Resolve Wedding Site ID from Slug
-app.get('/api/rsvp/resolve-site', async (req, res) => {
-  const { slug } = req.query;
-  if (!slug) return res.status(400).json({ error: 'Missing slug parameter.' });
-
-  try {
-    const { data: sites } = await supabase.from('wedding_sites').select('id, content, published_url');
-    if (sites && sites.length > 0) {
-      const targetSlug = String(slug).toLowerCase().trim();
-      const match = sites.find(s => {
-        if (s.published_url && s.published_url.toLowerCase().includes(targetSlug)) return true;
-        const couple = s.content?.couple;
-        if (couple) {
-          const cSlug = `${(couple.groomEn || '').toLowerCase()}-${(couple.brideEn || '').toLowerCase()}`;
-          if (cSlug === targetSlug) return true;
-        }
-        return false;
-      });
-      if (match) {
-        return res.json({ success: true, siteId: match.id });
-      }
-    }
-  } catch (e) {
-    console.warn('Error resolving wedding site:', e.message);
-  }
-  return res.json({ success: false, siteId: null });
-});
-
-// 6. Submit Guest RSVP
-app.post('/api/rsvp/submit', async (req, res) => {
-  try {
-    const { 
-      wedding_site_id, 
-      weddingSiteId,
-      wedding_slug,
-      weddingSlug, 
-      guest_name,
-      guestName, 
-      guest_phone,
-      guestPhone, 
-      attendees_count,
-      attendeesCount, 
-      wishes, 
-      attending 
-    } = req.body;
-
-    const finalGuestName = (guest_name || guestName || '').trim();
-    const finalGuestPhone = (guest_phone || guestPhone || '').trim();
-    const finalSlug = (wedding_slug || weddingSlug || 'general').trim();
-    const isValidUUID = (str) => typeof str === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-    const rawSiteId = wedding_site_id || weddingSiteId || null;
-    let finalSiteId = isValidUUID(rawSiteId) ? rawSiteId : null;
-
-    if (!finalGuestName || !finalGuestPhone) {
-      return res.status(400).json({ error: 'Guest name and mobile number are required.' });
-    }
-
-    // Auto-resolve wedding_site_id from slug if not directly provided
-    if (!finalSiteId && finalSlug && finalSlug !== 'general') {
-      try {
-        const { data: sites } = await supabase.from('wedding_sites').select('id, content, published_url');
-        if (sites && sites.length > 0) {
-          const targetSlug = finalSlug.toLowerCase();
-          const match = sites.find(s => {
-            if (s.published_url && s.published_url.toLowerCase().includes(targetSlug)) return true;
-            const couple = s.content?.couple;
-            if (couple) {
-              const cSlug = `${(couple.groomEn || '').toLowerCase()}-${(couple.brideEn || '').toLowerCase()}`;
-              if (cSlug === targetSlug) return true;
-            }
-            return false;
-          });
-          if (match) {
-            finalSiteId = match.id;
-          }
-        }
-      } catch (e) {
-        console.warn('Could not auto-resolve site ID:', e.message);
-      }
-    }
-
-    const rsvpEntry = {
-      wedding_slug: finalSlug,
-      guest_name: finalGuestName,
-      guest_phone: finalGuestPhone,
-      attendees_count: attending !== false ? Math.max(1, Number(attendees_count || attendeesCount) || 1) : 0,
-      wishes: (wishes || '').trim(),
-      attending: attending !== false,
-      ...(finalSiteId ? { wedding_site_id: finalSiteId } : {})
-    };
-
-    try {
-      const { data, error } = await supabase.from('rsvps').insert(rsvpEntry).select().single();
-      if (error) {
-        console.error('❌ Supabase RSVP insert error:', error.message);
-        return res.status(500).json({ success: false, error: 'Unable to submit RSVP to database. Please try again.' });
-      }
-
-      console.log(`💌 [Supabase RSVP] Received and saved for Site [${finalSiteId || finalSlug}] from ${finalGuestName} (${finalGuestPhone})`);
-      return res.json({ 
-        success: true, 
-        message: 'Your RSVP has been received. We look forward to celebrating with you.', 
-        rsvp: data || rsvpEntry 
-      });
-    } catch (dbErr) {
-      console.error('❌ Database error during RSVP insert:', dbErr);
-      return res.status(500).json({ success: false, error: 'Database connection failed. Please try again.' });
-    }
-  } catch (e) {
-    return res.status(500).json({ success: false, error: e.message || 'Server error during RSVP processing.' });
-  }
-});
-
 // =========================================================================
 // 👑 PHASE 9 TO PHASE 12: PARTNER ECOSYSTEM REST ENDPOINTS
 // =========================================================================
@@ -2444,18 +2280,7 @@ app.post('/api/partner/duplicate-invitation', async (req, res) => {
   }
 });
 
-// 4. Partner Analytics Event Tracking
-app.post('/api/partner/track-event', async (req, res) => {
-  try {
-    const { partnerSlug, eventType, metadata, weddingSiteId } = req.body;
-    console.log(`📊 [Partner Analytics Event] Partner: ${partnerSlug} | Event: ${eventType}`, metadata || {});
-    return res.json({ success: true });
-  } catch (e) {
-    return res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-// 5. Check Studio Handle Availability
+// 4. Check Studio Handle Availability
 app.get('/api/partner/check-handle', async (req, res) => {
   try {
     const { handle, userId } = req.query;
@@ -2486,69 +2311,6 @@ app.get('/api/partner/check-handle', async (req, res) => {
     }
 
     return res.json({ success: true, available: false, reason: 'This studio handle is already taken' });
-  } catch (e) {
-    return res.status(500).json({ success: false, error: e.message });
-  }
-});
-
-// 6. Server-Authoritative Partner Activation
-app.post('/api/partner/activate', async (req, res) => {
-  try {
-    const { userId, studioName, partnerSlug, payoutUpi, phone, city, state, websiteOrInsta } = req.body;
-    if (!userId || !studioName || !partnerSlug) {
-      return res.status(400).json({ success: false, error: 'Missing required partner profile fields' });
-    }
-
-    const cleanSlug = partnerSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
-    const cleanStudio = studioName.trim();
-    const cleanUpi = (payoutUpi || '').trim();
-
-    // Check slug uniqueness
-    const { data: existingSlug, error: slugErr } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('partner_slug', cleanSlug);
-
-    if (!slugErr && existingSlug && existingSlug.length > 0 && existingSlug[0].id !== userId) {
-      return res.status(409).json({
-        success: false,
-        error: `Studio handle '@${cleanSlug}' is already claimed. Please pick a unique handle.`
-      });
-    }
-
-    const updatePayload = {
-      role: 'partner',
-      studio_name: cleanStudio,
-      partner_slug: cleanSlug,
-      payout_upi: cleanUpi,
-      updated_at: new Date().toISOString()
-    };
-    if (phone) updatePayload.phone = phone.trim();
-    if (city) updatePayload.city = city.trim();
-    if (state) updatePayload.state = state.trim();
-    if (websiteOrInsta) updatePayload.instagram_url = websiteOrInsta.trim();
-
-    const { data: updatedProfile, error: updateErr } = await supabase
-      .from('profiles')
-      .update(updatePayload)
-      .eq('id', userId)
-      .select()
-      .single();
-
-    if (updateErr) {
-      console.warn('⚠️ Partner profile update note:', updateErr.message);
-    }
-
-    console.log(`📸 [Partner Activation] User ${userId} successfully upgraded to Partner (Studio: ${cleanStudio} / @${cleanSlug})`);
-    return res.json({
-      success: true,
-      partner: {
-        userId,
-        studioName: cleanStudio,
-        partnerSlug: cleanSlug,
-        role: 'partner'
-      }
-    });
   } catch (e) {
     return res.status(500).json({ success: false, error: e.message });
   }
@@ -2642,21 +2404,32 @@ app.post('/api/rsvp/submit', async (req, res) => {
   try {
     const { 
       wedding_slug, 
+      weddingSlug,
       wedding_site_id, 
+      weddingSiteId,
       guest_id, 
+      guestId,
       guest_token, 
+      guestToken,
       guest_name, 
+      guestName,
       guest_phone, 
+      guestPhone,
       attendees_count, 
+      attendeesCount,
       attendance_status, 
+      attendanceStatus,
       meal_preference, 
+      mealPreference,
       special_note, 
+      specialNote,
       wishes, 
       attending 
     } = req.body;
 
-    const cleanName = (guest_name || '').trim();
-    const cleanPhone = (guest_phone || '').trim();
+    const cleanName = (guest_name || guestName || '').trim();
+    const cleanPhone = (guest_phone || guestPhone || '').trim();
+    const cleanSlug = (wedding_slug || weddingSlug || 'general').trim();
 
     if (!cleanName || cleanName.length < 2) {
       return res.status(400).json({ success: false, error: 'Please enter a valid guest name (at least 2 characters).' });
@@ -2667,39 +2440,63 @@ app.post('/api/rsvp/submit', async (req, res) => {
     }
 
     let isAttending = true;
-    if (attendance_status === 'Not Attending' || attending === false) {
+    const finalAttendanceStatus = attendance_status || attendanceStatus;
+    if (finalAttendanceStatus === 'Not Attending' || attending === false) {
       isAttending = false;
-    }
-
-    let resolvedGuestId = guest_id;
-    if (!resolvedGuestId && guest_token) {
-      const { data: g } = await supabase
-        .from('guests')
-        .select('id')
-        .eq('personal_invitation_token', guest_token)
-        .maybeSingle();
-      if (g) resolvedGuestId = g.id;
     }
 
     const isValidUUID = (str) => typeof str === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
     const now = new Date().toISOString();
 
+    let resolvedGuestId = (guest_id || guestId);
+    const resolvedGuestToken = (guest_token || guestToken);
+    if (!resolvedGuestId && resolvedGuestToken) {
+      const { data: g } = await supabase
+        .from('guests')
+        .select('id')
+        .eq('personal_invitation_token', resolvedGuestToken)
+        .maybeSingle();
+      if (g) resolvedGuestId = g.id;
+    }
+
+    const rawSiteId = wedding_site_id || weddingSiteId;
+    let finalSiteId = (rawSiteId && isValidUUID(rawSiteId)) ? rawSiteId : null;
+
+    // Auto-resolve wedding_site_id from slug if not provided
+    if (!finalSiteId && cleanSlug && cleanSlug !== 'general') {
+      try {
+        const isSlugUuid = isValidUUID(cleanSlug);
+        let siteQuery = supabase.from('wedding_sites').select('id, published_url');
+        if (isSlugUuid) {
+          siteQuery = siteQuery.or(`id.eq.${cleanSlug},published_url.ilike.%${cleanSlug}%`);
+        } else {
+          siteQuery = siteQuery.ilike('published_url', `%${cleanSlug}%`);
+        }
+        const { data: matchedSite } = await siteQuery.limit(1).maybeSingle();
+        if (matchedSite?.id) {
+          finalSiteId = matchedSite.id;
+        }
+      } catch (siteResolveErr) {
+        console.warn('RSVP site auto-resolve note:', siteResolveErr.message);
+      }
+    }
+
     const payload = {
-      wedding_slug: wedding_slug || 'general',
+      wedding_slug: cleanSlug,
       guest_name: cleanName,
       guest_phone: cleanPhone,
-      attendees_count: isAttending ? Math.max(1, Number(attendees_count) || 1) : 0,
+      attendees_count: isAttending ? Math.max(1, Number(attendees_count || attendeesCount) || 1) : 0,
       attending: isAttending,
-      attendance_status: attendance_status || (isAttending ? 'Attending' : 'Not Attending'),
-      meal_preference: meal_preference || 'Standard',
-      special_note: (special_note || '').trim(),
+      attendance_status: finalAttendanceStatus || (isAttending ? 'Attending' : 'Not Attending'),
+      meal_preference: meal_preference || mealPreference || 'Standard',
+      special_note: (special_note || specialNote || '').trim(),
       wishes: (wishes || '').trim(),
       responded_at: now,
       created_at: now,
     };
 
-    if (wedding_site_id && isValidUUID(wedding_site_id)) {
-      payload.wedding_site_id = wedding_site_id;
+    if (finalSiteId) {
+      payload.wedding_site_id = finalSiteId;
     }
     if (resolvedGuestId && isValidUUID(resolvedGuestId)) {
       payload.guest_id = resolvedGuestId;
