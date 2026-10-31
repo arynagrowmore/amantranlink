@@ -4,7 +4,7 @@ import {
   ShieldCheck, LayoutDashboard, UserCheck, Receipt, Zap, Wallet
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { StudioWorkspaceTab } from './PartnerDashboard';
+import { StudioWorkspaceTab } from '../../utils/navigation';
 
 interface StudioAccountMenuProps {
   isOpen: boolean;

@@ -3,7 +3,75 @@
  * Single source of truth for URL, Browser Back/Forward, and React View State.
  */
 
-import { StudioWorkspaceTab } from '../components/PartnerDashboard/PartnerDashboard';
+export type StudioPrimaryHub = 
+  | 'dashboard' 
+  | 'invitations' 
+  | 'clients' 
+  | 'finance' 
+  | 'automation' 
+  | 'profile';
+
+export type StudioWorkspaceTab = 
+  | StudioPrimaryHub 
+  | 'commissions' 
+  | 'analytics' 
+  | 'marketing' 
+  | 'branding' 
+  | 'domains' 
+  | 'team' 
+  | 'settings';
+
+/**
+ * Normalizes any legacy or canonical tab identifier to one of the 6 primary business hubs,
+ * preserving sub-view routing where applicable.
+ */
+export function normalizeStudioTab(tab: string): { hub: StudioPrimaryHub; subView?: string } {
+  const clean = (tab || '').toLowerCase().trim();
+  switch (clean) {
+    case 'dashboard':
+    case 'overview':
+      return { hub: 'dashboard' };
+    case 'invitations':
+    case 'projects':
+      return { hub: 'invitations' };
+    case 'clients':
+    case 'crm':
+    case 'leads':
+      return { hub: 'clients' };
+    case 'finance':
+    case 'billing':
+    case 'invoices':
+      return { hub: 'finance' };
+    case 'commissions':
+    case 'earnings':
+    case 'settlements':
+    case 'payouts':
+      return { hub: 'finance', subView: 'settlements' };
+    case 'automation':
+    case 'automations':
+    case 'rsvp':
+      return { hub: 'automation' };
+    case 'profile':
+      return { hub: 'profile' };
+    case 'branding':
+      return { hub: 'profile', subView: 'branding' };
+    case 'domains':
+    case 'custom-domains':
+      return { hub: 'profile', subView: 'domains' };
+    case 'marketing':
+    case 'marketing-kit':
+      return { hub: 'profile', subView: 'marketing' };
+    case 'settings':
+    case 'referral':
+      return { hub: 'profile', subView: 'settings' };
+    case 'team':
+      return { hub: 'profile', subView: 'team' };
+    case 'analytics':
+      return { hub: 'dashboard', subView: 'analytics' };
+    default:
+      return { hub: 'dashboard' };
+  }
+}
 
 export interface RouteResolution {
   view: 'landing' | 'studio' | 'login' | 'dashboard' | 'profile' | 'packages' | 'command-center' | 'partner' | 'review' | 'admin' | 'auth-callback' | 'reset-password' | 'pass' | 'checkin' | 'memories' | 'quote' | 'pay';

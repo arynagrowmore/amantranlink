@@ -1,9 +1,8 @@
 import React from 'react';
 import { 
-  LayoutDashboard, FileText, Users, Wallet, BarChart3, 
-  Share2, Building2, Palette, SlidersHorizontal, Globe, Receipt, Zap, UsersRound 
+  LayoutDashboard, FileText, Users, Building2, Receipt, Zap 
 } from 'lucide-react';
-import { StudioWorkspaceTab } from './PartnerDashboard';
+import { StudioWorkspaceTab, StudioPrimaryHub } from '../../utils/navigation';
 
 interface StudioWorkspaceNavProps {
   activeTab: StudioWorkspaceTab;
@@ -19,7 +18,7 @@ export const StudioWorkspaceNav: React.FC<StudioWorkspaceNavProps> = ({
   availableCredit,
 }) => {
   const navItems: Array<{
-    id: StudioWorkspaceTab;
+    id: StudioPrimaryHub;
     label: string;
     icon: React.ElementType;
     badge?: string | number;
@@ -27,75 +26,37 @@ export const StudioWorkspaceNav: React.FC<StudioWorkspaceNavProps> = ({
   }> = [
     {
       id: 'dashboard',
-      label: 'Dashboard',
+      label: 'Overview & Pipeline',
       icon: LayoutDashboard,
     },
     {
       id: 'invitations',
-      label: 'Invitations',
+      label: 'My Invitations',
       icon: FileText,
       badge: invitationsCount > 0 ? invitationsCount : undefined,
       badgeType: 'default',
     },
     {
-      id: 'finance',
-      label: 'Finance & Billing',
-      icon: Receipt,
-    },
-    {
-      id: 'automation',
-      label: 'Automations',
-      icon: Zap,
-    },
-    {
       id: 'clients',
-      label: 'Clients',
+      label: 'Clients CRM',
       icon: Users,
     },
     {
-      id: 'commissions',
-      label: 'Earnings',
-      icon: Wallet,
+      id: 'finance',
+      label: 'Money & Billing',
+      icon: Receipt,
       badge: availableCredit > 0 ? `₹${availableCredit}` : undefined,
       badgeType: 'gold',
     },
     {
-      id: 'analytics',
-      label: 'Analytics',
-      icon: BarChart3,
-    },
-    {
-      id: 'marketing',
-      label: 'Marketing Kit',
-      icon: Share2,
-      badge: '4 Assets',
-      badgeType: 'emerald',
+      id: 'automation',
+      label: 'Guest Automations',
+      icon: Zap,
     },
     {
       id: 'profile',
-      label: 'Studio Profile',
+      label: 'Studio Identity',
       icon: Building2,
-    },
-    {
-      id: 'branding',
-      label: 'Branding',
-      icon: Palette,
-    },
-    {
-      id: 'domains',
-      label: 'Custom Domains',
-      icon: Globe,
-    },
-    {
-      id: 'team',
-      label: 'Team Members',
-      icon: UsersRound,
-      badge: 'Soon',
-    },
-    {
-      id: 'settings',
-      label: 'Referral Settings',
-      icon: SlidersHorizontal,
     },
   ];
 

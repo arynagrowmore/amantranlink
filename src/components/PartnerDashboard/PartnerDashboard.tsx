@@ -42,20 +42,9 @@ import { getCurrentAppOrigin } from '../../utils/origin';
 import { RoyalCrestIcon } from '../ShahiIcons';
 import { GuestManagementView } from '../Guest/GuestManagementView';
 
-export type StudioWorkspaceTab = 
-  | 'dashboard' 
-  | 'invitations' 
-  | 'finance' 
-  | 'automation' 
-  | 'clients' 
-  | 'commissions' 
-  | 'analytics' 
-  | 'marketing' 
-  | 'profile' 
-  | 'branding' 
-  | 'domains' 
-  | 'team' 
-  | 'settings';
+import { StudioPrimaryHub, StudioWorkspaceTab, normalizeStudioTab } from '../../utils/navigation';
+export type { StudioPrimaryHub, StudioWorkspaceTab };
+export { normalizeStudioTab };
 
 interface PartnerDashboardProps {
   initialTab?: StudioWorkspaceTab;
@@ -69,15 +58,16 @@ interface PartnerDashboardProps {
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const STUDIO_TAB_LABELS: Record<StudioWorkspaceTab, string> = {
-  dashboard: 'Dashboard',
+  dashboard: 'Overview & Pipeline',
   invitations: 'My Invitations',
-  finance: 'Finance & Invoices',
-  automation: 'Workflow Automations',
   clients: 'Clients CRM',
+  finance: 'Money & Billing',
+  automation: 'Guest Automations',
+  profile: 'Studio Identity & Settings',
+  // Legacy aliases for backward compatibility
   commissions: 'Earnings & Payouts',
   analytics: 'Studio Analytics',
   marketing: 'Marketing Kit',
-  profile: 'Studio Profile',
   branding: 'Studio Branding',
   domains: 'Custom Domains',
   team: 'Team Members',
@@ -248,24 +238,54 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
   onOpenJoinPartnerModal,
 }) => {
   const { user, refreshUser, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<StudioWorkspaceTab>(initialTab);
+  const initialNormalized = normalizeStudioTab(initialTab || 'dashboard');
+  const [activeTab, setActiveTab] = useState<StudioWorkspaceTab>(initialNormalized.hub);
+  const [identityInitialSection, setIdentityInitialSection] = useState<'profile' | 'branding' | 'domains' | 'settings' | 'marketing'>(
+    (initialNormalized.hub === 'profile' && initialNormalized.subView) ? (initialNormalized.subView as any) : 'profile'
+  );
+  const [financeInitialSection, setFinanceInitialSection] = useState<'billing' | 'settlements'>(
+    (initialNormalized.hub === 'finance' && initialNormalized.subView) ? (initialNormalized.subView as any) : 'billing'
+  );
+  const [overviewSubTab, setOverviewSubTab] = useState<'pipeline' | 'analytics'>(
+    (initialNormalized.hub === 'dashboard' && initialNormalized.subView === 'analytics') ? 'analytics' : 'pipeline'
+  );
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState<boolean>(false);
   const accountDropdownRef = useRef<HTMLDivElement>(null);
   
   const handleTabSelect = (tab: StudioWorkspaceTab) => {
-    setActiveTab(tab);
+    const normalized = normalizeStudioTab(tab);
+    setActiveTab(normalized.hub);
     setIsMobileSidebarOpen(false);
+    if (normalized.subView) {
+      if (normalized.hub === 'profile') {
+        setIdentityInitialSection(normalized.subView as any);
+      } else if (normalized.hub === 'finance') {
+        setFinanceInitialSection(normalized.subView as any);
+      } else if (normalized.hub === 'dashboard') {
+        setOverviewSubTab(normalized.subView as any);
+      }
+    }
     if (typeof window !== 'undefined') {
       try {
-        window.location.hash = `#studio/${tab}`;
+        window.location.hash = `#studio/${normalized.hub}`;
       } catch (e) {}
     }
   };
 
   useEffect(() => {
     if (initialTab) {
-      setActiveTab(initialTab);
+      const normalized = normalizeStudioTab(initialTab);
+      setActiveTab(normalized.hub);
+      if (normalized.subView) {
+        if (normalized.hub === 'profile') {
+          setIdentityInitialSection(normalized.subView as any);
+        } else if (normalized.hub === 'finance') {
+          setFinanceInitialSection(normalized.subView as any);
+        } else if (normalized.hub === 'dashboard') {
+          setOverviewSubTab(normalized.subView as any);
+        }
+      }
     }
   }, [initialTab]);
 
@@ -275,9 +295,17 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
       const rawHash = window.location.hash || '';
       const hash = rawHash.toLowerCase().replace(/^#\/?/, '');
       if (hash.startsWith('studio/')) {
-        const tab = hash.replace('studio/', '') as StudioWorkspaceTab;
-        if (tab && STUDIO_TAB_LABELS[tab]) {
-          setActiveTab(tab);
+        const tabStr = hash.replace('studio/', '');
+        const normalized = normalizeStudioTab(tabStr);
+        setActiveTab(normalized.hub);
+        if (normalized.subView) {
+          if (normalized.hub === 'profile') {
+            setIdentityInitialSection(normalized.subView as any);
+          } else if (normalized.hub === 'finance') {
+            setFinanceInitialSection(normalized.subView as any);
+          } else if (normalized.hub === 'dashboard') {
+            setOverviewSubTab(normalized.subView as any);
+          }
         }
       }
     };
@@ -808,16 +836,17 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
         {/* Navigation Groups */}
         <div className="flex-1 overflow-y-auto py-4 px-3 space-y-6 scrollbar-thin">
           
-          {/* Group 1: PRIMARY WORKSPACE */}
+          {/* Group: 6 CORE BUSINESS HUBS */}
           <div className="space-y-1">
             <span className="px-3 text-[10px] font-mono font-bold tracking-wider text-stone-500 uppercase block mb-1">
-              WORKSPACE
+              BUSINESS HUBS
             </span>
 
+            {/* Hub 1: Overview & Pipeline */}
             <button
               type="button"
               onClick={() => handleTabSelect('dashboard')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'dashboard'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
                   : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
@@ -825,14 +854,15 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <LayoutDashboard className="w-4 h-4" />
-                <span>Dashboard</span>
+                <span>Overview &amp; Pipeline</span>
               </div>
             </button>
 
+            {/* Hub 2: Projects & Invitations */}
             <button
               type="button"
               onClick={() => handleTabSelect('invitations')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'invitations'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
                   : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
@@ -847,10 +877,11 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
               </span>
             </button>
 
+            {/* Hub 3: Clients CRM */}
             <button
               type="button"
               onClick={() => handleTabSelect('clients')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'clients'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
                   : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
@@ -862,10 +893,11 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
               </div>
             </button>
 
+            {/* Hub 4: Money & Billing */}
             <button
               type="button"
               onClick={() => handleTabSelect('finance')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'finance'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
                   : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
@@ -873,14 +905,18 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Receipt className="w-4 h-4" />
-                <span>Finance &amp; Invoices</span>
+                <span>Money &amp; Billing</span>
               </div>
+              <span className="text-[10px] font-mono font-bold text-amber-400">
+                ₹{stats.availableCredit || 0}
+              </span>
             </button>
 
+            {/* Hub 5: Guest Automations */}
             <button
               type="button"
               onClick={() => handleTabSelect('automation')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'automation'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
                   : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
@@ -888,72 +924,15 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Zap className="w-4 h-4" />
-                <span>Automations</span>
+                <span>Guest Automations</span>
               </div>
             </button>
 
-            <button
-              type="button"
-              onClick={() => handleTabSelect('commissions')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                activeTab === 'commissions'
-                  ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                  : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Wallet className="w-4 h-4" />
-                <span>Earnings &amp; Payouts</span>
-              </div>
-              <span className="text-[10px] font-mono font-bold text-amber-400">
-                ₹{stats.availableCredit || 0}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleTabSelect('analytics')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                activeTab === 'analytics'
-                  ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                  : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <BarChart3 className="w-4 h-4" />
-                <span>Analytics</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleTabSelect('marketing')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                activeTab === 'marketing'
-                  ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                  : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Share2 className="w-4 h-4" />
-                <span>Marketing Kit</span>
-              </div>
-              <span className="text-[9px] font-mono font-bold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800/40">
-                4 ASSETS
-              </span>
-            </button>
-          </div>
-
-          {/* Group 2: STUDIO MANAGEMENT */}
-          <div className="space-y-1">
-            <span className="px-3 text-[10px] font-mono font-bold tracking-wider text-stone-500 uppercase block mb-1">
-              STUDIO MANAGEMENT
-            </span>
-
+            {/* Hub 6: Studio Identity & Settings */}
             <button
               type="button"
               onClick={() => handleTabSelect('profile')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'profile'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
                   : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
@@ -961,70 +940,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
             >
               <div className="flex items-center gap-2.5">
                 <Building2 className="w-4 h-4" />
-                <span>Studio Profile</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleTabSelect('branding')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                activeTab === 'branding'
-                  ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                  : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Palette className="w-4 h-4" />
-                <span>Branding</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleTabSelect('domains')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                activeTab === 'domains'
-                  ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                  : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Globe className="w-4 h-4" />
-                <span>Custom Domains</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleTabSelect('team')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                activeTab === 'team'
-                  ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                  : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <UsersRound className="w-4 h-4" />
-                <span>Team Members</span>
-              </div>
-              <span className="text-[9px] font-mono font-bold text-stone-400 bg-stone-800 px-1.5 py-0.2 rounded">
-                SOON
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleTabSelect('settings')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                activeTab === 'settings'
-                  ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                  : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <SlidersHorizontal className="w-4 h-4" />
-                <span>Referral Settings</span>
+                <span>Studio Identity</span>
               </div>
             </button>
           </div>
@@ -1125,16 +1041,17 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
             {/* Navigation Groups */}
             <div className="flex-1 overflow-y-auto py-3 px-3 space-y-5 scrollbar-thin">
-              {/* Group 1: PRIMARY WORKSPACE */}
+              {/* Group: 6 CORE BUSINESS HUBS */}
               <div className="space-y-1">
                 <span className="px-3 text-[10px] font-mono font-bold tracking-wider text-stone-500 uppercase block mb-1">
-                  WORKSPACE
+                  BUSINESS HUBS
                 </span>
 
+                {/* Hub 1: Overview & Pipeline */}
                 <button
                   type="button"
                   onClick={() => handleTabSelect('dashboard')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === 'dashboard'
                       ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
                       : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
@@ -1142,14 +1059,15 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
                 >
                   <div className="flex items-center gap-2.5">
                     <LayoutDashboard className="w-4 h-4" />
-                    <span>Dashboard</span>
+                    <span>Overview &amp; Pipeline</span>
                   </div>
                 </button>
 
+                {/* Hub 2: Projects & Invitations */}
                 <button
                   type="button"
                   onClick={() => handleTabSelect('invitations')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === 'invitations'
                       ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
                       : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
@@ -1164,10 +1082,11 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
                   </span>
                 </button>
 
+                {/* Hub 3: Clients CRM */}
                 <button
                   type="button"
                   onClick={() => handleTabSelect('clients')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === 'clients'
                       ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
                       : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
@@ -1179,10 +1098,11 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
                   </div>
                 </button>
 
+                {/* Hub 4: Money & Billing */}
                 <button
                   type="button"
                   onClick={() => handleTabSelect('finance')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === 'finance'
                       ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
                       : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
@@ -1190,14 +1110,18 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
                 >
                   <div className="flex items-center gap-2.5">
                     <Receipt className="w-4 h-4" />
-                    <span>Finance &amp; Invoices</span>
+                    <span>Money &amp; Billing</span>
                   </div>
+                  <span className="text-[10px] font-mono font-bold text-amber-400">
+                    ₹{stats.availableCredit || 0}
+                  </span>
                 </button>
 
+                {/* Hub 5: Guest Automations */}
                 <button
                   type="button"
                   onClick={() => handleTabSelect('automation')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === 'automation'
                       ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
                       : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
@@ -1205,143 +1129,23 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
                 >
                   <div className="flex items-center gap-2.5">
                     <Zap className="w-4 h-4" />
-                    <span>Automations</span>
+                    <span>Guest Automations</span>
                   </div>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleTabSelect('commissions')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                    activeTab === 'commissions'
-                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Wallet className="w-4 h-4" />
-                    <span>Earnings &amp; Payouts</span>
-                  </div>
-                  <span className="text-[10px] font-mono font-bold text-amber-400">
-                    ₹{stats.availableCredit || 0}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabSelect('analytics')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                    activeTab === 'analytics'
-                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <BarChart3 className="w-4 h-4" />
-                    <span>Analytics</span>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabSelect('marketing')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                    activeTab === 'marketing'
-                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Share2 className="w-4 h-4" />
-                    <span>Marketing Kit</span>
-                  </div>
-                  <span className="text-[9px] font-mono font-bold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800/40">
-                    4 ASSETS
-                  </span>
-                </button>
-              </div>
-
-              {/* Group 2: STUDIO MANAGEMENT */}
-              <div className="space-y-1">
-                <span className="px-3 text-[10px] font-mono font-bold tracking-wider text-stone-500 uppercase block mb-1">
-                  STUDIO MANAGEMENT
-                </span>
-
+                {/* Hub 6: Studio Identity & Settings */}
                 <button
                   type="button"
                   onClick={() => handleTabSelect('profile')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                     activeTab === 'profile'
-                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                  : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <Building2 className="w-4 h-4" />
-                    <span>Studio Profile</span>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabSelect('branding')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                    activeTab === 'branding'
-                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Palette className="w-4 h-4" />
-                    <span>Branding</span>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabSelect('domains')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                    activeTab === 'domains'
-                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Globe className="w-4 h-4" />
-                    <span>Custom Domains</span>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabSelect('team')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                    activeTab === 'team'
-                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <UsersRound className="w-4 h-4" />
-                    <span>Team Members</span>
-                  </div>
-                  <span className="text-[9px] font-mono font-bold text-stone-400 bg-stone-800 px-1.5 py-0.2 rounded">
-                    SOON
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabSelect('settings')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
-                    activeTab === 'settings'
-                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
-                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <SlidersHorizontal className="w-4 h-4" />
-                    <span>Referral Settings</span>
+                    <span>Studio Identity</span>
                   </div>
                 </button>
               </div>
