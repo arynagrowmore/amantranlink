@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   LayoutDashboard, FileText, Users, Wallet, BarChart3, 
-  Share2, Building2, Palette, SlidersHorizontal, Globe, Receipt, Zap 
+  Share2, Building2, Palette, SlidersHorizontal, Globe, Receipt, Zap, UsersRound 
 } from 'lucide-react';
 import { StudioWorkspaceTab } from './PartnerDashboard';
 
@@ -85,6 +85,12 @@ export const StudioWorkspaceNav: React.FC<StudioWorkspaceNavProps> = ({
       id: 'domains',
       label: 'Custom Domains',
       icon: Globe,
+    },
+    {
+      id: 'team',
+      label: 'Team Members',
+      icon: UsersRound,
+      badge: 'Soon',
     },
     {
       id: 'settings',

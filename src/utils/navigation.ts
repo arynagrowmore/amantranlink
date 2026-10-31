@@ -128,6 +128,10 @@ export function resolveApplicationRoute(customLocation?: { pathname?: string; se
       partnerTab = 'dashboard';
     } else if (hash === 'partner-invitations' || hash === 'my-invitations' || hash === 'studio/invitations' || pathname.includes('/invitations')) {
       partnerTab = 'invitations';
+    } else if (hash === 'partner-finance' || hash === 'studio/finance' || hash === 'finance' || pathname.includes('/finance') || pathname.includes('/billing')) {
+      partnerTab = 'finance';
+    } else if (hash === 'partner-automation' || hash === 'studio/automation' || hash === 'automation' || pathname.includes('/automation') || pathname.includes('/automations')) {
+      partnerTab = 'automation';
     } else if (hash === 'partner-clients' || hash === 'clients' || hash === 'studio/clients' || pathname.includes('/clients')) {
       partnerTab = 'clients';
     } else if (hash === 'partner-earnings' || hash === 'commissions' || hash === 'studio/earnings' || pathname.includes('/earnings') || pathname.includes('/commissions')) {
@@ -140,6 +144,8 @@ export function resolveApplicationRoute(customLocation?: { pathname?: string; se
       partnerTab = 'profile';
     } else if (hash === 'partner-branding' || hash === 'studio-branding' || hash === 'studio/branding' || pathname.includes('/branding')) {
       partnerTab = 'branding';
+    } else if (hash === 'partner-domains' || hash === 'studio/domains' || hash === 'domains' || pathname.includes('/domains')) {
+      partnerTab = 'domains';
     } else if (hash === 'partner-team' || hash === 'studio-team' || hash === 'studio/team' || pathname.includes('/team')) {
       partnerTab = 'team';
     } else if (hash === 'partner-settings' || hash === 'studio-settings' || hash === 'studio/settings' || pathname.includes('/settings')) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Building2, Palette, SlidersHorizontal, Settings, Globe, LogOut, 
-  ShieldCheck, LayoutDashboard, UserCheck
+  ShieldCheck, LayoutDashboard, UserCheck, Receipt, Zap, Wallet
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { StudioWorkspaceTab } from './PartnerDashboard';
@@ -78,7 +78,7 @@ export const StudioAccountMenu: React.FC<StudioAccountMenuProps> = ({
             onClose();
             onSelectTab('dashboard');
           }}
-          className="w-full px-3 py-2.5 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
+          className="w-full px-3 py-2 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
         >
           <LayoutDashboard className="w-4 h-4 text-emerald-400" />
           <span>Studio Dashboard</span>
@@ -88,9 +88,45 @@ export const StudioAccountMenu: React.FC<StudioAccountMenuProps> = ({
           type="button"
           onClick={() => {
             onClose();
+            onSelectTab('finance');
+          }}
+          className="w-full px-3 py-2 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
+        >
+          <Receipt className="w-4 h-4 text-stone-400" />
+          <span>Finance &amp; Invoices</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            onClose();
+            onSelectTab('automation');
+          }}
+          className="w-full px-3 py-2 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
+        >
+          <Zap className="w-4 h-4 text-stone-400" />
+          <span>Workflow Automations</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            onClose();
+            onSelectTab('commissions');
+          }}
+          className="w-full px-3 py-2 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
+        >
+          <Wallet className="w-4 h-4 text-stone-400" />
+          <span>Earnings &amp; Payouts</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            onClose();
             onSelectTab('profile');
           }}
-          className="w-full px-3 py-2.5 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
+          className="w-full px-3 py-2 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
         >
           <Building2 className="w-4 h-4 text-stone-400" />
           <span>Studio Profile</span>
@@ -102,7 +138,7 @@ export const StudioAccountMenu: React.FC<StudioAccountMenuProps> = ({
             onClose();
             onSelectTab('branding');
           }}
-          className="w-full px-3 py-2.5 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
+          className="w-full px-3 py-2 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
         >
           <Palette className="w-4 h-4 text-stone-400" />
           <span>Branding &amp; Co-Badge</span>
@@ -112,9 +148,21 @@ export const StudioAccountMenu: React.FC<StudioAccountMenuProps> = ({
           type="button"
           onClick={() => {
             onClose();
+            onSelectTab('domains');
+          }}
+          className="w-full px-3 py-2 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
+        >
+          <Globe className="w-4 h-4 text-stone-400" />
+          <span>Custom Domains</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            onClose();
             onSelectTab('settings');
           }}
-          className="w-full px-3 py-2.5 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
+          className="w-full px-3 py-2 rounded-xl text-left hover:bg-stone-800/80 text-stone-300 hover:text-white flex items-center gap-3 transition-colors cursor-pointer"
         >
           <SlidersHorizontal className="w-4 h-4 text-stone-400" />
           <span>Referral &amp; Payout Settings</span>

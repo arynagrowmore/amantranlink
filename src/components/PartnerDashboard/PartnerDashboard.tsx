@@ -8,7 +8,7 @@ import {
   DollarSign, ArrowUpRight, Heart, Bell, Send, CopyCheck, RefreshCcw, Tag,
   MoreVertical, Menu, LayoutDashboard, ChevronDown, Palette, UsersRound,
   SlidersHorizontal, HelpCircle, Settings, LogOut, Upload, CheckSquare,
-  TrendingUp, Award, Layers
+  TrendingUp, Award, Layers, Receipt, Zap
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ThemeId, WeddingProjectState, PartnerDashboardStats, CommissionRecord } from '../../types/wedding';
@@ -67,6 +67,22 @@ interface PartnerDashboardProps {
 }
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export const STUDIO_TAB_LABELS: Record<StudioWorkspaceTab, string> = {
+  dashboard: 'Dashboard',
+  invitations: 'My Invitations',
+  finance: 'Finance & Invoices',
+  automation: 'Workflow Automations',
+  clients: 'Clients CRM',
+  commissions: 'Earnings & Payouts',
+  analytics: 'Studio Analytics',
+  marketing: 'Marketing Kit',
+  profile: 'Studio Profile',
+  branding: 'Studio Branding',
+  domains: 'Custom Domains',
+  team: 'Team Members',
+  settings: 'Referral Settings',
+};
 
 // ══════════════════════════════════════════════════════════════════════════
 // 🔘 THREE-DOT OVERFLOW ACTION MENU COMPONENT
@@ -237,11 +253,37 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState<boolean>(false);
   const accountDropdownRef = useRef<HTMLDivElement>(null);
   
+  const handleTabSelect = (tab: StudioWorkspaceTab) => {
+    setActiveTab(tab);
+    setIsMobileSidebarOpen(false);
+    if (typeof window !== 'undefined') {
+      try {
+        window.location.hash = `#studio/${tab}`;
+      } catch (e) {}
+    }
+  };
+
   useEffect(() => {
     if (initialTab) {
       setActiveTab(initialTab);
     }
   }, [initialTab]);
+
+  useEffect(() => {
+    const handleHashSync = () => {
+      if (typeof window === 'undefined') return;
+      const rawHash = window.location.hash || '';
+      const hash = rawHash.toLowerCase().replace(/^#\/?/, '');
+      if (hash.startsWith('studio/')) {
+        const tab = hash.replace('studio/', '') as StudioWorkspaceTab;
+        if (tab && STUDIO_TAB_LABELS[tab]) {
+          setActiveTab(tab);
+        }
+      }
+    };
+    window.addEventListener('hashchange', handleHashSync);
+    return () => window.removeEventListener('hashchange', handleHashSync);
+  }, []);
 
   const [stats, setStats] = useState<PartnerDashboardStats>({
     totalWeddings: 0,
@@ -511,7 +553,14 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
   // Create Client Invitation
   const handleCreateClientInvitation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.uid || !UUID_REGEX.test(user.uid) || !newGroomName.trim() || !newBrideName.trim()) return;
+    if (!newGroomName.trim() || !newBrideName.trim()) {
+      setCreateErrorMsg('Please enter both Groom Name and Bride Name.');
+      return;
+    }
+    if (!user?.uid) {
+      setCreateErrorMsg('Please log in with your Studio Partner account to create client invitations.');
+      return;
+    }
 
     setIsCreatingClient(true);
     setCreateErrorMsg('');
@@ -700,21 +749,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
         .toUpperCase()
     : 'AP';
 
-  const tabLabels: Record<StudioWorkspaceTab, string> = {
-    dashboard: 'Dashboard',
-    invitations: 'My Invitations',
-    finance: 'Finance & Billing',
-    automation: 'Workflow Automations',
-    clients: 'Clients CRM',
-    commissions: 'Earnings & Payouts',
-    analytics: 'Studio Analytics',
-    marketing: 'Marketing Kit',
-    profile: 'Studio Profile',
-    branding: 'Studio Branding',
-    domains: 'Custom Domains',
-    team: 'Team Members',
-    settings: 'Referral Settings',
-  };
+  const tabLabels = STUDIO_TAB_LABELS;
 
   return (
     <div className="min-h-screen bg-[#F9F8F6] text-stone-900 flex font-manrope antialiased selection:bg-[#0F766E] selection:text-white">
@@ -781,7 +816,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
             <button
               type="button"
-              onClick={() => setActiveTab('dashboard')}
+              onClick={() => handleTabSelect('dashboard')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'dashboard'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
@@ -796,7 +831,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
             <button
               type="button"
-              onClick={() => setActiveTab('invitations')}
+              onClick={() => handleTabSelect('invitations')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'invitations'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
@@ -814,7 +849,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
             <button
               type="button"
-              onClick={() => setActiveTab('clients')}
+              onClick={() => handleTabSelect('clients')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'clients'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
@@ -829,7 +864,37 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
             <button
               type="button"
-              onClick={() => setActiveTab('commissions')}
+              onClick={() => handleTabSelect('finance')}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                activeTab === 'finance'
+                  ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                  : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Receipt className="w-4 h-4" />
+                <span>Finance &amp; Invoices</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleTabSelect('automation')}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                activeTab === 'automation'
+                  ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                  : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Zap className="w-4 h-4" />
+                <span>Automations</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleTabSelect('commissions')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'commissions'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
@@ -847,7 +912,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
             <button
               type="button"
-              onClick={() => setActiveTab('analytics')}
+              onClick={() => handleTabSelect('analytics')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'analytics'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
@@ -862,7 +927,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
             <button
               type="button"
-              onClick={() => setActiveTab('marketing')}
+              onClick={() => handleTabSelect('marketing')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'marketing'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
@@ -887,7 +952,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
             <button
               type="button"
-              onClick={() => setActiveTab('profile')}
+              onClick={() => handleTabSelect('profile')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'profile'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
@@ -902,7 +967,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
             <button
               type="button"
-              onClick={() => setActiveTab('branding')}
+              onClick={() => handleTabSelect('branding')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'branding'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
@@ -917,7 +982,22 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
             <button
               type="button"
-              onClick={() => setActiveTab('team')}
+              onClick={() => handleTabSelect('domains')}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                activeTab === 'domains'
+                  ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                  : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Globe className="w-4 h-4" />
+                <span>Custom Domains</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleTabSelect('team')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'team'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
@@ -935,7 +1015,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
             <button
               type="button"
-              onClick={() => setActiveTab('settings')}
+              onClick={() => handleTabSelect('settings')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
                 activeTab === 'settings'
                   ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
@@ -978,6 +1058,328 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
       </aside>
 
       {/* ═══════════════════════════════════════════════════════════════════════════ */}
+      {/* 📱 MOBILE & TABLET SLIDE-OVER NAVIGATION DRAWER (ACCESSIBLE ACROSS ALL TABS) */}
+      {/* ═══════════════════════════════════════════════════════════════════════════ */}
+      {isMobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+
+          {/* Drawer Panel */}
+          <aside className="relative w-72 max-w-[85vw] bg-[#11161B] text-stone-300 flex flex-col justify-between h-full shadow-2xl z-10 border-r border-stone-800 animate-in slide-in-from-left duration-200">
+            {/* Header with Studio and Close Button */}
+            <div className="p-4 border-b border-stone-800/80 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <img 
+                  src="/amantranlink.png" 
+                  alt="AmantranLink" 
+                  className="h-7 w-auto object-contain" 
+                />
+                <div>
+                  <span className="font-cormorant font-bold text-sm text-white tracking-wide block leading-none">
+                    AMANTRAN<span className="text-[#C49A35]">LINK</span>
+                  </span>
+                  <span className="text-[9px] font-mono font-bold text-emerald-400 tracking-wider uppercase block mt-0.5">
+                    ● STUDIO PARTNER
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsMobileSidebarOpen(false)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800/80 transition-colors cursor-pointer"
+                aria-label="Close navigation"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Studio Identity Card */}
+            <div className="px-4 pt-3 pb-1">
+              <div className="p-3 bg-stone-900/90 rounded-2xl border border-stone-800 flex items-center gap-3">
+                {user?.avatar_url ? (
+                  <img
+                    src={user.avatar_url}
+                    alt={user.studioName || user.name}
+                    className="w-9 h-9 rounded-xl object-cover border border-[#0F766E] shadow-2xs shrink-0"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-xl bg-[#0F766E] text-white flex items-center justify-center font-bold text-xs border border-emerald-500/40 shadow-2xs shrink-0">
+                    {studioInitials}
+                  </div>
+                )}
+                <div className="overflow-hidden">
+                  <h4 className="font-semibold text-xs text-white truncate leading-tight">
+                    {user?.studioName || user?.name || 'Studio Partner'}
+                  </h4>
+                  <p className="text-[10px] font-mono text-stone-400 truncate mt-0.5">
+                    @{partnerSlug}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Navigation Groups */}
+            <div className="flex-1 overflow-y-auto py-3 px-3 space-y-5 scrollbar-thin">
+              {/* Group 1: PRIMARY WORKSPACE */}
+              <div className="space-y-1">
+                <span className="px-3 text-[10px] font-mono font-bold tracking-wider text-stone-500 uppercase block mb-1">
+                  WORKSPACE
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('dashboard')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'dashboard'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <LayoutDashboard className="w-4 h-4" />
+                    <span>Dashboard</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('invitations')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'invitations'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <FileText className="w-4 h-4" />
+                    <span>My Invitations</span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-stone-800 text-stone-400">
+                    {clientSites.length}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('clients')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'clients'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Users className="w-4 h-4" />
+                    <span>Clients CRM</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('finance')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'finance'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Receipt className="w-4 h-4" />
+                    <span>Finance &amp; Invoices</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('automation')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'automation'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Zap className="w-4 h-4" />
+                    <span>Automations</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('commissions')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'commissions'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Wallet className="w-4 h-4" />
+                    <span>Earnings &amp; Payouts</span>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-amber-400">
+                    ₹{stats.availableCredit || 0}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('analytics')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'analytics'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <BarChart3 className="w-4 h-4" />
+                    <span>Analytics</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('marketing')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'marketing'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Share2 className="w-4 h-4" />
+                    <span>Marketing Kit</span>
+                  </div>
+                  <span className="text-[9px] font-mono font-bold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800/40">
+                    4 ASSETS
+                  </span>
+                </button>
+              </div>
+
+              {/* Group 2: STUDIO MANAGEMENT */}
+              <div className="space-y-1">
+                <span className="px-3 text-[10px] font-mono font-bold tracking-wider text-stone-500 uppercase block mb-1">
+                  STUDIO MANAGEMENT
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('profile')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'profile'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Building2 className="w-4 h-4" />
+                    <span>Studio Profile</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('branding')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'branding'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Palette className="w-4 h-4" />
+                    <span>Branding</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('domains')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'domains'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Globe className="w-4 h-4" />
+                    <span>Custom Domains</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('team')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'team'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <UsersRound className="w-4 h-4" />
+                    <span>Team Members</span>
+                  </div>
+                  <span className="text-[9px] font-mono font-bold text-stone-400 bg-stone-800 px-1.5 py-0.2 rounded">
+                    SOON
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabSelect('settings')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+                    activeTab === 'settings'
+                      ? 'bg-[#0F766E] text-white font-semibold shadow-2xs'
+                      : 'text-stone-300 hover:bg-stone-800/60 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <SlidersHorizontal className="w-4 h-4" />
+                    <span>Referral Settings</span>
+                  </div>
+                </button>
+              </div>
+
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="p-4 border-t border-stone-800/80 bg-stone-900/40 space-y-2 text-xs text-stone-400">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileSidebarOpen(false);
+                  onBackToHome();
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-stone-800 hover:text-white transition-colors cursor-pointer"
+              >
+                <Globe className="w-4 h-4 text-stone-400" />
+                <span>View Public AmantranLink</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  setIsMobileSidebarOpen(false);
+                  if (logout) await logout();
+                  onBackToHome();
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-rose-950/40 text-rose-400 hover:text-rose-300 transition-colors cursor-pointer"
+              >
+                <LogOut className="w-4 h-4 text-rose-400" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════════ */}
       {/* 2. MAIN APPLICATION WORKSPACE (CLEAN SINGLE HEADER + ACTIVE CONTENT)         */}
       {/* ═══════════════════════════════════════════════════════════════════════════ */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -992,7 +1394,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
             setWizardStep(1);
             setIsNewClientModalOpen(true);
           }}
-          onSelectTab={(tab) => setActiveTab(tab)}
+          onSelectTab={handleTabSelect}
           onViewPublicSite={onBackToHome}
           onOpenMobileMenu={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
           activeTab={activeTab}
