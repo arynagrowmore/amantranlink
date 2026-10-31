@@ -484,7 +484,9 @@ function MainApp() {
   // When publishing completes, update site lock state (MANDATORY AUTOMATIC RE-LOCK) & persist
   const handlePublishCompleted = async () => {
     if (user?.uid) {
-      const coupleSlug = `${(state.couple.groomEn || 'dhruv').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(state.couple.brideEn || 'shreya').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+      const gSlug = (state.couple.groomEn || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const bSlug = (state.couple.brideEn || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const coupleSlug = (gSlug && bSlug) ? `${gSlug}-${bSlug}` : (gSlug || bSlug || 'royal-wedding');
       
       // 🔒 Lock invitation on publish
       const { site: publishedSite } = lockInvitationOnPublish(user.uid, state.theme, state, coupleSlug);

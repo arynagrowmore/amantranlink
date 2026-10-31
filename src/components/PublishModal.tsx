@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { WeddingProjectState, Language } from '../types/wedding';
-import { savePublishedInvitation, encodeInvitationData } from '../utils/invitationStorage';
+import { savePublishedInvitation } from '../utils/invitationStorage';
 import { isTemplateUnlockedForUser, initiateRazorpayCheckout, saveWeddingSite } from '../services/razorpayClient';
 import { publishWeddingSite } from '../services/weddingSiteService';
 import { useAuth } from '../context/AuthContext';
@@ -81,18 +81,25 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
   const paymentDetails = calculatePaymentDetails(themePackageId, state.theme, user?.role);
   const finalPayableAmount = isAlreadyUnlocked ? 0 : paymentDetails.finalAmountInr;
 
-  // Slug
-  const groomSlug = (state.couple.groomEn || 'groom').toLowerCase().replace(/[^a-z0-9]/g, '');
-  const brideSlug = (state.couple.brideEn || 'bride').toLowerCase().replace(/[^a-z0-9]/g, '');
-  const coupleSlug = `${groomSlug}-${brideSlug}`;
-  const [slug, setSlug] = useState<string>(coupleSlug);
+  // Slug & Clean Royal URL
+  const groomSlug = (state.couple.groomEn || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const brideSlug = (state.couple.brideEn || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const defaultCoupleSlug = (groomSlug && brideSlug) ? `${groomSlug}-${brideSlug}` : (groomSlug || brideSlug || 'royal-wedding');
+  const [slug, setSlug] = useState<string>(defaultCoupleSlug);
+
+  useEffect(() => {
+    if (defaultCoupleSlug && defaultCoupleSlug !== 'royal-wedding') {
+      setSlug((prev) => (!prev || prev === 'groom-bride' || prev === 'royal-wedding' ? defaultCoupleSlug : prev));
+    }
+  }, [defaultCoupleSlug]);
 
   const origin = typeof window !== 'undefined' && window.location.origin 
     ? window.location.origin 
-    : 'https://amantranlink.com';
+    : 'https://amantranlink-web.vercel.app';
   const cleanDomain = origin.replace(/^https?:\/\//, '');
-  const encodedDataParam = encodeInvitationData(state);
-  const fullUrl = `${origin}/i/${slug}?theme=${state.theme}${encodedDataParam ? `&d=${encodedDataParam}` : ''}`;
+  const cleanSlug = (slug || defaultCoupleSlug).replace(/^\/i\//, '').replace(/^i\//, '').trim();
+  // 👑 Clean, Short, Elegant Royal Invitation URL (never long or truncated)
+  const fullUrl = `${origin}/i/${cleanSlug}?theme=${state.theme}`;
 
   // WhatsApp Language
   const initialLang: Language = (state?.language === 'hi' || state?.language === 'gu') ? state.language : 'en';
@@ -190,21 +197,27 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
   };
 
   const finalizePublishing = async () => {
-    savePublishedInvitation(slug, { ...state, theme: state.theme });
+    const finalSlug = (cleanSlug || 'royal-wedding').toLowerCase();
+    const publishedPayload: WeddingProjectState = {
+      ...state,
+      theme: state.theme,
+    };
+
+    savePublishedInvitation(finalSlug, publishedPayload);
     const siteRecord: any = {
-      id: `site_${slug}`,
-      siteId: `site_${slug}`,
+      id: `site_${finalSlug}`,
+      siteId: `site_${finalSlug}`,
       uid: user?.uid || 'guest_user',
       templateId: state.theme,
-      slug,
+      slug: finalSlug,
       status: 'published',
       publicationStatus: 'published',
       isLocked: true,
       editingStatus: 'locked',
       paymentStatus: 'paid',
-      content: { ...state, theme: state.theme },
-      draftContent: { ...state, theme: state.theme },
-      publishedUrl: `/i/${slug}`,
+      content: publishedPayload,
+      draftContent: publishedPayload,
+      publishedUrl: `/i/${finalSlug}`,
       publishedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -213,8 +226,8 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
       await publishWeddingSite({
         userId: user?.uid || '4fe4383d-9cd0-49df-b8ff-2b833db40f17',
         themeId: state.theme,
-        state: { ...state, theme: state.theme },
-        customSlug: slug,
+        state: publishedPayload,
+        customSlug: finalSlug,
       });
     } catch (e) {
       console.warn('Publish sync note:', e);

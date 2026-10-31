@@ -46,6 +46,17 @@ export const extractPublicSlugFromUrl = (): string | null => {
   return null;
 };
 
+const TEMPLATE_UUID_TO_SLUG: Record<string, ThemeId> = {
+  '1c338d20-1746-4327-ba90-87a967086088': 'rajmahal',
+  '04bf308b-ea5c-429a-9552-c55c076cd137': 'royaldawn',
+  '79a0a5b6-dad9-4c85-8698-0ff40aec8216': 'royalring',
+  'ecebe27f-e21b-4a57-a684-739d593c2416': 'jharokha',
+  'e728e71d-07c3-48ed-a736-3e47929d2fff': 'mayura',
+  'c95df244-aed0-40e3-8c07-df1a126bbae8': 'jodi',
+  'df21604d-a224-4ec4-a7cc-034eb111c3a8': 'dak',
+  'be9db01e-9dfb-4dd3-8c4d-ff3982d6221e': 'ivory',
+};
+
 export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> = ({ 
   initialState,
   slug: propSlug 
@@ -139,7 +150,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
           const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetSlug);
           let query = supabase
             .from('wedding_sites')
-            .select('id, template_id, status, content, published_url, studio_badge, templates(slug)')
+            .select('id, template_id, status, content, published_url, studio_badge')
             .order('updated_at', { ascending: false });
 
           if (isUuid) {
@@ -151,20 +162,22 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
           const { data: site, error } = await query.limit(1).maybeSingle();
 
           if (!error && site && site.content && isMounted) {
-            const rawTpl: any = site.templates;
-            const tplSlug = Array.isArray(rawTpl) ? rawTpl[0]?.slug : rawTpl?.slug;
+            const mappedTplSlug = site.template_id ? TEMPLATE_UUID_TO_SLUG[site.template_id] : null;
             const contentTheme = (site.content as any)?.theme;
             const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
             const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
             const fetchedTheme = (
               (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
               (contentTheme && validThemes.includes(contentTheme) ? contentTheme : null) ||
-              (tplSlug && validThemes.includes(tplSlug) ? tplSlug : null) ||
-              (site.template_id && validThemes.includes(site.template_id) ? site.template_id : null) ||
+              (mappedTplSlug && validThemes.includes(mappedTplSlug) ? mappedTplSlug : null) ||
               'rajmahal'
             ) as ThemeId;
+
             setThemeId(fetchedTheme);
-            setLoadedState(site.content as WeddingProjectState);
+            setLoadedState({
+              ...(site.content as WeddingProjectState),
+              theme: fetchedTheme,
+            });
             setSiteId(site.id);
             if (site.studio_badge) {
               setStudioBadge(site.studio_badge);
@@ -180,12 +193,54 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         }
       }
 
+      // Attempt 1.5: Serverless API fallback /api/public/wedding/:slug
+      if (targetSlug) {
+        try {
+          const res = await fetch(`/api/public/wedding/${encodeURIComponent(targetSlug)}`);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.success && json.content && isMounted) {
+              const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
+              const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+              const effectiveTheme = (
+                (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
+                json.themeId ||
+                json.content?.theme ||
+                'rajmahal'
+              ) as ThemeId;
+
+              setThemeId(effectiveTheme);
+              setLoadedState({
+                ...(json.content as WeddingProjectState),
+                theme: effectiveTheme,
+              });
+              setSiteId(json.site?.id || null);
+              setIsLoading(false);
+              return;
+            }
+          }
+        } catch (apiErr) {
+          console.warn('Serverless API fetch fallback note:', apiErr);
+        }
+      }
+
       // Attempt 2: Local storage resolution (offline / instant preview cache)
       if (targetSlug) {
         const localResolved = resolveInvitationState(targetSlug);
         if (localResolved && isMounted) {
-          setThemeId(localResolved.theme || 'rajmahal');
-          setLoadedState(localResolved);
+          const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
+          const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+          const effectiveTheme = (
+            (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
+            localResolved.theme ||
+            'rajmahal'
+          ) as ThemeId;
+
+          setThemeId(effectiveTheme);
+          setLoadedState({
+            ...localResolved,
+            theme: effectiveTheme,
+          });
           setIsLoading(false);
           return;
         }
@@ -316,8 +371,16 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   };
 
   // Convert raw state into Authoritative Normalized Invitation Model
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
+  const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+  const activeTheme = (
+    (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
+    rawState.theme ||
+    themeId ||
+    'rajmahal'
+  ) as ThemeId;
   const normalizedData = normalizeInvitationData(rawState, resolvedSlug, siteId || undefined, studioBadge || undefined);
-  const activeTheme = rawState.theme || themeId || 'rajmahal';
   const templateUrl = `/templates/${activeTheme}-template/index.html?slug=${encodeURIComponent(resolvedSlug)}&siteId=${encodeURIComponent(siteId || '')}`;
 
   // ⏰ Universal Live Countdown Timer
@@ -387,6 +450,18 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         doc.querySelectorAll('.guest-personal-greeting, .guest-name-badge').forEach((el) => {
           el.textContent = `Auspicious Invitation for ${greetingName}`;
         });
+      }
+
+      // 👑 Send broadcast update to template scripts (supporting royaldawn, jharokha, mayura, etc.)
+      win.postMessage({
+        type: 'UPDATE_STATE',
+        state: rawState,
+        data: rawState,
+        config: normalizedData,
+      }, '*');
+
+      if (typeof win.applyWeddingData === 'function') {
+        try { win.applyWeddingData(win.WEDDING_CONFIG || rawState); } catch (e) {}
       }
 
       startUniversalCountdown();

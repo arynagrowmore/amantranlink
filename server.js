@@ -1775,23 +1775,45 @@ app.post('/api/invitations/publish', async (req, res) => {
     });
 
     try {
+      const TEMPLATE_UUID_MAP = {
+        rajmahal: '1c338d20-1746-4327-ba90-87a967086088',
+        royaldawn: '04bf308b-ea5c-429a-9552-c55c076cd137',
+        royalring: '79a0a5b6-dad9-4c85-8698-0ff40aec8216',
+        jharokha: 'ecebe27f-e21b-4a57-a684-739d593c2416',
+        mayura: 'e728e71d-07c3-48ed-a736-3e47929d2fff',
+        jodi: 'c95df244-aed0-40e3-8c07-df1a126bbae8',
+        dak: 'df21604d-a224-4ec4-a7cc-034eb111c3a8',
+        ivory: 'be9db01e-9dfb-4dd3-8c4d-ff3982d6221e',
+      };
+
       const { data: tpl } = await supabase.from('templates').select('id').eq('slug', themeId).maybeSingle();
-      if (tpl?.id) {
-        await supabase.from('wedding_sites').upsert({
-          user_id: userId,
-          template_id: tpl.id,
-          slug: coupleSlug,
-          status: 'published',
-          is_locked: true, // 🔒 Mandatory automatic re-lock
-          editing_status: 'locked',
-          publication_status: 'published',
-          payment_status: 'paid',
-          content: invitationState,
-          draft_content: invitationState,
-          published_url: publishedUrl,
-          published_at: now,
-          updated_at: now,
-        }, { onConflict: 'user_id,template_id' });
+      const tplId = tpl?.id || TEMPLATE_UUID_MAP[themeId] || '1c338d20-1746-4327-ba90-87a967086088';
+      const effectiveUserId = (typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId))
+        ? userId
+        : '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
+
+      const { data: existingSite } = await supabase
+        .from('wedding_sites')
+        .select('id')
+        .ilike('published_url', `%${coupleSlug}%`)
+        .limit(1)
+        .maybeSingle();
+
+      const sitePayload = {
+        user_id: effectiveUserId,
+        template_id: tplId,
+        status: 'published',
+        is_locked: true,
+        content: { ...invitationState, theme: themeId },
+        published_url: publishedUrl,
+        published_at: now,
+        updated_at: now,
+      };
+
+      if (existingSite?.id) {
+        await supabase.from('wedding_sites').update(sitePayload).eq('id', existingSite.id);
+      } else {
+        await supabase.from('wedding_sites').insert(sitePayload);
       }
     } catch (dbErr) {
       console.warn('DB publish update note:', dbErr.message);

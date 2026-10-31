@@ -8,10 +8,24 @@ export interface PublishSiteParams {
   customSlug?: string;
 }
 
+const TEMPLATE_UUID_MAP: Record<string, string> = {
+  rajmahal: '1c338d20-1746-4327-ba90-87a967086088',
+  royaldawn: '04bf308b-ea5c-429a-9552-c55c076cd137',
+  royalring: '79a0a5b6-dad9-4c85-8698-0ff40aec8216',
+  jharokha: 'ecebe27f-e21b-4a57-a684-739d593c2416',
+  mayura: 'e728e71d-07c3-48ed-a736-3e47929d2fff',
+  jodi: 'c95df244-aed0-40e3-8c07-df1a126bbae8',
+  dak: 'df21604d-a224-4ec4-a7cc-034eb111c3a8',
+  ivory: 'be9db01e-9dfb-4dd3-8c4d-ff3982d6221e',
+};
+
 // 🚀 Publish Wedding Site into Supabase (status = 'published', is_locked = true, editing_status = 'locked')
 export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ success: boolean; site?: WeddingSite; error?: string }> => {
   const { userId, themeId, state, customSlug } = params;
-  const slug = customSlug || `${(state.couple.groomEn || 'groom').toLowerCase().replace(/[^a-z0-9]/g, '')}-${(state.couple.brideEn || 'bride').toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+  const groomSlug = (state.couple?.groomEn || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const brideSlug = (state.couple?.brideEn || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const fallbackSlug = (groomSlug && brideSlug) ? `${groomSlug}-${brideSlug}` : (groomSlug || brideSlug || 'royal-wedding');
+  const slug = (customSlug || fallbackSlug).replace(/^\/i\//, '').replace(/^i\//, '').trim();
   const publishedUrl = `/i/${slug}`;
   const now = new Date().toISOString();
 
@@ -19,7 +33,7 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
 
   try {
     if (isSupabaseConfigured) {
-      // 1. Fetch template UUID from templates table
+      // 1. Fetch template UUID from templates table with hardcoded fallback map
       let templateUuid: string | null = null;
       try {
         const { data: tpl } = await supabase
@@ -31,52 +45,57 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
       } catch (e) {}
 
       const isValidUserUuid = typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
-      const effectiveUserId = isValidUserUuid ? userId : '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
-      const effectiveTemplateUuid = templateUuid || '1c338d20-1746-4327-ba90-87a967086088';
+      let effectiveUserId = isValidUserUuid ? userId : '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
+      const effectiveTemplateUuid = templateUuid || TEMPLATE_UUID_MAP[themeId] || '1c338d20-1746-4327-ba90-87a967086088';
       const safeContent = { ...state, theme: themeId };
 
-      // 2. Check if a site already exists for this slug or user template
-      let existingSiteQuery = supabase.from('wedding_sites').select('id');
-      existingSiteQuery = existingSiteQuery.or(`published_url.ilike.%${slug}%,and(user_id.eq.${effectiveUserId},template_id.eq.${effectiveTemplateUuid})`);
+      // 2. Check if a site already exists for this exact slug or user template
+      const { data: existingSite } = await supabase
+        .from('wedding_sites')
+        .select('id, user_id')
+        .ilike('published_url', `%${slug}%`)
+        .limit(1)
+        .maybeSingle();
 
-      const { data: existingSite } = await existingSiteQuery.limit(1).maybeSingle();
+      const sitePayload: any = {
+        user_id: effectiveUserId,
+        template_id: effectiveTemplateUuid,
+        status: 'published',
+        is_locked: true,
+        content: safeContent,
+        published_url: publishedUrl,
+        published_at: now,
+        updated_at: now,
+      };
 
       if (existingSite?.id) {
         siteUuid = existingSite.id;
-        const updatePayload: any = {
-          status: 'published',
-          is_locked: true,
-          content: safeContent,
-          published_url: publishedUrl,
-          published_at: now,
-          updated_at: now,
-          template_id: effectiveTemplateUuid,
-          user_id: effectiveUserId,
-        };
-
-        await supabase
+        const { error: updErr } = await supabase
           .from('wedding_sites')
-          .update(updatePayload)
+          .update(sitePayload)
           .eq('id', existingSite.id);
-      } else {
-        const insertPayload: any = {
-          user_id: effectiveUserId,
-          template_id: effectiveTemplateUuid,
-          status: 'published',
-          is_locked: true,
-          content: safeContent,
-          published_url: publishedUrl,
-          published_at: now,
-          updated_at: now,
-        };
 
+        if (updErr && updErr.code === '23503') {
+          // If foreign key failed on user_id, fallback to master user
+          sitePayload.user_id = '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
+          await supabase.from('wedding_sites').update(sitePayload).eq('id', existingSite.id);
+        }
+      } else {
         const { data: newSite, error: insErr } = await supabase
           .from('wedding_sites')
-          .insert(insertPayload)
+          .insert(sitePayload)
           .select()
           .single();
 
-        if (!insErr && newSite?.id) {
+        if (insErr && insErr.code === '23503') {
+          sitePayload.user_id = '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
+          const { data: fallbackSite } = await supabase
+            .from('wedding_sites')
+            .insert(sitePayload)
+            .select()
+            .single();
+          if (fallbackSite?.id) siteUuid = fallbackSite.id;
+        } else if (newSite?.id) {
           siteUuid = newSite.id;
         }
       }
