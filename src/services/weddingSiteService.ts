@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { WeddingProjectState, WeddingSite, ThemeId } from '../types/wedding';
+import { resolveApiUrl } from '../utils/apiConfig';
 
 export interface PublishSiteParams {
   userId: string;
@@ -28,12 +29,39 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
   const slug = (customSlug || fallbackSlug).replace(/^\/i\//, '').replace(/^i\//, '').trim();
   const publishedUrl = `/i/${slug}`;
   const now = new Date().toISOString();
+  const safeContent = { ...state, theme: themeId };
 
   let siteUuid = `${themeId}-${Date.now().toString(36)}`;
+  let isSavedToServer = false;
 
   try {
+    // 1. 🛡️ Primary Authoritative Serverless Persistence Engine
+    try {
+      const publishEndpoint = resolveApiUrl('/api/invitations/publish');
+      const res = await fetch(publishEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: userId || '4fe4383d-9cd0-49df-b8ff-2b833db40f17',
+          themeId,
+          invitationState: safeContent,
+          slug,
+        }),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          isSavedToServer = true;
+          if (json.site?.id) siteUuid = json.site.id;
+        }
+      }
+    } catch (srvErr) {
+      console.warn('Server publish API note:', srvErr);
+    }
+
+    // 2. Direct Supabase Fallback Sync (if Supabase client is available)
     if (isSupabaseConfigured) {
-      // 1. Fetch template UUID from templates table with hardcoded fallback map
       let templateUuid: string | null = null;
       try {
         const { data: tpl } = await supabase
@@ -47,9 +75,8 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
       const isValidUserUuid = typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
       let effectiveUserId = isValidUserUuid ? userId : '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
       const effectiveTemplateUuid = templateUuid || TEMPLATE_UUID_MAP[themeId] || '1c338d20-1746-4327-ba90-87a967086088';
-      const safeContent = { ...state, theme: themeId };
 
-      // 2. Check if a site already exists for this exact slug or user template
+      // Check if site already exists
       const { data: existingSite } = await supabase
         .from('wedding_sites')
         .select('id, user_id')
@@ -75,8 +102,7 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
           .update(sitePayload)
           .eq('id', existingSite.id);
 
-        if (updErr && updErr.code === '23503') {
-          // If foreign key failed on user_id, fallback to master user
+        if (updErr) {
           sitePayload.user_id = '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
           await supabase.from('wedding_sites').update(sitePayload).eq('id', existingSite.id);
         }
@@ -87,7 +113,7 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
           .select()
           .single();
 
-        if (insErr && insErr.code === '23503') {
+        if (insErr) {
           sitePayload.user_id = '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
           const { data: fallbackSite } = await supabase
             .from('wedding_sites')
@@ -99,21 +125,6 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
           siteUuid = newSite.id;
         }
       }
-
-      // 3. Fallback server-side publish dispatch
-      try {
-        const apiBase = (typeof window !== 'undefined' && ((window as any).VITE_API_BASE_URL || (window as any).API_BASE_URL)) || '';
-        await fetch(`${apiBase}/api/invitations/publish`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: effectiveUserId,
-            themeId,
-            invitationState: safeContent,
-            slug,
-          }),
-        });
-      } catch (srvErr) {}
     }
   } catch (err: any) {
     console.warn('Error during Supabase publish sync:', err);

@@ -534,6 +534,47 @@ const handleVerifyPayment = async (req, res) => {
 
         console.log(`👑 [Partner Commission] Credited ₹${commissionAmount} to Partner ${effectivePartnerId} (Retail: ₹${priceInfo.retailPriceInRupees}, Partner: ₹${priceInfo.partnerPriceInRupees}, Order: ${finalOrderId})`);
       }
+
+      // 5. 🏰 Direct Server-Side Wedding Site Persistence on Verified Payment
+      if (invitationData && (invitationData.couple?.groomEn || invitationData.couple?.brideEn)) {
+        try {
+          const rawG = invitationData.couple?.groomEn || '';
+          const rawB = invitationData.couple?.brideEn || '';
+          const gSlug = rawG.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const bSlug = rawB.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const cSlug = (gSlug && bSlug) ? `${gSlug}-${bSlug}` : (gSlug || bSlug || `${templateId}-${Date.now().toString(36)}`);
+          const pubUrl = `/i/${cSlug}`;
+
+          let saveUserId = '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
+          if (userId && typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+            const { data: prof } = await supabase.from('profiles').select('id').eq('id', userId).maybeSingle();
+            if (prof?.id) saveUserId = prof.id;
+          }
+
+          const targetTplUuid = allTemplates?.find(t => t.slug === templateId)?.id || '1c338d20-1746-4327-ba90-87a967086088';
+
+          const siteSavePayload = {
+            user_id: saveUserId,
+            template_id: targetTplUuid,
+            status: 'published',
+            is_locked: true,
+            content: { ...invitationData, theme: templateId },
+            published_url: pubUrl,
+            published_at: nowIso,
+            updated_at: nowIso,
+          };
+
+          const { data: exSite } = await supabase.from('wedding_sites').select('id').ilike('published_url', `%${cSlug}%`).limit(1).maybeSingle();
+          if (exSite?.id) {
+            await supabase.from('wedding_sites').update(siteSavePayload).eq('id', exSite.id);
+          } else {
+            await supabase.from('wedding_sites').insert(siteSavePayload);
+          }
+          console.log(`🏰 [AmantranLink] Persisted paid wedding site directly to Supabase: ${cSlug}`);
+        } catch (saveErr) {
+          console.warn('Direct site save on payment note:', saveErr.message);
+        }
+      }
     } catch (dbErr) {
       console.warn('⚠️ Database purchase update note:', dbErr.message);
     }
@@ -1754,72 +1795,101 @@ const PUBLISHED_SITES_CACHE = new Map();
 app.post('/api/invitations/publish', async (req, res) => {
   try {
     const { userId, themeId, invitationState, slug } = req.body;
-    if (!userId || !themeId) return res.status(400).json({ error: 'Missing userId or themeId.' });
+    if (!themeId) return res.status(400).json({ error: 'Missing themeId.' });
 
     const now = new Date().toISOString();
-    const coupleSlug = slug || `${themeId}-${Date.now().toString(36)}`;
+    const rawGroom = invitationState?.couple?.groomEn || '';
+    const rawBride = invitationState?.couple?.brideEn || '';
+    const cleanGroom = rawGroom.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const cleanBride = rawBride.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const autoSlug = (cleanGroom && cleanBride) ? `${cleanGroom}-${cleanBride}` : (cleanGroom || cleanBride || 'royal-wedding');
+    const coupleSlug = (slug || autoSlug).replace(/^\/i\//, '').replace(/^i\//, '').trim().toLowerCase();
     const publishedUrl = `/i/${coupleSlug}`;
 
-    // Cache locally in fast memory
+    const TEMPLATE_UUID_MAP = {
+      rajmahal: '1c338d20-1746-4327-ba90-87a967086088',
+      royaldawn: '04bf308b-ea5c-429a-9552-c55c076cd137',
+      royalring: '79a0a5b6-dad9-4c85-8698-0ff40aec8216',
+      jharokha: 'ecebe27f-e21b-4a57-a684-739d593c2416',
+      mayura: 'e728e71d-07c3-48ed-a736-3e47929d2fff',
+      jodi: 'c95df244-aed0-40e3-8c07-df1a126bbae8',
+      dak: 'df21604d-a224-4ec4-a7cc-034eb111c3a8',
+      ivory: 'be9db01e-9dfb-4dd3-8c4d-ff3982d6221e',
+    };
+
+    const effectiveTheme = themeId || invitationState?.theme || 'rajmahal';
+    const tplId = TEMPLATE_UUID_MAP[effectiveTheme] || '1c338d20-1746-4327-ba90-87a967086088';
+
+    // Verify user ID in profiles or use guaranteed master profile ID (anti-FK violation)
+    let finalUserId = '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
+    if (userId && typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+      try {
+        const { data: prof } = await supabase.from('profiles').select('id').eq('id', userId).maybeSingle();
+        if (prof?.id) {
+          finalUserId = prof.id;
+        }
+      } catch (e) {}
+    }
+
+    const safeContent = {
+      ...(invitationState || {}),
+      theme: effectiveTheme,
+    };
+
+    // Cache locally in fast memory immediately
     PUBLISHED_SITES_CACHE.set(coupleSlug.toLowerCase(), {
       id: `site_${coupleSlug}`,
       slug: coupleSlug,
-      user_id: userId,
-      template_id: themeId,
+      user_id: finalUserId,
+      template_id: tplId,
       status: 'published',
       is_locked: true,
-      content: invitationState,
+      content: safeContent,
       published_url: publishedUrl,
       published_at: now,
-      templates: { slug: themeId, name: `The ${themeId.toUpperCase()}` }
+      templates: { slug: effectiveTheme, name: `The ${effectiveTheme.toUpperCase()}` }
     });
 
     try {
-      const TEMPLATE_UUID_MAP = {
-        rajmahal: '1c338d20-1746-4327-ba90-87a967086088',
-        royaldawn: '04bf308b-ea5c-429a-9552-c55c076cd137',
-        royalring: '79a0a5b6-dad9-4c85-8698-0ff40aec8216',
-        jharokha: 'ecebe27f-e21b-4a57-a684-739d593c2416',
-        mayura: 'e728e71d-07c3-48ed-a736-3e47929d2fff',
-        jodi: 'c95df244-aed0-40e3-8c07-df1a126bbae8',
-        dak: 'df21604d-a224-4ec4-a7cc-034eb111c3a8',
-        ivory: 'be9db01e-9dfb-4dd3-8c4d-ff3982d6221e',
-      };
-
-      const { data: tpl } = await supabase.from('templates').select('id').eq('slug', themeId).maybeSingle();
-      const tplId = tpl?.id || TEMPLATE_UUID_MAP[themeId] || '1c338d20-1746-4327-ba90-87a967086088';
-      const effectiveUserId = (typeof userId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId))
-        ? userId
-        : '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
-
       const { data: existingSite } = await supabase
         .from('wedding_sites')
-        .select('id')
+        .select('id, user_id')
         .ilike('published_url', `%${coupleSlug}%`)
         .limit(1)
         .maybeSingle();
 
       const sitePayload = {
-        user_id: effectiveUserId,
+        user_id: finalUserId,
         template_id: tplId,
         status: 'published',
         is_locked: true,
-        content: { ...invitationState, theme: themeId },
+        content: safeContent,
         published_url: publishedUrl,
         published_at: now,
         updated_at: now,
       };
 
+      let dbRes = null;
       if (existingSite?.id) {
-        await supabase.from('wedding_sites').update(sitePayload).eq('id', existingSite.id);
+        dbRes = await supabase.from('wedding_sites').update(sitePayload).eq('id', existingSite.id).select().maybeSingle();
       } else {
-        await supabase.from('wedding_sites').insert(sitePayload);
+        dbRes = await supabase.from('wedding_sites').insert(sitePayload).select().maybeSingle();
+      }
+
+      if (dbRes?.error) {
+        console.warn('⚠️ Supabase publish insert retry with master user:', dbRes.error.message);
+        sitePayload.user_id = '4fe4383d-9cd0-49df-b8ff-2b833db40f17';
+        if (existingSite?.id) {
+          await supabase.from('wedding_sites').update(sitePayload).eq('id', existingSite.id);
+        } else {
+          await supabase.from('wedding_sites').insert(sitePayload);
+        }
       }
     } catch (dbErr) {
       console.warn('DB publish update note:', dbErr.message);
     }
 
-    console.log(`🏰 [AmantranLink] Published & Locked Invitation: ${coupleSlug} for User ${userId}`);
+    console.log(`🏰 [AmantranLink] Published & Locked Invitation: ${coupleSlug} with Theme ${effectiveTheme}`);
 
     return res.json({
       success: true,
@@ -1828,8 +1898,10 @@ app.post('/api/invitations/publish', async (req, res) => {
       isLocked: true,
       slug: coupleSlug,
       publishedUrl,
+      theme: effectiveTheme,
     });
   } catch (e) {
+    console.error('Error in /api/invitations/publish:', e);
     return res.status(500).json({ error: e.message });
   }
 });
@@ -1947,7 +2019,7 @@ app.get('/api/templates', async (req, res) => {
 app.get(['/api/public/wedding/:slug', '/api/invitations/:slug'], async (req, res) => {
   const { slug } = req.params;
   try {
-    const cleanSlug = String(slug).toLowerCase().trim();
+    const cleanSlug = String(slug).toLowerCase().trim().replace(/^\/i\//, '').replace(/^i\//, '').replace(/\/+$/, '');
 
     // Check fast in-memory cache first
     const cached = PUBLISHED_SITES_CACHE.get(cleanSlug);
@@ -1955,17 +2027,28 @@ app.get(['/api/public/wedding/:slug', '/api/invitations/:slug'], async (req, res
       return res.json({
         success: true,
         site: cached,
-        themeId: cached.template_id || cached.content?.theme || 'rajmahal',
+        themeId: cached.content?.theme || cached.template_id || 'rajmahal',
         content: cached.content,
       });
     }
+
+    const TEMPLATE_UUID_TO_SLUG = {
+      '1c338d20-1746-4327-ba90-87a967086088': 'rajmahal',
+      '04bf308b-ea5c-429a-9552-c55c076cd137': 'royaldawn',
+      '79a0a5b6-dad9-4c85-8698-0ff40aec8216': 'royalring',
+      'ecebe27f-e21b-4a57-a684-739d593c2416': 'jharokha',
+      'e728e71d-07c3-48ed-a736-3e47929d2fff': 'mayura',
+      'c95df244-aed0-40e3-8c07-df1a126bbae8': 'jodi',
+      'df21604d-a224-4ec4-a7cc-034eb111c3a8': 'dak',
+      'be9db01e-9dfb-4dd3-8c4d-ff3982d6221e': 'ivory',
+    };
 
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanSlug);
     
     let query = supabase
       .from('wedding_sites')
-      .select('id, template_id, status, content, published_url, published_at, templates(slug, name)')
-      .eq('status', 'published');
+      .select('id, template_id, status, content, published_url, published_at, studio_badge')
+      .neq('status', 'archived');
 
     if (isUuid) {
       query = query.or(`id.eq.${cleanSlug},published_url.ilike.%${cleanSlug}%`);
@@ -1975,12 +2058,23 @@ app.get(['/api/public/wedding/:slug', '/api/invitations/:slug'], async (req, res
 
     const { data, error } = await query.order('updated_at', { ascending: false }).limit(1).maybeSingle();
 
-    if (!error && data) {
+    if (!error && data && data.content) {
+      const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+      const effectiveTheme = (
+        data.content.theme || 
+        TEMPLATE_UUID_TO_SLUG[data.template_id] || 
+        (validThemes.includes(data.template_id) ? data.template_id : null) || 
+        'rajmahal'
+      );
+
       return res.json({ 
         success: true, 
         site: data,
-        themeId: data.templates?.slug || data.content?.theme || 'rajmahal',
-        content: data.content,
+        themeId: effectiveTheme,
+        content: {
+          ...data.content,
+          theme: effectiveTheme
+        },
       });
     }
   } catch (e) {

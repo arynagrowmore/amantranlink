@@ -10,6 +10,7 @@ import { PersonalizedGuestBanner } from './Guest/PersonalizedGuestBanner';
 import { AdvancedRsvpModal } from './Guest/AdvancedRsvpModal';
 import { submitWeddingMemory } from '../services/memoryService';
 import { submitAdvancedGuestRsvp } from '../services/rsvpService';
+import { resolveApiUrl } from '../utils/apiConfig';
 
 interface StandaloneInvitationViewProps {
   initialState?: WeddingProjectState;
@@ -144,13 +145,49 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         }
       }
 
-      // Attempt 1: Fetch from Supabase (Source of Truth)
+      // Attempt 1: Fetch from Serverless API /api/public/wedding/:slug (Bypasses Browser RLS, Single Source of Truth)
+      if (targetSlug) {
+        try {
+          const publicApiUrl = resolveApiUrl(`/api/public/wedding/${encodeURIComponent(targetSlug)}`);
+          const res = await fetch(publicApiUrl);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.success && json.content && (json.content.couple?.groomEn || json.content.couple?.brideEn) && isMounted) {
+              const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
+              const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+              const effectiveTheme = (
+                (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
+                json.themeId ||
+                json.content?.theme ||
+                'rajmahal'
+              ) as ThemeId;
+
+              setThemeId(effectiveTheme);
+              setLoadedState({
+                ...(json.content as WeddingProjectState),
+                theme: effectiveTheme,
+              });
+              setSiteId(json.site?.id || null);
+              if (json.site?.studio_badge) {
+                setStudioBadge(json.site.studio_badge);
+              }
+              setIsLoading(false);
+              return;
+            }
+          }
+        } catch (apiErr) {
+          console.warn('Serverless API fetch fallback note:', apiErr);
+        }
+      }
+
+      // Attempt 1.5: Direct Supabase Fetch Fallback
       if (isSupabaseConfigured && targetSlug) {
         try {
           const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetSlug);
           let query = supabase
             .from('wedding_sites')
             .select('id, template_id, status, content, published_url, studio_badge')
+            .neq('status', 'archived')
             .order('updated_at', { ascending: false });
 
           if (isUuid) {
@@ -161,7 +198,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
 
           const { data: site, error } = await query.limit(1).maybeSingle();
 
-          if (!error && site && site.content && isMounted) {
+          if (!error && site && site.content && (site.content.couple?.groomEn || site.content.couple?.brideEn) && isMounted) {
             const mappedTplSlug = site.template_id ? TEMPLATE_UUID_TO_SLUG[site.template_id] : null;
             const contentTheme = (site.content as any)?.theme;
             const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
@@ -190,37 +227,6 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
           }
         } catch (e) {
           console.warn('Supabase site fetch note:', e);
-        }
-      }
-
-      // Attempt 1.5: Serverless API fallback /api/public/wedding/:slug
-      if (targetSlug) {
-        try {
-          const res = await fetch(`/api/public/wedding/${encodeURIComponent(targetSlug)}`);
-          if (res.ok) {
-            const json = await res.json();
-            if (json.success && json.content && isMounted) {
-              const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
-              const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
-              const effectiveTheme = (
-                (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
-                json.themeId ||
-                json.content?.theme ||
-                'rajmahal'
-              ) as ThemeId;
-
-              setThemeId(effectiveTheme);
-              setLoadedState({
-                ...(json.content as WeddingProjectState),
-                theme: effectiveTheme,
-              });
-              setSiteId(json.site?.id || null);
-              setIsLoading(false);
-              return;
-            }
-          }
-        } catch (apiErr) {
-          console.warn('Serverless API fetch fallback note:', apiErr);
         }
       }
 
@@ -439,10 +445,31 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
 
       applyInvitationDataToTemplateDOM(doc, win, normalizedData);
 
-      // Forcefully reveal any deferred animation nodes so mobile screens never stay blank
-      doc.querySelectorAll('[data-tw-reveal="true"]').forEach((el) => {
-        el.classList.add('is-revealed');
-      });
+      // 🛡️ Mobile Visibility & Anti-Blank Screen Injection (Guarantees no section is hidden on mobile)
+      try {
+        if (doc.head && !doc.getElementById('shahi-anti-blank-style')) {
+          const antiBlankStyle = doc.createElement('style');
+          antiBlankStyle.id = 'shahi-anti-blank-style';
+          antiBlankStyle.textContent = `
+            body, main, section, .hero, .rjm-hero, .myr-hero, .jhr-hero, .jdi-hero, .dak-hero, .ivory-hero, .rd-hero {
+              visibility: visible !important;
+            }
+            [data-tw-reveal="true"], .reveal, .is-hidden {
+              opacity: 1 !important;
+              visibility: visible !important;
+              transform: none !important;
+            }
+          `;
+          doc.head.appendChild(antiBlankStyle);
+        }
+
+        doc.querySelectorAll('[data-tw-reveal="true"], .reveal, .is-hidden').forEach((el) => {
+          el.classList.add('is-revealed');
+          (el as HTMLElement).style.opacity = '1';
+          (el as HTMLElement).style.visibility = 'visible';
+          (el as HTMLElement).style.transform = 'none';
+        });
+      } catch (styleErr) {}
 
       // If personalized guest exists, inject greeting into template
       if (guest) {
