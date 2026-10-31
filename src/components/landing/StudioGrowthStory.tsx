@@ -91,10 +91,10 @@ export const StudioGrowthStory: React.FC<StudioGrowthStoryProps> = ({
                   STAGE 01 · CAPTURE
                 </span>
               </div>
-              <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#1A1715]">
+              <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020]">
                 Wedding Photography
               </h3>
-              <p className="text-xs text-[#5C524B] leading-relaxed">
+              <p className="text-xs sm:text-[13px] text-[#430914] font-medium leading-relaxed">
                 The haldi smiles, baraat energy, and varmala rituals captured through your team’s artistic lens.
               </p>
             </div>
@@ -109,10 +109,10 @@ export const StudioGrowthStory: React.FC<StudioGrowthStoryProps> = ({
                   STAGE 02 · ELEVATE
                 </span>
               </div>
-              <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#1A1715]">
+              <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020]">
                 Digital Palace Invitation
               </h3>
-              <p className="text-xs text-[#5C524B] leading-relaxed">
+              <p className="text-xs sm:text-[13px] text-[#430914] font-medium leading-relaxed">
                 Transform their portraits into a living 3D palace experience with shehnai music and personalized WhatsApp invites.
               </p>
             </div>
@@ -127,10 +127,10 @@ export const StudioGrowthStory: React.FC<StudioGrowthStoryProps> = ({
                   STAGE 03 · MONETIZE
                 </span>
               </div>
-              <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#1A1715]">
+              <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020]">
                 Studio Branding &amp; Referrals
               </h3>
-              <p className="text-xs text-[#5C524B] leading-relaxed">
+              <p className="text-xs sm:text-[13px] text-[#430914] font-medium leading-relaxed">
                 Every wedding displays your studio badge to 500+ guests, generating seamless high-ticket photography inquiries.
               </p>
             </div>

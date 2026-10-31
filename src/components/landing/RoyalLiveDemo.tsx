@@ -151,7 +151,7 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
               <span className="text-xs font-sans font-bold uppercase tracking-wider text-[#8E6725] bg-[#FAF6EE] px-3.5 py-1 rounded-full border border-[#E8D5AD] shadow-2xs">
                 {current.badge}
               </span>
-              <span className="text-xs sm:text-sm text-[#1A1412] font-serif font-bold italic">
+              <span className="text-xs sm:text-sm text-[#6E1020] font-serif font-bold italic">
                 {current.subtitle}
               </span>
             </div>
@@ -160,13 +160,13 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
               <h3 className="font-serif font-bold text-3xl sm:text-4xl text-[#6E1020]">
                 {current.name}
               </h3>
-              <p className="text-sm sm:text-base text-[#1A1412] font-semibold leading-relaxed">
+              <p className="text-sm sm:text-base text-[#430914] font-semibold leading-relaxed">
                 {current.tagline}
               </p>
             </div>
 
             {/* 3 Genuine Highlights */}
-            <div className="space-y-3 pt-2 text-xs sm:text-sm text-[#1A1412] font-bold">
+            <div className="space-y-3 pt-2 text-xs sm:text-sm text-[#6E1020] font-bold">
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
                 <span>Lossless Shehnai & Auspicious Welcome Music</span>

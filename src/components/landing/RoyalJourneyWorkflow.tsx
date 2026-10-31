@@ -99,7 +99,7 @@ export const RoyalJourneyWorkflow: React.FC<{ onEnterStudio: () => void }> = ({ 
               {/* Stage Title */}
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-serif font-bold text-xl text-[#1A1412] tracking-tight">
+                  <h3 className="font-serif font-bold text-xl text-[#6E1020] tracking-tight">
                     {stage.stageName}
                   </h3>
                   <span className="text-xs text-[#8B1528] font-bold">
@@ -109,7 +109,7 @@ export const RoyalJourneyWorkflow: React.FC<{ onEnterStudio: () => void }> = ({ 
                 <h4 className="text-xs font-bold text-[#6E1020] leading-snug pt-0.5">
                   {stage.headline}
                 </h4>
-                <p className="text-xs sm:text-[13px] text-[#1A1412] font-semibold leading-relaxed pt-1.5">
+                <p className="text-xs sm:text-[13px] text-[#430914] font-semibold leading-relaxed pt-1.5">
                   {stage.description}
                 </p>
               </div>
@@ -117,7 +117,7 @@ export const RoyalJourneyWorkflow: React.FC<{ onEnterStudio: () => void }> = ({ 
               {/* Highlights */}
               <div className="pt-3 border-t border-[#E8DCC8]/60 space-y-1.5">
                 {stage.highlights.map((h, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-[#1A1412] font-semibold">
+                  <div key={i} className="flex items-center gap-2 text-xs text-[#430914] font-semibold">
                     <Check className="w-3.5 h-3.5 text-[#167A5A] shrink-0" />
                     <span>{h}</span>
                   </div>

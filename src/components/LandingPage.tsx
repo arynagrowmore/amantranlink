@@ -631,19 +631,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="pt-6 border-t-2 border-[#E8D5AD] grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
               <div>
                 <span className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020] block leading-tight">12,500+</span>
-                <span className="text-xs text-[#1A1412] font-bold">Weddings Celebrated</span>
+                <span className="text-xs text-[#6E1020] font-bold">Weddings Celebrated</span>
               </div>
               <div>
                 <span className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020] block leading-tight">4.9 ★★★★★</span>
-                <span className="text-xs text-[#1A1412] font-bold">Family Rating</span>
+                <span className="text-xs text-[#6E1020] font-bold">Family Rating</span>
               </div>
               <div>
                 <span className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020] block leading-tight">Instant</span>
-                <span className="text-xs text-[#1A1412] font-bold">WhatsApp Delivery</span>
+                <span className="text-xs text-[#6E1020] font-bold">WhatsApp Delivery</span>
               </div>
               <div>
                 <span className="font-serif font-bold text-xl sm:text-2xl text-[#167A5A] block leading-tight">₹0 Free</span>
-                <span className="text-xs text-[#1A1412] font-bold">To Design &amp; Preview</span>
+                <span className="text-xs text-[#6E1020] font-bold">To Design &amp; Preview</span>
               </div>
             </div>
 
@@ -832,13 +832,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     </div>
 
                     {/* E. 2-Line Clamped Description */}
-                    <p className="text-xs text-[#4A3E39] font-normal leading-relaxed line-clamp-2 min-h-[34px] pt-0.5">
+                    <p className="text-xs text-[#350811] font-medium leading-relaxed line-clamp-2 min-h-[34px] pt-0.5">
                       {theme.tagline}
                     </p>
                   </div>
 
                   {/* F. 3 Key Features */}
-                  <div className="space-y-1.5 pt-3 border-t border-[#E8D5AD]/60 text-xs text-[#241A17]/85">
+                  <div className="space-y-1.5 pt-3 border-t border-[#E8D5AD]/60 text-xs text-[#241A17] font-semibold">
                     {theme.features.slice(0, 3).map((feat, idx) => (
                       <div key={idx} className="flex items-center gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#167A5A] shrink-0" />
@@ -970,7 +970,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 className="p-8 rounded-3xl bg-white border border-[#E8DCC8] shadow-[0_4px_24px_-4px_rgba(67,9,20,0.06)] flex flex-col justify-between"
               >
                 <div className="space-y-4">
-                  <p className="text-xs sm:text-sm text-[#241A17]/85 font-normal leading-relaxed italic">
+                  <p className="text-xs sm:text-sm text-[#350811] font-medium leading-relaxed italic">
                     “{item.quote}”
                   </p>
                 </div>
@@ -981,7 +981,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <h4 className="font-serif font-bold text-base text-[#6E1020]">
                       {item.couple}
                     </h4>
-                    <p className="text-[11px] text-[#75675C]">
+                    <p className="text-[11px] text-[#6E1020] font-semibold">
                       {item.location}
                     </p>
                     <p className="text-[10px] font-mono text-[#C49A35] font-semibold pt-0.5">
@@ -1027,7 +1027,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               Begin Your Royal Invitation
             </h2>
 
-            <p className="text-sm sm:text-base text-[#4A3E39] font-normal leading-relaxed">
+            <p className="text-sm sm:text-base text-[#6E1020] font-bold leading-relaxed">
               Turn your wedding announcement into an unforgettable digital celebration your guests will cherish forever.
             </p>
 

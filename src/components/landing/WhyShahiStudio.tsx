@@ -86,7 +86,7 @@ export const WhyShahiStudio: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#1A1412] tracking-tight">
+                <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#6E1020] tracking-tight">
                   {item.title}
                 </h3>
                 <p className="text-xs sm:text-[13px] text-[#8B1528] font-bold pt-1">
@@ -94,7 +94,7 @@ export const WhyShahiStudio: React.FC = () => {
                 </p>
               </div>
 
-              <p className="text-xs sm:text-sm text-[#1A1412] font-semibold leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#430914] font-semibold leading-relaxed">
                 {item.description}
               </p>
             </div>

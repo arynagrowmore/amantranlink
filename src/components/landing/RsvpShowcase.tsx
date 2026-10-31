@@ -96,14 +96,14 @@ export const RsvpShowcase: React.FC<{ onEnterStudio: () => void }> = ({ onEnterS
             <div>
               <div className="flex items-center gap-2.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#167A5A] animate-pulse" />
-                <h3 className="text-base sm:text-lg font-bold text-[#1A1412]">
+                <h3 className="text-base sm:text-lg font-bold text-[#6E1020]">
                   Dhruv &amp; Shreya’s Royal Vivah
                 </h3>
                 <span className="text-[10px] font-mono font-bold bg-[#FAF6EE] text-[#6E1020] border border-[#E8DCC8] px-2.5 py-0.5 rounded-full uppercase">
                   LIVE TRACKING
                 </span>
               </div>
-              <p className="text-xs sm:text-[13px] text-[#1A1412] font-semibold mt-1">
+              <p className="text-xs sm:text-[13px] text-[#6E1020] font-semibold mt-1">
                 The Milestone Palace, Himmatnagar · 3 December 2026
               </p>
             </div>
@@ -167,16 +167,16 @@ export const RsvpShowcase: React.FC<{ onEnterStudio: () => void }> = ({ onEnterS
             </div>
 
             <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF8F5] border border-[#E8DCC8] space-y-1 shadow-2xs">
-              <span className="text-[11px] font-semibold text-[#6E1020] uppercase tracking-wider block">
+              <span className="text-[11px] font-bold text-[#6E1020] uppercase tracking-wider block">
                 Total Headcount
               </span>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl sm:text-3xl font-mono font-extrabold text-[#6E1020] tabular-nums">
                   148
                 </span>
-                <span className="text-xs text-[#6E1020]/80 font-medium">Invites</span>
+                <span className="text-xs text-[#6E1020] font-bold">Invites</span>
               </div>
-              <span className="text-[10px] text-[#6E1020]/70 block pt-0.5">
+              <span className="text-xs text-[#6E1020] font-semibold block pt-0.5">
                 83.7% Response Rate
               </span>
             </div>

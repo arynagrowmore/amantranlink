@@ -281,8 +281,8 @@ export const PalaceFaqAccordion: React.FC = () => {
 
                 {/* Smooth Expand Body with Highlights */}
                 {isOpen && (
-                  <div className="px-5 sm:px-6 pb-6 pt-2 text-xs sm:text-sm text-[#241A17]/90 font-normal leading-relaxed border-t border-[#E8D5AD]/50 animate-in fade-in duration-200 space-y-4">
-                    <p className="leading-relaxed text-[#241A17]/85">
+                  <div className="px-5 sm:px-6 pb-6 pt-2 text-xs sm:text-sm text-[#241A17] font-medium leading-relaxed border-t border-[#E8D5AD]/50 animate-in fade-in duration-200 space-y-4">
+                    <p className="leading-relaxed text-[#241A17] font-medium">
                       {faq.a}
                     </p>
 

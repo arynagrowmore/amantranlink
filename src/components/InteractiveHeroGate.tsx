@@ -58,10 +58,10 @@ export const InteractiveHeroGate: React.FC<InteractiveHeroGateProps> = ({ state,
           <Sparkles className="w-4 h-4 text-[#C49A35]" />
         </div>
         <div>
-          <span className="text-[11px] font-bold text-[#1A1715] block leading-tight">
+          <span className="text-[11px] font-bold text-[#6E1020] block leading-tight">
             3D Palace Gates
           </span>
-          <span className="text-[9.5px] font-medium text-[#75675C]">
+          <span className="text-[9.5px] font-semibold text-[#6E1020]">
             Cinematic Opening Reveal
           </span>
         </div>
@@ -76,10 +76,10 @@ export const InteractiveHeroGate: React.FC<InteractiveHeroGateProps> = ({ state,
           <Volume2 className="w-4 h-4 text-[#C49A35]" />
         </div>
         <div>
-          <span className="text-[11px] font-bold text-[#1A1715] block leading-tight">
+          <span className="text-[11px] font-bold text-[#6E1020] block leading-tight">
             Ceremonial Shehnai
           </span>
-          <span className="text-[9.5px] font-medium text-[#75675C] flex items-center gap-1.5">
+          <span className="text-[9.5px] font-semibold text-[#6E1020] flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#167A5A]" />
             Curated Shahi Ragas
           </span>
@@ -95,10 +95,10 @@ export const InteractiveHeroGate: React.FC<InteractiveHeroGateProps> = ({ state,
           <MapPin className="w-4 h-4 text-[#C49A35]" />
         </div>
         <div>
-          <span className="text-[11px] font-bold text-[#1A1715] block leading-tight">
+          <span className="text-[11px] font-bold text-[#6E1020] block leading-tight">
             1-Tap GPS Navigation
           </span>
-          <span className="text-[9.5px] font-medium text-[#75675C]">
+          <span className="text-[9.5px] font-semibold text-[#6E1020]">
             Directs Guests to Mandap
           </span>
         </div>
@@ -113,10 +113,10 @@ export const InteractiveHeroGate: React.FC<InteractiveHeroGateProps> = ({ state,
           <Send className="w-4 h-4 text-white" />
         </div>
         <div>
-          <span className="text-[11px] font-bold text-[#1A1715] block leading-tight">
+          <span className="text-[11px] font-bold text-[#167A5A] block leading-tight">
             WhatsApp Smart Link
           </span>
-          <span className="text-[9.5px] font-medium text-[#75675C]">
+          <span className="text-[9.5px] font-semibold text-[#167A5A]">
             Bespoke Family Greeting
           </span>
         </div>
@@ -166,7 +166,7 @@ export const InteractiveHeroGate: React.FC<InteractiveHeroGateProps> = ({ state,
       </div>
 
       {/* Interactive Hint Underneath */}
-      <div className="mt-4 flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-[#E8DCC8] text-[11px] font-medium text-[#5C524B] shadow-2xs">
+      <div className="mt-4 flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/95 border border-[#E8DCC8] text-[11px] font-bold text-[#6E1020] shadow-2xs">
         <span className="w-2 h-2 rounded-full bg-[#167A5A] animate-ping" />
         <span>Interactive Live Preview · Tap phone to customize in studio</span>
         <ChevronRight className="w-3.5 h-3.5 text-[#C49A35]" />

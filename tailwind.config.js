@@ -43,7 +43,6 @@ export default {
         'muted-text': '#75675C',
         'luxury-success': '#167A5A',
         // Legacy palette mappings
-        base: '#F8F3E8',
         surface: '#FFFDF8',
         maroon: '#6E1020',
         gold: '#C49A35',
