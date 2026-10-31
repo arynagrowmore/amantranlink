@@ -24,6 +24,10 @@ interface AutomationCenterWorkspaceProps {
   userRole?: 'end_customer' | 'partner' | 'admin';
   weddingCoupleName?: string;
   weddingSlug?: string;
+  totalGuests?: number;
+  attendingGuests?: number;
+  declinedGuests?: number;
+  pendingGuests?: number;
 }
 
 export const AutomationCenterWorkspace: React.FC<AutomationCenterWorkspaceProps> = ({
@@ -31,6 +35,10 @@ export const AutomationCenterWorkspace: React.FC<AutomationCenterWorkspaceProps>
   userRole = 'partner',
   weddingCoupleName = 'Dhruv & Shreya',
   weddingSlug = 'dhruv-shreya',
+  totalGuests,
+  attendingGuests,
+  declinedGuests,
+  pendingGuests,
 }) => {
   const [activeTab, setActiveTab] = useState<'workflows' | 'whatsapp_queue' | 'preferences' | 'logs'>('workflows');
   const [rules, setRules] = useState<AutomationRule[]>([]);
@@ -152,6 +160,30 @@ export const AutomationCenterWorkspace: React.FC<AutomationCenterWorkspaceProps>
           <span>{successToast}</span>
         </div>
       )}
+
+      {/* RSVP Attendance Summary Counters */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="p-4 bg-white border border-[#E8DFD1] rounded-2xl shadow-2xs">
+          <span className="text-[10px] font-mono font-bold uppercase text-stone-500">Total Invited</span>
+          <div className="text-2xl font-bold text-stone-900 mt-1">{totalGuests || 180}</div>
+          <span className="text-[11px] text-stone-400">Guests on List</span>
+        </div>
+        <div className="p-4 bg-[#EDF7F2] border border-[#BCE3D1] rounded-2xl shadow-2xs">
+          <span className="text-[10px] font-mono font-bold uppercase text-[#136A4E]">Confirmed Attending</span>
+          <div className="text-2xl font-bold text-[#136A4E] mt-1">{attendingGuests || 124}</div>
+          <span className="text-[11px] text-[#167A5A]">69% Response Rate</span>
+        </div>
+        <div className="p-4 bg-[#FFF5F5] border border-[#FED7D7] rounded-2xl shadow-2xs">
+          <span className="text-[10px] font-mono font-bold uppercase text-[#9B2C2C]">Declined / Blessings</span>
+          <div className="text-2xl font-bold text-[#9B2C2C] mt-1">{declinedGuests || 18}</div>
+          <span className="text-[11px] text-[#9B2C2C]">Sent heartfelt wishes</span>
+        </div>
+        <div className="p-4 bg-[#FEFCF5] border border-[#FEEBC8] rounded-2xl shadow-2xs">
+          <span className="text-[10px] font-mono font-bold uppercase text-[#7B341E]">Awaiting RSVP</span>
+          <div className="text-2xl font-bold text-[#7B341E] mt-1">{pendingGuests || 38}</div>
+          <span className="text-[11px] text-[#7B341E]">Ready for 1-tap WhatsApp nudge</span>
+        </div>
+      </div>
 
       {/* Main Tab Stage */}
       {loading ? (

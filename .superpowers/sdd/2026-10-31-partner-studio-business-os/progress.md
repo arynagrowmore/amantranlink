@@ -15,4 +15,8 @@ Pre-flight status: Clean, aligned with spec.
 
 - Task 1: complete — Navigation consolidated to 6 business hubs with legacy fallbacks. Tests passing. Commit: 95ee40e
 - Task 2: complete — Built unified StudioIdentityView consolidating branding, domains, marketing, and referral settings into Hub 6. Build verified. Commit: fd007ff
-- Task 3: complete — Consolidated Money & Billing Hub with wholesale margin ledger and WhatsApp quote links. Commit: pending
+- Task 3: complete — Consolidated Money & Billing Hub with wholesale margin ledger and WhatsApp quote links. Commit: c70fce7
+- Task 4: complete — Built Lead-to-Delivery Pipeline Ribbon with interactive filter toggling and Growth Analytics sub-tab in Overview Hub. Build verified.
+- Task 5: complete — Added 1-Click WhatsApp dispatches for live invitations & client reviews with changes-requested feedback indicators.
+- Task 6: complete — Added pre-invitation inquiry onboarding and 1-Click Royal Card creator to Clients CRM.
+- Task 7: complete — Added 4-card RSVP Attendance summary ledger and 1-Click WhatsApp reminder queue in Guest Automations Hub.

@@ -35,6 +35,7 @@ import { StudioBrandingView } from './StudioBrandingView';
 import { CustomDomainsView } from './CustomDomainsView';
 import { PartnerReviewDrawer } from './PartnerReviewDrawer';
 import { StudioFinanceWorkspace } from './Finance/StudioFinanceWorkspace';
+import { fetchQuotations } from '../../services/studioFinanceService';
 import { AutomationCenterWorkspace } from '../Automation/AutomationCenterWorkspace';
 import { StudioMainHeader } from './StudioMainHeader';
 import { StudioWorkspaceNav } from './StudioWorkspaceNav';
@@ -331,6 +332,8 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'weddingDate' | 'name'>('newest');
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [copiedInviteId, setCopiedInviteId] = useState<string | null>(null);
+  const [quotations, setQuotations] = useState<any[]>([]);
+  const [pipelineFilter, setPipelineFilter] = useState<'all' | 'inquiry' | 'quote_sent' | 'advance_paid' | 'designing' | 'review' | 'live'>('all');
 
   // 🔔 In-App Notifications State
   const [notifications, setNotifications] = useState<InAppNotification[]>([]);
@@ -443,6 +446,15 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
         const notifs = await fetchUserNotifications(user.uid);
         setNotifications(notifs);
+
+        try {
+          const quotes = await fetchQuotations(user.uid);
+          if (quotes && quotes.length > 0) {
+            setQuotations(quotes);
+          }
+        } catch (qErr) {
+          console.warn('Dashboard quotations fetch error:', qErr);
+        }
       }
     } catch (err) {
       console.warn('Dashboard data fetch error:', err);
@@ -472,6 +484,34 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
       setCopiedInviteId(id);
       setTimeout(() => setCopiedInviteId(null), 2500);
     }
+  };
+
+  // 1-Click WhatsApp Dispatch Generators
+  const buildReviewWhatsAppUrl = (site: any) => {
+    const groom = site.content?.couple?.groomEn || 'Groom';
+    const bride = site.content?.couple?.brideEn || 'Bride';
+    const couple = `${groom} & ${bride}`;
+    const rawPhone = site.client_phone || site.content?.client_phone || '';
+    const phone = rawPhone.replace(/[^0-9]/g, '');
+    const reviewToken = site.review_token || site.id;
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://amantranlink-web.vercel.app';
+    const reviewUrl = `${origin}/review/${reviewToken}`;
+    const studioName = user?.studioName || user?.name || 'Our Wedding Studio';
+    const text = `Namaste ${couple} ji! 🙏✨\n\nYour royal wedding digital invitation preview is ready for your review.\n\nPlease preview the invitation, check all wedding details & timings, and share your feedback here:\n${reviewUrl}\n\nWarm regards,\n${studioName}`;
+    return phone ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
+  };
+
+  const buildLiveWhatsAppUrl = (site: any) => {
+    const groom = site.content?.couple?.groomEn || 'Groom';
+    const bride = site.content?.couple?.brideEn || 'Bride';
+    const couple = `${groom} & ${bride}`;
+    const rawPhone = site.client_phone || site.content?.client_phone || '';
+    const phone = rawPhone.replace(/[^0-9]/g, '');
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://amantranlink-web.vercel.app';
+    const liveUrl = site.published_url || `${origin}/i/${site.slug || site.id}`;
+    const studioName = user?.studioName || user?.name || 'Our Wedding Studio';
+    const text = `Shubh Vivah! 🌸🎊\n\nHeartiest congratulations ${couple}! Your Royal Wedding digital invitation portal is now officially LIVE:\n${liveUrl}\n\nYou can now share this royal link with all your esteemed guests, family & friends!\n\nWarm regards,\n${studioName}`;
+    return phone ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
   };
 
   // Open Client Review Modal
@@ -1214,17 +1254,42 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
           {activeTab === 'dashboard' && (
             <div className="space-y-8 max-w-7xl mx-auto">
               
-              {/* Personalized Hero Greeting */}
+              {/* Personalized Hero Greeting with Sub-tab Switcher */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
                     Good day, {user?.studioName || user?.name || 'Studio Partner'}
                   </h1>
                   <p className="text-xs sm:text-sm text-stone-600 mt-1">
-                    Manage your wedding projects, clients, and studio activity.
+                    Manage your wedding projects, pipeline stages, and client delivery.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <div className="flex items-center gap-1 p-1 bg-stone-100 rounded-2xl border border-stone-200/80">
+                    <button
+                      type="button"
+                      onClick={() => setOverviewSubTab('pipeline')}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                        overviewSubTab === 'pipeline'
+                          ? 'bg-white text-stone-900 shadow-2xs font-bold'
+                          : 'text-stone-500 hover:text-stone-800'
+                      }`}
+                    >
+                      Pipeline &amp; Overview
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setOverviewSubTab('analytics')}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                        overviewSubTab === 'analytics'
+                          ? 'bg-white text-stone-900 shadow-2xs font-bold'
+                          : 'text-stone-500 hover:text-stone-800'
+                      }`}
+                    >
+                      Growth Analytics
+                    </button>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() => {
@@ -1239,252 +1304,355 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
                 </div>
               </div>
 
-              {/* Summary KPIs with Visual Hierarchy (Hero Balance Card First) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Hero Card: Available Balance */}
-                <div className="p-5 bg-gradient-to-br from-emerald-900 to-[#0F766E] text-white rounded-3xl border border-emerald-700/60 shadow-md flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-emerald-200 uppercase tracking-wider">Available Balance</span>
-                    <Wallet className="w-4 h-4 text-emerald-300" />
-                  </div>
-                  <div className="my-2">
-                    <div className="text-3xl font-bold tracking-tight">₹{isLoading ? '...' : (stats.availableCredit || 0)}</div>
-                    <span className="text-[11px] text-emerald-100">Ready for instant bank / UPI payout</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('commissions')}
-                    className="self-start text-xs font-semibold text-white bg-white/15 hover:bg-white/25 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-colors cursor-pointer mt-1"
-                  >
-                    <span>Withdraw Funds</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* Metric 2: Active Projects */}
-                <div className="p-5 bg-white rounded-3xl border border-stone-200/80 shadow-2xs flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-stone-500 uppercase tracking-wider">Active Projects</span>
-                    <FileText className="w-4 h-4 text-stone-400" />
-                  </div>
-                  <div className="my-2">
-                    <div className="text-3xl font-bold text-stone-900">{isLoading ? '...' : clientSites.length}</div>
-                    <span className="text-[11px] text-stone-500">{stats.liveWeddings || 0} Live • {clientSites.length - (stats.liveWeddings || 0)} Drafts</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('invitations')}
-                    className="self-start text-xs font-semibold text-[#0F766E] hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>View Projects</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* Metric 3: Total Clients */}
-                <div className="p-5 bg-white rounded-3xl border border-stone-200/80 shadow-2xs flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-stone-500 uppercase tracking-wider">Total Clients</span>
-                    <Users className="w-4 h-4 text-stone-400" />
-                  </div>
-                  <div className="my-2">
-                    <div className="text-3xl font-bold text-stone-900">{isLoading ? '...' : clientSites.length}</div>
-                    <span className="text-[11px] text-stone-500">Managed Wedding Couples</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('clients')}
-                    className="self-start text-xs font-semibold text-[#0F766E] hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Manage CRM</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* Metric 4: This Month Earnings */}
-                <div className="p-5 bg-white rounded-3xl border border-stone-200/80 shadow-2xs flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-stone-500 uppercase tracking-wider">This Month</span>
-                    <DollarSign className="w-4 h-4 text-stone-400" />
-                  </div>
-                  <div className="my-2">
-                    <div className="text-3xl font-bold text-stone-900">₹{isLoading ? '...' : (stats.totalCommission || 0)}</div>
-                    <span className="text-[11px] text-stone-500">Earned from Client Bookings</span>
-                  </div>
-                  <span className="text-xs font-medium text-emerald-700">Wholesale Tier: ₹899</span>
-                </div>
-              </div>
-
-              {/* Second Section: Recent Client Projects & Studio Performance */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                {/* Recent Projects Table (Col 8) */}
-                <div className="lg:col-span-8 bg-white rounded-3xl border border-stone-200/80 p-6 shadow-2xs space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-bold text-base text-stone-900">Recent Client Projects</h3>
-                      <p className="text-xs text-stone-500 mt-0.5">Latest wedding portals created by your studio</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('invitations')}
-                      className="text-xs font-semibold text-[#0F766E] hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>View All</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {clientSites.length === 0 ? (
-                    <div className="p-10 text-center rounded-2xl bg-stone-50 border border-dashed border-stone-200 space-y-4">
-                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0F766E] flex items-center justify-center mx-auto">
-                        <Sparkles className="w-6 h-6" />
+              {overviewSubTab === 'analytics' ? (
+                <PartnerAnalyticsTab 
+                  clientSitesCount={clientSites.length}
+                  onCreateInvitation={() => {
+                    setWizardStep(1);
+                    setIsNewClientModalOpen(true);
+                  }}
+                />
+              ) : (
+                <>
+                  {/* Summary KPIs with Visual Hierarchy (Hero Balance Card First) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Hero Card: Available Balance */}
+                    <div className="p-5 bg-gradient-to-br from-emerald-900 to-[#0F766E] text-white rounded-3xl border border-emerald-700/60 shadow-md flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-bold text-emerald-200 uppercase tracking-wider">Available Balance</span>
+                        <Wallet className="w-4 h-4 text-emerald-300" />
                       </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-stone-800">YOUR STUDIO IS READY</h4>
-                        <p className="text-xs text-stone-500 mt-1 max-w-md mx-auto">
-                          Create your first wedding invitation and start managing client projects from one place.
-                        </p>
+                      <div className="my-2">
+                        <div className="text-3xl font-bold tracking-tight">₹{isLoading ? '...' : (stats.availableCredit || 0)}</div>
+                        <span className="text-[11px] text-emerald-100">Ready for instant bank / UPI payout</span>
                       </div>
                       <button
                         type="button"
-                        onClick={() => {
-                          setWizardStep(1);
-                          setIsNewClientModalOpen(true);
-                        }}
-                        className="px-5 py-2.5 rounded-xl bg-[#0F766E] text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                        onClick={() => setActiveTab('commissions')}
+                        className="self-start text-xs font-semibold text-white bg-white/15 hover:bg-white/25 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-colors cursor-pointer mt-1"
                       >
-                        <Plus className="w-4 h-4" />
-                        <span>Create Your First Invitation</span>
+                        <span>Withdraw Funds</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </button>
-                      <div className="grid grid-cols-3 gap-2 pt-4 border-t border-stone-200/60 max-w-lg mx-auto text-left">
-                        <div className="p-2.5 rounded-xl bg-white border border-stone-200/80">
-                          <span className="text-[10px] font-mono font-bold text-emerald-700">01</span>
-                          <p className="text-xs font-semibold text-stone-800 mt-0.5">Create Client</p>
-                          <span className="text-[10px] text-stone-400">Add couple info</span>
-                        </div>
-                        <div className="p-2.5 rounded-xl bg-white border border-stone-200/80">
-                          <span className="text-[10px] font-mono font-bold text-emerald-700">02</span>
-                          <p className="text-xs font-semibold text-stone-800 mt-0.5">Choose Theme</p>
-                          <span className="text-[10px] text-stone-400">Select 7 Royal styles</span>
-                        </div>
-                        <div className="p-2.5 rounded-xl bg-white border border-stone-200/80">
-                          <span className="text-[10px] font-mono font-bold text-emerald-700">03</span>
-                          <p className="text-xs font-semibold text-stone-800 mt-0.5">Publish</p>
-                          <span className="text-[10px] text-stone-400">Review &amp; go live</span>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs">
-                        <thead className="border-b border-stone-100 text-stone-400 font-semibold uppercase tracking-wider text-[10px]">
-                          <tr>
-                            <th className="pb-3 px-2">Couple</th>
-                            <th className="pb-3 px-2">Theme</th>
-                            <th className="pb-3 px-2">Status</th>
-                            <th className="pb-3 px-2">Wedding Date</th>
-                            <th className="pb-3 px-2 text-right">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-stone-100">
-                          {clientSites.slice(0, 5).map((site) => {
-                            const groom = site.content?.couple?.groomEn || 'Groom';
-                            const bride = site.content?.couple?.brideEn || 'Bride';
-                            const couple = `${groom} & ${bride}`;
-                            const isLive = site.status === 'published';
-                            const workflowStatus = site.workflow_status || (isLive ? 'LIVE' : 'DRAFT');
-
-                            return (
-                              <tr key={site.id} className="hover:bg-stone-50/70 transition-colors">
-                                <td className="py-3 px-2 font-semibold text-stone-900">{couple}</td>
-                                <td className="py-3 px-2 text-stone-600 capitalize">{site.content?.theme || 'rajmahal'}</td>
-                                <td className="py-3 px-2">
-                                  <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                                    isLive ? 'bg-emerald-50 text-emerald-700' : 'bg-stone-100 text-stone-700'
-                                  }`}>
-                                    {workflowStatus}
-                                  </span>
-                                </td>
-                                <td className="py-3 px-2 text-stone-500 font-mono text-[11px]">{site.content?.couple?.weddingDate || '2026-12-10'}</td>
-                                <td className="py-3 px-2 text-right space-x-1.5">
-                                  <button
-                                    type="button"
-                                    onClick={() => onOpenClientStudio(site.id, site.content?.theme || 'rajmahal', site.content)}
-                                    className="px-2.5 py-1 rounded-lg bg-[#0F766E] text-white text-[11px] font-semibold inline-flex items-center gap-1"
-                                  >
-                                    <Edit3 className="w-3 h-3" />
-                                    <span>Open</span>
-                                  </button>
-                                  <InvitationActionMenu
-                                    site={site}
-                                    onOpenStudio={() => onOpenClientStudio(site.id, site.content?.theme || 'rajmahal', site.content)}
-                                    onSendReview={() => handleOpenReviewModal(site)}
-                                    onViewFeedback={() => {
-                                      setFeedbackModalSite(site);
-                                      setIsFeedbackModalOpen(true);
-                                    }}
-                                    onDuplicate={() => handleOpenDuplicateModal(site)}
-                                    onTrackPayment={() => handleOpenPaymentTrackModal(site)}
-                                    onCopyLink={() => handleCopyInviteLink(site.published_url || site.slug || '', site.id)}
-                                  />
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-
-                {/* Studio Performance & Actionable Insights (Col 4) */}
-                <div className="lg:col-span-4 space-y-6">
-                  {/* Studio Performance Insights Card */}
-                  <div className="bg-white rounded-3xl border border-stone-200/80 p-6 shadow-2xs space-y-4">
-                    <h3 className="font-bold text-base text-stone-900">Studio Insights</h3>
-                    
-                    <div className="space-y-3.5 text-xs">
-                      <div className="p-3 bg-stone-50 rounded-2xl border border-stone-100 flex items-center justify-between">
-                        <div>
-                          <span className="text-stone-500 font-medium block">Wholesale Rate</span>
-                          <span className="font-bold text-stone-900 text-sm">₹899 / Wedding</span>
-                        </div>
-                        <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                          Save ₹400
-                        </span>
-                      </div>
-
-                      <div className="p-3 bg-stone-50 rounded-2xl border border-stone-100 flex items-center justify-between">
-                        <div>
-                          <span className="text-stone-500 font-medium block">Pending Client Reviews</span>
-                          <span className="font-bold text-stone-900 text-sm">
-                            {clientSites.filter(s => s.workflow_status === 'REVIEW_PENDING' || s.workflow_status === 'SENT_FOR_REVIEW').length} Awaiting Feedback
-                          </span>
-                        </div>
-                        <Send className="w-4 h-4 text-stone-400" />
-                      </div>
-
-                      <div className="p-3 bg-stone-50 rounded-2xl border border-stone-100 flex items-center justify-between">
-                        <div>
-                          <span className="text-stone-500 font-medium block">Approved Projects</span>
-                          <span className="font-bold text-stone-900 text-sm">
-                            {clientSites.filter(s => s.workflow_status === 'CLIENT_APPROVED').length} Ready to Publish
-                          </span>
-                        </div>
-                        <CheckCircle className="w-4 h-4 text-emerald-600" />
-                      </div>
                     </div>
 
-                    <div className="pt-2 border-t border-stone-100">
-                      <p className="text-[11px] text-stone-500 leading-relaxed">
-                        Tip: Share your studio referral link on client WhatsApp groups to earn 30% direct attribution on every guest booking.
-                      </p>
+                    {/* Metric 2: Active Projects */}
+                    <div className="p-5 bg-white rounded-3xl border border-stone-200/80 shadow-2xs flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-bold text-stone-500 uppercase tracking-wider">Active Projects</span>
+                        <FileText className="w-4 h-4 text-stone-400" />
+                      </div>
+                      <div className="my-2">
+                        <div className="text-3xl font-bold text-stone-900">{isLoading ? '...' : clientSites.length}</div>
+                        <span className="text-[11px] text-stone-500">{stats.liveWeddings || 0} Live • {clientSites.length - (stats.liveWeddings || 0)} Drafts</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('invitations')}
+                        className="self-start text-xs font-semibold text-[#0F766E] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>View Projects</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Metric 3: Total Clients */}
+                    <div className="p-5 bg-white rounded-3xl border border-stone-200/80 shadow-2xs flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-bold text-stone-500 uppercase tracking-wider">Total Clients</span>
+                        <Users className="w-4 h-4 text-stone-400" />
+                      </div>
+                      <div className="my-2">
+                        <div className="text-3xl font-bold text-stone-900">{isLoading ? '...' : clientSites.length}</div>
+                        <span className="text-[11px] text-stone-500">Managed Wedding Couples</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('clients')}
+                        className="self-start text-xs font-semibold text-[#0F766E] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Manage CRM</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {/* Metric 4: This Month Earnings */}
+                    <div className="p-5 bg-white rounded-3xl border border-stone-200/80 shadow-2xs flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-bold text-stone-500 uppercase tracking-wider">This Month</span>
+                        <DollarSign className="w-4 h-4 text-stone-400" />
+                      </div>
+                      <div className="my-2">
+                        <div className="text-3xl font-bold text-stone-900">₹{isLoading ? '...' : (stats.totalCommission || 0)}</div>
+                        <span className="text-[11px] text-stone-500">Earned from Client Bookings</span>
+                      </div>
+                      <span className="text-xs font-medium text-emerald-700">Wholesale Tier: ₹899</span>
                     </div>
                   </div>
-                </div>
 
-              </div>
+                  {(() => {
+                    const stageCounts = {
+                      inquiry: quotations.filter(q => q.status === 'draft').length + clientSites.filter(s => s.workflow_status === 'INQUIRY').length,
+                      quote_sent: quotations.filter(q => q.status === 'sent' || q.status === 'pending').length,
+                      advance_paid: clientSites.filter(s => s.payment_status === 'advance_paid' || s.payment_status === 'partial' || s.workflow_status === 'ADVANCE_PAID').length + quotations.filter(q => q.status === 'accepted').length,
+                      designing: clientSites.filter(s => !s.published && s.status !== 'published' && (!s.workflow_status || s.workflow_status === 'DRAFT' || s.workflow_status === 'DESIGNING')).length,
+                      review: clientSites.filter(s => s.workflow_status === 'SENT_FOR_REVIEW' || s.workflow_status === 'REVIEW_PENDING' || s.workflow_status === 'CHANGES_REQUESTED' || Boolean(s.review_token)).length,
+                      live: clientSites.filter(s => s.status === 'published' || s.is_published || s.workflow_status === 'LIVE' || s.workflow_status === 'CLIENT_APPROVED').length,
+                    };
+
+                    const filteredRecentSites = clientSites.filter((site) => {
+                      if (pipelineFilter === 'all') return true;
+                      if (pipelineFilter === 'inquiry') return site.workflow_status === 'INQUIRY';
+                      if (pipelineFilter === 'quote_sent') return site.workflow_status === 'QUOTE_SENT';
+                      if (pipelineFilter === 'advance_paid') return site.payment_status === 'advance_paid' || site.payment_status === 'partial' || site.workflow_status === 'ADVANCE_PAID';
+                      if (pipelineFilter === 'designing') return !site.published && site.status !== 'published' && (!site.workflow_status || site.workflow_status === 'DRAFT' || site.workflow_status === 'DESIGNING');
+                      if (pipelineFilter === 'review') return site.workflow_status === 'SENT_FOR_REVIEW' || site.workflow_status === 'REVIEW_PENDING' || site.workflow_status === 'CHANGES_REQUESTED' || Boolean(site.review_token);
+                      if (pipelineFilter === 'live') return site.status === 'published' || site.is_published || site.workflow_status === 'LIVE' || site.workflow_status === 'CLIENT_APPROVED';
+                      return true;
+                    });
+
+                    return (
+                      <>
+                        {/* 6-Stage Business Process Flow (BPF) Lead-to-Delivery Pipeline Ribbon */}
+                        <div className="bg-white rounded-3xl border border-stone-200/80 p-5 shadow-2xs space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-stone-500">
+                                Lead-to-Delivery Pipeline
+                              </span>
+                              {pipelineFilter !== 'all' && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                  Filtered: {pipelineFilter.replace('_', ' ').toUpperCase()}
+                                </span>
+                              )}
+                            </div>
+                            {pipelineFilter !== 'all' && (
+                              <button
+                                type="button"
+                                onClick={() => setPipelineFilter('all')}
+                                className="text-[11px] font-bold text-[#0F766E] hover:underline cursor-pointer"
+                              >
+                                Reset Filter
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                            {[
+                              { id: 'inquiry', label: '1. Inquiry', count: stageCounts.inquiry, color: 'text-stone-700 bg-stone-50 border-stone-200' },
+                              { id: 'quote_sent', label: '2. Quote Sent', count: stageCounts.quote_sent, color: 'text-amber-800 bg-amber-50 border-amber-200' },
+                              { id: 'advance_paid', label: '3. Advance Paid', count: stageCounts.advance_paid, color: 'text-teal-800 bg-teal-50 border-teal-200' },
+                              { id: 'designing', label: '4. Designing', count: stageCounts.designing, color: 'text-blue-800 bg-blue-50 border-blue-200' },
+                              { id: 'review', label: '5. In Review', count: stageCounts.review, color: 'text-purple-800 bg-purple-50 border-purple-200' },
+                              { id: 'live', label: '6. Approved & Live', count: stageCounts.live, color: 'text-emerald-800 bg-emerald-50 border-emerald-200' },
+                            ].map((stage) => {
+                              const isSelected = pipelineFilter === stage.id;
+                              return (
+                                <button
+                                  key={stage.id}
+                                  type="button"
+                                  onClick={() => setPipelineFilter(isSelected ? 'all' : (stage.id as any))}
+                                  className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                                    isSelected
+                                      ? 'ring-2 ring-[#0F766E] bg-white shadow-xs border-[#0F766E]'
+                                      : 'hover:bg-stone-50/80 bg-white border-stone-200/80'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[11px] font-bold text-stone-900 truncate">{stage.label}</span>
+                                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full border ${stage.color}`}>
+                                      {stage.count}
+                                    </span>
+                                  </div>
+                                  <span className="text-[10px] text-stone-400 mt-1">
+                                    {isSelected ? '✓ Filter Active' : 'Click to filter'}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Second Section: Recent Client Projects & Studio Performance */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                          {/* Recent Projects Table (Col 8) */}
+                          <div className="lg:col-span-8 bg-white rounded-3xl border border-stone-200/80 p-6 shadow-2xs space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h3 className="font-bold text-base text-stone-900">Recent Client Projects</h3>
+                                <p className="text-xs text-stone-500 mt-0.5">
+                                  {pipelineFilter !== 'all' ? `Showing ${filteredRecentSites.length} project(s) in selected stage` : 'Latest wedding portals created by your studio'}
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setActiveTab('invitations')}
+                                className="text-xs font-semibold text-[#0F766E] hover:underline flex items-center gap-1 cursor-pointer"
+                              >
+                                <span>View All</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+
+                            {filteredRecentSites.length === 0 ? (
+                              <div className="p-10 text-center rounded-2xl bg-stone-50 border border-dashed border-stone-200 space-y-4">
+                                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#0F766E] flex items-center justify-center mx-auto">
+                                  <Sparkles className="w-6 h-6" />
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-stone-800">
+                                    {pipelineFilter !== 'all' ? 'NO PROJECTS IN THIS STAGE' : 'YOUR STUDIO IS READY'}
+                                  </h4>
+                                  <p className="text-xs text-stone-500 mt-1 max-w-md mx-auto">
+                                    {pipelineFilter !== 'all' ? 'Try clearing your pipeline filter to view all wedding invitation projects.' : 'Create your first wedding invitation and start managing client projects from one place.'}
+                                  </p>
+                                </div>
+                                {pipelineFilter !== 'all' ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => setPipelineFilter('all')}
+                                    className="px-4 py-2 rounded-xl bg-stone-900 text-white text-xs font-semibold cursor-pointer"
+                                  >
+                                    Clear Filter
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setWizardStep(1);
+                                      setIsNewClientModalOpen(true);
+                                    }}
+                                    className="px-5 py-2.5 rounded-xl bg-[#0F766E] text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                    <span>Create Your First Invitation</span>
+                                  </button>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-left text-xs">
+                                  <thead className="border-b border-stone-100 text-stone-400 font-semibold uppercase tracking-wider text-[10px]">
+                                    <tr>
+                                      <th className="pb-3 px-2">Couple</th>
+                                      <th className="pb-3 px-2">Theme</th>
+                                      <th className="pb-3 px-2">Status</th>
+                                      <th className="pb-3 px-2">Wedding Date</th>
+                                      <th className="pb-3 px-2 text-right">Actions</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-stone-100">
+                                    {filteredRecentSites.slice(0, 6).map((site) => {
+                                      const groom = site.content?.couple?.groomEn || 'Groom';
+                                      const bride = site.content?.couple?.brideEn || 'Bride';
+                                      const couple = `${groom} & ${bride}`;
+                                      const isLive = site.status === 'published';
+                                      const workflowStatus = site.workflow_status || (isLive ? 'LIVE' : 'DRAFT');
+
+                                      return (
+                                        <tr key={site.id} className="hover:bg-stone-50/70 transition-colors">
+                                          <td className="py-3 px-2 font-semibold text-stone-900">{couple}</td>
+                                          <td className="py-3 px-2 text-stone-600 capitalize">{site.content?.theme || 'rajmahal'}</td>
+                                          <td className="py-3 px-2">
+                                            <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                              isLive ? 'bg-emerald-50 text-emerald-700' : 'bg-stone-100 text-stone-700'
+                                            }`}>
+                                              {workflowStatus}
+                                            </span>
+                                          </td>
+                                          <td className="py-3 px-2 text-stone-500 font-mono text-[11px]">{site.content?.couple?.weddingDate || '2026-12-10'}</td>
+                                          <td className="py-3 px-2 text-right space-x-1.5">
+                                            {/* WhatsApp Dispatch Button */}
+                                            <a
+                                              href={isLive ? buildLiveWhatsAppUrl(site) : buildReviewWhatsAppUrl(site)}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="px-2 py-1 rounded-lg bg-[#E7F6EC] hover:bg-[#D5EEDD] text-[#136A4E] text-[11px] font-semibold inline-flex items-center gap-1 cursor-pointer"
+                                              title={isLive ? 'Share Live on WhatsApp' : 'Send Review on WhatsApp'}
+                                            >
+                                              <MessageSquare className="w-3 h-3" />
+                                              <span className="hidden sm:inline">WhatsApp</span>
+                                            </a>
+                                            <button
+                                              type="button"
+                                              onClick={() => onOpenClientStudio(site.id, site.content?.theme || 'rajmahal', site.content)}
+                                              className="px-2.5 py-1 rounded-lg bg-[#0F766E] text-white text-[11px] font-semibold inline-flex items-center gap-1"
+                                            >
+                                              <Edit3 className="w-3 h-3" />
+                                              <span>Open</span>
+                                            </button>
+                                            <InvitationActionMenu
+                                              site={site}
+                                              onOpenStudio={() => onOpenClientStudio(site.id, site.content?.theme || 'rajmahal', site.content)}
+                                              onSendReview={() => handleOpenReviewModal(site)}
+                                              onViewFeedback={() => {
+                                                setFeedbackModalSite(site);
+                                                setIsFeedbackModalOpen(true);
+                                              }}
+                                              onDuplicate={() => handleOpenDuplicateModal(site)}
+                                              onTrackPayment={() => handleOpenPaymentTrackModal(site)}
+                                              onCopyLink={() => handleCopyInviteLink(site.published_url || site.slug || '', site.id)}
+                                            />
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Studio Performance & Actionable Insights (Col 4) */}
+                          <div className="lg:col-span-4 space-y-6">
+                            <div className="bg-white rounded-3xl border border-stone-200/80 p-6 shadow-2xs space-y-4">
+                              <h3 className="font-bold text-base text-stone-900">Studio Insights</h3>
+                              
+                              <div className="space-y-3.5 text-xs">
+                                <div className="p-3 bg-stone-50 rounded-2xl border border-stone-100 flex items-center justify-between">
+                                  <div>
+                                    <span className="text-stone-500 font-medium block">Wholesale Rate</span>
+                                    <span className="font-bold text-stone-900 text-sm">₹899 / Wedding</span>
+                                  </div>
+                                  <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                                    Save ₹400
+                                  </span>
+                                </div>
+
+                                <div className="p-3 bg-stone-50 rounded-2xl border border-stone-100 flex items-center justify-between">
+                                  <div>
+                                    <span className="text-stone-500 font-medium block">Pending Client Reviews</span>
+                                    <span className="font-bold text-stone-900 text-sm">
+                                      {clientSites.filter(s => s.workflow_status === 'REVIEW_PENDING' || s.workflow_status === 'SENT_FOR_REVIEW').length} Awaiting Feedback
+                                    </span>
+                                  </div>
+                                  <Send className="w-4 h-4 text-stone-400" />
+                                </div>
+
+                                <div className="p-3 bg-stone-50 rounded-2xl border border-stone-100 flex items-center justify-between">
+                                  <div>
+                                    <span className="text-stone-500 font-medium block">Approved Projects</span>
+                                    <span className="font-bold text-stone-900 text-sm">
+                                      {clientSites.filter(s => s.workflow_status === 'CLIENT_APPROVED').length} Ready to Publish
+                                    </span>
+                                  </div>
+                                  <CheckCircle className="w-4 h-4 text-emerald-600" />
+                                </div>
+                              </div>
+
+                              <div className="pt-2 border-t border-stone-100">
+                                <p className="text-[11px] text-stone-500 leading-relaxed">
+                                  Tip: Share your studio referral link on client WhatsApp groups to earn 30% direct attribution on every guest booking.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </>
+              )}
 
             </div>
           )}
@@ -1972,6 +2140,17 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
 
                           {/* Right: Actions */}
                           <div className="flex items-center justify-end gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-stone-100">
+                            {/* 1-Click WhatsApp Dispatch Button */}
+                            <a
+                              href={isLive ? buildLiveWhatsAppUrl(site) : buildReviewWhatsAppUrl(site)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 rounded-xl bg-[#E7F6EC] hover:bg-[#D5EEDD] text-[#136A4E] text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                              title={isLive ? 'Share Live Portal on WhatsApp' : 'Send Review Link on WhatsApp'}
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              <span className="hidden md:inline">{isLive ? 'Share Portal' : 'Send Review'}</span>
+                            </a>
                             {primaryAction}
                             <InvitationActionMenu
                               site={site}
@@ -2111,6 +2290,15 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
                                       <span>WhatsApp</span>
                                     </a>
                                   )}
+                                  <button
+                                    type="button"
+                                    onClick={() => onOpenClientStudio(site.id, site.content?.theme || 'rajmahal', site.content)}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-[#0F766E] text-xs font-semibold transition-colors cursor-pointer"
+                                    title="Open Card in Royal Studio"
+                                  >
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                    <span>Royal Card</span>
+                                  </button>
                                   <button
                                     type="button"
                                     onClick={() => handleOpenReviewModal(site)}
