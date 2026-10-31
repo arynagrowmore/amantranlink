@@ -74,6 +74,7 @@
     function openGate() {
       if (gateOverlay.classList.contains('gates-open')) return;
       gateOverlay.classList.add('gates-open');
+      gateOverlay.style.pointerEvents = 'none';
 
       // Play audio automatically upon opening
       playAudio();
@@ -82,12 +83,13 @@
         if (mainApp) {
           mainApp.style.opacity = '1';
         }
-      }, 800);
+      }, 500);
 
       setTimeout(() => {
         gateOverlay.style.opacity = '0';
         gateOverlay.style.pointerEvents = 'none';
-      }, 2100);
+        gateOverlay.style.display = 'none';
+      }, 1000);
     }
 
     sealBtn.addEventListener('click', openGate);
@@ -474,8 +476,8 @@
     document.querySelectorAll('.data-city').forEach(el => el.textContent = city);
 
     // 6. Map Link
-    const mapUrl = data.couple?.mapUrl || 'https://maps.google.com';
-    document.querySelectorAll('.data-map-btn, a[href*="maps"]').forEach(el => el.setAttribute('href', mapUrl));
+    const mapUrl = data.couple?.mapUrl || `https://maps.google.com/?q=${encodeURIComponent(fullVenue)}`;
+    document.querySelectorAll('.data-map-btn, a[href*="maps"], .data-venue-map-link').forEach(el => el.setAttribute('href', mapUrl));
 
     // 7. Parents & Relatives Lineage
     let groomParents = data.family?.groomParentsEn || 'Mr. Nalinkumar & Mrs. Kalpuben';
@@ -576,14 +578,21 @@
           const isLast = idx === data.events.length - 1;
           const card = document.createElement('div');
           card.className = `p-8 rounded-3xl bg-white/80 border ${isLast ? 'border-2 border-gold shadow-lift md:col-span-2' : 'border-gold/40 shadow-sm'} space-y-3`;
+          const eventVenueStr = evt.venue || fullVenue;
+          const eventMapUrl = evt.mapUrl || `https://maps.google.com/?q=${encodeURIComponent(eventVenueStr)}`;
           card.innerHTML = `
             <div class="flex items-center justify-between">
               <span class="text-xs font-sans font-semibold text-maroon tracking-wider uppercase">${evtName}</span>
               <span class="text-xs font-sans px-3 py-1 rounded-full ${isLast ? 'bg-gold/20 text-maroon font-bold' : 'bg-champagne text-maroon font-semibold'}">${evt.time || '06:30 PM'}</span>
             </div>
             <h3 class="font-display ${isLast ? 'text-3xl' : 'text-2xl'} text-maroon">${evt.date || '3 December 2026'}</h3>
-            <p class="text-xs font-sans text-textmuted">📍 ${evt.venue || venue}</p>
+            <p class="text-xs font-sans text-textmuted">📍 ${eventVenueStr}</p>
             ${evt.dressCode ? `<div class="text-[11px] font-sans text-textmuted bg-cream p-2 rounded-xl">✨ Dress Code: ${evt.dressCode}</div>` : ''}
+            <div class="pt-2">
+              <a href="${eventMapUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs font-sans font-bold text-maroon hover:text-gold transition-colors underline decoration-gold/60 underline-offset-4">
+                📍 Get Directions in Google Maps →
+              </a>
+            </div>
           `;
           container.appendChild(card);
         });
