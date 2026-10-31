@@ -283,7 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const audioEl = document.getElementById('wedding-audio');
   let isAudioPlaying = false;
 
-  const urlParams = new URLSearchParams(window.location.search);
   const isAudioDisabled = urlParams.get('noaudio') === 'true' || urlParams.get('mute') === '1' || urlParams.get('preview') === 'hero' || window.LIVE_AUDIO_DISABLED === true;
 
   if (isAudioDisabled && audioEl) {
