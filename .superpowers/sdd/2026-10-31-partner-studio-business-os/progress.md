@@ -20,3 +20,5 @@ Pre-flight status: Clean, aligned with spec.
 - Task 5: complete — Added 1-Click WhatsApp dispatches for live invitations & client reviews with changes-requested feedback indicators.
 - Task 6: complete — Added pre-invitation inquiry onboarding and 1-Click Royal Card creator to Clients CRM.
 - Task 7: complete — Added 4-card RSVP Attendance summary ledger and 1-Click WhatsApp reminder queue in Guest Automations Hub.
+- Task 8: complete — Multi-viewport Playwright verification passed across all 6 hubs on Desktop (1440x900) and Mobile (390x844). Screenshots verified.
+- Task 9: ready — Git commit, push to origin master, and live production deployment.
