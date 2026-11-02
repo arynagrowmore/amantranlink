@@ -454,7 +454,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
             body, main, section, .hero, .rjm-hero, .myr-hero, .jhr-hero, .jdi-hero, .dak-hero, .ivory-hero, .rd-hero {
               visibility: visible !important;
             }
-            [data-tw-reveal="true"], .reveal, .is-hidden {
+            [data-tw-reveal="true"], .reveal, .is-hidden, .jdi-fade, .myr-fade, .jhr-fade, .dak-fade, .rjm-fade {
               opacity: 1 !important;
               visibility: visible !important;
               transform: none !important;
@@ -463,11 +463,19 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
           doc.head.appendChild(antiBlankStyle);
         }
 
-        doc.querySelectorAll('[data-tw-reveal="true"], .reveal, .is-hidden').forEach((el) => {
+        doc.querySelectorAll('[data-tw-reveal="true"], .reveal, .is-hidden, .jdi-fade, .myr-fade, .jhr-fade, .dak-fade, .rjm-fade').forEach((el) => {
           el.classList.add('is-revealed');
           (el as HTMLElement).style.opacity = '1';
           (el as HTMLElement).style.visibility = 'visible';
           (el as HTMLElement).style.transform = 'none';
+        });
+
+        // Direct Top Navigation Logo & Monogram Injection Guarantee
+        const topMark = normalizedData.monogramDot || `${(normalizedData.groom.name.charAt(0) || 'G').toUpperCase()} · ${(normalizedData.bride.name.charAt(0) || 'B').toUpperCase()}`;
+        doc.querySelectorAll('header a[href="#top"] span, .jdi-serif, .myr-script, .data-monogram, .rjm-nav-mark, .dak-navname, .jhr-monogram').forEach((el) => {
+          if (el.textContent && /^[A-Z]\s*[·•\.&]\s*[A-Z]$/i.test(el.textContent.trim())) {
+            el.textContent = topMark;
+          }
         });
       } catch (styleErr) {}
 

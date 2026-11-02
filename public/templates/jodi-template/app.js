@@ -7,8 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const monogramDot = `${gInit} · ${bInit}`;
     const monogramAmp = `${gInit} & ${bInit}`;
 
-    document.querySelectorAll('.monogram, .jdi-nav-mark, .jdi-monogram, .nav-mark, .couple-mark, #couple-mark, .mark-tag, .logo-monogram, [data-bind="mark"]').forEach(el => {
-      el.textContent = monogramDot;
+    document.querySelectorAll('.monogram, .jdi-nav-mark, .jdi-monogram, .nav-mark, .couple-mark, #couple-mark, .mark-tag, .logo-monogram, [data-bind="mark"], header a[href="#top"] span, .jdi-serif').forEach(el => {
+      if (el.textContent && /^[A-Z]\s*[·•\.&]\s*[A-Z]$/i.test(el.textContent.trim())) {
+        el.textContent = monogramDot;
+      }
     });
     document.querySelectorAll('a.jdi-logo, .jdi-brand-mark').forEach(el => {
       el.textContent = monogramDot;

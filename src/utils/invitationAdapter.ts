@@ -341,6 +341,18 @@ export const sweepStaticTemplateTextNodes = (
 
     // Comprehensive placeholder patterns to wipe out across all 8 themes
     const replacements: [RegExp, string][] = [
+      // Demo Monograms
+      [/R\s*[·•\.]\s*I/g, normalized.monogramDot],
+      [/R\s*&\s*I/g, normalized.monogramAmp],
+      [/A\s*[·•\.]\s*R/g, normalized.monogramDot],
+      [/A\s*&\s*R/g, normalized.monogramAmp],
+      [/D\s*[·•\.]\s*S/g, normalized.monogramDot],
+      [/D\s*&\s*S/g, normalized.monogramAmp],
+      [/A\s*[·•\.]\s*A/g, normalized.monogramDot],
+      [/A\s*&\s*A/g, normalized.monogramAmp],
+      [/K\s*[·•\.]\s*M/g, normalized.monogramDot],
+      [/K\s*&\s*M/g, normalized.monogramAmp],
+
       // Known demo couple combinations
       [/Rudra\s*(?:&|&amp;|and|एवं|અને)\s*Ishani/gi, `${groomName} & ${brideName}`],
       [/Rudra\s*(?:&|&amp;|and|एवं|અને)\s*Shalini/gi, `${groomName} & ${brideName}`],
@@ -574,11 +586,28 @@ export const applyInvitationDataToTemplateDOM = (
     const markDot = normalized.monogramDot || `${gInit} · ${bInit}`;
     const markAmp = normalized.monogramAmp || `${gInit} & ${bInit}`;
 
-    doc.querySelectorAll('.rjm-nav-mark, .nav-mark, .monogram, .couple-mark, #couple-mark, .mark-tag, .logo-monogram, .dak-navname, .myr-monogram, .jdi-monogram, .rd-monogram, [data-bind="mark"], a.g-serif, header a.g-serif, a.rjm-logo').forEach((el) => {
-      el.textContent = markDot;
+    const monogramSelectors = [
+      '.rjm-nav-mark', '.nav-mark', '.monogram', '.couple-mark', '#couple-mark',
+      '.mark-tag', '.logo-monogram', '.dak-navname', '.myr-monogram', '.jdi-monogram',
+      '.rd-monogram', '[data-bind="mark"]', 'a.g-serif', 'header a.g-serif', 'a.rjm-logo',
+      'header a[href="#top"] span.jdi-serif', 'header a[href="#top"] span', 'header a span.jdi-serif',
+      'header a.myr-script', 'a.myr-script[href="#top"]', '.myr-script[aria-label]',
+      '.data-monogram', '.monogram-text', 'header a.dak-navname'
+    ];
+    doc.querySelectorAll(monogramSelectors.join(', ')).forEach((el) => {
+      if (el.tagName === 'A' && el.querySelector('span')) {
+        const span = el.querySelector('span');
+        if (span) span.textContent = markDot;
+      } else {
+        el.textContent = markDot;
+      }
     });
+
     doc.querySelectorAll('header a.jhr-script, a.jhr-script, .jhr-monogram').forEach((el) => {
       el.textContent = markAmp;
+    });
+    doc.querySelectorAll('header a[href="#top"], header a[aria-label*="&"], header a[aria-label*="·"]').forEach((el) => {
+      el.setAttribute('aria-label', `${displayGroom} & ${displayBride}`);
     });
     doc.querySelectorAll('text.dak-mono, svg text, .dak-stamp-shadow text').forEach((tNode) => {
       if (/^[A-Z]\s*[·&+]\s*[A-Z]$/i.test(tNode.textContent?.trim() || '')) {
