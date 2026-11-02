@@ -766,12 +766,11 @@ function MainApp() {
             navigateToRoute('/');
           }}
           onEnterStudio={handleEnterStudio}
-          onSelectPackage={(pkg, themeId) => {
+          onSelectPackage={(_pkg, themeId) => {
             if (themeId) {
               setState((prev) => ({ ...prev, theme: themeId }));
             }
-            setRoyalPaymentPackage(pkg);
-            setIsRoyalPaymentModalOpen(true);
+            handleEnterStudio(themeId || 'rajmahal');
           }}
         />
         <RoyalPaymentModal
