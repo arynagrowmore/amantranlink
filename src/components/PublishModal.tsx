@@ -15,6 +15,7 @@ import { themes } from './ThemeSelector';
 import { THEME_PACKAGE_MAP, calculatePaymentDetails, OFFICIAL_PACKAGES } from '../config/pricing';
 import { formatWhatsAppWeddingMessage, openWhatsAppShare, executeNativeOrWhatsAppShare } from '../utils/whatsappShare';
 import { BulkWhatsAppGeneratorModal } from './Guest/BulkWhatsAppGeneratorModal';
+import { resolveApiUrl } from '../utils/apiConfig';
 
 const getLocalizedCardTitle = (state: WeddingProjectState, lang: Language): string => {
   const groom = (lang === 'hi' ? state.couple.groomHi : lang === 'gu' ? state.couple.groomGu : state.couple.groomEn) || state.couple.groomEn;
@@ -122,15 +123,56 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
   const weddingDate = state.couple.weddingDate || '10 December 2026';
   const venueName = state.couple.venueName || 'The Palace Gardens';
 
+  // 🚀 Vercel Dedicated Hosting States
+  const [liveVercelUrl, setLiveVercelUrl] = useState<string>(() => {
+    return (state as any)?.vercel_url || `https://${cleanSlug}-wedding.vercel.app`;
+  });
+  const [isDeployingVercel, setIsDeployingVercel] = useState<boolean>(false);
+  const [copiedVercel, setCopiedVercel] = useState<boolean>(false);
+  const [useVercelLinkForShare, setUseVercelLinkForShare] = useState<boolean>(true);
+
+  const effectiveShareUrl = (useVercelLinkForShare && liveVercelUrl) ? liveVercelUrl : fullUrl;
+
   const whatsappMessage = generateWhatsAppMessage({
     language: selectedLanguage,
     state,
-    invitationUrl: fullUrl,
+    invitationUrl: effectiveShareUrl,
   });
 
   const [copied, setCopied] = useState<boolean>(false);
   const [copiedMsg, setCopiedMsg] = useState<boolean>(false);
   const [sharedNotice, setSharedNotice] = useState<boolean>(false);
+
+  const triggerVercelDeploy = async (targetSlug?: string) => {
+    setIsDeployingVercel(true);
+    try {
+      const deployEndpoint = resolveApiUrl('/api/invitations/deploy-vercel');
+      const res = await fetch(deployEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug: targetSlug || cleanSlug,
+          groomName: state.couple.groomEn || 'Groom',
+          brideName: state.couple.brideEn || 'Bride',
+          weddingDate: state.couple.weddingDate || '10 December 2026',
+          venue: state.couple.venueName || 'Royal Palace',
+          theme: state.theme,
+          heroImage: state.media?.photoSlots?.hero?.url || '',
+          isEngagement: state.invitation_type === 'engagement',
+        }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.vercelUrl) {
+          setLiveVercelUrl(json.vercelUrl);
+        }
+      }
+    } catch (e) {
+      console.warn('Vercel deploy trigger note:', e);
+    } finally {
+      setIsDeployingVercel(false);
+    }
+  };
 
   // Checks before publish
   const isCoupleComplete = !!(state.couple.groomEn && state.couple.brideEn);
@@ -223,12 +265,15 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
     };
     saveWeddingSite(siteRecord);
     try {
-      await publishWeddingSite({
+      const pubRes = await publishWeddingSite({
         userId: user?.uid || '4fe4383d-9cd0-49df-b8ff-2b833db40f17',
         themeId: state.theme,
         state: publishedPayload,
         customSlug: finalSlug,
       });
+      if (pubRes?.vercelUrl) {
+        setLiveVercelUrl(pubRes.vercelUrl);
+      }
     } catch (e) {
       console.warn('Publish sync note:', e);
     }
@@ -570,41 +615,126 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
                   </div>
                 ) : (
                   <>
-                    {/* 6. INVITATION LINK PRESENTATION (Unlocked) */}
-                    <div className="p-5 rounded-3xl bg-white border border-[#E8D5AD] shadow-xs space-y-3">
-                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#6E1020] block">
-                        YOUR INVITATION LINK (OFFICIALLY LIVE)
-                      </span>
-                      
-                      <div className="bg-[#FAF5EC] border border-[#E8D5AD] p-3 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
-                        <div className="truncate text-xs font-mono font-bold text-[#6E1020] flex items-center gap-2" title={fullUrl}>
-                          <Globe className="w-4 h-4 text-[#C49A35] shrink-0" />
-                          <span className="truncate">{fullUrl}</span>
+                    {/* 6. DEDICATED VERCEL DEPLOYMENT & LIVE LINKS (Unlocked) */}
+                    <div className="space-y-4">
+                      {/* ⚡ CARD 1: Dedicated Vercel Cloud Link */}
+                      <div className="p-5 rounded-3xl bg-gradient-to-br from-[#F5FBF8] via-[#FAFDFB] to-[#FFFFFF] border-2 border-[#167A5A]/30 shadow-sm space-y-3 relative overflow-hidden">
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#167A5A] text-white text-[10px] font-mono font-bold tracking-wider uppercase shadow-2xs">
+                              ⚡ VERCEL LIVE CLOUD
+                            </span>
+                            <span className="text-[10px] font-mono text-[#167A5A] font-semibold">
+                              100% Free Edge Deployment
+                            </span>
+                          </div>
+                          
+                          {isDeployingVercel ? (
+                            <span className="inline-flex items-center gap-1.5 text-xs text-[#167A5A] font-medium font-mono">
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <span>Deploying to Vercel...</span>
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => triggerVercelDeploy()}
+                              className="text-[11px] font-mono text-[#75675C] hover:text-[#167A5A] flex items-center gap-1 transition-colors cursor-pointer"
+                              title="Re-deploy latest changes to Vercel"
+                            >
+                              <RefreshCw className="w-3 h-3" />
+                              <span>Re-sync Vercel</span>
+                            </button>
+                          )}
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={handleCopyLink}
-                          className={`px-4 py-2 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer shrink-0 shadow-xs ${
-                            copied 
-                              ? 'bg-[#167A5A] text-white' 
-                              : 'bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] border border-[#C49A35]'
-                          }`}
-                        >
-                          {copied ? 'Copied ✓' : 'Copy Link'}
-                        </button>
+                        <div className="bg-white border border-[#167A5A]/30 p-3.5 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
+                          <div className="truncate text-xs font-mono font-bold text-[#167A5A] flex items-center gap-2" title={liveVercelUrl}>
+                            <Globe className="w-4 h-4 text-[#167A5A] shrink-0" />
+                            <span className="truncate">{liveVercelUrl}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(liveVercelUrl);
+                                setCopiedVercel(true);
+                                setTimeout(() => setCopiedVercel(false), 2500);
+                              }}
+                              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer shadow-xs ${
+                                copiedVercel
+                                  ? 'bg-[#167A5A] text-white'
+                                  : 'bg-[#167A5A]/10 hover:bg-[#167A5A]/20 text-[#167A5A] border border-[#167A5A]/30'
+                              }`}
+                            >
+                              {copiedVercel ? 'Copied ✓' : 'Copy Vercel'}
+                            </button>
+
+                            <a
+                              href={liveVercelUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3.5 py-1.5 rounded-xl text-xs font-bold font-mono bg-[#167A5A] hover:bg-[#126349] text-white flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                            >
+                              <span>Open</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px] text-[#75675C] pt-0.5">
+                          <label className="flex items-center gap-2 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={useVercelLinkForShare}
+                              onChange={(e) => setUseVercelLinkForShare(e.target.checked)}
+                              className="w-4 h-4 rounded text-[#167A5A] focus:ring-[#167A5A] border-gray-300"
+                            />
+                            <span className="font-medium text-[#241A17]">Use Vercel link when sharing on WhatsApp</span>
+                          </label>
+                          {copiedVercel && (
+                            <span className="text-[#167A5A] font-bold animate-fadeIn">✓ Copied!</span>
+                          )}
+                        </div>
                       </div>
 
-                      {copied && (
-                        <p className="text-[11px] text-[#167A5A] font-medium animate-fadeIn">
-                          ✓ Invitation link copied to clipboard.
-                        </p>
-                      )}
-                      {sharedNotice && (
-                        <p className="text-[11px] text-[#167A5A] font-medium animate-fadeIn">
-                          ✓ Ready to share with your family.
-                        </p>
-                      )}
+                      {/* 🏛️ CARD 2: Standard Platform Canonical Link */}
+                      <div className="p-4 rounded-2xl bg-white border border-[#E8D5AD] shadow-xs space-y-2.5">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#6E1020] block">
+                          PLATFORM CANONICAL URL
+                        </span>
+                        
+                        <div className="bg-[#FAF5EC] border border-[#E8D5AD] p-2.5 rounded-xl flex items-center justify-between gap-3">
+                          <div className="truncate text-xs font-mono text-[#6E1020] flex items-center gap-2" title={fullUrl}>
+                            <Globe className="w-3.5 h-3.5 text-[#C49A35] shrink-0" />
+                            <span className="truncate">{fullUrl}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              onClick={handleCopyLink}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
+                                copied 
+                                  ? 'bg-[#167A5A] text-white' 
+                                  : 'bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8]'
+                              }`}
+                            >
+                              {copied ? 'Copied ✓' : 'Copy'}
+                            </button>
+
+                            <a
+                              href={fullUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1 rounded-lg text-xs font-bold font-mono bg-white hover:bg-gray-50 text-[#6E1020] border border-[#E8D5AD] flex items-center gap-1 transition-all"
+                            >
+                              <span>Open</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     {/* 5. MAIN SHARE PANEL (Unlocked) */}

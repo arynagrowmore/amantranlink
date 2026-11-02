@@ -21,7 +21,7 @@ const TEMPLATE_UUID_MAP: Record<string, string> = {
 };
 
 // 🚀 Publish Wedding Site into Supabase (status = 'published', is_locked = true, editing_status = 'locked')
-export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ success: boolean; site?: WeddingSite; error?: string }> => {
+export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ success: boolean; site?: WeddingSite; vercelUrl?: string; error?: string }> => {
   const { userId, themeId, state, customSlug } = params;
   const groomSlug = (state.couple?.groomEn || '').toLowerCase().replace(/[^a-z0-9]/g, '');
   const brideSlug = (state.couple?.brideEn || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -33,6 +33,7 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
 
   let siteUuid = `${themeId}-${Date.now().toString(36)}`;
   let isSavedToServer = false;
+  let capturedVercelUrl: string | undefined = undefined;
 
   try {
     // 1. 🛡️ Primary Authoritative Serverless Persistence Engine
@@ -54,6 +55,7 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
         if (json.success) {
           isSavedToServer = true;
           if (json.site?.id) siteUuid = json.site.id;
+          if (json.vercelUrl) capturedVercelUrl = json.vercelUrl;
         }
       }
     } catch (srvErr) {
@@ -160,6 +162,7 @@ export const publishWeddingSite = async (params: PublishSiteParams): Promise<{ s
   return {
     success: true,
     site: siteRecord,
+    vercelUrl: capturedVercelUrl,
   };
 };
 

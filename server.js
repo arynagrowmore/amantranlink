@@ -1740,6 +1740,231 @@ app.post('/api/invitations/save', async (req, res) => {
 // In-Memory Fast Cache for Instant Reliability
 const PUBLISHED_SITES_CACHE = new Map();
 
+// 🚀 Vercel REST API Automated Deployment Engine
+async function deployToVercel({ slug, groomName, brideName, weddingDate, venue, theme, heroImage, isEngagement }) {
+  const token = process.env.VERCEL_AUTH_TOKEN;
+  if (!token) {
+    console.warn('⚠️ VERCEL_AUTH_TOKEN not configured. Skipping Vercel deploy.');
+    return null;
+  }
+
+  const safeSlug = (slug || 'royal-wedding').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'royal-wedding';
+  const projectName = `${safeSlug}-vivah`;
+  const desiredAlias = `${safeSlug}-wedding.vercel.app`;
+
+  const pageTitle = isEngagement 
+    ? `💍 ${groomName} & ${brideName} — Shahi Sagai Nimantran`
+    : `👑 ${groomName} & ${brideName} — Shahi Vivah Nimantran`;
+  const pageDesc = isEngagement
+    ? `॥ श्री गणेशाय नमः ॥ You are cordially invited to celebrate the royal engagement ceremony of ${groomName} & ${brideName} on ${weddingDate} at ${venue}. Click to experience our 3D Ring Digital Invitation with Auspicious Blessings.`
+    : `॥ श्री गणेशाय नमः ॥ You are cordially invited to celebrate the royal wedding of ${groomName} & ${brideName} on ${weddingDate} at ${venue}. Click to experience our 3D Palace Gate Digital Invitation with Shehnai & Auspicious Blessings.`;
+  const canonicalUrl = `https://amantranlink-web.vercel.app/i/${encodeURIComponent(safeSlug)}?theme=${encodeURIComponent(theme || 'rajmahal')}`;
+  const previewImg = heroImage || 'https://owziiqdxbvynrprugvwk.supabase.co/storage/v1/object/public/wedding-media/previews/theme-rajmahal.webp';
+
+  const htmlContent = `<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>${pageTitle}</title>
+  <meta name="description" content="${pageDesc}">
+
+  <!-- 🌸 OpenGraph Meta Tags for WhatsApp & Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AmantranLink™ — Royal Invitations">
+  <meta property="og:title" content="${pageTitle}">
+  <meta property="og:description" content="${pageDesc}">
+  <meta property="og:image" content="${previewImg}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- 🐦 Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${pageTitle}">
+  <meta name="twitter:description" content="${pageDesc}">
+  <meta name="twitter:image" content="${previewImg}">
+
+  <link rel="icon" href="https://amantranlink-web.vercel.app/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Rozha+One&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      overflow: hidden;
+      background: #140508;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #2A0910 0%, #140508 100%);
+      color: #F7F0DD;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+      text-align: center;
+      padding: 20px;
+    }
+    .crest {
+      font-size: 40px;
+      margin-bottom: 12px;
+      animation: float 2s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .shloka {
+      font-family: 'Rozha One', serif;
+      color: #C49A35;
+      font-size: 15px;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    .title {
+      font-family: 'Cinzel', serif;
+      color: #FFFDF8;
+      font-size: 18px;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    .sub {
+      color: #E8D5AD;
+      font-size: 12px;
+      opacity: 0.8;
+      font-style: italic;
+    }
+    iframe {
+      border: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 100dvh;
+      display: block;
+      background: #FDF6EB;
+    }
+  </style>
+</head>
+<body>
+  <div id="loader">
+    <div class="crest">👑</div>
+    <div class="shloka">॥ श्री गणेशाय नमः ॥</div>
+    <div class="title">${groomName} &amp; ${brideName}</div>
+    <div class="sub">Tuning Shehnai &amp; Opening Royal Palace Gate...</div>
+  </div>
+
+  <iframe
+    id="weddingFrame"
+    src="${canonicalUrl}"
+    title="${pageTitle}"
+    allow="autoplay; clipboard-write; fullscreen"
+    loading="eager"
+    onload="setTimeout(function(){ var l = document.getElementById('loader'); if(l){ l.style.opacity = '0'; setTimeout(function(){ l.style.display = 'none'; }, 500); } }, 400);"
+  ></iframe>
+</body>
+</html>`;
+
+  try {
+    const payload = {
+      name: projectName,
+      project: projectName,
+      files: [
+        {
+          file: 'index.html',
+          data: htmlContent,
+          encoding: 'utf-8'
+        }
+      ],
+      projectSettings: {
+        framework: null
+      }
+    };
+
+    const res = await fetch('https://api.vercel.com/v13/deployments', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      console.warn('⚠️ Vercel deployment API warning:', data.error?.message || data);
+      return null;
+    }
+
+    let finalLiveUrl = `https://${data.url}`;
+
+    // Attempt to set custom alias
+    try {
+      const aliasRes = await fetch(`https://api.vercel.com/v2/deployments/${data.id}/aliases`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ alias: desiredAlias })
+      });
+      const aliasData = await aliasRes.json();
+      if (aliasRes.ok && aliasData.alias) {
+        finalLiveUrl = `https://${aliasData.alias}`;
+      } else if (data.alias?.[0]) {
+        finalLiveUrl = `https://${data.alias[0]}`;
+      }
+    } catch (aliasErr) {
+      console.warn('Vercel alias note:', aliasErr.message);
+    }
+
+    console.log(`⚡ [Vercel Deploy] Successfully deployed ${safeSlug} ➔ ${finalLiveUrl}`);
+    return {
+      success: true,
+      url: finalLiveUrl,
+      deploymentId: data.id,
+      slug: safeSlug
+    };
+  } catch (err) {
+    console.warn('Vercel deploy exception:', err.message);
+    return null;
+  }
+}
+
+// 🌐 Dedicated Vercel Automated Deploy Route
+app.post('/api/invitations/deploy-vercel', async (req, res) => {
+  try {
+    const { slug, groomName, brideName, weddingDate, venue, theme, heroImage, isEngagement } = req.body;
+    if (!slug) return res.status(400).json({ error: 'Missing slug.' });
+
+    const result = await deployToVercel({
+      slug,
+      groomName: groomName || 'Groom',
+      brideName: brideName || 'Bride',
+      weddingDate: weddingDate || 'Auspicious Date',
+      venue: venue || 'Royal Palace',
+      theme: theme || 'rajmahal',
+      heroImage: heroImage || '',
+      isEngagement: Boolean(isEngagement)
+    });
+
+    if (result?.url) {
+      return res.json({ success: true, vercelUrl: result.url, deploymentId: result.deploymentId });
+    }
+
+    return res.status(500).json({ success: false, error: 'Could not deploy to Vercel.' });
+  } catch (e) {
+    return res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // 🔒 3.1. Publish & Re-Lock Invitation State Machine API
 app.post('/api/invitations/publish', async (req, res) => {
   try {
@@ -1838,7 +2063,30 @@ app.post('/api/invitations/publish', async (req, res) => {
       console.warn('DB publish update note:', dbErr.message);
     }
 
-    console.log(`🏰 [AmantranLink] Published & Locked Invitation: ${coupleSlug} with Theme ${effectiveTheme}`);
+    // ⚡ Automatic Vercel Dedicated Deployment
+    let vercelDeployUrl = null;
+    try {
+      const vercelResult = await deployToVercel({
+        slug: coupleSlug,
+        groomName: rawGroom || 'Groom',
+        brideName: rawBride || 'Bride',
+        weddingDate: invitationState?.couple?.weddingDate || 'Auspicious Wedding Ceremony',
+        venue: invitationState?.couple?.venueName || 'Royal Banquet',
+        theme: effectiveTheme,
+        heroImage: invitationState?.media?.photoSlots?.hero?.url || '',
+        isEngagement: invitationState?.invitation_type === 'engagement'
+      });
+      if (vercelResult?.url) {
+        vercelDeployUrl = vercelResult.url;
+        // Persist Vercel URL in database content
+        sitePayload.content.vercel_url = vercelDeployUrl;
+        supabase.from('wedding_sites').update({ content: sitePayload.content }).eq('published_url', publishedUrl).catch(() => {});
+      }
+    } catch (vErr) {
+      console.warn('Auto Vercel deploy note:', vErr.message);
+    }
+
+    console.log(`🏰 [AmantranLink] Published & Locked Invitation: ${coupleSlug} with Theme ${effectiveTheme}${vercelDeployUrl ? ` | Vercel: ${vercelDeployUrl}` : ''}`);
 
     return res.json({
       success: true,
@@ -1847,6 +2095,7 @@ app.post('/api/invitations/publish', async (req, res) => {
       isLocked: true,
       slug: coupleSlug,
       publishedUrl,
+      vercelUrl: vercelDeployUrl || `https://${coupleSlug}-wedding.vercel.app`,
       theme: effectiveTheme,
     });
   } catch (e) {
