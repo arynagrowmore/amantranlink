@@ -3,7 +3,9 @@ import {
   Share2, Copy, Check, QrCode, Download, ExternalLink, Globe, 
   MessageCircle, Send, X, ShieldCheck, Sparkles, Loader2, 
   CreditCard, Smartphone, ArrowRight, CheckCircle2,
-  Lock, RefreshCw, AlertCircle, Eye, Users, Calendar, MapPin, Palette, HeartHandshake, QrCode as QrIcon
+  Lock, RefreshCw, AlertCircle, Eye, Users, Calendar, MapPin, 
+  Palette, HeartHandshake, QrCode as QrIcon, Sliders, Key, 
+  Link2, Award, Zap, Shield, Flame, CheckCircle, ChevronRight
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { WeddingProjectState, Language } from '../types/wedding';
@@ -12,36 +14,9 @@ import { isTemplateUnlockedForUser, initiateRazorpayCheckout, saveWeddingSite } 
 import { publishWeddingSite } from '../services/weddingSiteService';
 import { useAuth } from '../context/AuthContext';
 import { themes } from './ThemeSelector';
-import { THEME_PACKAGE_MAP, calculatePaymentDetails, OFFICIAL_PACKAGES } from '../config/pricing';
-import { formatWhatsAppWeddingMessage, openWhatsAppShare, executeNativeOrWhatsAppShare } from '../utils/whatsappShare';
+import { THEME_PACKAGE_MAP, calculatePaymentDetails } from '../config/pricing';
 import { BulkWhatsAppGeneratorModal } from './Guest/BulkWhatsAppGeneratorModal';
 import { resolveApiUrl } from '../utils/apiConfig';
-
-const getLocalizedCardTitle = (state: WeddingProjectState, lang: Language): string => {
-  const groom = (lang === 'hi' ? state.couple.groomHi : lang === 'gu' ? state.couple.groomGu : state.couple.groomEn) || state.couple.groomEn;
-  const bride = (lang === 'hi' ? state.couple.brideHi : lang === 'gu' ? state.couple.brideGu : state.couple.brideEn) || state.couple.brideEn;
-  return `${groom} & ${bride} - Royal Vivah Invitation`;
-};
-
-const getLocalizedCardSubtitle = (state: WeddingProjectState, lang: Language): string => {
-  return state.couple.weddingDate || 'Auspicious Wedding Ceremony';
-};
-
-const generateWhatsAppMessage = ({
-  state,
-  language,
-  invitationUrl,
-}: {
-  state: WeddingProjectState;
-  language: Language;
-  invitationUrl: string;
-}): string => {
-  return formatWhatsAppWeddingMessage({
-    state,
-    language,
-    invitationUrl,
-  });
-};
 
 interface PublishModalProps {
   state: WeddingProjectState;
@@ -50,11 +25,14 @@ interface PublishModalProps {
 }
 
 type ModalStage = 'overview' | 'animating' | 'completed';
+type MessageTone = 'royal' | 'warm' | 'minimal';
+type BadgeType = 'amantranlink' | 'custom' | 'none';
+type ActiveSubTab = 'overview' | 'customize' | 'whatsapp' | 'pass';
 
 export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOpenDownloadHub }) => {
   const { user } = useAuth();
   const [stage, setStage] = useState<ModalStage>('overview');
-  const [isConfirmingPublish, setIsConfirmingPublish] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<ActiveSubTab>('overview');
   const [showQrModal, setShowQrModal] = useState<boolean>(false);
   const [showBulkWhatsAppModal, setShowBulkWhatsAppModal] = useState<boolean>(false);
 
@@ -97,10 +75,26 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
   const origin = typeof window !== 'undefined' && window.location.origin 
     ? window.location.origin 
     : 'https://amantranlink-web.vercel.app';
-  const cleanDomain = origin.replace(/^https?:\/\//, '');
-  const cleanSlug = (slug || defaultCoupleSlug).replace(/^\/i\//, '').replace(/^i\//, '').trim();
-  // 👑 Clean, Short, Elegant Royal Invitation URL (never long or truncated)
+  const cleanSlug = (slug || defaultCoupleSlug).replace(/^\/i\//, '').replace(/^i\//, '').trim().toLowerCase();
+  
+  // 👑 Clean, Short, Elegant Royal Invitation URL
   const fullUrl = `${origin}/i/${cleanSlug}?theme=${state.theme}`;
+
+  // 🚀 Vercel Dedicated Hosting States
+  const [liveVercelUrl, setLiveVercelUrl] = useState<string>(() => {
+    return (state as any)?.vercel_url || `https://${cleanSlug}-wedding.vercel.app`;
+  });
+  const [isDeployingVercel, setIsDeployingVercel] = useState<boolean>(false);
+  const [copiedVercel, setCopiedVercel] = useState<boolean>(false);
+  const [useVercelLinkForShare, setUseVercelLinkForShare] = useState<boolean>(true);
+
+  // 🎨 Customization States
+  const [badgeType, setBadgeType] = useState<BadgeType>('amantranlink');
+  const [customStudioName, setCustomStudioName] = useState<string>('Arya Wedding Planners');
+  const [isPasscodeEnabled, setIsPasscodeEnabled] = useState<boolean>(false);
+  const [passcode, setPasscode] = useState<string>('2026');
+  const [messageTone, setMessageTone] = useState<MessageTone>('royal');
+  const [coordinatorPhone, setCoordinatorPhone] = useState<string>(state.family?.rsvp1Phone || '+91 9409360336');
 
   // WhatsApp Language
   const initialLang: Language = (state?.language === 'hi' || state?.language === 'gu') ? state.language : 'en';
@@ -123,25 +117,42 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
   const weddingDate = state.couple.weddingDate || '10 December 2026';
   const venueName = state.couple.venueName || 'The Palace Gardens';
 
-  // 🚀 Vercel Dedicated Hosting States
-  const [liveVercelUrl, setLiveVercelUrl] = useState<string>(() => {
-    return (state as any)?.vercel_url || `https://${cleanSlug}-wedding.vercel.app`;
-  });
-  const [isDeployingVercel, setIsDeployingVercel] = useState<boolean>(false);
-  const [copiedVercel, setCopiedVercel] = useState<boolean>(false);
-  const [useVercelLinkForShare, setUseVercelLinkForShare] = useState<boolean>(true);
-
   const effectiveShareUrl = (useVercelLinkForShare && liveVercelUrl) ? liveVercelUrl : fullUrl;
 
-  const whatsappMessage = generateWhatsAppMessage({
-    language: selectedLanguage,
-    state,
-    invitationUrl: effectiveShareUrl,
-  });
+  // 🌸 Custom Dynamic WhatsApp Ceremony Messages
+  const buildCustomWhatsAppMessage = (): string => {
+    if (messageTone === 'royal') {
+      if (selectedLanguage === 'hi') {
+        return `॥ श्री गणेशाय नमः ॥ 👑\n\n*मांगलिक विवाह आमंत्रण*\n\nपरम स्नेही जन,\nप्रभु कृपा से हमारे प्रिय वर *${groomName}* एवं वधु *${brideName}* का पावन शुभ विवाह संस्कार संपन्न होना निश्चित हुआ है।\n\n📅 *तिथि:* ${weddingDate}\n🏛️ *स्थान:* ${venueName}\n\nशाही डिजिटल निमंत्रण पत्र, शहनाई धुन व सम्पूर्ण मांगलिक कार्यक्रम देखने हेतु कृपया नीचे दिए गए लिंक पर स्पर्श करें:\n👉 ${effectiveShareUrl}\n\nआपकी गरिमामयी उपस्थिति एवं मंगल आशीष हमारे लिए अमूल्य है।\n\n*दर्शनाभिलाषी:*\nसमस्त राज परिवार\nहेल्पलाइन: ${coordinatorPhone}`;
+      } else if (selectedLanguage === 'gu') {
+        return `॥ શ્રી ગણેશાય નમઃ ॥ 👑\n\n*માંગલિક વિવાહ આમંત્રણ*\n\nસ્નેહી શ્રી,\nપ્રભુકૃપાથી અમારા ચિરંજીવી *${groomName}* અને આયુષ્મતી *${brideName}* ના લગ્ન સંસ્કાર નિર્ધારિત થયા છે.\n\n📅 *તારીખ:* ${weddingDate}\n🏛️ *સ્થળ:* ${venueName}\n\nરોયલ ડિજિટલ કંકોત્રી અને સંપૂર્ણ કાર્યક્રમ જોવા માટે નીચે આપેલ લિંક પર ક્લિક કરો:\n👉 ${effectiveShareUrl}\n\nઆપની પધરામણી અને આશીર્વાદ અમારા માટે આશીર્વાદરૂપ રહેશે.\n\n*નિમંત્રક:*\nસમસ્ત પરિવાર`;
+      } else {
+        return `॥ ॐ Shri Ganeshay Namah ॥ 👑\n\n*ROYAL VIVAH INVITATION*\n\nTogether with their families,\n*${groomName}* & *${brideName}*\nrequest the honor of your presence and blessings at their wedding celebrations.\n\n📅 *Date:* ${weddingDate}\n🏛️ *Venue:* ${venueName}\n\nTap below to explore our interactive digital wedding invitation with music, ceremony schedules & GPS directions:\n👉 ${effectiveShareUrl}\n\nWe look forward to celebrating this sacred milestone with you!\nRSVP / Assistance: ${coordinatorPhone}`;
+      }
+    } else if (messageTone === 'warm') {
+      return `Two hearts, one soul, and a lifetime of togetherness... 💍✨\n\nWe warmly invite you to celebrate the wedding of:\n✨ *${groomName}* & *${brideName}* ✨\n\n📅 *When:* ${weddingDate}\n📍 *Where:* ${venueName}\n\nPlease tap the link to open our interactive wedding invite & ceremony details:\n👉 ${effectiveShareUrl}\n\nYour love and blessings mean the world to us! 💛`;
+    } else {
+      return `Save the Date! 💍\n*${groomName}* & *${brideName}* are getting married!\n\n📅 ${weddingDate}\n📍 ${venueName}\n\nView our official digital wedding invitation & RSVP:\n👉 ${effectiveShareUrl}`;
+    }
+  };
+
+  const [customMessage, setCustomMessage] = useState<string>('');
+  
+  useEffect(() => {
+    setCustomMessage(buildCustomWhatsAppMessage());
+  }, [messageTone, selectedLanguage, groomName, brideName, weddingDate, venueName, effectiveShareUrl, coordinatorPhone]);
 
   const [copied, setCopied] = useState<boolean>(false);
   const [copiedMsg, setCopiedMsg] = useState<boolean>(false);
   const [sharedNotice, setSharedNotice] = useState<boolean>(false);
+
+  // Quick Slug Suggestions
+  const slugSuggestions = [
+    `${groomSlug}-${brideSlug}`,
+    `${groomSlug}-weds-${brideSlug}`,
+    `${brideSlug}-${groomSlug}-2026`,
+    `royal-${groomSlug}-${brideSlug}`,
+  ].filter(Boolean);
 
   const triggerVercelDeploy = async (targetSlug?: string) => {
     setIsDeployingVercel(true);
@@ -174,17 +185,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
     }
   };
 
-  // Checks before publish
-  const isCoupleComplete = !!(state.couple.groomEn && state.couple.brideEn);
-  const isDateComplete = !!state.couple.weddingDate;
-  const isVenueComplete = !!state.couple.venueName;
-  const isEventsComplete = state.events && state.events.length > 0;
-  const isDesignComplete = !!state.theme;
-  const isAllValid = isCoupleComplete && isDateComplete && isVenueComplete && isEventsComplete;
-
   const triggerPublishSequence = async () => {
-    setIsConfirmingPublish(false);
-
     if (finalPayableAmount > 0) {
       setIsVerifyingPayment(true);
       setPaymentError(null);
@@ -204,23 +205,14 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
         },
         onError: (err) => {
           setIsVerifyingPayment(false);
-          setPaymentError(err || 'Your invitation couldn’t be published right now. Please try again.');
-        },
-        onCancel: () => {
-          setIsVerifyingPayment(false);
+          setPaymentError(err || 'Payment verification failed. Please try again.');
         },
       });
       return;
     }
 
-    setIsVerifyingPayment(true);
-    setPaymentError(null);
-
-    setTimeout(() => {
-      setIsVerifyingPayment(false);
-      setStage('animating');
-      runPublishingAnimation();
-    }, 600);
+    setStage('animating');
+    runPublishingAnimation();
   };
 
   const runPublishingAnimation = () => {
@@ -240,6 +232,12 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
 
   const finalizePublishing = async () => {
     const finalSlug = (cleanSlug || 'royal-wedding').toLowerCase();
+    const effectiveStudioBadge = badgeType === 'none' 
+      ? null 
+      : badgeType === 'custom' 
+      ? customStudioName 
+      : '✦ Handcrafted by Amantranlink Studios ✦';
+
     const publishedPayload: WeddingProjectState = {
       ...state,
       theme: state.theme,
@@ -260,10 +258,12 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
       content: publishedPayload,
       draftContent: publishedPayload,
       publishedUrl: `/i/${finalSlug}`,
+      studio_badge: effectiveStudioBadge,
       publishedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     saveWeddingSite(siteRecord);
+
     try {
       const pubRes = await publishWeddingSite({
         userId: user?.uid || '4fe4383d-9cd0-49df-b8ff-2b833db40f17',
@@ -279,9 +279,10 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
     }
 
     setStage('completed');
+    setActiveTab('overview');
     confetti({
-      particleCount: 110,
-      spread: 80,
+      particleCount: 130,
+      spread: 90,
       origin: { y: 0.5 },
       colors: ['#C49A35', '#6E1020', '#F4D06F', '#167A5A', '#FFFDF8'],
     });
@@ -293,121 +294,187 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const handleCopyVercel = () => {
+    navigator.clipboard.writeText(liveVercelUrl);
+    setCopiedVercel(true);
+    setTimeout(() => setCopiedVercel(false), 2500);
+    confetti({
+      particleCount: 40,
+      spread: 60,
+      origin: { y: 0.7 },
+      colors: ['#167A5A', '#C49A35', '#FFFDF8'],
+    });
+  };
+
   const handleCopyMessage = () => {
-    navigator.clipboard.writeText(whatsappMessage);
+    navigator.clipboard.writeText(customMessage);
     setCopiedMsg(true);
     setTimeout(() => setCopiedMsg(false), 2500);
   };
 
   const handleWhatsAppShare = () => {
-    const encoded = encodeURIComponent(whatsappMessage);
+    const encoded = encodeURIComponent(customMessage);
     const waUrl = `https://api.whatsapp.com/send?text=${encoded}`;
     window.open(waUrl, '_blank');
     setSharedNotice(true);
     setTimeout(() => setSharedNotice(false), 3000);
   };
 
-  const qrCodeApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=480x480&data=${encodeURIComponent(fullUrl)}&color=43-9-20&bgcolor=255-253-248&margin=2`;
+  const qrCodeApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(effectiveShareUrl)}&color=43-9-20&bgcolor=255-253-248&margin=2`;
 
   const downloadQrCode = () => {
     const link = document.createElement('a');
     link.href = qrCodeApiUrl;
-    link.download = `${groomName}_${brideName}_Invitation_QR.png`;
+    link.download = `${groomName}_${brideName}_Royal_QR.png`;
     link.target = '_blank';
     link.click();
   };
 
   const isUnlockedOrCompleted = stage === 'completed' || isAlreadyUnlocked || finalPayableAmount === 0;
 
+  // Monogram for Wax Seal
+  const gInit = (state.couple.groomEn?.charAt(0) || 'G').toUpperCase();
+  const bInit = (state.couple.brideEn?.charAt(0) || 'B').toUpperCase();
+  const coupleMonogram = `${gInit} · ${bInit}`;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn font-sans">
-      <div className="relative w-full max-w-5xl bg-[#FFFDF8] rounded-3xl border border-[#E8D5AD] shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/85 backdrop-blur-md animate-fadeIn font-sans">
+      <div className="relative w-full max-w-5xl bg-[#FFFDF8] rounded-3xl border-2 border-[#C49A35]/50 shadow-[0_25px_70px_rgba(0,0,0,0.35)] overflow-hidden flex flex-col max-h-[94vh]">
         
         {/* ========================================================= */}
-        {/* 👑 HERO & ATELIER HEADER (Luminous Royal Light Theme)     */}
+        {/* 👑 ROYAL HERO & LAUNCHPAD HEADER                          */}
         {/* ========================================================= */}
-        <header className="bg-white border-b border-[#E8DCC8] px-6 sm:px-8 py-5 text-[#1A1715] shrink-0 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-full bg-radial from-[#C49A35]/10 via-transparent to-transparent pointer-events-none" />
-          
-          <div className="relative z-10 flex items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#C49A35] font-mono">
-                  AMANTRANLINK · ROYAL INVITATION ATELIER
-                </span>
-                <span className="text-[#E8DCC8] text-xs">·</span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#6E1020] bg-[#FAF6EE] px-2.5 py-0.5 rounded-full border border-[#E8DCC8]">
-                  <Palette className="w-3 h-3 text-[#C49A35]" />
-                  {currentThemeObj.name} · Selected Theme
-                </span>
+        <header className="relative bg-gradient-to-r from-[#2B0810] via-[#430914] to-[#2B0810] text-white px-5 sm:px-8 py-4 sm:py-5 border-b-2 border-[#C49A35]/40 flex items-center justify-between shrink-0 shadow-md">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-[#C49A35] via-[#E8CD7E] to-[#9A7526] p-[2px] shadow-lg flex items-center justify-center shrink-0">
+              <div className="w-full h-full bg-[#3D0A12] rounded-[14px] flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-[#E8CD7E] animate-pulse" />
               </div>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#6E1020]">
-                {stage === 'completed' 
-                  ? 'Your Royal Invitation is Officially Live!' 
-                  : finalPayableAmount > 0 
-                  ? 'Unlock & Publish Your Royal Invitation'
-                  : 'Your Royal Invitation is Ready to Publish'}
-              </h2>
-              <p className="text-xs text-[#75675C] mt-0.5 font-normal">
-                {stage === 'completed'
-                  ? 'One elegant link for your family, relatives, and every guest joining your sacred celebration.'
-                  : finalPayableAmount > 0
-                  ? 'Complete your one-time payment to publish your invitation, activate cloud hosting, and unlock WhatsApp sharing.'
-                  : 'Review your invitation details, then publish to update all guest links in real time.'}
-              </p>
             </div>
-
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-10 h-10 rounded-full bg-[#FAF6EE] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8DCC8] hover:border-[#C49A35] flex items-center justify-center transition-colors cursor-pointer shrink-0"
-              aria-label="Close Studio"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] sm:text-[10px] font-mono uppercase font-bold tracking-[0.25em] text-[#E8CD7E]">
+                  ✦ AMANTRANLINK ROYAL LAUNCHPAD ✦
+                </span>
+                {isUnlockedOrCompleted && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#167A5A]/30 border border-[#167A5A] text-[#4ECCA3] text-[9px] font-mono font-bold tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#4ECCA3] animate-ping" />
+                    LIVE
+                  </span>
+                )}
+              </div>
+              <h2 className="font-serif text-lg sm:text-2xl font-bold tracking-wide text-[#FFFDF8] leading-tight">
+                {isUnlockedOrCompleted ? 'Your Royal Wedding Invitation is Sealed & Live' : 'Customize & Publish Royal Wedding Invitation'}
+              </h2>
+            </div>
           </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-[#C49A35]/30 text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </header>
 
-        {/* 🎬 ANIMATING PROGRESS VIEW */}
-        {stage === 'animating' && (
-          <div className="p-8 sm:p-14 flex flex-col items-center justify-center text-center space-y-6 flex-1 animate-fadeIn bg-[#FFFDF8]">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-[#6E1020] border-2 border-[#C49A35] flex items-center justify-center text-3xl shadow-xl">
-                <span className="animate-pulse">👑</span>
-              </div>
-              <div className="absolute -inset-3 rounded-full border-2 border-dashed border-[#C49A35]/60 animate-spin" style={{ animationDuration: '10s' }} />
+        {/* ========================================================= */}
+        {/* 🧭 NAVIGATION TABS (Interactive Customization & Delivery)  */}
+        {/* ========================================================= */}
+        {stage !== 'animating' && (
+          <div className="bg-[#FAF6EE] px-5 sm:px-8 py-2.5 border-b border-[#E8DCC8] flex items-center justify-between gap-2 overflow-x-auto shrink-0 select-none">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setActiveTab('overview')}
+                className={`px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'overview'
+                    ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
+                    : 'bg-white hover:bg-[#F3EAD8] text-[#6E1020] border border-[#E8D5AD]'
+                }`}
+              >
+                <Award className="w-3.5 h-3.5 text-[#C49A35]" />
+                <span>{isUnlockedOrCompleted ? '👑 Sovereign Links & Pass' : 'Overview & Publish'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('customize')}
+                className={`px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'customize'
+                    ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
+                    : 'bg-white hover:bg-[#F3EAD8] text-[#75675C] hover:text-[#6E1020] border border-[#E8D5AD]'
+                }`}
+              >
+                <Sliders className="w-3.5 h-3.5 text-[#C49A35]" />
+                <span>⚙️ Link &amp; Branding Customization</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('whatsapp')}
+                className={`px-3.5 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeTab === 'whatsapp'
+                    ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
+                    : 'bg-white hover:bg-[#F3EAD8] text-[#75675C] hover:text-[#6E1020] border border-[#E8D5AD]'
+                }`}
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-[#167A5A]" />
+                <span>💬 WhatsApp Share Suite</span>
+              </button>
             </div>
 
-            <div className="space-y-1.5 max-w-md">
-              <span className="text-[10px] font-mono text-[#C49A35] uppercase font-bold tracking-widest block">
-                STAGE {currentTaskIndex + 1} OF 6 · {publishingTasks[currentTaskIndex]?.title}
+            <span className="hidden sm:inline text-[11px] font-mono text-[#75675C]">
+              Theme: <strong className="text-[#6E1020] uppercase">{state.theme}</strong>
+            </span>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* 🎬 ANIMATING STATE (Golden Carving & Royal Deployment)     */}
+        {/* ========================================================= */}
+        {stage === 'animating' && (
+          <div className="p-8 sm:p-14 flex flex-col items-center justify-center text-center space-y-6 my-auto">
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border-4 border-[#C49A35]/20 animate-ping" />
+              <div className="absolute inset-0 rounded-full border-4 border-t-[#C49A35] border-r-[#C49A35] border-b-transparent border-l-transparent animate-spin" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#6E1020] to-[#3D0A12] border-2 border-[#C49A35] flex items-center justify-center shadow-xl">
+                <Sparkles className="w-8 h-8 text-[#E8CD7E] animate-pulse" />
+              </div>
+            </div>
+
+            <div className="space-y-2 max-w-md">
+              <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#C49A35] font-bold block">
+                ✦ ROYAL SEAL IN PROGRESS ✦
               </span>
-              <h3 className="font-cormorant font-bold text-2xl text-[#6E1020]">
-                {publishingTasks[currentTaskIndex]?.text}
+              <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#6E1020]">
+                {publishingTasks[currentTaskIndex]?.title}
               </h3>
-              <p className="text-xs text-[#75675C] font-serif">
+              <p className="text-sm text-[#75675C]">
+                {publishingTasks[currentTaskIndex]?.text}
+              </p>
+              <p className="text-xs font-serif italic text-[#C49A35] mt-1">
                 {publishingTasks[currentTaskIndex]?.hindi}
               </p>
             </div>
 
-            <div className="w-full max-w-md space-y-2">
-              <div className="w-full bg-[#FAF8F5] border border-[#E8D5AD] h-2.5 rounded-full overflow-hidden p-0.5">
-                <div 
-                  className="bg-gradient-to-r from-[#C49A35] to-[#701222] h-full rounded-full transition-all duration-300"
-                  style={{ width: `${publishProgress}%` }}
-                />
-              </div>
-              <div className="flex items-center justify-between text-[11px] font-mono text-[#75675C]">
-                <span>Publishing to Palace Cloud</span>
-                <span className="font-bold text-[#6E1020]">{publishProgress}%</span>
-              </div>
+            {/* Gold Progress Bar */}
+            <div className="w-full max-w-md bg-[#FAF5EC] rounded-full h-3 p-0.5 border border-[#E8D5AD] overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-[#C49A35] via-[#E8CD7E] to-[#C49A35] transition-all duration-500 shadow-sm"
+                style={{ width: `${publishProgress}%` }}
+              />
             </div>
+            <span className="text-xs font-mono font-bold text-[#6E1020]">{publishProgress}% Completed</span>
           </div>
         )}
 
-        {/* 🏛️ MAIN PUBLISH & SHARE STUDIO BODY */}
-        {(stage === 'overview' || stage === 'completed') && (
-          <div className="p-5 sm:p-8 overflow-y-auto flex-1 space-y-8 bg-[#FFFDF8]">
+        {/* ========================================================= */}
+        {/* 📜 MODAL BODY CONTENT                                      */}
+        {/* ========================================================= */}
+        {stage !== 'animating' && (
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6">
             
             {/* Error Message if payment/publish failed */}
             {paymentError && (
@@ -427,722 +494,814 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
               </div>
             )}
 
-            {/* ========================================================= */}
-            {/* 3 & 4. INVITATION PREVIEW HERO & LIVE/DRAFT STATUS */}
-            {/* ========================================================= */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              
-              {/* LEFT (Desktop Col 5): Large Invitation Preview Card */}
-              <div className="lg:col-span-5 flex flex-col items-center">
-                <div className="relative w-full max-w-[320px] bg-white rounded-3xl p-4 border-2 border-[#C49A35]/60 shadow-[0_12px_40px_rgba(110,16,32,0.12)] space-y-3">
-                  <div className="flex items-center justify-between border-b border-[#E8D5AD]/60 pb-2">
-                    <span className="text-[9px] font-mono uppercase font-bold tracking-widest text-[#6E1020] flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-[#C49A35]" />
-                      <span>{isUnlockedOrCompleted ? 'LIVE INVITATION' : 'CEREMONIAL PROOF'}</span>
-                    </span>
-                    <span className="text-[9px] text-[#75675C] font-mono">
-                      {currentThemeObj.name}
-                    </span>
-                  </div>
-
-                  {/* Visual Proof Card */}
-                  <div className="bg-[#24060B] rounded-2xl p-6 text-white text-center border border-[#C49A35]/40 space-y-3 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-radial from-[#C49A35]/20 via-transparent to-transparent pointer-events-none" />
-                    
-                    <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#C49A35] block">
-                      ✦ SHUBH VIVAH ✦
-                    </span>
-                    
-                    <h3 className="font-serif text-2xl font-bold text-[#FFFDF8] leading-tight">
-                      {groomName} &amp; {brideName}
-                    </h3>
-                    
-                    <div className="w-10 h-[1px] bg-[#C49A35] mx-auto opacity-70" />
-                    
-                    <div className="text-xs space-y-1 text-[#E8D5AD]">
-                      <p className="font-bold text-[#E8CD7E]">{weddingDate}</p>
-                      <p className="text-[11px] opacity-90 truncate">{venueName}</p>
-                    </div>
-
-                    <div className="pt-2">
-                      <span className="inline-block py-1 px-3 rounded-full bg-[#3A0811] text-[#E8D5AD] text-[10px] font-mono border border-[#C49A35]/30">
-                        {isUnlockedOrCompleted ? fullUrl.replace(/^https?:\/\//, '') : 'amantranlink.com/i/••••••••'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Discreet Guest View Action */}
-                  {isUnlockedOrCompleted ? (
-                    <a
-                      href={fullUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full py-2.5 px-4 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] hover:border-[#C49A35] text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <span>Open Live Guest View</span>
-                      <ExternalLink className="w-3.5 h-3.5 text-[#C49A35]" />
-                    </a>
-                  ) : (
-                    <div className="w-full py-2.5 px-4 rounded-xl bg-[#FAF5EC] text-[#75675C] border border-[#E8D5AD] text-xs font-medium flex items-center justify-center gap-2">
-                      <Lock className="w-3.5 h-3.5 text-[#C49A35]" />
-                      <span>Live link unlocks after payment</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* RIGHT (Desktop Col 7): Status, Publish CTA & Link Presenter */}
-              <div className="lg:col-span-7 space-y-5">
+            {/* TAB 1: OVERVIEW & SOVEREIGN FARMAN (The Core Experience) */}
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
                 
-                {/* 4. Editorial Production Status Note */}
-                <div className="p-4 bg-[#FAF5EC] rounded-2xl border border-[#E8D5AD] flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-[#75675C] block font-semibold">
-                      YOUR INVITATION STATUS
-                    </span>
-                    <h4 className="font-serif text-xl font-bold text-[#241A17] mt-0.5">
-                      {isUnlockedOrCompleted 
-                        ? 'Live & Published on Cloud' 
-                        : 'Customization Saved · Awaiting Unlock'}
-                    </h4>
-                  </div>
-                  <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
-                    isUnlockedOrCompleted
-                      ? 'bg-[#167A5A]/10 text-[#167A5A] border-[#167A5A]/30'
-                      : 'bg-[#C49A35]/10 text-[#6E1020] border-[#C49A35]/30'
-                  }`}>
-                    {isUnlockedOrCompleted ? 'Active on Cloud' : 'Draft Proof'}
-                  </span>
-                </div>
+                {/* 👑 IF COMPLETED: THE UNIQUE ROYAL SOVEREIGN FARMAN & VIP CLOUD PASS */}
+                {isUnlockedOrCompleted ? (
+                  <div className="space-y-6">
+                    
+                    {/* 🌟 LUXURY ROYAL DIGITAL FARMAN CARD */}
+                    <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-[#1C0409] via-[#2A060E] to-[#120205] text-[#FFFDF8] border-2 border-[#C49A35] shadow-[0_20px_50px_rgba(110,16,32,0.35)] overflow-hidden">
+                      {/* Decorative Gold Filigree Corner Accents */}
+                      <div className="absolute top-2 left-2 w-12 h-12 border-t-2 border-l-2 border-[#C49A35]/60 rounded-tl-xl pointer-events-none" />
+                      <div className="absolute top-2 right-2 w-12 h-12 border-t-2 border-r-2 border-[#C49A35]/60 rounded-tr-xl pointer-events-none" />
+                      <div className="absolute bottom-2 left-2 w-12 h-12 border-b-2 border-l-2 border-[#C49A35]/60 rounded-bl-xl pointer-events-none" />
+                      <div className="absolute bottom-2 right-2 w-12 h-12 border-b-2 border-r-2 border-[#C49A35]/60 rounded-br-xl pointer-events-none" />
+                      <div className="absolute inset-0 bg-radial from-[#C49A35]/15 via-transparent to-transparent pointer-events-none" />
 
-                {/* GATING: If not unlocked, show Payment Checkout Card */}
-                {!isUnlockedOrCompleted ? (
-                  <div className="p-6 rounded-3xl bg-white border-2 border-[#C49A35]/40 shadow-md space-y-5">
-                    <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD] pb-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] font-mono uppercase font-bold tracking-widest text-[#C49A35]">
-                            ROYAL INVITATION PACKAGE
-                          </span>
+                      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                        
+                        {/* Left: Royal Seal & Couple Monogram */}
+                        <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
+                          <div className="relative group shrink-0">
+                            {/* 3D Embossed Wax Seal */}
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-[#8C1425] via-[#5A0A15] to-[#2B040A] p-1 border-2 border-[#E8CD7E] shadow-[0_10px_30px_rgba(0,0,0,0.6)] flex items-center justify-center transform group-hover:scale-105 transition-transform">
+                              <div className="w-full h-full rounded-full border border-dashed border-[#C49A35]/70 flex flex-col items-center justify-center">
+                                <span className="text-[8px] font-mono tracking-widest text-[#E8CD7E] uppercase">VIVAH</span>
+                                <span className="font-serif text-lg sm:text-xl font-bold text-[#FFFDF8] tracking-widest">
+                                  {coupleMonogram}
+                                </span>
+                                <span className="text-[8px] text-[#E8CD7E]/80 font-mono">2026</span>
+                              </div>
+                            </div>
+                            <span className="absolute -bottom-1 -right-1 p-1 bg-[#167A5A] rounded-full border-2 border-white text-white shadow-xs" title="Live Cloud Registry Active">
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            </span>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#FAF5EC]/10 border border-[#C49A35]/40 text-[#E8CD7E] text-[10px] font-mono tracking-widest uppercase">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#167A5A] animate-ping" />
+                              <span>OFFICIAL SOVEREIGN FARMAN</span>
+                            </div>
+                            <h3 className="font-serif text-2xl sm:text-4xl font-bold text-[#FFFDF8] tracking-tight">
+                              {groomName} &amp; {brideName}
+                            </h3>
+                            <p className="text-xs text-[#E8D5AD] font-mono">
+                              {weddingDate} · {venueName}
+                            </p>
+                            <p className="text-[10px] text-[#E8CD7E]/70 font-mono">
+                              Registry ID: #AL-{cleanSlug.toUpperCase()}-2026
+                            </p>
+                          </div>
                         </div>
-                        <h4 className="font-serif text-2xl font-bold text-[#6E1020]">
-                          Unlock &amp; Publish Invitation
-                        </h4>
-                        <p className="text-xs text-[#75675C] mt-1 leading-relaxed">
-                          Publish your wedding website to Palace Cloud and get your official shareable link, WhatsApp dispatches, and QR codes.
-                        </p>
-                      </div>
 
-                      <div className="text-right shrink-0 bg-[#FAF6EE] px-4 py-2.5 rounded-2xl border border-[#E8DCC8]">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-[#75675C] block">
-                          One-Time Fee
-                        </span>
-                        <span className="font-serif text-2xl font-bold text-[#6E1020]">
-                          ₹{finalPayableAmount}
-                        </span>
+                        {/* Right: Quick Action Launch Pad */}
+                        <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 w-full md:w-auto shrink-0">
+                          <a
+                            href={effectiveShareUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="py-3 px-5 rounded-2xl bg-gradient-to-r from-[#C49A35] via-[#E8CD7E] to-[#C49A35] hover:brightness-110 text-[#2B0810] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer transform hover:-translate-y-0.5"
+                          >
+                            <span>Open Live Website</span>
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+
+                          <button
+                            type="button"
+                            onClick={handleWhatsAppShare}
+                            className="py-3 px-5 rounded-2xl bg-[#167A5A] hover:bg-[#126349] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+                          >
+                            <MessageCircle className="w-4 h-4 text-white" />
+                            <span>Share on WhatsApp</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Features checklist */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-[#241A17]">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
-                        <span>Official Live URL ({slug})</span>
+                    {/* ⚡ DUAL LUXURY CLOUD LINK DELIVERY CARDS */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      
+                      {/* CARD 1: DEDICATED VERCEL CLOUD DOMAIN */}
+                      <div className="p-5 rounded-3xl bg-gradient-to-br from-[#F5FBF8] via-[#FAFDFB] to-[#FFFFFF] border-2 border-[#167A5A]/40 shadow-md space-y-3 relative overflow-hidden flex flex-col justify-between">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#167A5A] text-white text-[10px] font-mono font-bold tracking-wider uppercase shadow-2xs">
+                              <Zap className="w-3 h-3 text-[#E8CD7E]" />
+                              <span>DEDICATED VERCEL CLOUD</span>
+                            </span>
+                            <span className="text-[10px] font-mono text-[#167A5A] font-bold">
+                              100% Free Edge
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-[#241A17] font-medium">
+                            Your personalized cloud website on Vercel's global edge network.
+                          </p>
+
+                          <div className="bg-white border-2 border-[#167A5A]/30 p-3 rounded-2xl flex items-center justify-between gap-2 shadow-2xs">
+                            <div className="truncate text-xs font-mono font-bold text-[#167A5A] flex items-center gap-2">
+                              <Globe className="w-4 h-4 text-[#167A5A] shrink-0" />
+                              <span className="truncate">{liveVercelUrl}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={handleCopyVercel}
+                            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs ${
+                              copiedVercel
+                                ? 'bg-[#167A5A] text-white'
+                                : 'bg-[#167A5A]/10 hover:bg-[#167A5A]/20 text-[#167A5A] border border-[#167A5A]/30'
+                            }`}
+                          >
+                            {copiedVercel ? (
+                              <>
+                                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                <span>Copied Link! 👑</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>Copy Vercel URL</span>
+                              </>
+                            )}
+                          </button>
+
+                          <a
+                            href={liveVercelUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="py-2.5 px-4 rounded-xl text-xs font-bold font-mono bg-[#167A5A] hover:bg-[#126349] text-white flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                          >
+                            <span>Open</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
-                        <span>Royal Shehnai &amp; Music Player</span>
+
+                      {/* CARD 2: AMANTRANLINK CANONICAL PORTAL */}
+                      <div className="p-5 rounded-3xl bg-gradient-to-br from-[#FCF8F2] via-[#FFFDF8] to-[#FAF5EC] border-2 border-[#C49A35]/40 shadow-md space-y-3 relative overflow-hidden flex flex-col justify-between">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#6E1020] text-[#FFFDF8] text-[10px] font-mono font-bold tracking-wider uppercase shadow-2xs">
+                              <CrownIcon className="w-3 h-3 text-[#E8CD7E]" />
+                              <span>AMANTRANLINK CANONICAL</span>
+                            </span>
+                            <span className="text-[10px] font-mono text-[#6E1020] font-bold">
+                              Full Interactive Suite
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-[#241A17] font-medium">
+                            Official portal link with live family blessings, RSVP tracker, and multi-language support.
+                          </p>
+
+                          <div className="bg-white border-2 border-[#C49A35]/30 p-3 rounded-2xl flex items-center justify-between gap-2 shadow-2xs">
+                            <div className="truncate text-xs font-mono font-bold text-[#6E1020] flex items-center gap-2">
+                              <Globe className="w-4 h-4 text-[#C49A35] shrink-0" />
+                              <span className="truncate">{fullUrl}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={handleCopyLink}
+                            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs ${
+                              copied
+                                ? 'bg-[#167A5A] text-white'
+                                : 'bg-[#6E1020]/10 hover:bg-[#6E1020]/20 text-[#6E1020] border border-[#C49A35]/30'
+                            }`}
+                          >
+                            {copied ? (
+                              <>
+                                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                <span>Copied Link! 👑</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>Copy Royal URL</span>
+                              </>
+                            )}
+                          </button>
+
+                          <a
+                            href={fullUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="py-2.5 px-4 rounded-xl text-xs font-bold font-mono bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                          >
+                            <span>Open</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
-                        <span>1-Tap Google Maps GPS Directions</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
-                        <span>Interactive RSVP &amp; Meal Tracker</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
-                        <span>Bulk Guest WhatsApp Link Generator</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
-                        <span>Print-Ready Golden QR Code</span>
-                      </div>
+
                     </div>
 
-                    {/* Checkout CTA Button */}
-                    <div className="space-y-3 pt-2">
-                      <button
-                        type="button"
-                        onClick={triggerPublishSequence}
-                        disabled={isVerifyingPayment}
-                        className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#6E1020] via-[#851829] to-[#6E1020] hover:from-[#5A0B18] hover:to-[#5A0B18] text-[#FFFDF8] font-bold text-sm tracking-wide flex items-center justify-center gap-3 shadow-lg border border-[#C49A35] transition-all cursor-pointer hover:scale-[1.01]"
-                      >
-                        {isVerifyingPayment ? (
-                          <>
-                            <Loader2 className="w-5 h-5 animate-spin text-[#C49A35]" />
-                            <span>Connecting to Secure Gateway...</span>
-                          </>
-                        ) : (
-                          <>
-                            <CreditCard className="w-5 h-5 text-[#C49A35]" />
-                            <span>PAY ₹{finalPayableAmount} &amp; PUBLISH ROYAL INVITATION</span>
-                            <ArrowRight className="w-4 h-4 text-[#C49A35]" />
-                          </>
-                        )}
-                      </button>
+                    {/* 📲 WHATSAPP DISPATCH & QR CODE CARDS */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+                      
+                      {/* Left: WhatsApp 1-Click Action Hub */}
+                      <div className="lg:col-span-7 p-6 rounded-3xl bg-white border border-[#E8D5AD] shadow-sm space-y-4">
+                        <div className="flex items-center justify-between border-b border-[#E8D5AD] pb-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-[#167A5A]/10 text-[#167A5A] flex items-center justify-center">
+                              <MessageCircle className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <h4 className="font-serif text-lg font-bold text-[#241A17]">
+                                1-Click WhatsApp Dispatch
+                              </h4>
+                              <p className="text-[11px] text-[#75675C]">
+                                Formatted with auspicious text, date &amp; active link
+                              </p>
+                            </div>
+                          </div>
 
-                      <div className="flex items-center justify-center gap-4 text-[11px] text-[#75675C] text-center">
-                        <span className="flex items-center gap-1">
-                          <ShieldCheck className="w-3.5 h-3.5 text-[#167A5A]" />
-                          256-bit Encrypted SSL
-                        </span>
-                        <span>·</span>
-                        <span>Razorpay / UPI / Cards / NetBanking</span>
-                        <span>·</span>
-                        <span>Instant Activation</span>
+                          <button
+                            type="button"
+                            onClick={() => setActiveTab('whatsapp')}
+                            className="text-xs font-bold text-[#6E1020] hover:underline cursor-pointer"
+                          >
+                            Edit Tone &rarr;
+                          </button>
+                        </div>
+
+                        {/* WhatsApp Message Preview Bubble */}
+                        <div className="bg-[#EFEAE2] p-4 rounded-2xl border border-[#D5CEBF] font-sans text-xs text-[#111B21] space-y-2 relative shadow-inner">
+                          <div className="bg-white p-3.5 rounded-xl shadow-xs border border-black/5 whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">
+                            {customMessage}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2.5 pt-1 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={handleWhatsAppShare}
+                            className="flex-1 py-3 px-4 rounded-2xl bg-[#167A5A] hover:bg-[#126349] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all"
+                          >
+                            <Send className="w-4 h-4 text-white" />
+                            <span>Share Directly on WhatsApp</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={handleCopyMessage}
+                            className="py-3 px-4 rounded-2xl bg-[#FAF6EE] hover:bg-[#F0E6D2] text-[#6E1020] border border-[#C49A35]/40 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all"
+                          >
+                            {copiedMsg ? <Check className="w-4 h-4 text-[#167A5A]" /> : <Copy className="w-4 h-4" />}
+                            <span>{copiedMsg ? 'Copied!' : 'Copy Text'}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setShowBulkWhatsAppModal(true)}
+                            className="py-3 px-4 rounded-2xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                            title="Generate personalized links for your entire guest list"
+                          >
+                            <Users className="w-4 h-4 text-[#E8CD7E]" />
+                            <span>Bulk Guest Dispatcher</span>
+                          </button>
+                        </div>
                       </div>
+
+                      {/* Right: Golden Royal QR Code */}
+                      <div className="lg:col-span-5 p-6 rounded-3xl bg-gradient-to-br from-[#FAF5EC] to-[#FFFDF8] border border-[#C49A35]/50 shadow-sm flex flex-col justify-between text-center space-y-4">
+                        <div>
+                          <span className="text-[10px] font-mono uppercase tracking-widest text-[#C49A35] font-bold block mb-1">
+                            ✦ PRINT &amp; STAGE PASS ✦
+                          </span>
+                          <h4 className="font-serif text-lg font-bold text-[#6E1020]">
+                            Golden Scannable QR Code
+                          </h4>
+                          <p className="text-[11px] text-[#75675C]">
+                            Scan with camera to open live invitation
+                          </p>
+                        </div>
+
+                        <div className="flex justify-center">
+                          <div className="p-3 bg-white rounded-2xl border-2 border-[#C49A35] shadow-md inline-block">
+                            <img
+                              src={qrCodeApiUrl}
+                              alt="Royal Wedding QR"
+                              className="w-36 h-36 rounded-lg"
+                            />
+                            <div className="mt-2 text-[10px] font-mono font-bold text-[#6E1020] tracking-widest uppercase">
+                              {coupleMonogram} · VIVAH
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={downloadQrCode}
+                            className="flex-1 py-2.5 px-3 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs cursor-pointer transition-all"
+                          >
+                            <Download className="w-3.5 h-3.5 text-[#E8CD7E]" />
+                            <span>Download PNG QR</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setShowQrModal(true)}
+                            className="py-2.5 px-3 rounded-xl bg-white border border-[#E8D5AD] text-xs font-semibold text-[#75675C] hover:text-[#6E1020] cursor-pointer"
+                          >
+                            Full View
+                          </button>
+                        </div>
+                      </div>
+
                     </div>
 
-                    {/* Locked notice */}
-                    <div className="p-3.5 rounded-xl bg-[#FAF5EC] border border-[#E8D5AD] flex items-center gap-3 text-xs text-[#75675C]">
-                      <Lock className="w-4 h-4 text-[#C49A35] shrink-0" />
-                      <span>
-                        The live link, WhatsApp 1-click shares, QR codes, and Bulk Guest Generator will unlock immediately after payment.
-                      </span>
-                    </div>
                   </div>
                 ) : (
-                  <>
-                    {/* 6. DEDICATED VERCEL DEPLOYMENT & LIVE LINKS (Unlocked) */}
-                    <div className="space-y-4">
-                      {/* ⚡ CARD 1: Dedicated Vercel Cloud Link */}
-                      <div className="p-5 rounded-3xl bg-gradient-to-br from-[#F5FBF8] via-[#FAFDFB] to-[#FFFFFF] border-2 border-[#167A5A]/30 shadow-sm space-y-3 relative overflow-hidden">
-                        <div className="flex items-center justify-between gap-2 flex-wrap">
-                          <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#167A5A] text-white text-[10px] font-mono font-bold tracking-wider uppercase shadow-2xs">
-                              ⚡ VERCEL LIVE CLOUD
+                  /* ========================================================= */
+                  /* 🔒 BEFORE PAYMENT / UNLOCK: OVERVIEW & CHECKOUT CARD      */
+                  /* ========================================================= */
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                      
+                      {/* Left (5 Cols): Live Preview of the Digital Invitation */}
+                      <div className="lg:col-span-5 flex flex-col items-center">
+                        <div className="relative w-full max-w-[340px] bg-white rounded-3xl p-4 border-2 border-[#C49A35]/60 shadow-[0_12px_40px_rgba(110,16,32,0.12)] space-y-3">
+                          <div className="flex items-center justify-between border-b border-[#E8D5AD]/60 pb-2">
+                            <span className="text-[9px] font-mono uppercase font-bold tracking-widest text-[#6E1020] flex items-center gap-1">
+                              <Sparkles className="w-3 h-3 text-[#C49A35]" />
+                              <span>CEREMONIAL PREVIEW</span>
                             </span>
-                            <span className="text-[10px] font-mono text-[#167A5A] font-semibold">
-                              100% Free Edge Deployment
+                            <span className="text-[9px] text-[#75675C] font-mono">
+                              {currentThemeObj.name}
                             </span>
                           </div>
-                          
-                          {isDeployingVercel ? (
-                            <span className="inline-flex items-center gap-1.5 text-xs text-[#167A5A] font-medium font-mono">
-                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              <span>Deploying to Vercel...</span>
+
+                          {/* Visual Proof Card */}
+                          <div className="bg-[#24060B] rounded-2xl p-6 text-white text-center border border-[#C49A35]/40 space-y-3 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-radial from-[#C49A35]/20 via-transparent to-transparent pointer-events-none" />
+                            
+                            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#C49A35] block">
+                              ✦ SHUBH VIVAH ✦
                             </span>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => triggerVercelDeploy()}
-                              className="text-[11px] font-mono text-[#75675C] hover:text-[#167A5A] flex items-center gap-1 transition-colors cursor-pointer"
-                              title="Re-deploy latest changes to Vercel"
-                            >
-                              <RefreshCw className="w-3 h-3" />
-                              <span>Re-sync Vercel</span>
-                            </button>
-                          )}
-                        </div>
+                            
+                            <h3 className="font-serif text-2xl font-bold text-[#FFFDF8] leading-tight">
+                              {groomName} &amp; {brideName}
+                            </h3>
+                            
+                            <div className="w-10 h-[1px] bg-[#C49A35] mx-auto opacity-70" />
+                            
+                            <div className="text-xs space-y-1 text-[#E8D5AD]">
+                              <p className="font-bold text-[#E8CD7E]">{weddingDate}</p>
+                              <p className="text-[11px] opacity-90 truncate">{venueName}</p>
+                            </div>
 
-                        <div className="bg-white border border-[#167A5A]/30 p-3.5 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
-                          <div className="truncate text-xs font-mono font-bold text-[#167A5A] flex items-center gap-2" title={liveVercelUrl}>
-                            <Globe className="w-4 h-4 text-[#167A5A] shrink-0" />
-                            <span className="truncate">{liveVercelUrl}</span>
+                            <div className="pt-2">
+                              <span className="inline-block py-1 px-3 rounded-full bg-[#3A0811] text-[#E8D5AD] text-[10px] font-mono border border-[#C49A35]/30">
+                                amantranlink.com/i/{cleanSlug}
+                              </span>
+                            </div>
                           </div>
 
-                          <div className="flex items-center gap-2 shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                navigator.clipboard.writeText(liveVercelUrl);
-                                setCopiedVercel(true);
-                                setTimeout(() => setCopiedVercel(false), 2500);
-                              }}
-                              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer shadow-xs ${
-                                copiedVercel
-                                  ? 'bg-[#167A5A] text-white'
-                                  : 'bg-[#167A5A]/10 hover:bg-[#167A5A]/20 text-[#167A5A] border border-[#167A5A]/30'
-                              }`}
-                            >
-                              {copiedVercel ? 'Copied ✓' : 'Copy Vercel'}
-                            </button>
-
-                            <a
-                              href={liveVercelUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-3.5 py-1.5 rounded-xl text-xs font-bold font-mono bg-[#167A5A] hover:bg-[#126349] text-white flex items-center gap-1 transition-all cursor-pointer shadow-xs"
-                            >
-                              <span>Open</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </a>
+                          <div className="p-3 bg-[#FAF5EC] rounded-xl border border-[#E8D5AD] text-[11px] text-[#75675C] flex items-center justify-between">
+                            <span>Vercel Dedicated Domain:</span>
+                            <span className="font-mono font-bold text-[#167A5A] truncate ml-1">{cleanSlug}-wedding.vercel.app</span>
                           </div>
-                        </div>
-
-                        <div className="flex items-center justify-between text-[11px] text-[#75675C] pt-0.5">
-                          <label className="flex items-center gap-2 cursor-pointer select-none">
-                            <input
-                              type="checkbox"
-                              checked={useVercelLinkForShare}
-                              onChange={(e) => setUseVercelLinkForShare(e.target.checked)}
-                              className="w-4 h-4 rounded text-[#167A5A] focus:ring-[#167A5A] border-gray-300"
-                            />
-                            <span className="font-medium text-[#241A17]">Use Vercel link when sharing on WhatsApp</span>
-                          </label>
-                          {copiedVercel && (
-                            <span className="text-[#167A5A] font-bold animate-fadeIn">✓ Copied!</span>
-                          )}
                         </div>
                       </div>
 
-                      {/* 🏛️ CARD 2: Standard Platform Canonical Link */}
-                      <div className="p-4 rounded-2xl bg-white border border-[#E8D5AD] shadow-xs space-y-2.5">
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#6E1020] block">
-                          PLATFORM CANONICAL URL
-                        </span>
-                        
-                        <div className="bg-[#FAF5EC] border border-[#E8D5AD] p-2.5 rounded-xl flex items-center justify-between gap-3">
-                          <div className="truncate text-xs font-mono text-[#6E1020] flex items-center gap-2" title={fullUrl}>
-                            <Globe className="w-3.5 h-3.5 text-[#C49A35] shrink-0" />
-                            <span className="truncate">{fullUrl}</span>
+                      {/* Right (7 Cols): Payment & Activation Card */}
+                      <div className="lg:col-span-7 space-y-4">
+                        <div className="p-6 rounded-3xl bg-white border-2 border-[#C49A35]/40 shadow-md space-y-5">
+                          <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD] pb-4">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-[10px] font-mono uppercase font-bold tracking-widest text-[#C49A35]">
+                                  ROYAL INVITATION PACKAGE
+                                </span>
+                              </div>
+                              <h4 className="font-serif text-2xl font-bold text-[#6E1020]">
+                                Unlock &amp; Publish Royal Invitation
+                              </h4>
+                              <p className="text-xs text-[#75675C] mt-1 leading-relaxed">
+                                Get your official shareable link, dedicated Vercel deployment, WhatsApp dispatches, and QR codes instantly.
+                              </p>
+                            </div>
+
+                            <div className="text-right shrink-0 bg-[#FAF6EE] px-4 py-2.5 rounded-2xl border border-[#E8DCC8]">
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-[#75675C] block">
+                                One-Time Fee
+                              </span>
+                              <span className="font-serif text-2xl font-bold text-[#6E1020]">
+                                ₹{finalPayableAmount}
+                              </span>
+                            </div>
                           </div>
 
-                          <div className="flex items-center gap-2 shrink-0">
+                          {/* Features checklist */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-[#241A17]">
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                              <span>Dedicated Vercel Cloud Domain</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                              <span>Official Clean Slug: {cleanSlug}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                              <span>Royal Shehnai &amp; Music Player</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                              <span>Interactive RSVP &amp; Meal Tracker</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                              <span>Bulk Guest WhatsApp Link Generator</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-[#167A5A] shrink-0" />
+                              <span>Print-Ready Golden QR Code</span>
+                            </div>
+                          </div>
+
+                          {/* Checkout CTA Button */}
+                          <div className="space-y-3 pt-2">
                             <button
                               type="button"
-                              onClick={handleCopyLink}
-                              className={`px-3 py-1 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
-                                copied 
-                                  ? 'bg-[#167A5A] text-white' 
-                                  : 'bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8]'
-                              }`}
+                              onClick={triggerPublishSequence}
+                              disabled={isVerifyingPayment}
+                              className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#6E1020] via-[#851829] to-[#6E1020] hover:from-[#5A0B18] hover:to-[#5A0B18] text-[#FFFDF8] font-bold text-sm tracking-wide flex items-center justify-center gap-3 shadow-lg border border-[#C49A35] transition-all cursor-pointer hover:scale-[1.01]"
                             >
-                              {copied ? 'Copied ✓' : 'Copy'}
+                              {isVerifyingPayment ? (
+                                <>
+                                  <Loader2 className="w-5 h-5 animate-spin text-[#C49A35]" />
+                                  <span>Connecting to Secure Gateway...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <CreditCard className="w-5 h-5 text-[#C49A35]" />
+                                  <span>PAY ₹{finalPayableAmount} &amp; PUBLISH ROYAL INVITATION</span>
+                                  <ArrowRight className="w-4 h-4 text-[#C49A35]" />
+                                </>
+                              )}
                             </button>
 
-                            <a
-                              href={fullUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-3 py-1 rounded-lg text-xs font-bold font-mono bg-white hover:bg-gray-50 text-[#6E1020] border border-[#E8D5AD] flex items-center gap-1 transition-all"
+                            <div className="flex items-center justify-center gap-4 text-[11px] text-[#75675C] text-center">
+                              <span className="flex items-center gap-1">
+                                <ShieldCheck className="w-3.5 h-3.5 text-[#167A5A]" />
+                                256-bit Encrypted SSL
+                              </span>
+                              <span>·</span>
+                              <span>Razorpay / UPI / Cards / NetBanking</span>
+                              <span>·</span>
+                              <span>Instant Activation</span>
+                            </div>
+                          </div>
+
+                          {/* Option to customize settings before payment */}
+                          <div className="p-3.5 rounded-2xl bg-[#FAF5EC] border border-[#E8D5AD] flex items-center justify-between gap-3 text-xs">
+                            <div className="flex items-center gap-2">
+                              <Sliders className="w-4 h-4 text-[#C49A35]" />
+                              <span className="font-semibold text-[#241A17]">Want to customize your URL slug or watermark first?</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setActiveTab('customize')}
+                              className="px-3 py-1 rounded-lg bg-white border border-[#C49A35]/40 text-[#6E1020] font-bold hover:bg-[#FAF6EE] cursor-pointer"
                             >
-                              <span>Open</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </a>
+                              Customize &rarr;
+                            </button>
                           </div>
                         </div>
                       </div>
+
                     </div>
-
-                    {/* 5. MAIN SHARE PANEL (Unlocked) */}
-                    <div className="p-5 rounded-3xl bg-white border border-[#E8D5AD] shadow-xs space-y-4">
-                      <div>
-                        <h4 className="font-serif text-2xl font-bold text-[#241A17]">
-                          Share with your family
-                        </h4>
-                        <p className="text-xs text-[#75675C] mt-0.5">
-                          Send the royal invitation directly to your guests on WhatsApp.
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                        <button
-                          type="button"
-                          onClick={handleWhatsAppShare}
-                          className="py-3 px-4 rounded-xl bg-[#167A5A] hover:bg-[#126349] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
-                        >
-                          <MessageCircle className="w-4 h-4" />
-                          <span>Share on WhatsApp</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setShowQrModal(true)}
-                          className="py-3 px-4 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] hover:border-[#C49A35] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
-                        >
-                          <QrIcon className="w-4 h-4 text-[#C49A35]" />
-                          <span>Show QR Code</span>
-                        </button>
-                      </div>
-                    </div>
-                  </>
+                  </div>
                 )}
 
               </div>
+            )}
 
-            </div>
-
-            {/* ========================================================= */}
-            {/* GATING: SECTIONS 7, 8, 9 (LOCKED UNTIL PAYMENT / UNLOCKED) */}
-            {/* ========================================================= */}
-            {!isUnlockedOrCompleted ? (
-              <section className="bg-white rounded-3xl border border-[#E8DCC8] p-8 sm:p-10 text-center space-y-5 shadow-xs">
-                <div className="w-16 h-16 rounded-2xl bg-[#FAF6EE] border border-[#C49A35]/40 text-[#6E1020] flex items-center justify-center mx-auto shadow-xs">
-                  <Lock className="w-7 h-7 text-[#C49A35]" />
-                </div>
-                <div className="max-w-lg mx-auto space-y-2">
-                  <span className="text-[10px] font-mono uppercase font-bold tracking-widest text-[#C49A35]">
-                    LOCKED UNTIL PUBLISHED
-                  </span>
-                  <h3 className="font-serif text-2xl font-bold text-[#1A1715]">
-                    Unlock 1-Click WhatsApp Shares &amp; Bulk Guest Links
-                  </h3>
-                  <p className="text-xs text-[#75675C] leading-relaxed">
-                    Once published, you get instant access to the personalized Bulk Guest WhatsApp Generator, high-resolution Golden QR Code download, and real-time RSVP dashboard.
-                  </p>
-                </div>
-                <div>
-                  <button
-                    type="button"
-                    onClick={triggerPublishSequence}
-                    disabled={isVerifyingPayment}
-                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#6E1020] to-[#851829] hover:from-[#5A0B18] hover:to-[#5A0B18] text-[#FFFDF8] text-xs font-bold uppercase tracking-wider border border-[#C49A35] cursor-pointer shadow-md transition-all hover:scale-[1.01]"
-                  >
-                    {isVerifyingPayment ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin text-[#C49A35]" />
-                        <span>Connecting...</span>
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="w-4 h-4 text-[#C49A35]" />
-                        <span>Pay ₹{finalPayableAmount} &amp; Unlock All Features</span>
-                        <ArrowRight className="w-4 h-4 text-[#C49A35]" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              </section>
-            ) : (
-              <>
-                {/* ========================================================= */}
-                {/* 7. PERSONALIZED GUEST LINKS */}
-                {/* ========================================================= */}
-                <section className="bg-white rounded-3xl border border-[#E8D5AD] p-6 shadow-xs space-y-4">
-                  <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD]/60 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-[#FAF5EC] border border-[#C49A35]/40 text-[#6E1020] flex items-center justify-center shrink-0">
-                        <Users className="w-5 h-5 text-[#C49A35]" />
-                      </div>
-                      <div>
-                        <h3 className="font-serif text-2xl font-bold text-[#241A17]">
-                          Personal invitations
-                        </h3>
-                        <p className="text-xs text-[#75675C] mt-0.5">
-                          Give every guest a more personal welcome.
-                        </p>
-                      </div>
+            {/* TAB 2: ⚙️ LINK & BRANDING CUSTOMIZATION */}
+            {activeTab === 'customize' && (
+              <div className="max-w-3xl mx-auto space-y-6">
+                
+                {/* 1. Custom URL Slug Section */}
+                <div className="p-6 rounded-3xl bg-white border border-[#E8D5AD] shadow-sm space-y-4">
+                  <div className="flex items-center gap-2 border-b border-[#E8D5AD] pb-3">
+                    <Link2 className="w-5 h-5 text-[#C49A35]" />
+                    <div>
+                      <h4 className="font-serif text-lg font-bold text-[#241A17]">
+                        Custom Wedding Web Address (Slug)
+                      </h4>
+                      <p className="text-xs text-[#75675C]">
+                        Choose the exact URL path your guests will see
+                      </p>
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <p className="text-xs text-[#75675C] leading-relaxed max-w-2xl">
-                      Guests can receive a link prepared especially for them, while their RSVP remains connected to your wedding. Each personalized link pre-fills the guest's name and preserves their individual response.
-                    </p>
-
-                    <div className="p-4 bg-[#FAF5EC] rounded-2xl border border-[#E8D5AD] text-xs text-[#241A17] flex items-center justify-between flex-wrap gap-3">
-                      <div className="flex items-center gap-2">
-                        <HeartHandshake className="w-4 h-4 text-[#6E1020]" />
-                        <span className="font-semibold">Manage and dispatch personalized guest links</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onClose();
-                          if (typeof window !== 'undefined') {
-                            window.location.hash = '#guest-book';
-                          }
-                        }}
-                        className="px-4 py-2 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-xs font-bold transition-all cursor-pointer"
-                      >
-                        Open Family Guest Book →
-                      </button>
-                    </div>
-                  </div>
-                </section>
-
-                {/* ========================================================= */}
-                {/* 8. QR SHARE SECTION */}
-                {/* ========================================================= */}
-                <section className="bg-white rounded-3xl border border-[#E8D5AD] p-6 shadow-xs space-y-6">
-                  <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD]/60 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-[#FAF5EC] border border-[#C49A35]/40 text-[#6E1020] flex items-center justify-center shrink-0">
-                        <QrIcon className="w-5 h-5 text-[#C49A35]" />
-                      </div>
-                      <div>
-                        <h3 className="font-serif text-2xl font-bold text-[#241A17]">
-                          Share by QR
-                        </h3>
-                        <p className="text-xs text-[#75675C] mt-0.5">
-                          Perfect for family groups, printed cards, and reception desks.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                    <div className="md:col-span-4 flex justify-center bg-[#FAF5EC] p-4 rounded-2xl border border-[#E8D5AD]">
-                      <img
-                        src={qrCodeApiUrl}
-                        alt="Invitation QR Code"
-                        className="w-44 h-44 rounded-xl shadow-xs border border-[#C49A35]/40"
+                    <label className="text-xs font-semibold text-[#241A17] block">
+                      Edit Invitation Slug:
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono text-[#75675C] bg-[#FAF5EC] px-3 py-2.5 rounded-xl border border-[#E8D5AD]">
+                        /i/
+                      </span>
+                      <input
+                        type="text"
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                        placeholder="romil-urja"
+                        className="flex-1 py-2.5 px-4 rounded-xl border border-[#E8D5AD] bg-white font-mono text-sm font-bold text-[#6E1020] focus:ring-2 focus:ring-[#C49A35] focus:outline-none"
                       />
                     </div>
 
-                    <div className="md:col-span-8 space-y-4">
-                      <p className="text-xs text-[#75675C] leading-relaxed">
-                        Scannable with any smartphone camera. Guests will be taken directly to your digital invitation with royal background music, rasams, GPS directions, and RSVP portal.
-                      </p>
+                    {/* Suggestions Pills */}
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[11px] text-[#75675C] block">Suggestions:</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {slugSuggestions.map((sug) => (
+                          <button
+                            key={sug}
+                            type="button"
+                            onClick={() => setSlug(sug)}
+                            className={`px-3 py-1 rounded-full text-xs font-mono transition-all cursor-pointer ${
+                              slug === sug
+                                ? 'bg-[#6E1020] text-[#FFFDF8] font-bold shadow-xs'
+                                : 'bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#6E1020] border border-[#E8D5AD]'
+                            }`}
+                          >
+                            {sug}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                      <div className="flex items-center gap-3 pt-2 flex-wrap">
-                        <button
-                          type="button"
-                          onClick={downloadQrCode}
-                          className="py-3 px-5 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-sm border border-[#C49A35] transition-all cursor-pointer"
-                        >
-                          <Download className="w-4 h-4 text-[#C49A35]" />
-                          <span>Download QR</span>
-                        </button>
-
-                        <a
-                          href={fullUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="py-3 px-5 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5 text-[#C49A35]" />
-                          <span>Open Invitation</span>
-                        </a>
+                    {/* Live URL Previews */}
+                    <div className="p-3.5 rounded-2xl bg-[#FAF5EC] border border-[#E8D5AD] space-y-1.5 text-xs font-mono">
+                      <div className="flex items-center gap-2 text-[#167A5A] truncate">
+                        <Zap className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">https://{cleanSlug}-wedding.vercel.app</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[#6E1020] truncate">
+                        <Globe className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">{origin}/i/{cleanSlug}</span>
                       </div>
                     </div>
                   </div>
-                </section>
+                </div>
 
-                {/* ========================================================= */}
-                {/* 9. WHATSAPP EXPERIENCE (Send it to the family) */}
-                {/* ========================================================= */}
-                <section className="bg-white rounded-3xl border border-[#E8D5AD] p-6 shadow-xs space-y-6">
-                  <div className="flex items-start justify-between gap-4 border-b border-[#E8D5AD]/60 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-2xl bg-[#FAF5EC] border border-[#C49A35]/40 text-[#167A5A] flex items-center justify-center shrink-0">
-                        <MessageCircle className="w-5 h-5 text-[#167A5A]" />
+                {/* 2. Studio Watermark & Branding Customizer */}
+                <div className="p-6 rounded-3xl bg-white border border-[#E8D5AD] shadow-sm space-y-4">
+                  <div className="flex items-center gap-2 border-b border-[#E8D5AD] pb-3">
+                    <Palette className="w-5 h-5 text-[#C49A35]" />
+                    <div>
+                      <h4 className="font-serif text-lg font-bold text-[#241A17]">
+                        Studio Signature &amp; Watermark
+                      </h4>
+                      <p className="text-xs text-[#75675C]">
+                        Control the bottom credits badge on the invitation
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <label
+                      onClick={() => setBadgeType('amantranlink')}
+                      className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        badgeType === 'amantranlink'
+                          ? 'border-[#6E1020] bg-[#6E1020]/5 text-[#6E1020]'
+                          : 'border-[#E8D5AD] bg-white text-[#75675C] hover:border-[#C49A35]'
+                      }`}
+                    >
+                      <div className="space-y-1">
+                        <span className="text-sm font-bold block">👑 Amantranlink</span>
+                        <span className="text-[11px] leading-tight block">Handcrafted by Amantranlink signature</span>
                       </div>
-                      <div>
-                        <h3 className="font-serif text-2xl font-bold text-[#241A17]">
-                          Send it to the family
-                        </h3>
-                        <p className="text-xs text-[#75675C] mt-0.5">
-                          Send it personally to the people who matter.
-                        </p>
+                      <span className="text-[10px] font-mono mt-2 font-bold uppercase">Standard</span>
+                    </label>
+
+                    <label
+                      onClick={() => setBadgeType('custom')}
+                      className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        badgeType === 'custom'
+                          ? 'border-[#6E1020] bg-[#6E1020]/5 text-[#6E1020]'
+                          : 'border-[#E8D5AD] bg-white text-[#75675C] hover:border-[#C49A35]'
+                      }`}
+                    >
+                      <div className="space-y-1">
+                        <span className="text-sm font-bold block">✨ Custom Agency</span>
+                        <span className="text-[11px] leading-tight block">Put your own wedding agency name</span>
                       </div>
+                      <span className="text-[10px] font-mono mt-2 font-bold uppercase">Whitelabel</span>
+                    </label>
+
+                    <label
+                      onClick={() => setBadgeType('none')}
+                      className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        badgeType === 'none'
+                          ? 'border-[#6E1020] bg-[#6E1020]/5 text-[#6E1020]'
+                          : 'border-[#E8D5AD] bg-white text-[#75675C] hover:border-[#C49A35]'
+                      }`}
+                    >
+                      <div className="space-y-1">
+                        <span className="text-sm font-bold block">🛡️ Clean VIP</span>
+                        <span className="text-[11px] leading-tight block">Remove all watermarks completely</span>
+                      </div>
+                      <span className="text-[10px] font-mono mt-2 font-bold uppercase">Pure VIP</span>
+                    </label>
+                  </div>
+
+                  {badgeType === 'custom' && (
+                    <div className="space-y-1.5 pt-2 animate-fadeIn">
+                      <label className="text-xs font-semibold text-[#241A17] block">
+                        Your Custom Studio / Planner Name:
+                      </label>
+                      <input
+                        type="text"
+                        value={customStudioName}
+                        onChange={(e) => setCustomStudioName(e.target.value)}
+                        placeholder="Arya Wedding Planners"
+                        className="w-full py-2.5 px-4 rounded-xl border border-[#E8D5AD] bg-white text-xs font-bold text-[#6E1020] focus:ring-2 focus:ring-[#C49A35] focus:outline-none"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Ceremony Coordinator WhatsApp Helpline */}
+                <div className="p-6 rounded-3xl bg-white border border-[#E8D5AD] shadow-sm space-y-4">
+                  <div className="flex items-center gap-2 border-b border-[#E8D5AD] pb-3">
+                    <Smartphone className="w-5 h-5 text-[#167A5A]" />
+                    <div>
+                      <h4 className="font-serif text-lg font-bold text-[#241A17]">
+                        RSVP &amp; Helpdesk Phone Number
+                      </h4>
+                      <p className="text-xs text-[#75675C]">
+                        The primary contact number displayed in WhatsApp shares and guest queries
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <input
+                      type="text"
+                      value={coordinatorPhone}
+                      onChange={(e) => setCoordinatorPhone(e.target.value)}
+                      placeholder="+91 9409360336"
+                      className="w-full py-2.5 px-4 rounded-xl border border-[#E8D5AD] bg-white font-mono text-xs font-bold text-[#241A17] focus:ring-2 focus:ring-[#C49A35] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Back to Overview */}
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('overview')}
+                    className="py-3 px-8 rounded-2xl bg-[#6E1020] text-[#FFFDF8] font-bold text-xs uppercase tracking-wider hover:bg-[#430914] transition-all cursor-pointer shadow-md"
+                  >
+                    Save &amp; View Links &rarr;
+                  </button>
+                </div>
+
+              </div>
+            )}
+
+            {/* TAB 3: 💬 WHATSAPP SHARE SUITE */}
+            {activeTab === 'whatsapp' && (
+              <div className="max-w-3xl mx-auto space-y-6">
+                
+                <div className="p-6 rounded-3xl bg-white border border-[#E8D5AD] shadow-sm space-y-5">
+                  <div className="flex items-center justify-between border-b border-[#E8D5AD] pb-4">
+                    <div>
+                      <h4 className="font-serif text-xl font-bold text-[#6E1020]">
+                        WhatsApp Share Customizer
+                      </h4>
+                      <p className="text-xs text-[#75675C] mt-0.5">
+                        Choose ceremony greeting tone, language, and customize invite copy
+                      </p>
                     </div>
 
                     {/* Language Switcher */}
-                    <div className="flex items-center gap-1 bg-[#FAF5EC] p-1 rounded-xl border border-[#E8D5AD]">
-                      {(['en', 'hi', 'gu'] as Language[]).map((lang) => (
+                    <div className="flex items-center gap-1 bg-[#FAF6EE] p-1 rounded-xl border border-[#E8DCC8]">
+                      {(['en', 'hi', 'gu'] as Language[]).map((l) => (
                         <button
-                          key={lang}
+                          key={l}
                           type="button"
-                          onClick={() => setSelectedLanguage(lang)}
-                          className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer ${
-                            selectedLanguage === lang
+                          onClick={() => setSelectedLanguage(l)}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            selectedLanguage === l
                               ? 'bg-[#6E1020] text-[#FFFDF8] shadow-xs'
                               : 'text-[#75675C] hover:text-[#241A17]'
                           }`}
                         >
-                          {lang === 'en' ? 'English' : lang === 'hi' ? 'हिन्दी' : 'ગુજરાતી'}
+                          {l === 'en' ? 'English' : l === 'hi' ? 'हिन्दी' : 'ગુજરાતી'}
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  {/* Visual Sequence: YOUR INVITATION -> COPY / SHARE -> FAMILY & FRIENDS */}
-                  <div className="p-4 bg-[#FAF5EC] rounded-2xl border border-[#E8D5AD] flex items-center justify-around text-center text-xs text-[#75675C]">
-                    <div>
-                      <span className="font-bold text-[#6E1020] block">YOUR INVITATION</span>
-                      <span className="text-[10px]">Ceremonial Design</span>
-                    </div>
-                    <span className="text-[#C49A35] font-bold text-lg">→</span>
-                    <div>
-                      <span className="font-bold text-[#6E1020] block">COPY / SHARE</span>
-                      <span className="text-[10px]">Pre-composed Text</span>
-                    </div>
-                    <span className="text-[#C49A35] font-bold text-lg">→</span>
-                    <div>
-                      <span className="font-bold text-[#167A5A] block">FAMILY &amp; FRIENDS</span>
-                      <span className="text-[10px]">Warm Welcome</span>
+                  {/* Tone Presets */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-[#241A17] block">
+                      Ceremony Tone Preset:
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => setMessageTone('royal')}
+                        className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                          messageTone === 'royal'
+                            ? 'border-[#6E1020] bg-[#6E1020]/5 text-[#6E1020]'
+                            : 'border-[#E8D5AD] bg-white text-[#75675C] hover:border-[#C49A35]'
+                        }`}
+                      >
+                        <span className="text-xs font-bold block">👑 Shahi Farman</span>
+                        <span className="text-[10px] opacity-80 block mt-0.5">Formal with auspicious blessings</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setMessageTone('warm')}
+                        className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                          messageTone === 'warm'
+                            ? 'border-[#6E1020] bg-[#6E1020]/5 text-[#6E1020]'
+                            : 'border-[#E8D5AD] bg-white text-[#75675C] hover:border-[#C49A35]'
+                        }`}
+                      >
+                        <span className="text-xs font-bold block">💖 Warm &amp; Friendly</span>
+                        <span className="text-[10px] opacity-80 block mt-0.5">Emotional &amp; personal family note</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setMessageTone('minimal')}
+                        className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                          messageTone === 'minimal'
+                            ? 'border-[#6E1020] bg-[#6E1020]/5 text-[#6E1020]'
+                            : 'border-[#E8D5AD] bg-white text-[#75675C] hover:border-[#C49A35]'
+                        }`}
+                      >
+                        <span className="text-xs font-bold block">✨ Minimalist Chic</span>
+                        <span className="text-[10px] opacity-80 block mt-0.5">Crisp, modern, 1-tap invite</span>
+                      </button>
                     </div>
                   </div>
 
-                  {/* Message Preview Box */}
-                  <div className="bg-[#FAF5EC] p-4 rounded-2xl border border-[#E8D5AD] space-y-2">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#6E1020] block">
-                      MESSAGE PREVIEW ({selectedLanguage.toUpperCase()})
-                    </span>
-                    <p className="text-xs text-[#241A17] whitespace-pre-wrap leading-relaxed font-sans bg-white p-3.5 rounded-xl border border-[#E8D5AD]">
-                      {whatsappMessage}
-                    </p>
+                  {/* Editable Message Box */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-[#241A17] flex items-center justify-between">
+                      <span>Live Message Text (Freely Editable):</span>
+                      <span className="text-[10px] text-[#75675C] font-mono">{customMessage.length} characters</span>
+                    </label>
+                    <textarea
+                      rows={8}
+                      value={customMessage}
+                      onChange={(e) => setCustomMessage(e.target.value)}
+                      className="w-full p-4 rounded-2xl border border-[#E8D5AD] bg-[#FAF5EC] font-sans text-xs text-[#241A17] leading-relaxed focus:bg-white focus:ring-2 focus:ring-[#C49A35] focus:outline-none"
+                    />
                   </div>
 
-                  {/* WhatsApp Actions */}
-                  <div className="flex items-center gap-3 pt-1 flex-wrap">
+                  {/* Direct Share Actions */}
+                  <div className="flex items-center gap-3 pt-2">
                     <button
                       type="button"
                       onClick={handleWhatsAppShare}
-                      className="flex-1 py-3 px-5 rounded-xl bg-[#167A5A] hover:bg-[#126349] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                      className="flex-1 py-3 px-5 rounded-2xl bg-[#167A5A] hover:bg-[#126349] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all"
                     >
-                      <MessageCircle className="w-4 h-4" />
-                      <span>Share on WhatsApp</span>
+                      <Send className="w-4 h-4 text-white" />
+                      <span>Send via WhatsApp</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handleCopyMessage}
-                      className="py-3 px-5 rounded-xl bg-[#FAF5EC] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8D5AD] font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="py-3 px-5 rounded-2xl bg-[#FAF6EE] hover:bg-[#F0E6D2] text-[#6E1020] border border-[#C49A35]/40 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all"
                     >
-                      {copiedMsg ? <Check className="w-3.5 h-3.5 text-[#167A5A]" /> : <Copy className="w-3.5 h-3.5 text-[#C49A35]" />}
-                      <span>{copiedMsg ? 'Message Copied!' : 'Copy Text'}</span>
+                      {copiedMsg ? <Check className="w-4 h-4 text-[#167A5A]" /> : <Copy className="w-4 h-4" />}
+                      <span>{copiedMsg ? 'Copied!' : 'Copy Text'}</span>
                     </button>
                   </div>
+                </div>
 
-                  {/* 📲 BULK GUEST WHATSAPP GENERATOR CALLOUT */}
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-[#167A5A]/10 via-[#C49A35]/15 to-[#6E1020]/10 border border-[#167A5A]/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#167A5A] text-white flex items-center justify-center shrink-0 shadow-xs">
-                        <Users className="w-5 h-5 text-[#F4D06F]" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-[#241A17]">Bulk Guest WhatsApp Link Generator</span>
-                          <span className="px-2 py-0.5 rounded-full bg-[#167A5A] text-white text-[9px] font-mono font-bold uppercase tracking-wider">
-                            Feature #1
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-[#75675C] mt-0.5">
-                          Generate personalized (?to=GuestName) links with 1-click WhatsApp send &amp; CSV export for all 50+ guests.
-                        </p>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setShowBulkWhatsAppModal(true)}
-                      className="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-[#167A5A] hover:bg-[#126349] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs shrink-0"
-                    >
-                      <MessageCircle className="w-4 h-4 text-[#F4D06F]" />
-                      <span>Open Bulk Generator</span>
-                    </button>
-                  </div>
-                </section>
-              </>
+              </div>
             )}
-
-            {/* ========================================================= */}
-            {/* 11. BEFORE YOU SEND IT (Editorial Checklist) */}
-            {/* ========================================================= */}
-            <section className="bg-white rounded-3xl border border-[#E8D5AD] p-6 shadow-xs space-y-4">
-              <div>
-                <h4 className="font-cormorant text-2xl font-bold text-[#241A17]">
-                  Before you send it
-                </h4>
-                <p className="text-xs text-[#75675C] mt-0.5">
-                  A quick check to ensure everything is prepared for your celebration.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-2 text-xs">
-                
-                {/* Check 1: Couple Details */}
-                <div className="p-3.5 rounded-2xl bg-[#FAF5EC] border border-[#E8D5AD] space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#241A17]">Couple Details</span>
-                    {isCoupleComplete ? (
-                      <CheckCircle2 className="w-4 h-4 text-[#167A5A]" />
-                    ) : (
-                      <span className="text-[10px] text-amber-700 font-bold">Needs attention</span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-[#75675C] truncate">
-                    {isCoupleComplete ? `${groomName} & ${brideName}` : 'Add names'}
-                  </p>
-                </div>
-
-                {/* Check 2: Wedding Date */}
-                <div className="p-3.5 rounded-2xl bg-[#FAF5EC] border border-[#E8D5AD] space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#241A17]">Wedding Date</span>
-                    {isDateComplete ? (
-                      <CheckCircle2 className="w-4 h-4 text-[#167A5A]" />
-                    ) : (
-                      <span className="text-[10px] text-amber-700 font-bold">Needs attention</span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-[#75675C] truncate">
-                    {isDateComplete ? weddingDate : 'Set date'}
-                  </p>
-                </div>
-
-                {/* Check 3: Venue */}
-                <div className="p-3.5 rounded-2xl bg-[#FAF5EC] border border-[#E8D5AD] space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#241A17]">Venue</span>
-                    {isVenueComplete ? (
-                      <CheckCircle2 className="w-4 h-4 text-[#167A5A]" />
-                    ) : (
-                      <span className="text-[10px] text-amber-700 font-bold">Needs attention</span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-[#75675C] truncate">
-                    {isVenueComplete ? venueName : 'Add venue'}
-                  </p>
-                </div>
-
-                {/* Check 4: Events */}
-                <div className="p-3.5 rounded-2xl bg-[#FAF5EC] border border-[#E8D5AD] space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#241A17]">Events</span>
-                    {isEventsComplete ? (
-                      <CheckCircle2 className="w-4 h-4 text-[#167A5A]" />
-                    ) : (
-                      <span className="text-[10px] text-amber-700 font-bold">Needs attention</span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-[#75675C]">
-                    {state.events.length} Rasams Added
-                  </p>
-                </div>
-
-                {/* Check 5: Invitation Design */}
-                <div className="p-3.5 rounded-2xl bg-[#FAF5EC] border border-[#E8D5AD] space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#241A17]">Design Theme</span>
-                    <CheckCircle2 className="w-4 h-4 text-[#167A5A]" />
-                  </div>
-                  <p className="text-[11px] text-[#75675C] truncate">
-                    {currentThemeObj.name}
-                  </p>
-                </div>
-
-              </div>
-            </section>
 
           </div>
         )}
 
         {/* ========================================================= */}
-        {/* 🌟 ATELIER FOOTER (Luminous Light Theme)                  */}
+        {/* 🔻 FOOTER ACTIONS                                          */}
         {/* ========================================================= */}
-        <footer className="bg-white border-t border-[#E8DCC8] px-6 sm:px-8 py-3.5 flex items-center justify-between text-xs text-[#75675C] shrink-0 font-sans">
+        <footer className="bg-[#FAF6EE] px-5 sm:px-8 py-3.5 border-t border-[#E8DCC8] flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-[#C49A35]" />
-            <span className="font-medium text-[#241A17]">AmantranLink Royal Vivah Atelier</span>
+            <span className="w-2 h-2 rounded-full bg-[#167A5A]" />
+            <span className="text-xs font-medium text-[#75675C]">
+              Amantranlink v3.2 Enterprise Cloud
+            </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {onOpenDownloadHub && (
               <button
                 type="button"
@@ -1152,7 +1311,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
                 }}
                 className="text-xs text-[#6E1020] hover:text-[#430914] font-bold flex items-center gap-1 cursor-pointer transition-colors"
               >
-                <span>Open Download Hub</span>
+                <span>Download Assets Hub</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             )}
@@ -1160,7 +1319,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-1.5 rounded-xl bg-[#FAF6EE] hover:bg-[#F0E6D2] text-[#430914] border border-[#E8DCC8] font-semibold text-xs transition-colors cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-white hover:bg-[#F0E6D2] text-[#430914] border border-[#E8DCC8] font-semibold text-xs transition-colors cursor-pointer shadow-2xs"
             >
               Close
             </button>
@@ -1192,7 +1351,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
 
             <div className="space-y-1 text-xs text-[#75675C]">
               <p className="font-bold text-[#241A17]">{groomName} &amp; {brideName}</p>
-              <p className="text-[11px] font-mono text-[#6E1020] truncate">{fullUrl}</p>
+              <p className="text-[11px] font-mono text-[#6E1020] truncate">{effectiveShareUrl}</p>
             </div>
 
             <div className="pt-2 flex items-center gap-2">
@@ -1221,11 +1380,18 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
         isOpen={showBulkWhatsAppModal}
         onClose={() => setShowBulkWhatsAppModal(false)}
         state={state}
-        weddingSlug={slug}
+        weddingSlug={cleanSlug}
       />
 
     </div>
   );
 };
+
+// Crown icon helper
+const CrownIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
+  </svg>
+);
 
 export default PublishModal;
