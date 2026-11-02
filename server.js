@@ -1925,6 +1925,21 @@ async function deployToVercel({ slug, groomName, brideName, weddingDate, venue, 
       console.warn('Vercel alias note:', aliasErr.message);
     }
 
+    // Automatically disable Vercel Deployment Protection (SSO / Password) so guests never see "You Need Access"
+    try {
+      await fetch(`https://api.vercel.com/v9/projects/${projectName}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ssoProtection: null, passwordProtection: null })
+      });
+      console.log(`🔓 [Vercel Protection] Disabled SSO protection for project: ${projectName}`);
+    } catch (protErr) {
+      console.warn('Vercel protection unlock note:', protErr.message);
+    }
+
     console.log(`⚡ [Vercel Deploy] Successfully deployed ${safeSlug} ➔ ${finalLiveUrl}`);
     return {
       success: true,

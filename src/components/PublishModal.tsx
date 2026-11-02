@@ -117,7 +117,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
   const weddingDate = state.couple.weddingDate || '10 December 2026';
   const venueName = state.couple.venueName || 'The Palace Gardens';
 
-  const effectiveShareUrl = (useVercelLinkForShare && liveVercelUrl) ? liveVercelUrl : fullUrl;
+  const effectiveShareUrl = liveVercelUrl || `https://${cleanSlug}-wedding.vercel.app`;
 
   // 🌸 Custom Dynamic WhatsApp Ceremony Messages
   const buildCustomWhatsAppMessage = (): string => {
@@ -572,39 +572,31 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
                       </div>
                     </div>
 
-                    {/* ⚡ DUAL LUXURY CLOUD LINK DELIVERY CARDS */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      
-                      {/* CARD 1: DEDICATED VERCEL CLOUD DOMAIN */}
-                      <div className="p-5 rounded-3xl bg-gradient-to-br from-[#F5FBF8] via-[#FAFDFB] to-[#FFFFFF] border-2 border-[#167A5A]/40 shadow-md space-y-3 relative overflow-hidden flex flex-col justify-between">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between gap-2">
+                    {/* ⚡ VERCEL LIVE CLOUD LINK CARD (Client's Dedicated Domain) */}
+                    <div className="p-6 rounded-3xl bg-gradient-to-br from-[#F5FBF8] via-[#FAFDFB] to-[#FFFFFF] border-2 border-[#167A5A]/50 shadow-md space-y-4 relative overflow-hidden">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#167A5A] text-white text-[10px] font-mono font-bold tracking-wider uppercase shadow-2xs">
-                              <Zap className="w-3 h-3 text-[#E8CD7E]" />
-                              <span>DEDICATED VERCEL CLOUD</span>
+                              <Zap className="w-3.5 h-3.5 text-[#E8CD7E]" />
+                              <span>LIVE CLOUD INVITATION LINK</span>
                             </span>
-                            <span className="text-[10px] font-mono text-[#167A5A] font-bold">
-                              100% Free Edge
+                            <span className="inline-flex items-center gap-1.5 text-[10px] font-mono text-[#167A5A] font-bold">
+                              <span className="w-2 h-2 rounded-full bg-[#167A5A] animate-ping" />
+                              Active 24/7 Global Edge
                             </span>
                           </div>
 
-                          <p className="text-xs text-[#241A17] font-medium">
-                            Your personalized cloud website on Vercel's global edge network.
+                          <p className="text-xs sm:text-sm text-[#241A17] font-medium pt-1">
+                            Your personalized wedding website is live on Vercel's global edge network. Share this link directly with your guests.
                           </p>
-
-                          <div className="bg-white border-2 border-[#167A5A]/30 p-3 rounded-2xl flex items-center justify-between gap-2 shadow-2xs">
-                            <div className="truncate text-xs font-mono font-bold text-[#167A5A] flex items-center gap-2">
-                              <Globe className="w-4 h-4 text-[#167A5A] shrink-0" />
-                              <span className="truncate">{liveVercelUrl}</span>
-                            </div>
-                          </div>
                         </div>
 
-                        <div className="pt-2 flex items-center gap-2">
+                        <div className="flex items-center gap-2.5 shrink-0">
                           <button
                             type="button"
                             onClick={handleCopyVercel}
-                            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs ${
+                            className={`py-3 px-5 rounded-2xl text-xs font-bold font-mono transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs ${
                               copiedVercel
                                 ? 'bg-[#167A5A] text-white'
                                 : 'bg-[#167A5A]/10 hover:bg-[#167A5A]/20 text-[#167A5A] border border-[#167A5A]/30'
@@ -612,13 +604,13 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
                           >
                             {copiedVercel ? (
                               <>
-                                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                <Check className="w-4 h-4 stroke-[3]" />
                                 <span>Copied Link! 👑</span>
                               </>
                             ) : (
                               <>
-                                <Copy className="w-3.5 h-3.5" />
-                                <span>Copy Vercel URL</span>
+                                <Copy className="w-4 h-4" />
+                                <span>Copy Live URL</span>
                               </>
                             )}
                           </button>
@@ -627,74 +619,20 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
                             href={liveVercelUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="py-2.5 px-4 rounded-xl text-xs font-bold font-mono bg-[#167A5A] hover:bg-[#126349] text-white flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                            className="py-3 px-5 rounded-2xl text-xs font-bold font-mono bg-[#167A5A] hover:bg-[#126349] text-white flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
                           >
-                            <span>Open</span>
-                            <ExternalLink className="w-3 h-3" />
+                            <span>Open Invitation</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                         </div>
                       </div>
 
-                      {/* CARD 2: AMANTRANLINK CANONICAL PORTAL */}
-                      <div className="p-5 rounded-3xl bg-gradient-to-br from-[#FCF8F2] via-[#FFFDF8] to-[#FAF5EC] border-2 border-[#C49A35]/40 shadow-md space-y-3 relative overflow-hidden flex flex-col justify-between">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#6E1020] text-[#FFFDF8] text-[10px] font-mono font-bold tracking-wider uppercase shadow-2xs">
-                              <CrownIcon className="w-3 h-3 text-[#E8CD7E]" />
-                              <span>AMANTRANLINK CANONICAL</span>
-                            </span>
-                            <span className="text-[10px] font-mono text-[#6E1020] font-bold">
-                              Full Interactive Suite
-                            </span>
-                          </div>
-
-                          <p className="text-xs text-[#241A17] font-medium">
-                            Official portal link with live family blessings, RSVP tracker, and multi-language support.
-                          </p>
-
-                          <div className="bg-white border-2 border-[#C49A35]/30 p-3 rounded-2xl flex items-center justify-between gap-2 shadow-2xs">
-                            <div className="truncate text-xs font-mono font-bold text-[#6E1020] flex items-center gap-2">
-                              <Globe className="w-4 h-4 text-[#C49A35] shrink-0" />
-                              <span className="truncate">{fullUrl}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="pt-2 flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={handleCopyLink}
-                            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs ${
-                              copied
-                                ? 'bg-[#167A5A] text-white'
-                                : 'bg-[#6E1020]/10 hover:bg-[#6E1020]/20 text-[#6E1020] border border-[#C49A35]/30'
-                            }`}
-                          >
-                            {copied ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                <span>Copied Link! 👑</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-3.5 h-3.5" />
-                                <span>Copy Royal URL</span>
-                              </>
-                            )}
-                          </button>
-
-                          <a
-                            href={fullUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="py-2.5 px-4 rounded-xl text-xs font-bold font-mono bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] flex items-center gap-1 transition-all cursor-pointer shadow-xs"
-                          >
-                            <span>Open</span>
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
+                      <div className="bg-white border-2 border-[#167A5A]/30 p-3.5 rounded-2xl flex items-center justify-between gap-3 shadow-2xs">
+                        <div className="truncate text-xs sm:text-sm font-mono font-bold text-[#167A5A] flex items-center gap-2.5">
+                          <Globe className="w-4 h-4 text-[#167A5A] shrink-0" />
+                          <span className="truncate">{liveVercelUrl}</span>
                         </div>
                       </div>
-
                     </div>
 
                     {/* 📲 WHATSAPP DISPATCH & QR CODE CARDS */}
@@ -855,7 +793,7 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
 
                             <div className="pt-2">
                               <span className="inline-block py-1 px-3 rounded-full bg-[#3A0811] text-[#E8D5AD] text-[10px] font-mono border border-[#C49A35]/30">
-                                amantranlink.com/i/{cleanSlug}
+                                {cleanSlug}-wedding.vercel.app
                               </span>
                             </div>
                           </div>
@@ -1037,15 +975,11 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
                       </div>
                     </div>
 
-                    {/* Live URL Previews */}
-                    <div className="p-3.5 rounded-2xl bg-[#FAF5EC] border border-[#E8D5AD] space-y-1.5 text-xs font-mono">
-                      <div className="flex items-center gap-2 text-[#167A5A] truncate">
-                        <Zap className="w-3.5 h-3.5 shrink-0" />
+                    {/* Live URL Preview */}
+                    <div className="p-3.5 rounded-2xl bg-[#F0FAF5] border border-[#167A5A]/30 text-xs font-mono">
+                      <div className="flex items-center gap-2 text-[#167A5A] truncate font-bold">
+                        <Zap className="w-4 h-4 shrink-0 text-[#167A5A]" />
                         <span className="truncate">https://{cleanSlug}-wedding.vercel.app</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-[#6E1020] truncate">
-                        <Globe className="w-3.5 h-3.5 shrink-0" />
-                        <span className="truncate">{origin}/i/{cleanSlug}</span>
                       </div>
                     </div>
                   </div>
