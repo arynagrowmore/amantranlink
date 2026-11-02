@@ -154,7 +154,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
           Choose Your Architectural Theme
         </h3>
         <p className="text-xs text-[#75675C] leading-relaxed">
-          Select from 7 authentic palace themes. Your changes reflect instantly in the preview.
+          Select from 8 authentic palace themes. Your changes reflect instantly in the preview.
         </p>
       </div>
 

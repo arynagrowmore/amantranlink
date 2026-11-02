@@ -813,7 +813,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                   No purchases yet / कोई खरीदारी नहीं हुई
                 </h4>
                 <p className="text-xs text-[#8B7358] max-w-md mx-auto">
-                  Explore our handcrafted collection of 7 Royal Indian Wedding Invitation themes and unlock your heirloom today.
+                  Explore our handcrafted collection of 8 Royal Indian Wedding Invitation themes and unlock your heirloom today.
                 </p>
                 <button
                   type="button"

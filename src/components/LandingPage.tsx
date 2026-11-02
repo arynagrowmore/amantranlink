@@ -623,7 +623,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 className="px-6 py-4 rounded-2xl bg-white hover:bg-[#FAF6EE] text-[#6E1020] font-sans font-semibold text-xs sm:text-sm uppercase tracking-wider border border-[#E8DCC8] flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer hover:border-[#C49A35]"
               >
                 <Eye className="w-4 h-4 text-[#C49A35]" />
-                <span>Explore 7 Royal Themes</span>
+                <span>Explore 8 Royal Themes</span>
               </a>
             </div>
 
@@ -722,7 +722,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="text-center space-y-4 max-w-3xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8DCC8] text-[#6E1020] text-xs font-sans font-semibold tracking-wider uppercase shadow-2xs">
             <Layers className="w-3.5 h-3.5 text-[#C49A35]" />
-            <span>Authentic Heritage Motifs · 7 Royal Designs</span>
+            <span>Authentic Heritage Motifs · 8 Royal Designs</span>
           </div>
 
           <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
@@ -730,7 +730,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </h2>
 
           <p className="text-base sm:text-lg text-[#6E1020] font-bold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
-            Seven distinctive expressions of Indian wedding grandeur. Every design crafted with authentic cultural motifs, fluid animation, and live RSVP.
+            Eight distinctive expressions of Indian wedding grandeur. Every design crafted with authentic cultural motifs, fluid animation, and live RSVP.
           </p>
 
           {/* Filter Pills */}

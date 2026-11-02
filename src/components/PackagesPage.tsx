@@ -203,13 +203,13 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
               )}
 
               <p className="text-xs text-[#2B1810] font-bold leading-relaxed">
-                Our flagship 3D animated royal suite with all 7 themes included.
+                Our flagship 3D animated royal suite with all 8 themes included.
               </p>
 
               <div className="space-y-3 pt-4 border-t border-[#A67C3D]/40">
                 <div className="flex items-center gap-2.5 text-xs font-hanken text-[#2B1810] font-bold">
                   <Check className="w-4 h-4 text-[#C4522A] shrink-0" />
-                  <span className="font-bold text-[#6B1420]">All 7 Royal Themes Included</span>
+                  <span className="font-bold text-[#6B1420]">All 8 Royal Themes Included</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-xs font-hanken text-[#2B1810] font-bold">
                   <Check className="w-4 h-4 text-[#C4522A] shrink-0" />
@@ -285,7 +285,7 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
                 </div>
                 <div className="flex items-center gap-2.5 text-xs font-hanken text-[#2B1810] font-bold">
                   <Check className="w-4 h-4 text-[#3D6B4A] shrink-0" />
-                  <span>All 7 Royal Themes Included</span>
+                  <span>All 8 Royal Themes Included</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-xs font-hanken text-[#2B1810] font-bold">
                   <Check className="w-4 h-4 text-[#3D6B4A] shrink-0" />

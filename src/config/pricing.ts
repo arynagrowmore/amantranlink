@@ -34,9 +34,9 @@ export const OFFICIAL_PACKAGES: Record<PackageType, PackagePricingConfig> = {
     priceInr: 1299,
     amountInPaise: 129900,
     badge: '👑 Most Chosen for Royal Weddings (₹1,299)',
-    subtitle: 'All 7 Royal Themes Included with 3D Palace Gates & Scratch Cards',
+    subtitle: 'All 8 Royal Themes Included with 3D Palace Gates & Scratch Cards',
     features: [
-      'All 7 Royal Themes Included',
+      'All 8 Royal Themes Included',
       '3D Animated Palace Gates & Parallax',
       'Gold Scratch-Heart Blessing Card',
       'Trilingual Vivah Engine (EN, HI, GU)',
@@ -55,7 +55,7 @@ export const OFFICIAL_PACKAGES: Record<PackageType, PackagePricingConfig> = {
     features: [
       'Dedicated Royal Design Director',
       'Custom .com Domain Setup',
-      'All 7 Royal Themes Included',
+      'All 8 Royal Themes Included',
       '24K Gold Acrylic Keepsake QR Plaque',
       'Guest RSVP Concierge Support',
       'Priority Global CDN & High-Speed Servers',

@@ -68,7 +68,7 @@ export const RoleIndicatorBanner: React.FC<RoleIndicatorBannerProps> = ({
         </div>
 
         <span className="hidden sm:inline text-[11px] text-[#F8F3E8]/90 font-medium">
-          7 Royal 3D Palace Themes &bull; Lossless Shehnai Audio &bull; Instant Live RSVP
+          8 Royal 3D Palace Themes &bull; Lossless Shehnai Audio &bull; Instant Live RSVP
         </span>
       </div>
 
