@@ -14,21 +14,6 @@ interface ThemeSelectorProps {
 
 export const ROYAL_THEMES: Array<WeddingTheme & { previewImg: string; taglineShort: string; tags: string }> = [
   {
-    id: 'velvet-royale',
-    name: 'THE VELVET ROYALE',
-    tagline: 'Deep velvet crimson, 24K gold filigree & interactive envelope reveal.',
-    taglineShort: '2026 Flagship · Interactive Wax Seal',
-    tags: 'Interactive Wax Seal · Falling Rose Petals · Farman',
-    price: 2499,
-    icon: '💌',
-    badge: '2026 Flagship',
-    bgGradient: 'from-[#3A0510] to-[#140105]',
-    accentColor: '#E5C378',
-    description: 'Interactive royal envelope with 3D wax seal opening, falling rose petals, flute melody, and luxury Sabyasachi heritage typography.',
-    url: '/templates/velvet-royale/index.html',
-    previewImg: '/previews/theme-rajmahal.webp',
-  },
-  {
     id: 'rajmahal',
     name: 'THE RAJMAHAL',
     tagline: 'An evening beneath carved sandstone arches.',

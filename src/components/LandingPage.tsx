@@ -53,21 +53,6 @@ const THEME_CATALOG: Array<{
   isFeatured?: boolean;
 }> = [
   {
-    id: 'velvet-royale',
-    title: 'The Velvet Royale',
-    subtitle: 'शाही वेलवेट फरमान व सील',
-    tagline: 'Interactive 3D wax-seal envelope reveal, falling rose petals, sacred Vedic shlokas, and luxury Sabyasachi heritage gold typography.',
-    badge: '✦ 2026 INTERACTIVE FLAGSHIP',
-    category: 'heritage',
-    categoryLabel: 'Palace Heritage',
-    packageType: 'gold',
-    features: ['Interactive 3D Wax Seal Envelope Open', 'Canvas Particle Falling Rose Petals', 'Ceremonial Shehnai Audio Player'],
-    previewImg: '/previews/theme-rajmahal.webp',
-    imagePosition: 'object-top',
-    price: 2499,
-    isFeatured: true,
-  },
-  {
     id: 'rajmahal',
     title: 'The Rajmahal',
     subtitle: 'शाही राजमहल व 3D द्वार',

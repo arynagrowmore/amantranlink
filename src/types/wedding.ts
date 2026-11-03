@@ -1,4 +1,4 @@
-export type ThemeId = 'velvet-royale' | 'rajmahal' | 'jharokha' | 'mayura' | 'jodi' | 'dak' | 'ivory' | 'royaldawn' | 'royalring';
+export type ThemeId = 'rajmahal' | 'jharokha' | 'mayura' | 'jodi' | 'dak' | 'ivory' | 'royaldawn' | 'royalring';
 export type ViewMode = 'desktop' | 'tablet' | 'mobile';
 export type Language = 'en' | 'hi' | 'gu';
 export type PhotoFilterType = 'none' | 'gold-glow' | 'vintage' | 'rose-blush' | 'monochrome';
