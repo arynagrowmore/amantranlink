@@ -83,9 +83,14 @@ export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = () => {
       {/* Top Auspicious Branding Header */}
       <header className="relative z-10 max-w-5xl w-full mx-auto px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#540D1E] to-[#360813] border border-[#D4AF37]/40 flex items-center justify-center text-[#F4D06F] font-bold text-xl shadow-md shadow-[#540D1E]/15">
-            👑
-          </div>
+          <img 
+            src="/Amantran.png" 
+            alt="Amantran Logo" 
+            className="w-11 h-11 object-contain filter drop-shadow-sm"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = '/amantranlink.png';
+            }}
+          />
           <div>
             <span className="font-cormorant text-2xl font-bold tracking-wide text-[#540D1E] block leading-tight">
               AmantranLink
@@ -104,8 +109,22 @@ export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = () => {
       </header>
 
       {/* Central Majestic Content Stage */}
-      <main className="relative z-10 max-w-3xl w-full mx-auto px-6 py-10 text-center flex flex-col items-center justify-center space-y-8 my-auto">
+      <main className="relative z-10 max-w-3xl w-full mx-auto px-6 py-8 text-center flex flex-col items-center justify-center space-y-6 my-auto">
         
+        {/* Royal Amantran Emblem */}
+        <div className="animate-fadeIn">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-3xl bg-white/70 border border-[#D4AF37]/40 shadow-xl shadow-amber-900/5 p-2 flex items-center justify-center backdrop-blur-xs">
+            <img 
+              src="/Amantran.png" 
+              alt="Amantran Shahi Emblem" 
+              className="w-full h-full object-contain filter drop-shadow-sm"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = '/amantranlink.png';
+              }}
+            />
+          </div>
+        </div>
+
         {/* Sacred Auspicious Shloka Banner */}
         <div className="space-y-2 animate-fadeIn">
           <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white border border-[#D4AF37]/50 text-[#540D1E] text-xs sm:text-sm font-serif tracking-wider shadow-sm">
