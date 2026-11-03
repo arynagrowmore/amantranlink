@@ -34,6 +34,9 @@ import { PartnerDashboard, StudioWorkspaceTab } from './components/PartnerDashbo
 import { ClientReviewView } from './components/ClientReviewView';
 import { AdminControlCenter } from './components/Admin/AdminControlCenter';
 import { AdminSuperControlCenter } from './components/Admin/SuperControlCenter/AdminSuperControlCenter';
+import { RoyalComingSoonView } from './components/ComingSoon/RoyalComingSoonView';
+import { fetchComingSoonConfig } from './services/adminSuperCenterService';
+import { ComingSoonConfig } from './types/adminSuperCenter';
 import { RoyalDownloadHubModal } from './components/DownloadHub/RoyalDownloadHubModal';
 import { FirstTimeCoupleOnboardingModal } from './components/Onboarding/FirstTimeCoupleOnboardingModal';
 import { DigitalEntryPassView } from './components/Guest/DigitalEntryPassView';
@@ -163,6 +166,17 @@ function MainApp() {
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
   const [isDownloadHubOpen, setIsDownloadHubOpen] = useState<boolean>(false);
   const [downloadHubSite, setDownloadHubSite] = useState<any>(null);
+  const [comingSoonConfig, setComingSoonConfig] = useState<ComingSoonConfig>(() => fetchComingSoonConfig());
+  const [bypassComingSoon, setBypassComingSoon] = useState<boolean>(false);
+
+  // 🚀 Listen for real-time Coming Soon Mode updates from Admin
+  useEffect(() => {
+    const handleCsChange = (e: any) => {
+      if (e.detail) setComingSoonConfig(e.detail);
+    };
+    window.addEventListener('coming-soon-config-changed', handleCsChange);
+    return () => window.removeEventListener('coming-soon-config-changed', handleCsChange);
+  }, []);
 
   // 🧭 Synchronous Route Listener for Instant Browser Back / Forward & Navigation Updates
   useEffect(() => {
@@ -629,6 +643,19 @@ function MainApp() {
           navigateToRoute('/');
         }}
         onBackToStudio={() => {
+          navigateToRoute('/studio');
+        }}
+      />
+    );
+  }
+
+  // 🚀 If Coming Soon Mode is ENABLED and not bypassed by admin, render the Royal Coming Soon Page!
+  if (comingSoonConfig.isEnabled && !bypassComingSoon) {
+    return (
+      <RoyalComingSoonView
+        onAdminClick={() => navigateToRoute('/admin')}
+        onBypassToStudio={() => {
+          setBypassComingSoon(true);
           navigateToRoute('/studio');
         }}
       />

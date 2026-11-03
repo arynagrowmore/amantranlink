@@ -5,7 +5,7 @@
 export type TimeRangeFilter = 'today' | '7d' | '30d' | 'month' | 'quarter' | 'year' | 'all';
 
 export type UserAccountStatus = 'active' | 'suspended' | 'disabled' | 'pending';
-export type UserRole = 'end_customer' | 'partner' | 'admin';
+export type UserRole = 'end_customer' | 'partner' | 'admin' | 'couple';
 
 export type HealthStatus = 'healthy' | 'degraded' | 'unavailable' | 'unknown';
 
@@ -201,6 +201,18 @@ export interface PlatformGlobalConfig {
   maintenance_mode: boolean;
   max_guests_per_free_wedding: number;
   supported_languages: string[];
+}
+
+export interface ComingSoonConfig {
+  isEnabled: boolean;
+  headline: string;
+  subheadline: string;
+  launchDate: string;
+  contactEmail: string;
+  contactPhone: string;
+  allowAdminBypass: boolean;
+  announcementBadge: string;
+  notifySubscribersCount?: number;
 }
 
 export interface AdminSecurityAuditRecord {
