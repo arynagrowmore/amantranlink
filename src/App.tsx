@@ -651,15 +651,7 @@ function MainApp() {
 
   // 🚀 If Coming Soon Mode is ENABLED and not bypassed by admin, render the Royal Coming Soon Page!
   if (comingSoonConfig.isEnabled && !bypassComingSoon) {
-    return (
-      <RoyalComingSoonView
-        onAdminClick={() => navigateToRoute('/admin')}
-        onBypassToStudio={() => {
-          setBypassComingSoon(true);
-          navigateToRoute('/studio');
-        }}
-      />
-    );
+    return <RoyalComingSoonView />;
   }
 
   // 📸 If on Photographer Partner Hub View, render the Multi-Client Studio Workspace!

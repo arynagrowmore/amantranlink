@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Crown, Sparkles, Clock, Bell, CheckCircle2, ShieldCheck, 
-  ArrowRight, Phone, Mail, Heart, Star, Compass, Layers, Lock
+  ArrowRight, Phone, Mail, Heart
 } from 'lucide-react';
 import { ComingSoonConfig } from '../../types/adminSuperCenter';
-import { fetchComingSoonConfig, isAdminVaultAuthenticated } from '../../services/adminSuperCenterService';
+import { fetchComingSoonConfig } from '../../services/adminSuperCenterService';
 
 interface RoyalComingSoonViewProps {
   onAdminClick?: () => void;
   onBypassToStudio?: () => void;
 }
 
-export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = ({
-  onAdminClick,
-  onBypassToStudio,
-}) => {
+export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = () => {
   const [config, setConfig] = useState<ComingSoonConfig>(fetchComingSoonConfig());
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
     days: 14,
@@ -27,10 +24,8 @@ export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = ({
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [isVaultAuthed, setIsVaultAuthed] = useState(false);
 
   useEffect(() => {
-    setIsVaultAuthed(isAdminVaultAuthenticated());
     const handleConfigChange = (e: any) => {
       if (e.detail) setConfig(e.detail);
     };
@@ -48,7 +43,7 @@ export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = ({
       } else {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
         const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const minutes = Math.floor((difference % (1000 * 60)) / (1000 * 60));
         const seconds = Math.floor((difference % (1000 * 60)) / 1000);
         setTimeLeft({ days, hours, minutes, seconds });
       }
@@ -77,97 +72,71 @@ export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = ({
     setSubmitted(true);
   };
 
-  const themePills = [
-    { name: 'Rajmahal Palace', tag: 'Royal Crimson', icon: '🏰' },
-    { name: 'Mayura Peacock', tag: 'Emerald Luxury', icon: '🦚' },
-    { name: 'Jharokha Heritage', tag: 'Archway Gold', icon: '🪟' },
-    { name: 'Royal Dawn', tag: 'Auspicious Amber', icon: '🌅' },
-    { name: 'Royal Ring', tag: 'Eternal Platinum', icon: '💍' },
-    { name: 'Mandap Floral', tag: 'Traditional Vermilion', icon: '🌺' },
-  ];
-
   return (
-    <div className="min-h-screen bg-[#120306] text-white font-manrope selection:bg-[#F4D06F] selection:text-[#120306] relative overflow-hidden flex flex-col justify-between">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#2D151B] font-manrope selection:bg-[#F3E5C8] selection:text-[#540D1E] relative overflow-hidden flex flex-col justify-between">
       
-      {/* Background Decorative Gold Ambient Gradients & Mandalas */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(164,19,60,0.35),rgba(255,255,255,0))]" />
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#F4D06F]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-[#540D1E]/40 rounded-full blur-3xl pointer-events-none" />
+      {/* Background Soft Regal Warm Gradients & Ambient Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-15%,rgba(212,175,55,0.12),rgba(250,247,242,0))]" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-amber-100/50 via-rose-50/30 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-[450px] h-[450px] bg-gradient-to-tr from-amber-100/40 via-orange-50/20 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-      {/* Top Auspicious Header & Admin Portal Link */}
-      <header className="relative z-10 max-w-6xl w-full mx-auto px-6 py-6 flex items-center justify-between">
+      {/* Top Auspicious Branding Header */}
+      <header className="relative z-10 max-w-5xl w-full mx-auto px-6 py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#540D1E] to-[#2B060F] border border-[#F4D06F]/40 flex items-center justify-center text-[#F4D06F] font-bold text-lg shadow-lg shadow-black/40">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#540D1E] to-[#360813] border border-[#D4AF37]/40 flex items-center justify-center text-[#F4D06F] font-bold text-xl shadow-md shadow-[#540D1E]/15">
             👑
           </div>
           <div>
-            <span className="font-cormorant text-xl sm:text-2xl font-bold tracking-wide text-[#F4D06F]">
+            <span className="font-cormorant text-2xl font-bold tracking-wide text-[#540D1E] block leading-tight">
               AmantranLink
             </span>
-            <span className="text-[10px] text-stone-400 block tracking-widest uppercase font-mono">
+            <span className="text-[10px] text-[#8C7A7E] tracking-widest uppercase font-mono font-medium">
               Shahi Vivah Suite
             </span>
           </div>
         </div>
 
-        {/* Right Corner: Admin Vault Access or Bypass */}
-        <div className="flex items-center gap-3">
-          {isVaultAuthed && onBypassToStudio && (
-            <button
-              type="button"
-              onClick={onBypassToStudio}
-              className="px-3.5 py-1.5 rounded-xl bg-[#F4D06F] text-[#120306] text-xs font-bold hover:bg-[#E0B94D] transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
-            >
-              <span>⚡ Enter Studio Editor</span>
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={onAdminClick || (() => { window.location.href = '/admin'; })}
-            className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-[#F4D06F]/30 text-[#F4D06F] text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer backdrop-blur-sm"
-            title="Royal Admin Control Vault"
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Admin Vault</span>
-          </button>
+        {/* Discreet Badge */}
+        <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-[#E5D7BE] text-[11px] font-medium text-[#7A6A6E] shadow-2xs">
+          <Sparkles className="w-3 h-3 text-[#B38728]" />
+          <span>Crafting Digital Heritage</span>
         </div>
       </header>
 
       {/* Central Majestic Content Stage */}
-      <main className="relative z-10 max-w-4xl w-full mx-auto px-6 py-8 text-center flex flex-col items-center justify-center space-y-8 my-auto">
+      <main className="relative z-10 max-w-3xl w-full mx-auto px-6 py-10 text-center flex flex-col items-center justify-center space-y-8 my-auto">
         
         {/* Sacred Auspicious Shloka Banner */}
         <div className="space-y-2 animate-fadeIn">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#540D1E]/60 border border-[#F4D06F]/40 text-[#F4D06F] text-xs sm:text-sm font-serif tracking-wider shadow-inner">
-            <Sparkles className="w-3.5 h-3.5 text-[#F4D06F] animate-pulse" />
-            <span>॥ श्री गणेशाय नमः ॥ · शुभ विवाह</span>
-            <Sparkles className="w-3.5 h-3.5 text-[#F4D06F] animate-pulse" />
+          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white border border-[#D4AF37]/50 text-[#540D1E] text-xs sm:text-sm font-serif tracking-wider shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-[#B38728] animate-pulse" />
+            <span className="font-semibold">॥ श्री गणेशाय नमः ॥ · शुभ विवाह</span>
+            <Sparkles className="w-3.5 h-3.5 text-[#B38728] animate-pulse" />
           </div>
 
-          <p className="text-[11px] uppercase tracking-[0.25em] text-[#F4D06F]/80 font-mono font-semibold pt-1">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-[#9E6D18] font-mono font-bold pt-1">
             {config.announcementBadge || '✨ THE GRAND ROYAL UNVEILING'}
           </p>
         </div>
 
         {/* Grand Headline & Subtitle */}
         <div className="space-y-4 max-w-2xl">
-          <h1 className="font-cormorant text-4xl sm:text-6xl font-bold text-white tracking-tight leading-[1.1] text-balance">
+          <h1 className="font-cormorant text-4xl sm:text-6xl font-bold text-[#2D151B] tracking-tight leading-[1.1] text-balance">
             {config.headline || 'AmantranLink · Shahi Vivah Suite'}
           </h1>
-          <p className="text-sm sm:text-base text-stone-300 leading-relaxed max-w-xl mx-auto font-light">
+          <p className="text-sm sm:text-base text-[#614E53] leading-relaxed max-w-xl mx-auto font-normal">
             {config.subheadline || 'The most auspicious and majestic Indian royal wedding invitation platform is being unveiled. Preparing timeless digital heritage kankotris with personalized RSVPs, venue QR passes, and live memory photo walls.'}
           </p>
         </div>
 
         {/* Live Countdown Clock */}
-        <div className="pt-2 pb-2">
-          <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-stone-400 mb-3 flex items-center justify-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-[#F4D06F]" />
+        <div className="pt-1 pb-1 w-full">
+          <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#8C7A7E] mb-3 flex items-center justify-center gap-2">
+            <Clock className="w-3.5 h-3.5 text-[#B38728]" />
             <span>Royal Unveiling Countdown</span>
           </div>
 
-          <div className="grid grid-cols-4 gap-2.5 sm:gap-4 max-w-md mx-auto">
+          <div className="grid grid-cols-4 gap-3 sm:gap-4 max-w-md mx-auto">
             {[
               { label: 'DAYS', val: timeLeft.days },
               { label: 'HOURS', val: timeLeft.hours },
@@ -176,12 +145,12 @@ export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = ({
             ].map((unit) => (
               <div 
                 key={unit.label}
-                className="p-3 sm:p-4 rounded-2xl bg-gradient-to-b from-[#240A10] to-[#1A0509] border border-[#F4D06F]/30 shadow-xl shadow-black/60 flex flex-col items-center justify-center"
+                className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5D7BE] shadow-md shadow-amber-900/5 flex flex-col items-center justify-center"
               >
-                <span className="font-mono text-2xl sm:text-4xl font-extrabold text-[#F4D06F] tracking-tight">
+                <span className="font-mono text-2xl sm:text-4xl font-extrabold text-[#540D1E] tracking-tight">
                   {String(unit.val).padStart(2, '0')}
                 </span>
-                <span className="text-[9px] font-bold tracking-widest text-stone-400 mt-1 uppercase">
+                <span className="text-[9px] font-bold tracking-widest text-[#8C7A7E] mt-1 uppercase">
                   {unit.label}
                 </span>
               </div>
@@ -190,21 +159,21 @@ export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = ({
         </div>
 
         {/* VIP Early Access & Notification Form */}
-        <div className="w-full max-w-md bg-white/5 border border-[#F4D06F]/30 backdrop-blur-md rounded-3xl p-6 sm:p-7 shadow-2xl shadow-black/80 space-y-4">
-          <div className="space-y-1">
-            <h3 className="text-base font-bold text-white flex items-center justify-center gap-2">
-              <Crown className="w-4 h-4 text-[#F4D06F]" />
+        <div className="w-full max-w-md bg-white border border-[#E5D7BE] rounded-3xl p-6 sm:p-7 shadow-xl shadow-amber-900/5 space-y-4 text-left">
+          <div className="space-y-1 text-center">
+            <h3 className="text-base font-bold text-[#2D151B] flex items-center justify-center gap-2">
+              <Crown className="w-4 h-4 text-[#B38728]" />
               <span>Get Shahi VIP Early Access</span>
             </h3>
-            <p className="text-xs text-stone-300">
-              Be the first to experience our royal wedding templates with exclusive launch perks.
+            <p className="text-xs text-[#7A6A6E]">
+              Be the first to experience our royal wedding suites with exclusive launch perks.
             </p>
           </div>
 
           {submitted ? (
-            <div className="p-4 rounded-2xl bg-[#540D1E]/40 border border-[#F4D06F]/50 text-xs text-[#F4D06F] flex items-center justify-center gap-2 animate-scaleUp">
-              <CheckCircle2 className="w-4 h-4 text-[#F4D06F] shrink-0" />
-              <span>Shahi Samaan! You are on our VIP royal invitation list. We will notify you at launch.</span>
+            <div className="p-4 rounded-2xl bg-[#540D1E]/5 border border-[#540D1E]/20 text-xs text-[#540D1E] flex items-center justify-center gap-2 animate-scaleUp">
+              <CheckCircle2 className="w-4 h-4 text-[#540D1E] shrink-0" />
+              <span className="font-medium text-center">Shahi Samaan! You are on our VIP royal invitation list. We will notify you at launch.</span>
             </div>
           ) : (
             <form onSubmit={handleNotifySubmit} className="space-y-3">
@@ -213,7 +182,7 @@ export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = ({
                 placeholder="Your Name (e.g. Aryan Patel)"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-stone-500 text-xs focus:outline-none focus:border-[#F4D06F] transition-colors"
+                className="w-full px-4 py-2.5 rounded-xl bg-[#FDFBF7] border border-[#DDD0BC] text-[#2D151B] placeholder-stone-400 text-xs focus:outline-none focus:border-[#B38728] focus:ring-1 focus:ring-[#B38728] transition-colors"
               />
               <div className="flex gap-2">
                 <input
@@ -222,60 +191,33 @@ export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = ({
                   placeholder="WhatsApp Number or Email"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-white placeholder-stone-500 text-xs focus:outline-none focus:border-[#F4D06F] transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#FDFBF7] border border-[#DDD0BC] text-[#2D151B] placeholder-stone-400 text-xs focus:outline-none focus:border-[#B38728] focus:ring-1 focus:ring-[#B38728] transition-colors"
                 />
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F4D06F] to-[#E0B94D] hover:from-[#E0B94D] hover:to-[#CBA339] text-[#120306] font-bold text-xs transition-all shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#B38728] to-[#996F19] hover:from-[#C89B3C] hover:to-[#B38728] text-white font-bold text-xs transition-all shadow-md shadow-[#B38728]/20 flex items-center gap-1.5 cursor-pointer shrink-0"
                 >
                   <Bell className="w-3.5 h-3.5" />
                   <span>Notify Me</span>
                 </button>
               </div>
-              <p className="text-[10px] text-stone-400">
+              <p className="text-[10px] text-[#8C7A7E] text-center">
                 🔒 Zero spam guarantee · Confidential royal communications only
               </p>
             </form>
           )}
         </div>
 
-        {/* 9 Auspicious Themes Sneak Peek */}
-        <div className="space-y-3 pt-2">
-          <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-stone-400">
-            Auspicious Themes in Preparation
-          </span>
-          <div className="flex flex-wrap items-center justify-center gap-2 max-w-xl">
-            {themePills.map((t) => (
-              <span
-                key={t.name}
-                className="px-3 py-1.5 rounded-xl bg-[#240A10]/70 border border-[#F4D06F]/20 text-xs text-stone-200 flex items-center gap-1.5 shadow-sm"
-              >
-                <span>{t.icon}</span>
-                <span className="font-medium">{t.name}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-
       </main>
 
-      {/* Royal Footer */}
-      <footer className="relative z-10 max-w-6xl w-full mx-auto px-6 py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-400">
-        <div className="flex items-center gap-4">
+      {/* Royal Clean Footer - Zero Admin Mentions */}
+      <footer className="relative z-10 max-w-5xl w-full mx-auto px-6 py-6 border-t border-[#E8DFD1] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#8C7A7E]">
+        <div className="flex items-center gap-2">
           <span>© 2026 AmantranLink · Shahi Vivah Suite</span>
-          <span>·</span>
-          <span>Inquiries: {config.contactPhone || '+91 94093 60336'}</span>
         </div>
 
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={onAdminClick || (() => { window.location.href = '/admin'; })}
-            className="hover:text-[#F4D06F] transition-colors flex items-center gap-1 cursor-pointer"
-          >
-            <Lock className="w-3 h-3 text-[#F4D06F]" />
-            <span>Admin Portal</span>
-          </button>
+        <div className="flex items-center gap-2">
+          <span>Inquiries: {config.contactPhone || '+91 94093 60336'}</span>
         </div>
       </footer>
 

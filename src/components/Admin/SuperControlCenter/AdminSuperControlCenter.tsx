@@ -458,9 +458,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
             </button>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 text-[10px] text-stone-400 font-mono">
-            Default Key: <strong className="text-[#F4D06F]">Aryan_patel_2301</strong>
-          </div>
+
 
         </div>
       </div>
@@ -1404,7 +1402,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
             </div>
 
             <p className="text-xs text-[#736567]">
-              Current default: <strong>{getAdminMasterPasscode()}</strong>. Set a secure 6+ character key for Admin Vault access.
+              Configure a secure 6+ character key to update your Admin Vault master credentials.
             </p>
 
             <form onSubmit={handleChangeMasterPasscodeSubmit} className="space-y-3.5 text-xs">
