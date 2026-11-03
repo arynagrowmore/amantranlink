@@ -65,6 +65,7 @@ export const OFFICIAL_PACKAGES: Record<PackageType, PackagePricingConfig> = {
 
 // 🏛️ Which Package is automatically associated with each Theme
 export const THEME_PACKAGE_MAP: Record<ThemeId, PackageType> = {
+  'velvet-royale': 'gold', // 2026 Flagship Farman -> Gold Royal (₹1,299)
   rajmahal: 'gold',     // 3D Palace Heritage -> Gold Royal (₹1,299)
   royaldawn: 'gold',    // Lakefront & Scratch Card -> Gold Royal (₹1,299)
   royalring: 'gold',    // 3D Floating Diamond Engagement -> Gold Royal (₹1,299)
@@ -77,6 +78,7 @@ export const THEME_PACKAGE_MAP: Record<ThemeId, PackageType> = {
 
 // 🏷️ Official Theme Pricing Catalog (Matches Package Map)
 export const THEME_PRICING_CATALOG: Record<ThemeId, { priceInr: number; amountInPaise: number; packageId: PackageType; name: string }> = {
+  'velvet-royale': { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Velvet Royale (Wax Seal & Envelope)' },
   rajmahal: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Rajmahal 3D Palace' },
   royaldawn: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Royal Dawn (Lakefront & Scratch Card)' },
   royalring: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Royal Ring (3D Diamond Engagement)' },

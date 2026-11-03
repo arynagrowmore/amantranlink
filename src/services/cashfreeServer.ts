@@ -7,6 +7,7 @@ export const RE_EDIT_FEE_INR: number = 499;
 
 // 🏷️ Canonical Template Pricing Reference (Server-side Source of Truth)
 export const SERVER_TEMPLATES_PRICING: Record<ThemeId, { name: string; priceInr: number; category: string }> = {
+  'velvet-royale': { name: 'The Velvet Royale (Wax Seal & Envelope)', priceInr: 2499, category: 'heritage' },
   rajmahal: { name: 'The Rajmahal 3D Palace', priceInr: 2499, category: 'heritage' },
   jharokha: { name: 'The Jharokha Mandap', priceInr: 1499, category: 'traditional' },
   mayura: { name: 'The Mayura Peacock', priceInr: 1499, category: 'traditional' },

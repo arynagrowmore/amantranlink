@@ -13,6 +13,14 @@ export { getApiBaseUrl, resolveApiUrl };
 
 // 🏷️ Template Catalog with Official Authoritative Pricing (Single Source of Truth)
 export const TEMPLATES_CATALOG: Record<ThemeId, TemplateConfig> = {
+  'velvet-royale': {
+    templateId: 'velvet-royale',
+    name: 'The Velvet Royale (Wax Seal & Envelope)',
+    previewImage: '/previews/theme-rajmahal.webp',
+    priceInr: 2499,
+    reEditFeeInr: 0,
+    category: 'heritage',
+  },
   rajmahal: {
     templateId: 'rajmahal',
     name: 'The Rajmahal 3D Palace',
@@ -118,7 +126,7 @@ export const isUserVipAdmin = (uid?: string, email?: string): boolean => {
   return false;
 };
 
-const ALL_TEMPLATES_ARRAY: ThemeId[] = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+const ALL_TEMPLATES_ARRAY: ThemeId[] = ['velvet-royale', 'rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
 
 export const getUserPurchases = (uid?: string): Record<string, Purchase> => {
   if (typeof window === 'undefined') return {};

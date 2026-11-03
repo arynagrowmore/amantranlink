@@ -70,7 +70,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   const [themeId, setThemeId] = useState<ThemeId>(() => {
     if (typeof window !== 'undefined') {
       const qTheme = new URLSearchParams(window.location.search).get('theme') || new URLSearchParams(window.location.search).get('t');
-      if (qTheme && ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'].includes(qTheme)) {
+      if (qTheme && ['velvet-royale', 'rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'].includes(qTheme)) {
         return qTheme as ThemeId;
       }
     }
@@ -379,7 +379,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   // Convert raw state into Authoritative Normalized Invitation Model
   const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
-  const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+  const validThemes = ['velvet-royale', 'rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
   const activeTheme = (
     (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
     rawState.theme ||
@@ -387,7 +387,9 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
     'rajmahal'
   ) as ThemeId;
   const normalizedData = normalizeInvitationData(rawState, resolvedSlug, siteId || undefined, studioBadge || undefined);
-  const templateUrl = `/templates/${activeTheme}-template/index.html?slug=${encodeURIComponent(resolvedSlug)}&siteId=${encodeURIComponent(siteId || '')}`;
+  const templateUrl = activeTheme === 'velvet-royale'
+    ? `/templates/velvet-royale/index.html?slug=${encodeURIComponent(resolvedSlug)}&siteId=${encodeURIComponent(siteId || '')}`
+    : `/templates/${activeTheme}-template/index.html?slug=${encodeURIComponent(resolvedSlug)}&siteId=${encodeURIComponent(siteId || '')}`;
 
   // ⏰ Universal Live Countdown Timer
   const startUniversalCountdown = () => {

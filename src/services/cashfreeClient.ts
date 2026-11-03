@@ -9,6 +9,14 @@ import {
 
 // 🏷️ Template Catalog with Pricing
 export const TEMPLATES_CATALOG: Record<ThemeId, TemplateConfig> = {
+  'velvet-royale': {
+    templateId: 'velvet-royale',
+    name: 'The Velvet Royale (Wax Seal & Envelope)',
+    previewImage: '/previews/theme-rajmahal.webp',
+    priceInr: 2499,
+    reEditFeeInr: RE_EDIT_FEE_INR,
+    category: 'heritage',
+  },
   rajmahal: {
     templateId: 'rajmahal',
     name: 'The Rajmahal 3D Palace',

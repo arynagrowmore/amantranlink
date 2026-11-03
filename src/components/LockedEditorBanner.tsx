@@ -7,6 +7,7 @@ import { themes } from './ThemeSelector';
 import { TEMPLATES_CATALOG, isUserVipAdmin } from '../services/razorpayClient';
 
 export const TEMPLATE_DISPLAY_NAMES: Record<ThemeId, string> = {
+  'velvet-royale': 'The Velvet Royale',
   jharokha: 'The Jharokha',
   rajmahal: 'The Rajmahal',
   royaldawn: 'The Royal Dawn',
