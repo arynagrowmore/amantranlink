@@ -49,3 +49,7 @@ crush.json
 
 # Vercel
 .vercel
+test_*.py
+scratch/
+screenshots/
+.vercel
