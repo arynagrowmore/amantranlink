@@ -193,9 +193,12 @@ export const ClientApprovalPortalView: React.FC<ClientApprovalPortalViewProps> =
             {branding.white_label_enabled && branding.logo_url ? (
               <img src={branding.logo_url} alt="Logo" className="w-10 h-10 rounded-xl object-contain bg-white/10 p-1" />
             ) : (
-              <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center font-bold text-lg">
-                👑
-              </div>
+              <img 
+                src="/Amantran.png" 
+                alt="Amantran Logo" 
+                className="w-10 h-10 rounded-xl object-contain bg-white/15 p-1"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+              />
             )}
             <div>
               <span className="text-[10px] font-mono tracking-widest uppercase text-[#F4D06F] font-bold block">

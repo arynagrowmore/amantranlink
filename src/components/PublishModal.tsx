@@ -347,8 +347,13 @@ export const PublishModal: React.FC<PublishModalProps> = ({ state, onClose, onOp
         <header className="relative bg-gradient-to-r from-[#2B0810] via-[#430914] to-[#2B0810] text-white px-5 sm:px-8 py-4 sm:py-5 border-b-2 border-[#C49A35]/40 flex items-center justify-between shrink-0 shadow-md">
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-[#C49A35] via-[#E8CD7E] to-[#9A7526] p-[2px] shadow-lg flex items-center justify-center shrink-0">
-              <div className="w-full h-full bg-[#3D0A12] rounded-[14px] flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-[#E8CD7E] animate-pulse" />
+              <div className="w-full h-full bg-[#3D0A12] rounded-[14px] p-1.5 flex items-center justify-center">
+                <img 
+                  src="/Amantran.png" 
+                  alt="Amantran" 
+                  className="w-full h-full object-contain filter drop-shadow-sm" 
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+                />
               </div>
             </div>
             <div>

@@ -147,8 +147,13 @@ export const ClientReviewPage: React.FC<ClientReviewPageProps> = ({
       {/* 👑 Top Verification Banner */}
       <header className="bg-[#FFFDF8] border-b border-[#E8D5AD] px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-xs">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-[#6E1020] text-[#FFFDF8] flex items-center justify-center border border-[#C49A35] shadow-xs">
-            <Heart className="w-4 h-4 text-[#C49A35]" />
+          <div className="w-9 h-9 rounded-xl bg-[#6E1020] p-1 flex items-center justify-center border border-[#C49A35] shadow-xs">
+            <img 
+              src="/Amantran.png" 
+              alt="Amantran" 
+              className="w-full h-full object-contain filter drop-shadow-xs" 
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+            />
           </div>
           <div>
             <h1 className="font-cormorant font-bold text-lg text-[#430914] leading-tight">

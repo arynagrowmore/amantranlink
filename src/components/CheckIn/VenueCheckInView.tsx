@@ -197,6 +197,12 @@ export const VenueCheckInView: React.FC<VenueCheckInViewProps> = ({
               <ArrowLeft className="w-4 h-4" />
             </button>
           )}
+          <img 
+            src="/Amantran.png" 
+            alt="Amantran" 
+            className="w-10 h-10 object-contain filter drop-shadow-sm shrink-0" 
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+          />
           <div>
             <span className="text-[10px] font-mono tracking-widest uppercase text-[#9C772F] font-bold block">
               Venue Check-in Workspace · {coupleNames}

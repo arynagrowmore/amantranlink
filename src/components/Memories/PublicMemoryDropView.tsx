@@ -132,18 +132,26 @@ export const PublicMemoryDropView: React.FC<PublicMemoryDropViewProps> = ({
         {/* 1. TOP HEADER & NAVIGATION                                                */}
         {/* ========================================================================= */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E8DFD1] pb-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono tracking-widest uppercase text-[#9C772F] font-bold block">
-                AmantranLink · Wedding Memories &amp; Guestbook
-              </span>
+          <div className="flex items-center gap-3">
+            <img 
+              src="/Amantran.png" 
+              alt="Amantran" 
+              className="w-11 h-11 object-contain filter drop-shadow-sm shrink-0" 
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+            />
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono tracking-widest uppercase text-[#9C772F] font-bold block">
+                  AmantranLink · Wedding Memories &amp; Guestbook
+                </span>
+              </div>
+              <h1 className="font-cormorant text-3xl sm:text-4xl font-bold text-[#350811] mt-0.5">
+                {coupleNames}
+              </h1>
+              <p className="text-xs text-[#6C5D60] mt-0.5">
+                Capture a moment. Share a blessing. Become part of their wedding story.
+              </p>
             </div>
-            <h1 className="font-cormorant text-3xl sm:text-4xl font-bold text-[#350811] mt-0.5">
-              {coupleNames}
-            </h1>
-            <p className="text-xs text-[#6C5D60] mt-0.5">
-              Capture a moment. Share a blessing. Become part of their wedding story.
-            </p>
           </div>
 
           <div className="flex items-center gap-2">

@@ -317,8 +317,13 @@ export const PartnerOnboardingModal: React.FC<PartnerOnboardingModalProps> = ({
           </button>
 
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-2xl bg-[#C49A35] text-[#24060B] flex items-center justify-center font-bold shadow-md shrink-0">
-              <Camera className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-[#C49A35] p-1 flex items-center justify-center font-bold shadow-md shrink-0">
+              <img 
+                src="/Amantran.png" 
+                alt="Amantran" 
+                className="w-full h-full object-contain filter drop-shadow-sm" 
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">

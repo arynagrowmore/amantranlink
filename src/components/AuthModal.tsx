@@ -217,11 +217,12 @@ export const AuthModal: React.FC = () => {
         <div className="flex flex-col items-center text-center space-y-3 mb-5">
           {/* Logo & Brand Wordmark */}
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#6E1020]/10 border border-[#C49A35]/30 flex items-center justify-center shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-[#6E1020]/10 border border-[#C49A35]/30 p-1.5 flex items-center justify-center shadow-xs">
               <img 
-                src="/amantranlink.png" 
+                src="/Amantran.png" 
                 alt="AmantranLink" 
-                className="h-6 w-auto object-contain" 
+                className="w-full h-full object-contain filter drop-shadow-xs" 
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }}
               />
             </div>
             <div className="text-left">

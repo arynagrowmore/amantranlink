@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, Loader2, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { navigateToRoute } from '../utils/navigation';
@@ -52,11 +52,12 @@ export const ResetPasswordView: React.FC = () => {
       <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-3xl border border-[#E8D5AD] shadow-[0_20px_60px_rgba(36,26,23,0.08)] flex flex-col items-center text-center space-y-6">
         
         {/* Brand Crest */}
-        <div className="w-14 h-14 rounded-2xl bg-[#6E1020]/10 border border-[#C49A35]/30 flex items-center justify-center shadow-xs">
+        <div className="w-14 h-14 rounded-2xl bg-[#6E1020]/10 border border-[#C49A35]/30 p-2 flex items-center justify-center shadow-xs">
           <img 
-            src="/amantranlink.png" 
+            src="/Amantran.png" 
             alt="AmantranLink" 
-            className="h-9 w-auto object-contain" 
+            className="w-full h-full object-contain filter drop-shadow-xs" 
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }}
           />
         </div>
 

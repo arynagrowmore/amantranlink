@@ -315,8 +315,13 @@ export const WeddingCommandCenter: React.FC<WeddingCommandCenterProps> = ({
               <span className="hidden sm:inline">Profile</span>
             </button>
 
-            <div className="w-10 h-10 rounded-xl bg-[#6E1020] border border-[#C9A227] flex items-center justify-center text-[#C9A227] shadow-md shrink-0">
-              <RoyalCrestIcon className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-[#6E1020] border border-[#C9A227] p-1 flex items-center justify-center shadow-md shrink-0">
+              <img 
+                src="/Amantran.png" 
+                alt="Amantran" 
+                className="w-full h-full object-contain filter drop-shadow-sm" 
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+              />
             </div>
 
             <div>

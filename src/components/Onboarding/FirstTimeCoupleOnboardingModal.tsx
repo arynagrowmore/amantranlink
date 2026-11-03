@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Heart, Calendar, MapPin, Sparkles, ArrowRight, ArrowLeft, 
   Check, X, Crown, Building2, Clock, CheckCircle2
@@ -124,6 +124,19 @@ export const FirstTimeCoupleOnboardingModal: React.FC<FirstTimeCoupleOnboardingM
         >
           Skip to Studio
         </button>
+
+        {/* Top Brand Header */}
+        <div className="flex items-center gap-2 mb-4">
+          <img 
+            src="/Amantran.png" 
+            alt="Amantran" 
+            className="w-7 h-7 object-contain" 
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+          />
+          <span className="font-cormorant font-bold text-lg tracking-wide text-[#6E1020]">
+            AmantranLink
+          </span>
+        </div>
 
         {/* Stepper Dots & Indicator */}
         <div className="flex items-center gap-2 mb-6">

@@ -58,13 +58,21 @@ export const DigitalEntryPassView: React.FC<DigitalEntryPassViewProps> = ({
     <div className="min-h-screen bg-[#FAF6EE] text-[#20181A] font-manrope flex flex-col justify-center items-center p-4 py-8 relative print:bg-white print:p-0">
       
       {/* Top Branding Eyebrow */}
-      <div className="text-center mb-5 space-y-1 print:hidden">
-        <span className="text-[10px] font-mono tracking-widest uppercase text-[#9C772F] font-bold">
-          AmantranLink · Royal Wedding Entry Pass
-        </span>
-        <h1 className="font-cormorant text-2xl sm:text-3xl font-bold text-[#350811]">
-          Digital Hospitality Pass
-        </h1>
+      <div className="flex flex-col items-center justify-center text-center mb-5 space-y-1.5 print:hidden">
+        <img 
+          src="/Amantran.png" 
+          alt="Amantran" 
+          className="w-10 h-10 object-contain filter drop-shadow-sm" 
+          onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+        />
+        <div>
+          <span className="text-[10px] font-mono tracking-widest uppercase text-[#9C772F] font-bold block">
+            AmantranLink · Royal Wedding Entry Pass
+          </span>
+          <h1 className="font-cormorant text-2xl sm:text-3xl font-bold text-[#350811]">
+            Digital Hospitality Pass
+          </h1>
+        </div>
       </div>
 
       {/* Main Luxury Ticket Card */}
@@ -189,8 +197,9 @@ export const DigitalEntryPassView: React.FC<DigitalEntryPassViewProps> = ({
             </div>
 
             {/* Footer Notice */}
-            <div className="p-4 bg-[#FAF6EF] border-t border-[#E8DFD1] text-center text-[11px] text-[#736567]">
-              🛡️ Scoped and securely verified by <strong className="text-[#540D1E]">AmantranLink</strong> for the wedding hosts.
+            <div className="p-4 bg-[#FAF6EF] border-t border-[#E8DFD1] flex items-center justify-center gap-1.5 text-center text-[11px] text-[#736567]">
+              <img src="/Amantran.png" alt="Amantran" className="w-3.5 h-3.5 object-contain opacity-75" onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} />
+              <span>🛡️ Scoped and securely verified by <strong className="text-[#540D1E]">AmantranLink</strong> for the wedding hosts.</span>
             </div>
           </div>
         )}

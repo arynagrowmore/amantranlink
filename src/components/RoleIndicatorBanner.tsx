@@ -63,7 +63,7 @@ export const RoleIndicatorBanner: React.FC<RoleIndicatorBannerProps> = ({
     >
       <div className="flex items-center gap-2 sm:gap-3">
         <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/60 text-[#D4AF37] text-[10.5px] font-bold uppercase tracking-wider">
-          <Crown className="w-3 h-3" />
+          <img src="/Amantran.png" alt="Amantran" className="w-3.5 h-3.5 object-contain" onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} />
           <span>AmantranLink Couple Suite</span>
         </div>
 

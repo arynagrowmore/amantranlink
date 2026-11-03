@@ -243,8 +243,13 @@ export const AdminControlCenter: React.FC<AdminControlCenterProps> = ({
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6E1020] to-[#C49A35] text-white flex items-center justify-center border border-[#C49A35]/50 shadow-sm shrink-0">
-              <Crown className="w-5 h-5 text-amber-300" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6E1020] to-[#C49A35] text-white p-1 flex items-center justify-center border border-[#C49A35]/50 shadow-sm shrink-0">
+              <img 
+                src="/Amantran.png" 
+                alt="Amantran" 
+                className="w-full h-full object-contain filter drop-shadow-sm" 
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+              />
             </div>
             <div>
               <div className="flex items-center gap-2">

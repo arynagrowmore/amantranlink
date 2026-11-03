@@ -530,8 +530,15 @@ export const RoyalDownloadHubModal: React.FC<RoyalDownloadHubModalProps> = ({
           <div className="absolute top-0 right-0 w-80 h-full bg-radial from-[#C49A35]/15 via-transparent to-transparent pointer-events-none" />
           
           <div className="relative z-10 flex items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-3.5">
+              <img 
+                src="/Amantran.png" 
+                alt="Amantran" 
+                className="w-11 h-11 object-contain filter drop-shadow-md shrink-0 hidden sm:block" 
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+              />
+              <div>
+                <div className="flex items-center gap-2 mb-1">
                 <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#C49A35]">
                   AMANTRANLINK ROYAL INVITATION ATELIER
                 </span>
@@ -551,6 +558,7 @@ export const RoyalDownloadHubModal: React.FC<RoyalDownloadHubModalProps> = ({
                 Prepared for your wedding · {groom} &amp; {bride}
               </p>
             </div>
+          </div>
 
             <button
               type="button"

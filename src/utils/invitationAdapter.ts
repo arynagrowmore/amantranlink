@@ -1280,7 +1280,7 @@ export const applyInvitationDataToTemplateDOM = (
         <div style="text-align: center; padding: 32px 16px 44px 16px; background: rgba(18, 6, 9, 0.96); border-top: 1.5px solid rgba(196, 154, 53, 0.4); font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; position: relative; z-index: 99; margin-top: 50px; width: 100%; box-sizing: border-box; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
           <div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; max-width: 500px; margin: 0 auto;">
             <a href="https://amantranlink.in" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 9px; text-decoration: none; padding: 9px 22px; border-radius: 9999px; background: linear-gradient(135deg, rgba(110, 16, 32, 0.75) 0%, rgba(196, 154, 53, 0.3) 100%); border: 1.5px solid rgba(196, 154, 53, 0.75); transition: all 0.25s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.35); cursor: pointer;">
-              <span style="font-size: 15px; filter: drop-shadow(0 0 6px rgba(196,154,53,0.9));">👑</span>
+              <img src="/Amantran.png" alt="Amantran" style="width: 20px; height: 20px; object-fit: contain; vertical-align: middle; filter: drop-shadow(0 0 4px rgba(196,154,53,0.9));" onerror="this.src='/amantranlink.png'" />
               <span style="font-family: 'Cinzel', serif, Georgia; font-size: 13.5px; font-weight: 700; color: #FFFDF8; letter-spacing: 0.12em; text-transform: uppercase;">Crafted with Amantranlink.in</span>
               <span style="color: #E8CD7E; font-size: 12px;">✦</span>
             </a>

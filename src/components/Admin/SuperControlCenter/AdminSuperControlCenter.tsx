@@ -377,8 +377,13 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
         <div className="max-w-md w-full bg-white/5 border border-[#F4D06F]/30 backdrop-blur-md rounded-3xl p-8 sm:p-10 shadow-2xl shadow-black/80 space-y-6 relative z-10 text-center animate-scaleUp">
           
           {/* Shahi Crown & Emblems */}
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#540D1E] to-[#2B060F] border border-[#F4D06F]/40 flex items-center justify-center text-[#F4D06F] text-2xl mx-auto shadow-xl shadow-black/60">
-            👑
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#540D1E] to-[#2B060F] border border-[#F4D06F]/40 p-2 flex items-center justify-center mx-auto shadow-xl shadow-black/60">
+            <img 
+              src="/Amantran.png" 
+              alt="Amantran" 
+              className="w-full h-full object-contain filter drop-shadow-sm" 
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+            />
           </div>
 
           <div className="space-y-1.5">
@@ -476,8 +481,13 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
       {/* ========================================================================= */}
       <header className="bg-[#1A0509] text-white border-b border-stone-800 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-40 shadow-xl">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#540D1E] border border-[#F4D06F]/40 flex items-center justify-center text-[#F4D06F] font-bold text-lg shadow-inner">
-            👑
+          <div className="w-10 h-10 rounded-2xl bg-[#540D1E] border border-[#F4D06F]/40 p-1.5 flex items-center justify-center shadow-inner">
+            <img 
+              src="/Amantran.png" 
+              alt="Amantran" 
+              className="w-full h-full object-contain filter drop-shadow-sm" 
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/amantranlink.png'; }} 
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">
