@@ -1,4 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+export { supabase };
 import { 
   WeddingMemory, 
   MemoryStatus, 
@@ -7,10 +8,7 @@ import {
   SubmitMemoryInput 
 } from '../types/memories';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://owziiqdxbvynrprugvwk.supabase.co';
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo_anon_key';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const MEMORIES_LOCAL_KEY = 'amantranlink_memories_';
 

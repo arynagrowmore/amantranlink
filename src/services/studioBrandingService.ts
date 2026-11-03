@@ -1,4 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+export { supabase };
 import { 
   StudioBranding, 
   CustomDomain, 
@@ -10,10 +11,7 @@ import {
 } from '../types/studioBranding';
 import { resolveApiUrl } from '../utils/apiConfig';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://owziiqdxbvynrprugvwk.supabase.co';
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo_anon_key';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const BRANDING_LOCAL_KEY = 'amantranlink_studio_branding_';
 const DOMAINS_LOCAL_KEY = 'amantranlink_custom_domains_';

@@ -1,4 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+export { supabase };
 import { 
   InAppNotification, 
   AutomationRule, 
@@ -10,10 +11,7 @@ import {
   AutomationTriggerType 
 } from '../types/automation';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://owziiqdxbvynrprugvwk.supabase.co';
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo_anon_key';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const LOCAL_NOTIFS_KEY = 'amantranlink_in_app_notifications_';
 const LOCAL_PREFS_KEY = 'amantranlink_user_notif_prefs_';

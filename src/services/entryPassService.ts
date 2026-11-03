@@ -1,4 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+export { supabase };
 import { 
   GuestEntryPass, 
   CheckInResult, 
@@ -8,10 +9,7 @@ import {
 } from '../types/entryPass';
 import { GuestRecord } from '../types/guest';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://owziiqdxbvynrprugvwk.supabase.co';
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo_anon_key';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // In-memory / localStorage fallback cache for venue check-ins when remote table migration is pending
 const CHECKIN_CACHE_KEY = 'amantranlink_venue_checkins_';
