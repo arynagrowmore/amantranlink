@@ -156,7 +156,7 @@ export async function fetchSuperCenterMetrics(timeRange: TimeRangeFilter = '30d'
     const [profilesRes, weddingsRes, purchasesRes] = await Promise.all([
       supabase.from('profiles').select('id, role, created_at'),
       supabase.from('wedding_sites').select('id, status, is_locked, partner_id, is_suspended, created_at'),
-      supabase.from('purchases').select('id, status, template_id, unlocked_at, created_at'),
+      supabase.from('purchases').select('id, status, template_id, unlocked_at'),
     ]);
 
     const users = profilesRes.data || [];
@@ -192,7 +192,7 @@ export async function fetchSuperCenterMetrics(timeRange: TimeRangeFilter = '30d'
       periodUsers = users.filter(u => u.created_at && new Date(u.created_at).getTime() >= startTime).length;
       periodWeddings = weddings.filter(w => w.created_at && new Date(w.created_at).getTime() >= startTime).length;
       periodRevPaise = validPurchases
-        .filter(p => (p.unlocked_at || p.created_at) && new Date(p.unlocked_at || p.created_at).getTime() >= startTime)
+        .filter(p => p.unlocked_at && new Date(p.unlocked_at).getTime() >= startTime)
         .length * 149900;
     }
 
@@ -537,7 +537,7 @@ export async function fetchPlatformRevenueIntelligence(timeRange: TimeRangeFilte
   try {
     const { data: purchases } = await supabase
       .from('purchases')
-      .select('id, status, template_id, unlocked_at, created_at, payment_reference');
+      .select('id, status, template_id, unlocked_at, payment_reference');
 
     const list = purchases || [];
     const valid = list.filter(p => p.status === 'unlocked' || p.status === 'success' || !p.status);
@@ -553,7 +553,7 @@ export async function fetchPlatformRevenueIntelligence(timeRange: TimeRangeFilte
     ];
 
     const timeline = valid.map((p, idx) => ({
-      date: (p.unlocked_at || p.created_at || new Date().toISOString()).split('T')[0],
+      date: (p.unlocked_at || new Date().toISOString()).split('T')[0],
       revenue_paise: unitPricePaise,
       orders_count: 1
     }));
