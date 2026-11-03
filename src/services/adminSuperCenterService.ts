@@ -36,7 +36,7 @@ export const MASTER_PASSCODE_KEY = 'amantranlink_master_admin_passcode';
 // 🔒 ADMIN SECURITY VAULT GATE & PASSCODE VERIFICATION
 // =========================================================================
 
-export const DEFAULT_MASTER_PASSCODES = ['Amantran@2026', 'SHAHI_ADMIN_2026'];
+export const DEFAULT_MASTER_PASSCODES = ['Aryan_patel_2301', 'Amantran@2026', 'SHAHI_ADMIN_2026'];
 
 export function getAdminMasterPasscode(): string {
   if (typeof window !== 'undefined') {

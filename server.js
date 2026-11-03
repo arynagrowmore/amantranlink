@@ -3474,7 +3474,7 @@ app.post('/api/finance/payments/record', async (req, res) => {
 const requireAdminAuth = (req, res, next) => {
   const passcode = req.headers['x-admin-passcode'] || req.query.adminKey || req.body?.adminPasscode;
   const authHeader = req.headers['authorization'];
-  const validPasscodes = ['Amantran@2026', 'SHAHI_ADMIN_2026', process.env.MASTER_ADMIN_PASSCODE].filter(Boolean);
+  const validPasscodes = ['Aryan_patel_2301', 'Amantran@2026', 'SHAHI_ADMIN_2026', process.env.MASTER_ADMIN_PASSCODE].filter(Boolean);
 
   if (passcode && validPasscodes.includes(passcode)) {
     return next();

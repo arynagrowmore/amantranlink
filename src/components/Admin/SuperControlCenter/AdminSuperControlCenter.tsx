@@ -459,7 +459,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
           </div>
 
           <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 text-[10px] text-stone-400 font-mono">
-            Default Key: <strong className="text-[#F4D06F]">Amantran@2026</strong>
+            Default Key: <strong className="text-[#F4D06F]">Aryan_patel_2301</strong>
           </div>
 
         </div>
