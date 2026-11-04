@@ -51,68 +51,7 @@ const THEME_CATALOG: Array<{
   price: number;
   imagePosition?: string;
   isFeatured?: boolean;
-}> = [
-  {
-    id: 'darbar',
-    title: 'The Rajasthani Darbar',
-    subtitle: 'राजस्थानी दरबार व रेशम पर्दा',
-    tagline: 'Grand Rajasthani silk curtains part open on tap revealing palatial architecture, interactive scratch card, and royal ceremonies.',
-    badge: '✦ SILK CURTAIN & SCRATCH',
-    category: 'heritage',
-    categoryLabel: 'Palace Heritage',
-    packageType: 'gold',
-    features: ['Silk Curtain Unveiling Animation', 'Interactive Gold Scratch Farman', 'Sacred Ganesh Vandana Shloka'],
-    previewImg: '/templates/rajasthan-darbar/assets/hero-palace.jpg',
-    imagePosition: 'object-center',
-    price: 2299,
-    isFeatured: true,
-  },
-  {
-    id: 'chandramahal',
-    title: 'The Chandra Mahal',
-    subtitle: 'चंद्र महल व नक्काशीदार द्वार',
-    tagline: '3D carved palace fort gates swing open with spinning golden mandala, animated peacocks, and palatial ceremony itinerary.',
-    badge: '✦ 3D PALACE FORT GATES',
-    category: 'heritage',
-    categoryLabel: 'Palace Heritage',
-    packageType: 'gold',
-    features: ['3D Carved Fort Doors Opening', 'Golden Mandala & Peacock Motifs', 'Palatial Ceremony Timeline'],
-    previewImg: '/templates/chandra-mahal/assets/hero-palace.jpg',
-    imagePosition: 'object-center',
-    price: 2299,
-    isFeatured: true,
-  },
-  {
-    id: 'swarnim',
-    title: 'Swarnim Farman',
-    subtitle: 'स्वर्णिम फ़रमान व स्क्रैच कार्ड',
-    tagline: 'Cinematic video arch gate entrance leading into interactive gold foil scratch card revealing sacred wedding date and venue.',
-    badge: '✦ VIDEO GATE & SCRATCH',
-    category: 'royal',
-    categoryLabel: 'Interactive Gold',
-    packageType: 'gold',
-    features: ['Video Arch Gate Unveiling', 'Interactive Gold Foil Scratch', 'Vedic Muhurat Reveal'],
-    previewImg: '/templates/swarnim-scratch/assets/courtyard.jpg',
-    imagePosition: 'object-center',
-    price: 2299,
-    isFeatured: true,
-  },
-  {
-    id: 'shahidesk',
-    title: 'The Shahi Desk',
-    subtitle: 'शाही दस्तावेज़ व सील डेस्क',
-    tagline: 'Imperial wooden invitation desk with authentic wax seal stamp, scrapbook diary polaroids, and interactive sangeet portal.',
-    badge: '✦ WAX SEAL & SCRAPBOOK',
-    category: 'heritage',
-    categoryLabel: 'Vintage Royal',
-    packageType: 'gold',
-    features: ['Royal Wax Seal Envelope Break', 'Scrapbook Polaroids & Diary', 'Interactive Sangeet Portal'],
-    previewImg: '/templates/shahi-desk/assets/hero-palace.jpg',
-    imagePosition: 'object-center',
-    price: 2299,
-    isFeatured: true,
-  },
-];
+}> = [];
 
 const TRUST_STRIP_ITEMS = [
   { 
@@ -283,9 +222,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <a href="#themes" className="hover:text-[#C49A35] transition-colors duration-150 py-1.5 whitespace-nowrap shrink-0">
               THEMES
             </a>
-            <a href="#demo" className="hover:text-[#C49A35] transition-colors duration-150 py-1.5 whitespace-nowrap shrink-0">
-              LIVE DEMO
-            </a>
             <a href="#experience" className="hover:text-[#C49A35] transition-colors duration-150 py-1.5 whitespace-nowrap shrink-0">
               FEATURES
             </a>
@@ -450,13 +386,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               className="block py-2.5 px-3 rounded-xl hover:bg-[#F8F3E8] hover:text-[#C49A35] transition-colors min-h-[44px] flex items-center"
             >
               Explore Themes
-            </a>
-            <a 
-              href="#demo" 
-              onClick={() => setIsMobileNavOpen(false)} 
-              className="block py-2.5 px-3 rounded-xl hover:bg-[#F8F3E8] hover:text-[#C49A35] transition-colors min-h-[44px] flex items-center"
-            >
-              Live Demo
             </a>
             <a 
               href="#experience" 
@@ -677,12 +606,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* 🎨 5. 7 ROYAL THEMES COLLECTION (SELF-CONTAINED COMPLETE PRODUCT CARDS)   */}
       {/* ========================================================================= */}
       <section id="themes" className="pt-16 pb-24 sm:pt-20 sm:pb-32 px-4 sm:px-8 max-w-7xl mx-auto w-full font-sans">
-        
         {/* Header */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto mb-12 sm:mb-16">
+        <div className="text-center space-y-4 max-w-3xl mx-auto mb-10 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8DCC8] text-[#6E1020] text-xs font-sans font-semibold tracking-wider uppercase shadow-2xs">
-            <Layers className="w-3.5 h-3.5 text-[#C49A35]" />
-            <span>Authentic Heritage Motifs · 4 Flagship Royal Designs</span>
+            <Sparkles className="w-3.5 h-3.5 text-[#C49A35]" />
+            <span>✦ Exclusive Royal Collection</span>
           </div>
 
           <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
@@ -690,192 +618,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </h2>
 
           <p className="text-base sm:text-lg text-[#6E1020] font-bold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
-            Four distinctive flagship expressions of Indian wedding grandeur. Every design crafted with authentic cultural motifs, fluid animation, and live RSVP.
+            This space has been completely cleared and prepared for the next flagship royal collection. New designs will be unveiled here shortly.
           </p>
+        </div>
 
-          {/* Filter Pills */}
-          <div className="flex flex-wrap justify-center gap-2 pt-4">
-            {[
-              { id: 'all', label: 'All Themes' },
-              { id: 'heritage', label: 'Palace Heritage' },
-              { id: 'traditional', label: 'Sacred Tradition' },
-              { id: 'modern', label: 'Modern Couture' },
-              { id: 'engagement', label: '💍 Royal Engagement' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setSelectedCategory(tab.id as any)}
-                className={`px-4 py-1.5 rounded-full text-xs font-sans font-semibold transition-all cursor-pointer ${
-                  selectedCategory === tab.id
-                    ? 'bg-[#6E1020] text-[#FFFDF8] shadow-sm border border-[#C49A35]'
-                    : 'bg-white text-[#241A17] border border-[#E8DCC8] hover:bg-[#FAF6EE] hover:border-[#C49A35]/50'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+        {/* Clean Empty Placeholder State - Completely Pristine */}
+        <div className="max-w-2xl mx-auto p-12 sm:p-16 rounded-3xl bg-[#FAF6EE]/90 border-2 border-dashed border-[#E8D5AD] text-center space-y-4 shadow-sm">
+          <div className="w-16 h-16 mx-auto rounded-full bg-[#6E1020]/10 border border-[#C49A35]/30 flex items-center justify-center text-[#6E1020]">
+            <Sparkles className="w-7 h-7 text-[#C49A35]" />
           </div>
+          <h3 className="font-serif font-bold text-2xl sm:text-3xl text-[#6E1020]">
+            New Royal Collection In Preparation
+          </h3>
+          <p className="text-xs sm:text-sm text-[#75675C] max-w-md mx-auto leading-relaxed">
+            All previous templates have been cleared out. We are awaiting the next suite of royal wedding designs to be added here soon.
+          </p>
         </div>
-
-        {/* 7 Themes Editorial Cards Grid - Fully Responsive, Self-Contained, No Bottom Clipping */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 lg:gap-8 items-stretch">
-          {filteredThemes.map((theme) => {
-            const priceInfo = calculatePaymentDetails(null, theme.id, user?.role);
-
-            return (
-              <div
-                key={theme.id}
-                className="group rounded-3xl bg-white border border-[#E8DCC8] hover:border-[#C49A35] overflow-hidden transition-all duration-300 shadow-[0_4px_24px_-4px_rgba(67,9,20,0.06)] hover:shadow-[0_20px_40px_-8px_rgba(196,154,53,0.18)] hover:-translate-y-1.5 flex flex-col h-full"
-              >
-                {/* ═════════════════════════════════════════════════════════════ */}
-                {/* A. VISUAL PREVIEW AREA (16:10 FIXED ASPECT RATIO)             */}
-                {/* ═════════════════════════════════════════════════════════════ */}
-                <div className="relative w-full aspect-[16/10] overflow-hidden bg-[#160408] shrink-0 border-b border-[#E8D5AD]/60">
-                  <img
-                    src={theme.previewImg}
-                    alt={theme.title}
-                    loading="lazy"
-                    className={`w-full h-full object-cover ${theme.imagePosition || 'object-center'} group-hover:scale-105 transition-transform duration-700 ease-out`}
-                  />
-
-                  {/* Top Left: Capsule Motif Badge */}
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5 z-10 pointer-events-none">
-                    <span className="text-[8.5px] font-mono font-bold tracking-wider uppercase bg-[#6E1020]/90 backdrop-blur-md text-[#FFFDF8] px-2.5 py-0.5 rounded-full border border-[#C49A35]/50 shadow-xs">
-                      {theme.badge}
-                    </span>
-                  </div>
-
-                  {/* Top Right: Access Type Badge */}
-                  <div className="absolute top-3 right-3 z-10 pointer-events-none">
-                    <span className="text-[8.5px] font-mono font-bold tracking-wider bg-black/75 backdrop-blur-md text-[#E8D5AD] px-2.5 py-0.5 rounded-full border border-[#C49A35]/40 shadow-xs uppercase">
-                      {theme.packageType === 'gold' ? 'All Themes Included' : 'Single Theme Access'}
-                    </span>
-                  </div>
-
-                  {/* Hover Quick Preview Button */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#160408]/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center p-4">
-                    <button
-                      type="button"
-                      onClick={() => onPreviewTheme(theme.id)}
-                      className="px-4 py-2 rounded-xl bg-[#FFFDF8] hover:bg-[#F8F3E8] text-[#6E1020] font-sans font-semibold text-xs flex items-center gap-1.5 shadow-xl hover:scale-105 transition-transform cursor-pointer border border-[#C49A35]"
-                    >
-                      <Eye className="w-4 h-4 text-[#C49A35]" />
-                      <span>Interactive 3D Preview</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* ═════════════════════════════════════════════════════════════ */}
-                {/* B–F. CONTENT BODY (METADATA + NAME + SUBTITLE + DESC + FEATS)  */}
-                {/* ═════════════════════════════════════════════════════════════ */}
-                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-2">
-                    {/* B. Metadata Row */}
-                    <div className="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider">
-                      <span className="text-[#8E6725] tracking-widest block">
-                        {theme.categoryLabel}
-                      </span>
-                      <span className="text-[#75675C] font-semibold">
-                        {theme.packageType === 'gold' ? 'Royal Gold' : 'Royal Silver'}
-                      </span>
-                    </div>
-
-                    {/* C. Title & D. Hindi Subtitle */}
-                    <div>
-                      <h3 className="font-serif font-bold text-2xl sm:text-[26px] text-[#6E1020] leading-tight">
-                        {theme.title}
-                      </h3>
-                      <p className="text-xs text-[#C49A35] font-serif italic mt-0.5">
-                        {theme.subtitle}
-                      </p>
-                    </div>
-
-                    {/* E. 2-Line Clamped Description */}
-                    <p className="text-xs text-[#350811] font-medium leading-relaxed line-clamp-2 min-h-[34px] pt-0.5">
-                      {theme.tagline}
-                    </p>
-                  </div>
-
-                  {/* F. 3 Key Features */}
-                  <div className="space-y-1.5 pt-3 border-t border-[#E8D5AD]/60 text-xs text-[#241A17] font-semibold">
-                    {theme.features.slice(0, 3).map((feat, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#167A5A] shrink-0" />
-                        <span className="truncate">{feat}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* ═════════════════════════════════════════════════════════════ */}
-                {/* G–H. CARD FOOTER: PRICING STRIP & EDITORIAL ACTION BUTTONS    */}
-                {/* ═════════════════════════════════════════════════════════════ */}
-                <div className="p-5 sm:p-6 pt-0 mt-auto space-y-3.5">
-                  {/* G. Pricing Area */}
-                  <div className="p-3 bg-[#F8F3E8]/70 border border-[#E8D5AD]/70 rounded-2xl flex items-center justify-between">
-                    {isPartner ? (
-                      <div>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-lg sm:text-xl font-mono font-bold text-[#167A5A]">
-                            ₹{priceInfo.finalAmountInr.toLocaleString('en-IN')}
-                          </span>
-                          <span className="text-xs font-mono text-[#75675C] line-through">
-                            ₹{priceInfo.retailPriceInr.toLocaleString('en-IN')}
-                          </span>
-                        </div>
-                        <span className="text-[9px] font-mono font-bold text-[#167A5A] uppercase tracking-wider block mt-0.5">
-                          PARTNER RATE
-                        </span>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className="flex items-baseline gap-1.5">
-                          <span className="text-lg sm:text-xl font-mono font-bold text-[#6E1020]">
-                            ₹{theme.price.toLocaleString('en-IN')}
-                          </span>
-                          <span className="text-[10px] text-[#75675C]">
-                            / wedding
-                          </span>
-                        </div>
-                        <span className="text-[9px] font-mono text-[#75675C] block mt-0.5">
-                          All-Inclusive · Lifetime Hosting
-                        </span>
-                      </div>
-                    )}
-
-                    <span className="text-[9px] font-mono text-[#8E6725] bg-[#FFFDF8] border border-[#E8D5AD] px-2.5 py-1 rounded-full uppercase font-bold tracking-wider shadow-2xs">
-                      {theme.packageType === 'gold' ? 'GOLD BUNDLE' : 'SILVER ACCESS'}
-                    </span>
-                  </div>
-
-                  {/* H. Actions Area */}
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onPreviewTheme(theme.id)}
-                      className="py-3 px-3.5 sm:px-4 rounded-xl bg-[#F8F3E8] hover:bg-[#FFFDF8] text-[#6E1020] border border-[#E8D5AD] hover:border-[#C49A35] font-sans font-semibold text-xs transition-colors cursor-pointer shrink-0 flex items-center justify-center gap-1.5"
-                      title={`Live 3D Preview ${theme.title}`}
-                    >
-                      <Eye className="w-3.5 h-3.5 text-[#C49A35]" />
-                      <span>Live Preview</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onEnterStudio(theme.id)}
-                      className="flex-1 py-3 px-4 rounded-xl bg-[#6E1020] hover:bg-[#5C0D1A] text-[#FFFDF8] font-sans font-semibold text-xs uppercase tracking-wider shadow-xs border border-[#C49A35]/80 hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 group/btn"
-                    >
-                      <span>Select Theme</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-[#C49A35] group-hover/btn:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
-                </div>
-
-              </div>
-            );
-          })}
-        </div>
-
       </section>
 
       {/* ========================================================================= */}

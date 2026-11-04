@@ -12,47 +12,7 @@ interface RoyalLiveDemoProps {
   onPreviewTheme: (themeId: ThemeId) => void;
 }
 
-const DEMO_THEMES: Array<{
-  id: ThemeId;
-  name: string;
-  subtitle: string;
-  tagline: string;
-  badge: string;
-  previewImg: string;
-}> = [
-  {
-    id: 'darbar',
-    name: 'The Rajasthani Darbar',
-    subtitle: 'राजस्थानी दरबार व रेशम पर्दा',
-    tagline: 'Grand Rajasthani silk curtains unveil on tap with royal architecture and gold scratch card.',
-    badge: 'Silk Curtains & Scratch',
-    previewImg: '/templates/rajasthan-darbar/assets/hero-palace.jpg',
-  },
-  {
-    id: 'chandramahal',
-    name: 'The Chandra Mahal',
-    subtitle: 'चंद्र महल व नक्काशीदार द्वार',
-    tagline: '3D carved palace fort gates swing open with spinning golden mandala and peacock splendour.',
-    badge: '3D Palace Fort Gate',
-    previewImg: '/templates/chandra-mahal/assets/hero-palace.jpg',
-  },
-  {
-    id: 'swarnim',
-    name: 'Swarnim Farman',
-    subtitle: 'स्वर्णिम फ़रमान व स्क्रैच कार्ड',
-    tagline: 'Cinematic video arch gate entrance into interactive gold foil scratch card for wedding date & venue.',
-    badge: 'Video Gate & Scratch',
-    previewImg: '/templates/swarnim-scratch/assets/courtyard.jpg',
-  },
-  {
-    id: 'shahidesk',
-    name: 'The Shahi Desk',
-    subtitle: 'शाही दस्तावेज़ व सील डेस्क',
-    tagline: 'Imperial wooden invitation desk with authentic wax seal stamp, scrapbook diary & sangeet portal.',
-    badge: 'Wax Seal & Scrapbook',
-    previewImg: '/templates/shahi-desk/assets/hero-palace.jpg',
-  },
-];
+const DEMO_THEMES: Array<any> = [];
 
 export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
   onEnterStudio,
@@ -61,6 +21,7 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState<boolean>(true);
 
+  if (DEMO_THEMES.length === 0) return null;
   const current = DEMO_THEMES[activeIndex];
 
   // Auto-switch preview every 6 seconds if not paused by user interaction
