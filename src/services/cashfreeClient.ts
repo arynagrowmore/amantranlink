@@ -73,6 +73,38 @@ export const TEMPLATES_CATALOG: Record<ThemeId, TemplateConfig> = {
     reEditFeeInr: RE_EDIT_FEE_INR,
     category: 'engagement',
   },
+  darbar: {
+    templateId: 'darbar',
+    name: 'The Rajasthani Darbar',
+    previewImage: '/templates/rajasthan-darbar/assets/hero-palace.jpg',
+    priceInr: 2299,
+    reEditFeeInr: RE_EDIT_FEE_INR,
+    category: 'heritage',
+  },
+  chandramahal: {
+    templateId: 'chandramahal',
+    name: 'The Chandra Mahal',
+    previewImage: '/templates/chandra-mahal/assets/hero-palace.jpg',
+    priceInr: 2299,
+    reEditFeeInr: RE_EDIT_FEE_INR,
+    category: 'heritage',
+  },
+  swarnim: {
+    templateId: 'swarnim',
+    name: 'Swarnim Farman & Scratch',
+    previewImage: '/templates/swarnim-scratch/assets/courtyard.jpg',
+    priceInr: 2299,
+    reEditFeeInr: RE_EDIT_FEE_INR,
+    category: 'heritage',
+  },
+  shahidesk: {
+    templateId: 'shahidesk',
+    name: 'The Shahi Dastavej Desk',
+    previewImage: '/templates/shahi-desk/assets/hero-palace.jpg',
+    priceInr: 2299,
+    reEditFeeInr: RE_EDIT_FEE_INR,
+    category: 'heritage',
+  },
 };
 
 // 🚀 Inject Official Cashfree JS SDK v3

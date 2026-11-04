@@ -77,6 +77,38 @@ export const TEMPLATES_CATALOG: Record<ThemeId, TemplateConfig> = {
     reEditFeeInr: 0,
     category: 'engagement',
   },
+  darbar: {
+    templateId: 'darbar',
+    name: 'The Rajasthani Darbar',
+    previewImage: '/templates/rajasthan-darbar/assets/hero-palace.jpg',
+    priceInr: 2299,
+    reEditFeeInr: 0,
+    category: 'heritage',
+  },
+  chandramahal: {
+    templateId: 'chandramahal',
+    name: 'The Chandra Mahal',
+    previewImage: '/templates/chandra-mahal/assets/hero-palace.jpg',
+    priceInr: 2299,
+    reEditFeeInr: 0,
+    category: 'heritage',
+  },
+  swarnim: {
+    templateId: 'swarnim',
+    name: 'Swarnim Farman & Scratch',
+    previewImage: '/templates/swarnim-scratch/assets/courtyard.jpg',
+    priceInr: 2299,
+    reEditFeeInr: 0,
+    category: 'heritage',
+  },
+  shahidesk: {
+    templateId: 'shahidesk',
+    name: 'The Shahi Dastavej Desk',
+    previewImage: '/templates/shahi-desk/assets/hero-palace.jpg',
+    priceInr: 2299,
+    reEditFeeInr: 0,
+    category: 'heritage',
+  },
 };
 
 // 💾 Local Cache Helpers
@@ -118,7 +150,7 @@ export const isUserVipAdmin = (uid?: string, email?: string): boolean => {
   return false;
 };
 
-const ALL_TEMPLATES_ARRAY: ThemeId[] = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+const ALL_TEMPLATES_ARRAY: ThemeId[] = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
 
 export const getUserPurchases = (uid?: string): Record<string, Purchase> => {
   if (typeof window === 'undefined') return {};

@@ -93,6 +93,11 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
     dak: '/templates/dak-template/index.html',
     ivory: '/templates/ivory-template/index.html',
     royaldawn: '/templates/royaldawn-template/index.html',
+    royalring: '/templates/royalring-template/index.html',
+    darbar: '/templates/rajasthan-darbar/index.html',
+    chandramahal: '/templates/chandra-mahal/index.html',
+    swarnim: '/templates/swarnim-scratch/index.html',
+    shahidesk: '/templates/shahi-desk/index.html',
   };
 
   const targetUrl = templateUrls[state.theme] || '/templates/rajmahal-template/index.html';

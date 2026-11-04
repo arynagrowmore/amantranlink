@@ -15,6 +15,10 @@ export const SERVER_TEMPLATES_PRICING: Record<ThemeId, { name: string; priceInr:
   ivory: { name: 'The Ivory Minimalist', priceInr: 1499, category: 'modern' },
   royaldawn: { name: 'The Royal Dawn', priceInr: 2499, category: 'heritage' },
   royalring: { name: 'The Royal Ring (3D Engagement)', priceInr: 1999, category: 'engagement' },
+  darbar: { name: 'The Rajasthani Darbar', priceInr: 2499, category: 'heritage' },
+  chandramahal: { name: 'The Chandra Mahal', priceInr: 2499, category: 'heritage' },
+  swarnim: { name: 'Swarnim Farman & Scratch', priceInr: 2499, category: 'heritage' },
+  shahidesk: { name: 'The Shahi Dastavej Desk', priceInr: 2499, category: 'heritage' },
 };
 
 export const getCashfreeCredentials = () => {

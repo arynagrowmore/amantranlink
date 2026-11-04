@@ -68,6 +68,10 @@ export const THEME_PACKAGE_MAP: Record<ThemeId, PackageType> = {
   rajmahal: 'gold',     // 3D Palace Heritage -> Gold Royal (₹1,299)
   royaldawn: 'gold',    // Lakefront & Scratch Card -> Gold Royal (₹1,299)
   royalring: 'gold',    // 3D Floating Diamond Engagement -> Gold Royal (₹1,299)
+  darbar: 'gold',       // The Rajasthani Darbar -> Gold Royal (₹1,299)
+  chandramahal: 'gold', // The Chandra Mahal -> Gold Royal (₹1,299)
+  swarnim: 'gold',      // Swarnim Farman & Scratch -> Gold Royal (₹1,299)
+  shahidesk: 'gold',    // The Shahi Dastavej Desk -> Gold Royal (₹1,299)
   jharokha: 'silver',   // Rajasthani Arch -> Silver (₹999)
   mayura: 'silver',     // Peacock Teal -> Silver (₹999)
   jodi: 'silver',       // Sacred Thaali -> Silver (₹999)
@@ -80,6 +84,10 @@ export const THEME_PRICING_CATALOG: Record<ThemeId, { priceInr: number; amountIn
   rajmahal: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Rajmahal 3D Palace' },
   royaldawn: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Royal Dawn (Lakefront & Scratch Card)' },
   royalring: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Royal Ring (3D Diamond Engagement)' },
+  darbar: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Rajasthani Darbar (Silk Curtain & Scratch)' },
+  chandramahal: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Chandra Mahal (3D Gate & Peacocks)' },
+  swarnim: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'Swarnim Farman & Scratch Card' },
+  shahidesk: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Shahi Dastavej Desk (Scrapbook & Sangeet)' },
   jharokha: { priceInr: 999, amountInPaise: 99900, packageId: 'silver', name: 'The Jharokha Mandap' },
   mayura: { priceInr: 999, amountInPaise: 99900, packageId: 'silver', name: 'The Mayura Peacock' },
   jodi: { priceInr: 999, amountInPaise: 99900, packageId: 'silver', name: 'The Shubh Jodi' },

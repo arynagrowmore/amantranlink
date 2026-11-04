@@ -51,6 +51,10 @@ const TEMPLATE_UUID_TO_SLUG: Record<string, ThemeId> = {
   '1c338d20-1746-4327-ba90-87a967086088': 'rajmahal',
   '04bf308b-ea5c-429a-9552-c55c076cd137': 'royaldawn',
   '79a0a5b6-dad9-4c85-8698-0ff40aec8216': 'royalring',
+  'darbar-heritage-uuid-v1': 'darbar',
+  'chandramahal-palace-uuid-v1': 'chandramahal',
+  'swarnim-scratch-uuid-v1': 'swarnim',
+  'shahidesk-vintage-uuid-v1': 'shahidesk',
   'ecebe27f-e21b-4a57-a684-739d593c2416': 'jharokha',
   'e728e71d-07c3-48ed-a736-3e47929d2fff': 'mayura',
   'c95df244-aed0-40e3-8c07-df1a126bbae8': 'jodi',
@@ -70,7 +74,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   const [themeId, setThemeId] = useState<ThemeId>(() => {
     if (typeof window !== 'undefined') {
       const qTheme = new URLSearchParams(window.location.search).get('theme') || new URLSearchParams(window.location.search).get('t');
-      if (qTheme && ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'].includes(qTheme)) {
+      if (qTheme && ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'].includes(qTheme)) {
         return qTheme as ThemeId;
       }
     }
@@ -154,7 +158,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
             const json = await res.json();
             if (json.success && json.content && (json.content.couple?.groomEn || json.content.couple?.brideEn) && isMounted) {
               const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
-              const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+              const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
               const effectiveTheme = (
                 (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
                 json.themeId ||
@@ -202,7 +206,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
             const mappedTplSlug = site.template_id ? TEMPLATE_UUID_TO_SLUG[site.template_id] : null;
             const contentTheme = (site.content as any)?.theme;
             const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
-            const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+            const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
             const fetchedTheme = (
               (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
               (contentTheme && validThemes.includes(contentTheme) ? contentTheme : null) ||
@@ -235,7 +239,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         const localResolved = resolveInvitationState(targetSlug);
         if (localResolved && isMounted) {
           const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
-          const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+          const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
           const effectiveTheme = (
             (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
             localResolved.theme ||
@@ -270,7 +274,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
           slugBride = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
         }
         const qTheme = searchParams?.get('theme') || searchParams?.get('t');
-        const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+        const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
         const fallbackTheme = (qTheme && validThemes.includes(qTheme) ? qTheme : 'rajmahal') as ThemeId;
         setThemeId(fallbackTheme);
         setLoadedState({
@@ -379,7 +383,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   // Convert raw state into Authoritative Normalized Invitation Model
   const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
-  const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+  const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
   const activeTheme = (
     (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
     rawState.theme ||
@@ -387,7 +391,14 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
     'rajmahal'
   ) as ThemeId;
   const normalizedData = normalizeInvitationData(rawState, resolvedSlug, siteId || undefined, studioBadge || undefined);
-  const templateUrl = `/templates/${activeTheme}-template/index.html?slug=${encodeURIComponent(resolvedSlug)}&siteId=${encodeURIComponent(siteId || '')}`;
+  const templatePathMap: Partial<Record<ThemeId, string>> = {
+    darbar: '/templates/rajasthan-darbar/index.html',
+    chandramahal: '/templates/chandra-mahal/index.html',
+    swarnim: '/templates/swarnim-scratch/index.html',
+    shahidesk: '/templates/shahi-desk/index.html',
+  };
+  const baseTplPath = templatePathMap[activeTheme] || `/templates/${activeTheme}-template/index.html`;
+  const templateUrl = `${baseTplPath}?slug=${encodeURIComponent(resolvedSlug)}&siteId=${encodeURIComponent(siteId || '')}`;
 
   // ⏰ Universal Live Countdown Timer
   const startUniversalCountdown = () => {
