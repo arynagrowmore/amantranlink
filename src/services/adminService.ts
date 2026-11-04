@@ -354,14 +354,10 @@ export const fetchAdminTemplates = async (): Promise<AdminTemplateMeta[]> => {
 
   // Fallback defaults
   return [
-    { templateId: 'rajmahal', name: 'The Rajmahal 3D Palace', displayName: 'The Rajmahal 3D Palace', category: 'heritage', previewImage: '/previews/theme-rajmahal.webp', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 1 },
-    { templateId: 'royaldawn', name: 'The Royal Dawn (Lakefront)', displayName: 'The Royal Dawn (Lakefront)', category: 'heritage', previewImage: '/previews/theme-royaldawn.webp', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 2 },
-    { templateId: 'royalring', name: 'The Royal Ring (3D Engagement)', displayName: 'The Royal Ring (3D Engagement)', category: 'engagement', previewImage: '/previews/theme-royalring.webp', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: false, displayOrder: 3 },
-    { templateId: 'jharokha', name: 'The Jharokha Mandap', displayName: 'The Jharokha Mandap', category: 'traditional', previewImage: '/previews/theme-jharokha.webp', retailPrice: 999, partnerPrice: 699, partnerCommission: 300, active: true, featured: false, displayOrder: 4 },
-    { templateId: 'mayura', name: 'The Mayura Peacock', displayName: 'The Mayura Peacock', category: 'traditional', previewImage: '/previews/theme-mayura.webp', retailPrice: 999, partnerPrice: 699, partnerCommission: 300, active: true, featured: false, displayOrder: 5 },
-    { templateId: 'jodi', name: 'The Shubh Jodi', displayName: 'The Shubh Jodi', category: 'traditional', previewImage: '/previews/theme-jodi.webp', retailPrice: 999, partnerPrice: 699, partnerCommission: 300, active: true, featured: false, displayOrder: 6 },
-    { templateId: 'dak', name: 'The Shahi Dâk', displayName: 'The Shahi Dâk', category: 'heritage', previewImage: '/previews/theme-dak.webp', retailPrice: 999, partnerPrice: 699, partnerCommission: 300, active: true, featured: false, displayOrder: 7 },
-    { templateId: 'ivory', name: 'The Ivory Minimalist', displayName: 'The Ivory Minimalist', category: 'modern', previewImage: '/previews/theme-ivory.webp', retailPrice: 999, partnerPrice: 699, partnerCommission: 300, active: true, featured: false, displayOrder: 8 },
+    { templateId: 'darbar', name: 'The Rajasthani Darbar', displayName: 'The Rajasthani Darbar (Silk Curtains)', category: 'heritage', previewImage: '/templates/rajasthan-darbar/assets/hero-palace.jpg', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 1 },
+    { templateId: 'chandramahal', name: 'The Chandra Mahal', displayName: 'The Chandra Mahal (3D Fort Gate)', category: 'heritage', previewImage: '/templates/chandra-mahal/assets/hero-palace.jpg', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 2 },
+    { templateId: 'swarnim', name: 'Swarnim Farman', displayName: 'Swarnim Farman (Gold Foil Scratch)', category: 'royal', previewImage: '/templates/swarnim-scratch/assets/courtyard.jpg', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 3 },
+    { templateId: 'shahidesk', name: 'The Shahi Desk', displayName: 'The Shahi Dastavej Desk (Wax Seal)', category: 'heritage', previewImage: '/templates/shahi-desk/assets/hero-palace.jpg', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 4 },
   ];
 };
 

@@ -14,36 +14,6 @@ interface ThemeSelectorProps {
 
 export const ROYAL_THEMES: Array<WeddingTheme & { previewImg: string; taglineShort: string; tags: string }> = [
   {
-    id: 'rajmahal',
-    name: 'THE RAJMAHAL',
-    tagline: 'An evening beneath carved sandstone arches.',
-    taglineShort: 'Royal · Grand · Majestic',
-    tags: 'Palace Heritage · 3D Scroll Gates',
-    price: 2299,
-    icon: '🏰',
-    badge: 'Heritage Masterpiece',
-    bgGradient: 'from-[#4A0E17] to-[#1C060A]',
-    accentColor: '#C49A35',
-    description: '3D palace gates open smoothly on scroll with elephant procession and darbar elegance.',
-    url: '/templates/rajmahal-template/index.html',
-    previewImg: '/previews/theme-rajmahal.webp',
-  },
-  {
-    id: 'royaldawn',
-    name: 'THE ROYAL DAWN',
-    tagline: 'Soft morning light over a palace courtyard.',
-    taglineShort: 'Heritage · Elegant · Timeless',
-    tags: 'Udaipur Lakefront · Interactive Gold Scratch',
-    price: 2299,
-    icon: '🌅',
-    badge: 'Udaipur Lakefront',
-    bgGradient: 'from-[#4A121E] via-[#2A050D] to-[#0D0406]',
-    accentColor: '#C49A35',
-    description: 'Udaipur lakefront palace grandeur with interactive gold scratch-heart blessing and 4-box timer.',
-    url: '/templates/royaldawn-template/index.html',
-    previewImg: '/previews/theme-royaldawn.webp',
-  },
-  {
     id: 'darbar',
     name: 'THE RAJASTHANI DARBAR',
     tagline: 'Grand Rajasthani silk curtains & gold scratch farman.',
@@ -103,87 +73,11 @@ export const ROYAL_THEMES: Array<WeddingTheme & { previewImg: string; taglineSho
     url: '/templates/shahi-desk/index.html',
     previewImg: '/templates/shahi-desk/assets/hero-palace.jpg',
   },
-  {
-    id: 'jharokha',
-    name: 'THE JHAROKHA',
-    tagline: 'Traditional jharokha lattice & gold filigree.',
-    taglineShort: 'Ornate · Cultural · Regal',
-    tags: 'Rajasthani Marble Arch · Gold Filigree',
-    price: 1299,
-    icon: '🪟',
-    badge: 'Rajasthani Arch',
-    bgGradient: 'from-[#1B3B2B] to-[#0A1A12]',
-    accentColor: '#C49A35',
-    description: 'Intricate Rajasthani marble arches, gold filigree motifs, and animated peacock feather accents.',
-    url: '/templates/jharokha-template/index.html',
-    previewImg: '/previews/theme-jharokha.webp',
-  },
-  {
-    id: 'mayura',
-    name: 'THE MAYURA',
-    tagline: 'Deep emerald teal tones and dancing peacock grace.',
-    taglineShort: 'Traditional · Warm · Cultural',
-    tags: 'Emerald Teal · Sacred Peacock Motifs',
-    price: 1299,
-    icon: '🦚',
-    badge: 'Mayura Peacock',
-    bgGradient: 'from-[#0F2B48] to-[#051329]',
-    accentColor: '#C49A35',
-    description: 'Deep emerald teal tones with majestic dancing peacock feather animations and gold calligraphy.',
-    url: '/templates/mayura-template/index.html',
-    previewImg: '/previews/theme-mayura.webp',
-  },
 ];
 
-export const MODERN_CLASSICS: Array<WeddingTheme & { previewImg: string; taglineShort: string; tags: string }> = [
-  {
-    id: 'jodi',
-    name: 'THE JODI',
-    tagline: 'Sacred brass gold thaali and auspicious marigolds.',
-    taglineShort: 'Auspicious · Festive · Joyful',
-    tags: 'Gold Thaali · Illustrated Caricature',
-    price: 1299,
-    icon: '💑',
-    badge: 'Festive Thaali',
-    bgGradient: 'from-[#3D1E3A] to-[#180A17]',
-    accentColor: '#C49A35',
-    description: 'Sacred 24K brass gold thaali with marigolds and illustrated couple caricature.',
-    url: '/templates/jodi-template/index.html',
-    previewImg: '/previews/theme-jodi.webp',
-  },
-  {
-    id: 'dak',
-    name: 'THE SHAHI DĀK',
-    tagline: 'Vintage royal telegram with handcrafted stamp seal.',
-    taglineShort: 'Vintage · Postal · Poetic',
-    tags: 'Royal Telegram · Wax Seal Stamp',
-    price: 1299,
-    icon: '💌',
-    badge: 'Vintage Telegram',
-    bgGradient: 'from-[#3A2A1A] to-[#1A120B]',
-    accentColor: '#C49A35',
-    description: 'Vintage royal telegram postal envelope with handcrafted gold embossing and aged letterpress.',
-    url: '/templates/dak-template/index.html',
-    previewImg: '/previews/theme-dak.webp',
-  },
-  {
-    id: 'ivory',
-    name: 'THE IVORY',
-    tagline: 'High-fashion editorial aesthetic & warm alabaster.',
-    taglineShort: 'Peaceful · Divine · Serene',
-    tags: 'Editorial Serif · Modern Alabaster',
-    price: 1299,
-    icon: '🤍',
-    badge: 'Ivory Modern',
-    bgGradient: 'from-[#1A1A1A] to-[#0D0D0D]',
-    accentColor: '#C49A35',
-    description: 'High-fashion editorial magazine aesthetic with crisp serif typography and warm alabaster.',
-    url: '/templates/ivory-template/index.html',
-    previewImg: '/previews/theme-ivory.webp',
-  },
-];
+export const MODERN_CLASSICS: Array<WeddingTheme & { previewImg: string; taglineShort: string; tags: string }> = [];
 
-export const themes = [...ROYAL_THEMES, ...MODERN_CLASSICS];
+export const themes = ROYAL_THEMES;
 
 export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   selectedTheme,
@@ -194,7 +88,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   const { user } = useAuth();
   const [activeCategory, setActiveCategory] = useState<'royal' | 'modern'>('royal');
 
-  const displayedThemes = activeCategory === 'royal' ? ROYAL_THEMES : MODERN_CLASSICS;
+  const displayedThemes = ROYAL_THEMES;
 
   return (
     <div className="flex flex-col h-full space-y-5 font-manrope">
@@ -214,7 +108,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
           Choose Your Architectural Theme
         </h3>
         <p className="text-xs text-[#75675C] leading-relaxed">
-          Select from 8 authentic palace themes. Your changes reflect instantly in the preview.
+          Select from our 4 flagship imperial themes. Your changes reflect instantly in the preview.
         </p>
       </div>
 

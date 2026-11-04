@@ -193,7 +193,7 @@ export const normalizeInvitationData = (
   return {
     invitationId: siteId || raw?.id || raw?.siteId || `inv_${Date.now()}`,
     slug: derivedSlug,
-    themeId: (raw?.templates?.slug || content.theme || raw?.template_id || 'rajmahal') as ThemeId,
+    themeId: (raw?.templates?.slug || content.theme || raw?.template_id || 'darbar') as ThemeId,
     language: lang,
     bride: {
       name: brideName,

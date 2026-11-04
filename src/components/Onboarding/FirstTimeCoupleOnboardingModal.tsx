@@ -43,7 +43,7 @@ export const FirstTimeCoupleOnboardingModal: React.FC<FirstTimeCoupleOnboardingM
   const [city, setCity] = useState<string>(state.couple.venueAddress || '');
 
   // Step 4: Theme
-  const [selectedTheme, setSelectedTheme] = useState<ThemeId>(state.theme || 'rajmahal');
+  const [selectedTheme, setSelectedTheme] = useState<ThemeId>(state.theme || 'darbar');
 
   // Persist Step in localStorage
   useEffect(() => {

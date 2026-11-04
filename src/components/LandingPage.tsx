@@ -43,7 +43,7 @@ const THEME_CATALOG: Array<{
   subtitle: string;
   tagline: string;
   badge: string;
-  category: 'heritage' | 'traditional' | 'royal' | 'modern' | 'engagement';
+  category: 'heritage' | 'royal' | 'traditional' | 'modern' | 'engagement';
   categoryLabel: string;
   features: string[];
   previewImg: string;
@@ -53,21 +53,6 @@ const THEME_CATALOG: Array<{
   isFeatured?: boolean;
 }> = [
   {
-    id: 'rajmahal',
-    title: 'The Rajmahal',
-    subtitle: 'शाही राजमहल व 3D द्वार',
-    tagline: '3D Palace gates part open smoothly upon scroll with ceremonial elephant procession and royal darbar elegance.',
-    badge: '✦ 3D ROYAL FLAGSHIP',
-    category: 'heritage',
-    categoryLabel: 'Palace Heritage',
-    packageType: 'gold',
-    features: ['3D Royal Gate Opening Animation', 'Elephant Procession Scroll Parallax', 'Trilingual Vedic Shloka Mantras'],
-    previewImg: '/previews/theme-rajmahal.webp',
-    imagePosition: 'object-top',
-    price: 2299,
-    isFeatured: true,
-  },
-  {
     id: 'darbar',
     title: 'The Rajasthani Darbar',
     subtitle: 'राजस्थानी दरबार व रेशम पर्दा',
@@ -88,7 +73,7 @@ const THEME_CATALOG: Array<{
     subtitle: 'चंद्र महल व नक्काशीदार द्वार',
     tagline: '3D carved palace fort gates swing open with spinning golden mandala, animated peacocks, and palatial ceremony itinerary.',
     badge: '✦ 3D PALACE FORT GATES',
-    category: 'royal',
+    category: 'heritage',
     categoryLabel: 'Palace Heritage',
     packageType: 'gold',
     features: ['3D Carved Fort Doors Opening', 'Golden Mandala & Peacock Motifs', 'Palatial Ceremony Timeline'],
@@ -126,179 +111,6 @@ const THEME_CATALOG: Array<{
     imagePosition: 'object-center',
     price: 2299,
     isFeatured: true,
-  },
-  {
-    id: 'royalring',
-    title: 'The Royal Ring',
-    subtitle: '3D डायमंड व सगाई उत्सव',
-    tagline: 'Exquisite 3D floating diamond engagement ring in velvet box with couple story and countdown.',
-    badge: '✦ 3D ENGAGEMENT RING',
-    category: 'engagement',
-    categoryLabel: 'Engagement',
-    packageType: 'gold',
-    features: ['3D Floating Diamond Ring Box', 'Auspicious Engagement Countdown', 'Interactive Couple Timeline'],
-    previewImg: '/previews/theme-royalring.webp',
-    imagePosition: 'object-center',
-    price: 1999,
-  },
-  {
-    id: 'royaldawn',
-    title: 'The Royal Dawn',
-    subtitle: 'उदयपुर पैलेस व स्वर्ण भोर',
-    tagline: 'Udaipur lakefront palace grandeur with interactive gold scratch-heart blessing and 4-pillar auspicious timer.',
-    badge: '✦ UDAIPUR LAKEFRONT',
-    category: 'royal',
-    categoryLabel: 'Royal Lakefront',
-    packageType: 'gold',
-    features: ['Interactive Gold Scratch Blessing', 'Lakefront Sunburst Aesthetics', 'Auspicious 4-Pillar Countdown'],
-    previewImg: '/previews/theme-royaldawn.webp',
-    imagePosition: 'object-center',
-    price: 2299,
-    isFeatured: true,
-  },
-  {
-    id: 'darbar',
-    title: 'The Rajasthani Darbar',
-    subtitle: 'राजस्थानी दरबार व रेशम पर्दा',
-    tagline: 'Grand Rajasthani silk curtains part open on tap revealing palatial architecture, interactive scratch card, and royal ceremonies.',
-    badge: '✦ SILK CURTAIN & SCRATCH',
-    category: 'heritage',
-    categoryLabel: 'Palace Heritage',
-    packageType: 'gold',
-    features: ['Silk Curtain Unveiling Animation', 'Interactive Gold Scratch Farman', 'Sacred Ganesh Vandana Shloka'],
-    previewImg: '/templates/rajasthan-darbar/assets/hero-palace.jpg',
-    imagePosition: 'object-center',
-    price: 2299,
-    isFeatured: true,
-  },
-  {
-    id: 'chandramahal',
-    title: 'The Chandra Mahal',
-    subtitle: 'चंद्र महल व नक्काशीदार द्वार',
-    tagline: '3D carved palace fort gates swing open with spinning golden mandala, animated peacocks, and palatial ceremony itinerary.',
-    badge: '✦ 3D PALACE FORT GATES',
-    category: 'royal',
-    categoryLabel: 'Palace Heritage',
-    packageType: 'gold',
-    features: ['3D Carved Fort Doors Opening', 'Golden Mandala & Peacock Motifs', 'Palatial Ceremony Timeline'],
-    previewImg: '/templates/chandra-mahal/assets/hero-palace.jpg',
-    imagePosition: 'object-center',
-    price: 2299,
-    isFeatured: true,
-  },
-  {
-    id: 'swarnim',
-    title: 'Swarnim Farman',
-    subtitle: 'स्वर्णिम फ़रमान व स्क्रैच कार्ड',
-    tagline: 'Cinematic video arch gate entrance leading into interactive gold foil scratch card revealing sacred wedding date and venue.',
-    badge: '✦ VIDEO GATE & SCRATCH',
-    category: 'royal',
-    categoryLabel: 'Interactive Gold',
-    packageType: 'gold',
-    features: ['Video Arch Gate Unveiling', 'Interactive Gold Foil Scratch', 'Vedic Muhurat Reveal'],
-    previewImg: '/templates/swarnim-scratch/assets/courtyard.jpg',
-    imagePosition: 'object-center',
-    price: 2299,
-    isFeatured: true,
-  },
-  {
-    id: 'shahidesk',
-    title: 'The Shahi Desk',
-    subtitle: 'शाही दस्तावेज़ व सील डेस्क',
-    tagline: 'Imperial wooden invitation desk with authentic wax seal stamp, scrapbook diary polaroids, and interactive sangeet portal.',
-    badge: '✦ WAX SEAL & SCRAPBOOK',
-    category: 'heritage',
-    categoryLabel: 'Vintage Royal',
-    packageType: 'gold',
-    features: ['Royal Wax Seal Envelope Break', 'Scrapbook Polaroids & Diary', 'Interactive Sangeet Portal'],
-    previewImg: '/templates/shahi-desk/assets/hero-palace.jpg',
-    imagePosition: 'object-center',
-    price: 2299,
-    isFeatured: true,
-  },
-  {
-    id: 'royalring',
-    title: 'The Royal Ring',
-    subtitle: '3D डायमंड व सगाई उत्सव',
-    tagline: 'Exquisite 3D floating diamond engagement ring in velvet box with couple story and countdown.',
-    badge: '✦ 3D ENGAGEMENT RING',
-    category: 'engagement',
-    categoryLabel: 'Engagement',
-    packageType: 'gold',
-    features: ['3D Floating Diamond Ring Box', 'Auspicious Engagement Countdown', 'Interactive Couple Timeline'],
-    previewImg: '/previews/theme-royalring.webp',
-    imagePosition: 'object-center',
-    price: 1999,
-  },
-  {
-    id: 'jharokha',
-    title: 'The Jharokha',
-    subtitle: 'पारंपरिक झरोखा व संगमरमर मेहराब',
-    tagline: 'Intricate Rajasthani marble arches, gold filigree motifs, and animated peacock feather accents.',
-    badge: '✦ RAJASTHANI ARCH',
-    category: 'traditional',
-    categoryLabel: 'Sacred Tradition',
-    packageType: 'silver',
-    features: ['Intricate Marble Jharokha Arch', 'Gold Filigree Border Motifs', 'Ornate Vivah Mandap Scroll'],
-    previewImg: '/previews/theme-jharokha.webp',
-    imagePosition: 'object-[center_35%]',
-    price: 1299,
-  },
-  {
-    id: 'mayura',
-    title: 'The Mayura',
-    subtitle: 'मयूर पंख व पन्ना वैभव',
-    tagline: 'Deep emerald teal tones with majestic dancing peacock feather animations and gold calligraphy.',
-    badge: '✦ EMERALD TEAL',
-    category: 'traditional',
-    categoryLabel: 'Sacred Tradition',
-    packageType: 'silver',
-    features: ['Dancing Peacock Plumes Animation', 'Emerald Teal & Gold Foil Luxury', 'Gold-Inlaid Royal Typography'],
-    previewImg: '/previews/theme-mayura.webp',
-    imagePosition: 'object-center',
-    price: 1299,
-  },
-  {
-    id: 'jodi',
-    title: 'The Jodi',
-    subtitle: 'शुभ विवाह व स्वर्ण थाली',
-    tagline: 'Sacred 24K brass gold thaali with marigolds and illustrated couple caricature.',
-    badge: '✦ SACRED FESTIVITY',
-    category: 'traditional',
-    categoryLabel: 'Sacred Tradition',
-    packageType: 'silver',
-    features: ['Sacred Gold Thaali Plate Rotation', 'Custom Illustrated Couple Portrait', 'Traditional Vivah Rasam Icons'],
-    previewImg: '/previews/theme-jodi.webp',
-    imagePosition: 'object-center',
-    price: 1299,
-  },
-  {
-    id: 'dak',
-    title: 'The Shahi Dâk',
-    subtitle: 'शाही डाक व राजसी पत्र',
-    tagline: 'Vintage royal telegram postal envelope with handcrafted gold embossing and aged letterpress.',
-    badge: '✦ VINTAGE TELEGRAM',
-    category: 'heritage',
-    categoryLabel: 'Palace Heritage',
-    packageType: 'silver',
-    features: ['Gold Embossed Royal Letter', 'Vintage Postal Envelope Slide', 'Handcrafted Letterpress Texture'],
-    previewImg: '/previews/theme-dak.webp',
-    imagePosition: 'object-center',
-    price: 1299,
-  },
-  {
-    id: 'ivory',
-    title: 'The Ivory',
-    subtitle: 'मॉडर्न मिनिमलिस्ट व वोग',
-    tagline: 'High-fashion editorial magazine aesthetic with crisp serif typography and warm alabaster.',
-    badge: '✦ VOGUE EDITORIAL',
-    category: 'modern',
-    categoryLabel: 'Modern Couture',
-    packageType: 'silver',
-    features: ['Vogue Editorial Layout & Grids', 'High-Fashion Split Serif Titles', 'Subtle Minimalist Parallax Scroll'],
-    previewImg: '/previews/theme-ivory.webp',
-    imagePosition: 'object-top',
-    price: 1299,
   },
 ];
 
@@ -585,7 +397,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
             <button
               type="button"
-              onClick={() => onEnterStudio('rajmahal')}
+              onClick={() => onEnterStudio('darbar')}
               className="px-3 sm:px-5 lg:px-6 h-9 sm:h-10 rounded-full bg-[#6E1020] hover:bg-[#5C0D1A] text-[#FFFDF8] font-manrope font-bold text-[11px] sm:text-xs uppercase tracking-[0.06em] shadow-[0_2px_8px_-2px_rgba(110,16,32,0.25)] hover:shadow-[0_4px_14px_-2px_rgba(110,16,32,0.35)] border border-[#C49A35]/60 hover:brightness-105 active:scale-[0.98] transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5"
             >
               <span className="hidden sm:inline">+ Create Invitation</span>
@@ -715,7 +527,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 type="button"
                 onClick={() => {
                   setIsMobileNavOpen(false);
-                  onEnterStudio('rajmahal');
+                  onEnterStudio('darbar');
                 }}
                 className="w-full py-3 rounded-xl bg-[#6E1020] text-[#FFFDF8] text-center font-manrope font-semibold uppercase tracking-wider block border border-[#C49A35] min-h-[44px]"
               >
@@ -759,7 +571,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-2">
               <button
                 type="button"
-                onClick={() => onEnterStudio('rajmahal')}
+                onClick={() => onEnterStudio('darbar')}
                 className="px-8 py-4 rounded-2xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-sans font-semibold text-xs sm:text-sm tracking-wider uppercase shadow-[0_10px_28px_-6px_rgba(110,16,32,0.3)] border border-[#C49A35]/60 flex items-center justify-center gap-3 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Create Your Royal Invitation</span>
@@ -801,7 +613,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="lg:col-span-6 flex justify-center relative">
             <InteractiveHeroGate
               state={state}
-              onOpenStudio={() => onEnterStudio('rajmahal')}
+              onOpenStudio={() => onEnterStudio('darbar')}
             />
           </div>
 
@@ -852,13 +664,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ========================================================================= */}
       {/* 📊 3.5. TRADITIONAL PAPER VS ROYAL DIGITAL COMPARISON                     */}
       {/* ========================================================================= */}
-      <ComparisonSection onEnterStudio={() => onEnterStudio('rajmahal')} />
+      <ComparisonSection onEnterStudio={() => onEnterStudio('darbar')} />
 
       {/* ========================================================================= */}
       {/* 📜 4. ROYAL INVITATION EXPERIENCE (THE ART OF A ROYAL INVITATION)        */}
       {/* ========================================================================= */}
       <div id="experience">
-        <ArtOfRoyalInvitation onEnterStudio={() => onEnterStudio('rajmahal')} />
+        <ArtOfRoyalInvitation onEnterStudio={() => onEnterStudio('darbar')} />
       </div>
 
       {/* ========================================================================= */}
@@ -870,7 +682,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="text-center space-y-4 max-w-3xl mx-auto mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-[#E8DCC8] text-[#6E1020] text-xs font-sans font-semibold tracking-wider uppercase shadow-2xs">
             <Layers className="w-3.5 h-3.5 text-[#C49A35]" />
-            <span>Authentic Heritage Motifs · 8 Royal Designs</span>
+            <span>Authentic Heritage Motifs · 4 Flagship Royal Designs</span>
           </div>
 
           <h2 className="font-serif font-bold text-3xl sm:text-5xl text-[#6E1020] tracking-tight">
@@ -878,7 +690,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </h2>
 
           <p className="text-base sm:text-lg text-[#6E1020] font-bold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
-            Eight distinctive expressions of Indian wedding grandeur. Every design crafted with authentic cultural motifs, fluid animation, and live RSVP.
+            Four distinctive flagship expressions of Indian wedding grandeur. Every design crafted with authentic cultural motifs, fluid animation, and live RSVP.
           </p>
 
           {/* Filter Pills */}
@@ -1083,13 +895,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* 💌 8. LIVE RSVP COMMAND CENTER (DEEP WINE SECTION)                       */}
       {/* ========================================================================= */}
       <div id="rsvp">
-        <RsvpShowcase onEnterStudio={() => onEnterStudio('rajmahal')} />
+        <RsvpShowcase onEnterStudio={() => onEnterStudio('darbar')} />
       </div>
 
       {/* ========================================================================= */}
       {/* 📜 9. YOUR ROYAL KANKOTRI IN 5 SIMPLE STEPS (HOW IT WORKS)               */}
       {/* ========================================================================= */}
-      <RoyalJourneyWorkflow onEnterStudio={() => onEnterStudio('rajmahal')} />
+      <RoyalJourneyWorkflow onEnterStudio={() => onEnterStudio('darbar')} />
 
       {/* ========================================================================= */}
       {/* 💌 10. REAL COUPLES / TESTIMONIALS                                       */}
@@ -1182,7 +994,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="pt-4 flex flex-col sm:flex-row gap-3.5 justify-center">
               <button
                 type="button"
-                onClick={() => onEnterStudio('rajmahal')}
+                onClick={() => onEnterStudio('darbar')}
                 className="px-8 py-4 rounded-2xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-sans font-semibold text-xs sm:text-sm uppercase tracking-wider shadow-md border border-[#C49A35] transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <span>Create My Royal Kankotri</span>

@@ -78,7 +78,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         return qTheme as ThemeId;
       }
     }
-    return initialState?.theme || 'rajmahal';
+    return initialState?.theme || 'darbar';
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const countdownIntervalRef = useRef<any>(null);
@@ -258,7 +258,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
 
       // Attempt 3: If initialState provided from editor live preview, use it
       if (initialState && isMounted) {
-        setThemeId(initialState.theme || 'rajmahal');
+        setThemeId(initialState.theme || 'darbar');
         setLoadedState(initialState);
         setIsLoading(false);
         return;
@@ -275,7 +275,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         }
         const qTheme = searchParams?.get('theme') || searchParams?.get('t');
         const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
-        const fallbackTheme = (qTheme && validThemes.includes(qTheme) ? qTheme : 'rajmahal') as ThemeId;
+        const fallbackTheme = (qTheme && validThemes.includes(qTheme) ? qTheme : 'darbar') as ThemeId;
         setThemeId(fallbackTheme);
         setLoadedState({
           theme: fallbackTheme,
@@ -397,7 +397,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
     swarnim: '/templates/swarnim-scratch/index.html',
     shahidesk: '/templates/shahi-desk/index.html',
   };
-  const baseTplPath = templatePathMap[activeTheme] || `/templates/${activeTheme}-template/index.html`;
+  const baseTplPath = templatePathMap[activeTheme] || '/templates/rajasthan-darbar/index.html';
   const templateUrl = `${baseTplPath}?slug=${encodeURIComponent(resolvedSlug)}&siteId=${encodeURIComponent(siteId || '')}`;
 
   // ⏰ Universal Live Countdown Timer

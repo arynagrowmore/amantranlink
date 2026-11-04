@@ -14,7 +14,7 @@ interface MediaUploaderProps {
 }
 
 export const MediaUploader: React.FC<MediaUploaderProps> = ({ 
-  theme = 'rajmahal', 
+  theme = 'darbar', 
   invitationType,
   media, 
   onChange, 

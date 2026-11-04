@@ -125,7 +125,7 @@ export const InteractiveHeroGate: React.FC<InteractiveHeroGateProps> = ({ state,
       {/* 📱 3. PHOTOREALISTIC APPLE IPHONE 16 PRO WITH LIVE TEMPLATE */}
       <div 
         className="transition-transform duration-500 ease-out cursor-pointer group relative"
-        onClick={() => onOpenStudio?.('rajmahal')}
+        onClick={() => onOpenStudio?.('darbar')}
         style={{
           transform: `perspective(1200px) rotateY(${mousePos.x * 0.3}deg) rotateX(${mousePos.y * 0.3}deg)`,
         }}
@@ -133,7 +133,7 @@ export const InteractiveHeroGate: React.FC<InteractiveHeroGateProps> = ({ state,
         <IPhoneHardwareFrame>
           <div className="w-full h-full relative">
             <iframe
-              src="/templates/rajmahal-template/index.html?preview=hero&noaudio=true&mute=1"
+              src="/templates/rajasthan-darbar/index.html?preview=hero&noaudio=true&mute=1"
               title="Interactive Live Invitation Preview"
               className="w-full h-full border-none block pointer-events-none lg:pointer-events-auto"
               loading="eager"
@@ -158,7 +158,7 @@ export const InteractiveHeroGate: React.FC<InteractiveHeroGateProps> = ({ state,
             {/* Mobile Touch Overlay so thumb scrolling works effortlessly and tap opens studio */}
             <div 
               className="lg:hidden absolute inset-0 z-30 cursor-pointer bg-transparent"
-              onClick={() => onOpenStudio?.('rajmahal')}
+              onClick={() => onOpenStudio?.('darbar')}
               title="Tap to customize in Studio"
             />
           </div>

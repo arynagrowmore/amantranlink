@@ -50,7 +50,7 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
 
         <button
           type="button"
-          onClick={() => onEnterStudio('rajmahal')}
+          onClick={() => onEnterStudio('darbar')}
           className="px-4 py-1.5 rounded-xl btn-vermillion font-fraunces font-bold text-xs uppercase tracking-wider shadow-sm hover:scale-105 transition-transform cursor-pointer"
         >
           Enter Studio
@@ -209,7 +209,7 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
               <div className="space-y-3 pt-4 border-t border-[#A67C3D]/40">
                 <div className="flex items-center gap-2.5 text-xs font-hanken text-[#2B1810] font-bold">
                   <Check className="w-4 h-4 text-[#C4522A] shrink-0" />
-                  <span className="font-bold text-[#6B1420]">All 8 Royal Themes Included</span>
+                  <span className="font-bold text-[#6B1420]">All 4 Flagship Royal Themes Included</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-xs font-hanken text-[#2B1810] font-bold">
                   <Check className="w-4 h-4 text-[#C4522A] shrink-0" />
@@ -238,7 +238,7 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
 
             <button
               type="button"
-              onClick={() => onSelectPackage ? onSelectPackage('gold', 'rajmahal') : onEnterStudio('rajmahal')}
+              onClick={() => onSelectPackage ? onSelectPackage('gold', 'darbar') : onEnterStudio('darbar')}
               className="w-full py-4 rounded-xl btn-vermillion font-fraunces font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg hover:scale-105 transition-all min-h-[48px] cursor-pointer flex items-center justify-center gap-2 mt-4"
             >
               <span>{isPartnerView ? 'Get Wholesale Gold (₹899)' : 'Select Gold Royal'}</span>
@@ -296,7 +296,7 @@ export const PackagesPage: React.FC<PackagesPageProps> = ({
 
             <button
               type="button"
-              onClick={() => onSelectPackage ? onSelectPackage('platinum', 'rajmahal') : onEnterStudio('rajmahal')}
+              onClick={() => onSelectPackage ? onSelectPackage('platinum', 'darbar') : onEnterStudio('darbar')}
               className="w-full py-3.5 rounded-xl border-2 border-[#A67C3D] text-[#6B1420] font-fraunces font-black text-xs uppercase tracking-wider hover:bg-[#F7F0DD] transition-all min-h-[44px] cursor-pointer shadow-xs flex items-center justify-center gap-2 mt-4"
             >
               <span>{isPartnerView ? 'Get Wholesale Platinum (₹1,699)' : 'Select Platinum VIP'}</span>

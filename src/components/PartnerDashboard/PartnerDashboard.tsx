@@ -349,7 +349,7 @@ export const PartnerDashboard: React.FC<PartnerDashboardProps> = ({
   const [newClientEmail, setNewClientEmail] = useState<string>('');
   const [newWeddingDate, setNewWeddingDate] = useState<string>('2026-12-10');
   const [newPartnerNotes, setNewPartnerNotes] = useState<string>('');
-  const [newSelectedTheme, setNewSelectedTheme] = useState<ThemeId>('rajmahal');
+  const [newSelectedTheme, setNewSelectedTheme] = useState<ThemeId>('darbar');
   const [isCreatingClient, setIsCreatingClient] = useState<boolean>(false);
   const [createErrorMsg, setCreateErrorMsg] = useState<string>('');
 

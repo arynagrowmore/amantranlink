@@ -135,7 +135,7 @@ export const resolveInvitationState = (
           const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
           const groom = cap(parts[0]);
           const bride = cap(parts[1]);
-          const qTheme = urlParams.get('theme') || urlParams.get('t') || 'rajmahal';
+          const qTheme = urlParams.get('theme') || urlParams.get('t') || 'darbar';
           return {
             theme: qTheme as any,
             viewMode: 'desktop',
