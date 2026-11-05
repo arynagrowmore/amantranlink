@@ -7,6 +7,11 @@ export const RE_EDIT_FEE_INR: number = 499;
 
 // 🏷️ Canonical Template Pricing Reference (Server-side Source of Truth)
 export const SERVER_TEMPLATES_PRICING: Record<ThemeId, { name: string; priceInr: number; category: string }> = {
+  'shubh-lagna': { name: 'Shubh Lagna · Marigold Heritage', priceInr: 2299, category: 'traditional' },
+  'shubh-vivah': { name: 'Shubh Vivah · Wax Seal & Gold Scratch', priceInr: 2299, category: 'heritage' },
+  'rose-farman': { name: 'The Rose Farman · Petal Rain & Scratch Card', priceInr: 2299, category: 'modern' },
+  'royal-orchid': { name: 'The Royal Orchid · 3D Palace Gate', priceInr: 2299, category: 'heritage' },
+  'shahi-farman': { name: 'The Shahi Dastavej · Golden Envelope & Doors', priceInr: 2299, category: 'heritage' },
   rajmahal: { name: 'The Rajmahal 3D Palace', priceInr: 2499, category: 'heritage' },
   jharokha: { name: 'The Jharokha Mandap', priceInr: 1499, category: 'traditional' },
   mayura: { name: 'The Mayura Peacock', priceInr: 1499, category: 'traditional' },

@@ -352,12 +352,13 @@ export const fetchAdminTemplates = async (): Promise<AdminTemplateMeta[]> => {
     }
   } catch (e) {}
 
-  // Fallback defaults
+    // Fallback defaults
   return [
-    { templateId: 'darbar', name: 'The Rajasthani Darbar', displayName: 'The Rajasthani Darbar (Silk Curtains)', category: 'heritage', previewImage: '/templates/rajasthan-darbar/assets/hero-palace.jpg', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 1 },
-    { templateId: 'chandramahal', name: 'The Chandra Mahal', displayName: 'The Chandra Mahal (3D Fort Gate)', category: 'heritage', previewImage: '/templates/chandra-mahal/assets/hero-palace.jpg', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 2 },
-    { templateId: 'swarnim', name: 'Swarnim Farman', displayName: 'Swarnim Farman (Gold Foil Scratch)', category: 'royal', previewImage: '/templates/swarnim-scratch/assets/courtyard.jpg', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 3 },
-    { templateId: 'shahidesk', name: 'The Shahi Desk', displayName: 'The Shahi Dastavej Desk (Wax Seal)', category: 'heritage', previewImage: '/templates/shahi-desk/assets/hero-palace.jpg', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 4 },
+    { templateId: 'shubh-lagna', name: 'Shubh Lagna', displayName: 'Shubh Lagna · Marigold Heritage', category: 'traditional', previewImage: '/templates/shubh-lagna/assets/couple-cutout.png', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 1 },
+    { templateId: 'shubh-vivah', name: 'Shubh Vivah', displayName: 'Shubh Vivah · Wax Seal & Gold Scratch', category: 'heritage', previewImage: '/templates/shubh-vivah/assets/couple.png', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 2 },
+    { templateId: 'rose-farman', name: 'The Rose Farman', displayName: 'The Rose Farman · Petal Rain & Scratch Card', category: 'modern', previewImage: '/templates/rose-farman/assets/hero-couple.png', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 3 },
+    { templateId: 'royal-orchid', name: 'The Royal Orchid', displayName: 'The Royal Orchid · 3D Palace Gate', category: 'heritage', previewImage: '/templates/royal-orchid/assets/bride-groom.png', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 4 },
+    { templateId: 'shahi-farman', name: 'The Shahi Dastavej', displayName: 'The Shahi Dastavej · Golden Envelope & Doors', category: 'heritage', previewImage: '/templates/shahi-farman/assets/hero-scene.png', retailPrice: 1299, partnerPrice: 899, partnerCommission: 400, active: true, featured: true, displayOrder: 5 },
   ];
 };
 

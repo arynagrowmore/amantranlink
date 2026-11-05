@@ -65,6 +65,11 @@ export const OFFICIAL_PACKAGES: Record<PackageType, PackagePricingConfig> = {
 
 // 🏛️ Which Package is automatically associated with each Theme
 export const THEME_PACKAGE_MAP: Record<ThemeId, PackageType> = {
+  'shubh-lagna': 'gold',
+  'shubh-vivah': 'gold',
+  'rose-farman': 'gold',
+  'royal-orchid': 'gold',
+  'shahi-farman': 'gold',
   rajmahal: 'gold',     // 3D Palace Heritage -> Gold Royal (₹1,299)
   royaldawn: 'gold',    // Lakefront & Scratch Card -> Gold Royal (₹1,299)
   royalring: 'gold',    // 3D Floating Diamond Engagement -> Gold Royal (₹1,299)
@@ -81,6 +86,11 @@ export const THEME_PACKAGE_MAP: Record<ThemeId, PackageType> = {
 
 // 🏷️ Official Theme Pricing Catalog (Matches Package Map)
 export const THEME_PRICING_CATALOG: Record<ThemeId, { priceInr: number; amountInPaise: number; packageId: PackageType; name: string }> = {
+  'shubh-lagna': { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'Shubh Lagna · Marigold Heritage' },
+  'shubh-vivah': { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'Shubh Vivah · Wax Seal & Gold Scratch' },
+  'rose-farman': { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Rose Farman · Petal Rain & Scratch Card' },
+  'royal-orchid': { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Royal Orchid · 3D Palace Gate' },
+  'shahi-farman': { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Shahi Dastavej · Golden Envelope & Doors' },
   rajmahal: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Rajmahal 3D Palace' },
   royaldawn: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Royal Dawn (Lakefront & Scratch Card)' },
   royalring: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Royal Ring (3D Diamond Engagement)' },

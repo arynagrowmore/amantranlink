@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full antialiased">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title class="page-title">Urja &amp; Romil — Shubh Vivah | Royal Gujarati Wedding Invitation</title>
+  <meta name="description" content="With the blessings of our families, we invite you to the wedding of Urja & Romil — 14 February 2027, Ahmedabad." />
+  <link rel="icon" href="./assets/ganesh-gold.png" type="image/png" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Noto+Serif+Gujarati:wght@400;600;700&family=Cinzel:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            maroonDeep: '#24060B',
+            maroonBg: '#3B0D11',
+            maroonCard: '#4A1217',
+            templeGold: '#C9A84C',
+            goldSoft: '#F0D78C',
+            sindoor: '#7A1F2B',
+            cream: '#F5E6C8',
+          },
+          fontFamily: {
+            display: ['"Libre Baskerville"', 'Georgia', 'serif'],
+            sans: ['"IBM Plex Sans"', 'sans-serif'],
+            gujarati: ['"Noto Serif Gujarati"', 'serif'],
+            cinzel: ['"Cinzel"', 'serif'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --gold-gradient: linear-gradient(135deg, #F0D78C 0%, #C9A84C 50%, #9F7220 100%);
+    }
+    body {
+      background-color: #24060B;
+      color: #F5E6C8;
+      font-family: 'IBM Plex Sans', sans-serif;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .text-gold-shimmer {
+      background: linear-gradient(100deg, #C9A84C 0%, #FFF4D0 40%, #C9A84C 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% auto;
+      animation: shimmerText 5s linear infinite;
+    }
+    @keyframes shimmerText {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    .float-slow {
+      animation: floatSlow 4s ease-in-out infinite;
+    }
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    .diya-flicker {
+      animation: diyaFlicker 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes diyaFlicker {
+      0% { filter: drop-shadow(0 0 4px rgba(240, 215, 140, 0.4)); opacity: 0.9; }
+      100% { filter: drop-shadow(0 0 16px rgba(240, 215, 140, 0.9)); opacity: 1; }
+    }
+    .music-pill {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 80;
+      background: rgba(45, 8, 14, 0.92);
+      border: 1px solid rgba(201, 168, 76, 0.6);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      border-radius: 9999px;
+      padding: 10px 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+    }
+    .music-pill:hover {
+      transform: scale(1.05);
+      border-color: #F0D78C;
+    }
+    .music-pill.paused .music-bar {
+      animation-play-state: paused;
+      height: 4px;
+    }
+    .music-bar {
+      width: 3px;
+      background: #C9A84C;
+      border-radius: 3px;
+      animation: soundWave 1.2s ease-in-out infinite;
+    }
+    .music-bar:nth-child(1) { height: 14px; animation-delay: 0.1s; }
+    .music-bar:nth-child(2) { height: 22px; animation-delay: 0.3s; }
+    .music-bar:nth-child(3) { height: 10px; animation-delay: 0.2s; }
+    .music-bar:nth-child(4) { height: 18px; animation-delay: 0.4s; }
+    @keyframes soundWave {
+      0%, 100% { transform: scaleY(0.4); }
+      50% { transform: scaleY(1); }
+    }
+    /* Entrance Curtain Overlay */
+    #curtainOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: #1A0508;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    .curtain-panel {
+      transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+    .curtains-open .curtain-left {
+      transform: translateX(-100%);
+    }
+    .curtains-open .curtain-right {
+      transform: translateX(100%);
+    }
+    .curtains-open .curtain-seal {
+      opacity: 0;
+      transform: scale(0.6);
+      transition: all 0.5s ease;
+    }
+  </style>
+</head>
+<body class="relative min-h-screen bg-maroonBg text-cream selection:bg-templeGold/30 selection:text-white">
+
+  <!-- 🎵 Royal Shehnai Audio -->
+  <audio id="bgAudio" loop preload="auto">
+    <source src="./assets/music.mp3" type="audio/mp3">
+  </audio>
+
+  <!-- 🎭 Auspicious Entrance Gate Overlay -->
+  <div id="curtainOverlay" class="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden">
+    <!-- Left Velvet Curtain -->
+    <div class="curtain-panel curtain-left absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#1A0508] via-[#3B0D11] to-[#24060B] border-r border-templeGold/30 flex items-center justify-end pr-4 shadow-2xl">
+      <div class="h-full w-8 bg-gradient-to-r from-transparent via-templeGold/10 to-transparent"></div>
+    </div>
+    <!-- Right Velvet Curtain -->
+    <div class="curtain-panel curtain-right absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-[#1A0508] via-[#3B0D11] to-[#24060B] border-l border-templeGold/30 flex items-center justify-start pl-4 shadow-2xl">
+      <div class="h-full w-8 bg-gradient-to-l from-transparent via-templeGold/10 to-transparent"></div>
+    </div>
+
+    <!-- Center Auspicious Wax Seal / Mangal Pravesh Button -->
+    <div class="curtain-seal relative z-20 flex flex-col items-center text-center p-6 cursor-pointer" id="curtainOpenBtn">
+      <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-gradient-to-b from-[#C9A84C] via-[#9F7220] to-[#5C3F08] p-1.5 shadow-[0_0_50px_rgba(201,168,76,0.5)] transform hover:scale-105 transition-transform duration-300">
+        <div class="w-full h-full rounded-full bg-[#3B0D11] border-2 border-dashed border-goldSoft/60 flex flex-col items-center justify-center p-3">
+          <img src="./assets/ganesh-gold.png" alt="Ganesh" class="w-14 h-14 object-contain filter drop-shadow-[0_2px_8px_rgba(201,168,76,0.8)]" />
+          <span class="font-gujarati text-xs text-goldSoft font-bold mt-1 tracking-wider">શુભ પ્રવેશ</span>
+        </div>
+      </div>
+      <h2 class="font-display text-2xl sm:text-3xl text-gold-shimmer font-bold mt-6 tracking-wide">
+        <span class="groom-name">Romil</span> &amp; <span class="bride-name">Urja</span>
+      </h2>
+      <p class="font-gujarati text-base text-goldSoft/80 mt-1">શુભ વિવાહ આમંત્રણ પત્રિકા</p>
+      <div class="mt-4 px-6 py-2 rounded-full bg-templeGold/20 border border-templeGold/60 text-xs uppercase tracking-[0.25em] text-cream flex items-center gap-2 animate-pulse">
+        <span>Tap to Open Invitation</span>
+        <svg class="w-4 h-4 text-templeGold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🎶 Floating Shehnai Pill -->
+  <button id="musicToggle" class="music-pill group" aria-label="Toggle Shehnai Music">
+    <div class="flex items-center gap-1 h-5">
+      <div class="music-bar"></div>
+      <div class="music-bar"></div>
+      <div class="music-bar"></div>
+      <div class="music-bar"></div>
+    </div>
+    <span class="font-sans text-xs uppercase tracking-widest text-goldSoft font-semibold group-hover:text-white transition-colors">Shehnai</span>
+  </button>
+
+  <!-- Ornamental Mandala Corners (Fixed) -->
+  <img src="./assets/mandala-corner.png" alt="" aria-hidden="true" class="pointer-events-none fixed top-0 left-0 -z-10 w-48 opacity-25 sm:w-72" />
+  <img src="./assets/mandala-corner.png" alt="" aria-hidden="true" class="pointer-events-none fixed top-0 right-0 -z-10 w-48 -scale-x-100 opacity-25 sm:w-72" />
+
+  <!-- Hanging Marigold Toran Garland -->
+  <img src="./assets/toran-garland.png" alt="" aria-hidden="true" class="pointer-events-none absolute inset-x-0 top-0 mx-auto w-full max-w-2xl -translate-y-[22%] z-10" />
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 1. HERO SECTION                                           -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="relative flex min-h-screen flex-col items-center px-6 pt-52 pb-16 text-center sm:pt-60">
+    <div class="w-full">
+      <img src="./assets/ganesh-gold.png" alt="Lord Ganesha" class="float-slow mx-auto w-24 sm:w-32 opacity-95 filter drop-shadow-[0_4px_16px_rgba(201,168,76,0.6)]" />
+      <p class="font-gujarati mt-4 text-xl sm:text-2xl tracking-wide text-templeGold font-bold">
+        || શ્રી ગણેશાય નમઃ ||
+      </p>
+    </div>
+
+    <div class="mt-8">
+      <p class="font-gujarati text-2xl sm:text-3xl text-goldSoft font-semibold">
+        શુભ વિવાહ
+      </p>
+      <h1 class="font-display mt-4 text-5xl leading-tight sm:text-7xl font-bold">
+        <span class="bride-name text-gold-shimmer">Urja</span>
+        <span class="mx-3 inline-block align-middle text-2xl text-goldSoft/70 sm:mx-6 sm:text-4xl">&amp;</span>
+        <span class="groom-name text-gold-shimmer">Romil</span>
+      </h1>
+      <p class="font-sans mt-5 text-xs sm:text-sm uppercase tracking-[0.4em] text-cream/70">
+        are tying the sacred knot
+      </p>
+      <p class="font-display mt-6 text-xl text-goldSoft font-semibold wedding-date">
+        Sunday, 14 February 2027
+      </p>
+      <p class="font-sans mt-2 text-sm text-cream/75 venue-city">
+        Ahmedabad, Gujarat
+      </p>
+    </div>
+
+    <!-- Couple Cutout Illustration -->
+    <div class="mt-8 relative">
+      <div class="absolute inset-0 bg-templeGold/20 rounded-full blur-2xl -z-10"></div>
+      <img src="./assets/couple-cutout.png" alt="Couple" class="w-72 sm:w-96 mx-auto filter drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]" />
+    </div>
+
+    <!-- Live Countdown Grid -->
+    <div class="mt-12 grid max-w-lg grid-cols-4 gap-3 sm:gap-4 w-full">
+      <div class="rounded-xl border border-templeGold/30 bg-maroonCard/80 px-2 py-4 text-center backdrop-blur-md shadow-lg">
+        <p id="days" class="font-display text-2xl sm:text-3xl text-gold-shimmer font-bold">00</p>
+        <p class="mt-1 text-[10px] uppercase tracking-[0.25em] text-cream/70 sm:text-xs">Days</p>
+      </div>
+      <div class="rounded-xl border border-templeGold/30 bg-maroonCard/80 px-2 py-4 text-center backdrop-blur-md shadow-lg">
+        <p id="hours" class="font-display text-2xl sm:text-3xl text-gold-shimmer font-bold">00</p>
+        <p class="mt-1 text-[10px] uppercase tracking-[0.25em] text-cream/70 sm:text-xs">Hours</p>
+      </div>
+      <div class="rounded-xl border border-templeGold/30 bg-maroonCard/80 px-2 py-4 text-center backdrop-blur-md shadow-lg">
+        <p id="minutes" class="font-display text-2xl sm:text-3xl text-gold-shimmer font-bold">00</p>
+        <p class="mt-1 text-[10px] uppercase tracking-[0.25em] text-cream/70 sm:text-xs">Minutes</p>
+      </div>
+      <div class="rounded-xl border border-templeGold/30 bg-maroonCard/80 px-2 py-4 text-center backdrop-blur-md shadow-lg">
+        <p id="seconds" class="font-display text-2xl sm:text-3xl text-gold-shimmer font-bold">00</p>
+        <p class="mt-1 text-[10px] uppercase tracking-[0.25em] text-cream/70 sm:text-xs">Seconds</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider Ornament -->
+  <div class="mx-auto my-12 flex max-w-md justify-center sm:my-16">
+    <img src="./assets/divider-ornament.png" alt="" class="w-64 opacity-80 sm:w-80" />
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 2. TWO FAMILIES SECTION                                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="mx-auto max-w-2xl px-6">
+    <div class="text-center">
+      <p class="font-sans text-xs uppercase tracking-[0.35em] text-templeGold">With blessings of our families</p>
+      <h2 class="font-display mt-3 text-3xl sm:text-4xl text-gold-shimmer font-bold">Two Families, One Celebration</h2>
+      <p class="font-gujarati mt-2 text-lg text-goldSoft">બે પરિવાર, એક સમારોહ</p>
+    </div>
+
+    <div class="mt-10 grid gap-6 sm:grid-cols-2">
+      <!-- Bride's Family -->
+      <div class="rounded-2xl border border-templeGold/30 bg-maroonCard/70 p-6 text-center backdrop-blur-sm shadow-xl">
+        <img src="./assets/diya.png" alt="" class="diya-flicker mx-auto w-14" />
+        <p class="font-sans mt-4 text-xs uppercase tracking-[0.3em] text-goldSoft">From Bride's Family</p>
+        <p class="font-display mt-2 text-lg text-cream font-bold">Mr. &amp; Mrs. Hiteshbhai Patel</p>
+        <p class="font-sans mt-1 text-xs text-cream/70">request the honour of your presence</p>
+      </div>
+      <!-- Groom's Family -->
+      <div class="rounded-2xl border border-templeGold/30 bg-maroonCard/70 p-6 text-center backdrop-blur-sm shadow-xl">
+        <img src="./assets/diya.png" alt="" class="diya-flicker mx-auto w-14" />
+        <p class="font-sans mt-4 text-xs uppercase tracking-[0.3em] text-goldSoft">From Groom's Family</p>
+        <p class="font-display mt-2 text-lg text-cream font-bold">Mr. &amp; Mrs. Sanjaybhai Shah</p>
+        <p class="font-sans mt-1 text-xs text-cream/70">cordially invite you with your family</p>
+      </div>
+    </div>
+
+    <p class="font-sans mt-8 text-center text-sm leading-relaxed text-cream/80 max-w-lg mx-auto">
+      Together with their families, we joyfully invite you and your loved ones to shower your blessings on the couple as they begin their sacred journey — filled with garba, laughter, love and lifelong togetherness.
+    </p>
+  </section>
+
+  <!-- Divider Ornament -->
+  <div class="mx-auto my-12 flex max-w-md justify-center sm:my-16">
+    <img src="./assets/divider-ornament.png" alt="" class="w-64 opacity-80 sm:w-80" />
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 3. WEDDING EVENTS TIMELINE                                -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="mx-auto max-w-2xl px-6">
+    <div class="text-center">
+      <p class="font-sans text-xs uppercase tracking-[0.35em] text-templeGold">Wedding festivities</p>
+      <h2 class="font-display mt-3 text-3xl sm:text-4xl text-gold-shimmer font-bold">Wedding Events</h2>
+      <p class="font-gujarati mt-2 text-lg text-goldSoft">લગ્ન વિધિઓ</p>
+    </div>
+
+    <div class="mt-10 space-y-4">
+      <!-- 1. Ganesh Sthapana -->
+      <div class="rounded-2xl border border-templeGold/30 bg-maroonCard/70 p-6 backdrop-blur-md transition-all hover:bg-maroonCard sm:p-7 shadow-lg">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 class="font-display text-2xl text-goldSoft font-bold">Ganesh Sthapana</h3>
+            <p class="font-gujarati text-base text-templeGold">ગણેશ સ્થાપના</p>
+            <p class="font-sans mt-2 text-xs sm:text-sm text-cream/75">The auspicious beginning of our wedding celebrations.</p>
+          </div>
+          <div class="rounded-xl border border-templeGold/30 bg-[#24060B]/70 px-5 py-3 text-center sm:min-w-48 shrink-0">
+            <p class="font-sans text-sm font-semibold text-cream">Wed, 10 Feb 2027</p>
+            <p class="font-display text-sm text-templeGold font-bold mt-0.5">6:00 PM onwards</p>
+            <p class="font-sans text-[11px] text-cream/60 mt-1">Patel Residence, Satellite</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Mehndi -->
+      <div class="rounded-2xl border border-templeGold/30 bg-maroonCard/70 p-6 backdrop-blur-md transition-all hover:bg-maroonCard sm:p-7 shadow-lg">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 class="font-display text-2xl text-goldSoft font-bold">Mehndi</h3>
+            <p class="font-gujarati text-base text-templeGold">મહેંદી</p>
+            <p class="font-sans mt-2 text-xs sm:text-sm text-cream/75">Henna, traditional songs, music, laughter and celebrations.</p>
+          </div>
+          <div class="rounded-xl border border-templeGold/30 bg-[#24060B]/70 px-5 py-3 text-center sm:min-w-48 shrink-0">
+            <p class="font-sans text-sm font-semibold text-cream">Thu, 11 Feb 2027</p>
+            <p class="font-display text-sm text-templeGold font-bold mt-0.5">3:00 PM onwards</p>
+            <p class="font-sans text-[11px] text-cream/60 mt-1">Patel Residence, Satellite</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Sangeet -->
+      <div class="rounded-2xl border border-templeGold/30 bg-maroonCard/70 p-6 backdrop-blur-md transition-all hover:bg-maroonCard sm:p-7 shadow-lg">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 class="font-display text-2xl text-goldSoft font-bold">Sangeet &amp; Garba</h3>
+            <p class="font-gujarati text-base text-templeGold">સંગીત અને ગરબા</p>
+            <p class="font-sans mt-2 text-xs sm:text-sm text-cream/75">An energetic night of dhol, dandiya raas, dance and garba beats.</p>
+          </div>
+          <div class="rounded-xl border border-templeGold/30 bg-[#24060B]/70 px-5 py-3 text-center sm:min-w-48 shrink-0">
+            <p class="font-sans text-sm font-semibold text-cream">Fri, 12 Feb 2027</p>
+            <p class="font-display text-sm text-templeGold font-bold mt-0.5">7:30 PM onwards</p>
+            <p class="font-sans text-[11px] text-cream/60 mt-1">Rajpath Club, SG Highway</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Haldi -->
+      <div class="rounded-2xl border border-templeGold/30 bg-maroonCard/70 p-6 backdrop-blur-md transition-all hover:bg-maroonCard sm:p-7 shadow-lg">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 class="font-display text-2xl text-goldSoft font-bold">Haldi Ceremony</h3>
+            <p class="font-gujarati text-base text-templeGold">હળદી સમારોહ</p>
+            <p class="font-sans mt-2 text-xs sm:text-sm text-cream/75">A golden morning of sacred turmeric and family blessings.</p>
+          </div>
+          <div class="rounded-xl border border-templeGold/30 bg-[#24060B]/70 px-5 py-3 text-center sm:min-w-48 shrink-0">
+            <p class="font-sans text-sm font-semibold text-cream">Sat, 13 Feb 2027</p>
+            <p class="font-display text-sm text-templeGold font-bold mt-0.5">10:00 AM onwards</p>
+            <p class="font-sans text-[11px] text-cream/60 mt-1">Patel Residence, Satellite</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Pheras & Lagna -->
+      <div class="rounded-2xl border-2 border-templeGold/60 bg-gradient-to-r from-maroonCard to-[#5A141A] p-6 backdrop-blur-md transition-all sm:p-7 shadow-2xl">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-templeGold/20 text-goldSoft text-[10px] font-bold uppercase tracking-wider mb-2 border border-templeGold/40">Sacred Muhurat</span>
+            <h3 class="font-display text-2xl text-gold-shimmer font-bold">Pheras &amp; Lagna</h3>
+            <p class="font-gujarati text-base text-goldSoft">ફેરા અને હસ્તમેળાપ</p>
+            <p class="font-sans mt-2 text-xs sm:text-sm text-cream/80">Seven sacred steps, seven vows and eternal togetherness.</p>
+          </div>
+          <div class="rounded-xl border border-templeGold/40 bg-[#24060B]/80 px-5 py-3 text-center sm:min-w-48 shrink-0">
+            <p class="font-sans text-sm font-semibold text-cream wedding-date">Sun, 14 Feb 2027</p>
+            <p class="font-display text-base text-goldSoft font-bold mt-0.5">7:30 PM — Muhurat</p>
+            <p class="font-sans text-[11px] text-cream/70 mt-1 venue-name">Aarambh Party Plot</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Reception -->
+      <div class="rounded-2xl border border-templeGold/30 bg-maroonCard/70 p-6 backdrop-blur-md transition-all hover:bg-maroonCard sm:p-7 shadow-lg">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 class="font-display text-2xl text-goldSoft font-bold">Reception (Priti Bhojan)</h3>
+            <p class="font-gujarati text-base text-templeGold">પ્રીતિભોજન સમારોહ</p>
+            <p class="font-sans mt-2 text-xs sm:text-sm text-cream/75">Dinner and celebrations with family and friends.</p>
+          </div>
+          <div class="rounded-xl border border-templeGold/30 bg-[#24060B]/70 px-5 py-3 text-center sm:min-w-48 shrink-0">
+            <p class="font-sans text-sm font-semibold text-cream wedding-date">Sun, 14 Feb 2027</p>
+            <p class="font-display text-sm text-templeGold font-bold mt-0.5">9:00 PM onwards</p>
+            <p class="font-sans text-[11px] text-cream/60 mt-1 venue-name">Aarambh Party Plot</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Peacocks Flourish Illustration -->
+    <div class="mt-12 text-center">
+      <img src="./assets/peacocks.png" alt="" class="mx-auto w-64 sm:w-80 opacity-90 filter drop-shadow-[0_4px_12px_rgba(201,168,76,0.4)]" />
+    </div>
+  </section>
+
+  <!-- Divider Ornament -->
+  <div class="mx-auto my-12 flex max-w-md justify-center sm:my-16">
+    <img src="./assets/divider-ornament.png" alt="" class="w-64 opacity-80 sm:w-80" />
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 4. VENUE & MAP DIRECTIONS                                 -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="mx-auto max-w-2xl px-6">
+    <div class="text-center">
+      <p class="font-sans text-xs uppercase tracking-[0.35em] text-templeGold">Where the magic happens</p>
+      <h2 class="font-display mt-3 text-3xl sm:text-4xl text-gold-shimmer font-bold">The Venue</h2>
+      <p class="font-gujarati mt-2 text-lg text-goldSoft">સ્થળ દર્શન</p>
+    </div>
+
+    <div class="mt-8 rounded-3xl border border-templeGold/40 bg-maroonCard/80 p-8 text-center backdrop-blur-md shadow-2xl">
+      <img src="./assets/diya.png" alt="" class="diya-flicker mx-auto w-16" />
+      <h3 class="font-display mt-5 text-2xl sm:text-3xl text-goldSoft font-bold venue-name">
+        Aarambh Party Plot, SG Highway
+      </h3>
+      <p class="font-sans mt-2 text-sm text-cream/80 venue-address">
+        Near Vaishnodevi Circle, SG Highway, Ahmedabad, Gujarat
+      </p>
+      <a href="https://maps.google.com/?q=SG+Highway+Ahmedabad" target="_blank" rel="noreferrer" class="map-link mt-6 inline-flex items-center justify-center gap-2 rounded-full border border-templeGold bg-templeGold/20 px-8 py-3 text-sm font-semibold text-goldSoft transition-all hover:bg-templeGold hover:text-maroonDeep shadow-md">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>Open in Google Maps</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Divider Ornament -->
+  <div class="mx-auto my-12 flex max-w-md justify-center sm:my-16">
+    <img src="./assets/divider-ornament.png" alt="" class="w-64 opacity-80 sm:w-80" />
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 5. RSVP & BLESSINGS                                       -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section class="mx-auto max-w-2xl px-6 pb-20 text-center">
+    <p class="font-sans text-xs uppercase tracking-[0.35em] text-templeGold">Your blessings matter most</p>
+    <h2 class="font-display mt-3 text-3xl sm:text-4xl text-gold-shimmer font-bold">RSVP &amp; Blessings</h2>
+    <p class="font-gujarati mt-2 text-lg text-goldSoft">આશીર્વાદ અને સ્નેહ મિલન</p>
+    
+    <p class="font-sans mt-6 text-sm text-cream/80 leading-relaxed max-w-md mx-auto">
+      Your presence is our family's greatest gift. Kindly let us know of your arrival so we can welcome you with warmth and Gujarati hospitality.
+    </p>
+
+    <div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+      <a href="tel:+919876543210" class="rsvp-phone-btn inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-templeGold to-[#A37B24] px-8 py-3 text-sm font-bold text-maroonDeep transition-all hover:scale-105 shadow-lg">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+        <span>Call to RSVP</span>
+      </a>
+      <a href="https://wa.me/919876543210?text=Congratulations!%20We%20are%20delighted%20to%20attend%20the%20wedding." target="_blank" rel="noreferrer" class="rsvp-wa-btn inline-flex items-center justify-center gap-2 rounded-full border border-templeGold bg-templeGold/20 px-8 py-3 text-sm font-semibold text-goldSoft transition-all hover:bg-templeGold hover:text-maroonDeep shadow-md">
+        <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.299.144.347.491 1.2.534 1.288.043.088.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.2.662.591 1.221.774 1.394.86.174.086.275.073.377-.044.101-.116.433-.506.549-.68.116-.173.231-.144.39-.086s1.011.477 1.184.564.289.13.332.203c.043.072.043.419-.101.824z"/></svg>
+        <span>RSVP on WhatsApp</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 6. FOOTER                                                 -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <footer class="relative border-t border-templeGold/30 bg-[#1A0508]/90 px-6 py-12 text-center">
+    <img src="./assets/ganesh-gold.png" alt="" class="mx-auto w-14 opacity-70" />
+    <p class="font-gujarati mt-3 text-lg text-goldSoft">શુભ વિવાહ — મંગલ આશીર્વાદ</p>
+    <p class="font-sans mt-2 text-sm text-cream/70">
+      <span class="bride-name">Urja</span> &amp; <span class="groom-name">Romil</span> · <span class="wedding-date">14 February 2027</span>
+    </p>
+    <p class="font-sans mt-6 text-xs uppercase tracking-[0.25em] text-cream/50">
+      Crafted with devotion by <a href="https://amantranlink.in" target="_blank" rel="noreferrer" class="text-templeGold font-semibold hover:underline">AmantranLink.in</a>
+    </p>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>

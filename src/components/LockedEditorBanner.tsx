@@ -7,6 +7,11 @@ import { themes } from './ThemeSelector';
 import { TEMPLATES_CATALOG, isUserVipAdmin } from '../services/razorpayClient';
 
 export const TEMPLATE_DISPLAY_NAMES: Record<ThemeId, string> = {
+  'shubh-lagna': 'Shubh Lagna · Marigold Heritage',
+  'shubh-vivah': 'Shubh Vivah · Wax Seal & Gold Scratch',
+  'rose-farman': 'The Rose Farman · Petal Rain & Scratch',
+  'royal-orchid': 'The Royal Orchid · 3D Palace Gate',
+  'shahi-farman': 'The Shahi Dastavej · Envelope & Doors',
   jharokha: 'The Jharokha',
   rajmahal: 'The Rajmahal',
   royaldawn: 'The Royal Dawn',

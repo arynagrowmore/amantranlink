@@ -12,7 +12,58 @@ interface RoyalLiveDemoProps {
   onPreviewTheme: (themeId: ThemeId) => void;
 }
 
-const DEMO_THEMES: Array<any> = [];
+const DEMO_THEMES: Array<any> = [
+  {
+    id: 'shubh-lagna',
+    name: 'Shubh Lagna',
+    badge: '👑 Flagship Heritage',
+    subtitle: 'Marigold Heritage · Gujarati Vedic Vivah',
+    previewUrl: '/templates/shubh-lagna/index.html?preview=mobile&noaudio=true&mute=1',
+    description: 'Traditional Gujarati Vedic wedding invitation with marigold toran, corner mandalas, golden Ganesha Vandana, couple cutout, and 6-ceremony itinerary.',
+    features: ['Marigold Toran Garland', 'Bilingual Event Itinerary', 'Live Countdown Timer', 'Diya Family Blessings', 'Google Maps Route'],
+    accentColor: '#3B0D11',
+  },
+  {
+    id: 'shubh-vivah',
+    name: 'Shubh Vivah',
+    badge: '⭐ Most Popular',
+    subtitle: 'Wax Seal & Gold Scratch · Shubh Vivah',
+    previewUrl: '/templates/shubh-vivah/index.html?preview=mobile&noaudio=true&mute=1',
+    description: 'Full-screen sealed wax envelope with floating petals, interactive gold scratch card revealing wedding date and 5 sacred ceremonies.',
+    features: ['Full-Screen Wax Seal Cover', 'Gold Scratch-Off Date Card', 'Rotating Mandala Watermark', 'Drifting Petals Animation', '5-Ceremony Timeline'],
+    accentColor: '#4A0E17',
+  },
+  {
+    id: 'rose-farman',
+    name: 'The Rose Farman',
+    badge: '🌹 Haute Couture',
+    subtitle: 'Petal Rain & Scratch Card · Blush Luxury',
+    previewUrl: '/templates/rose-farman/index.html?preview=mobile&noaudio=true&mute=1',
+    description: 'Royal wax envelope opening, falling rose petal rain physics, interactive gold scratch card and 7 ceremony illustrations.',
+    features: ['3D Animated Envelope Flap', 'Falling Rose Petal Rain', 'Gold Heart Scratch Card', '7 Illustrated Ceremony Cards', 'Shehnai Audio Player'],
+    accentColor: '#9F1239',
+  },
+  {
+    id: 'royal-orchid',
+    name: 'The Royal Orchid',
+    badge: '🏰 3D Palace Gate',
+    subtitle: '3D Palace Fort Gate · Udaipur Heritage',
+    previewUrl: '/templates/royal-orchid/index.html?preview=mobile&noaudio=true&mute=1',
+    description: 'Majestic 3D palace fort doors swinging open with Ganesha blessings, floating golden petals, scratch card and Lake Pichola Udaipur navigation.',
+    features: ['3D Fort Doors Opening', 'Floating Gold Petals', 'Parallax Palace Backdrop', 'Interactive Scratch Card', 'Lake Pichola Udaipur Venue'],
+    accentColor: '#4A0E17',
+  },
+  {
+    id: 'shahi-farman',
+    name: 'The Shahi Dastavej',
+    badge: '👑 Royal Masterpiece',
+    subtitle: 'Envelope & Palace Doors · Imperial Storybook',
+    previewUrl: '/templates/shahi-farman/index.html?preview=mobile&noaudio=true&mute=1',
+    description: 'Dual-stage cinematic opening gate: sealed wax golden envelope lifts, ornate palace doors slide apart, gold leaf scratch card & 8 royal chapters.',
+    features: ['Dual-Stage Opening Gate', 'Gold Leaf Scratch Card', '8 Illustrated Ceremony Chapters', 'Live Countdown Timer', 'Shehnai Music Toggle'],
+    accentColor: '#2D080E',
+  },
+];
 
 export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
   onEnterStudio,

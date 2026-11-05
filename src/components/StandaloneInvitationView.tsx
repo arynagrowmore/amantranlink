@@ -74,11 +74,11 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   const [themeId, setThemeId] = useState<ThemeId>(() => {
     if (typeof window !== 'undefined') {
       const qTheme = new URLSearchParams(window.location.search).get('theme') || new URLSearchParams(window.location.search).get('t');
-      if (qTheme && ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'].includes(qTheme)) {
+      if (qTheme && ['shubh-lagna', 'shubh-vivah', 'rose-farman', 'royal-orchid', 'shahi-farman', 'rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'].includes(qTheme)) {
         return qTheme as ThemeId;
       }
     }
-    return initialState?.theme || 'darbar';
+    return initialState?.theme || 'shubh-lagna';
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const countdownIntervalRef = useRef<any>(null);
@@ -158,7 +158,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
             const json = await res.json();
             if (json.success && json.content && (json.content.couple?.groomEn || json.content.couple?.brideEn) && isMounted) {
               const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
-              const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+              const validThemes = ['shubh-lagna', 'shubh-vivah', 'rose-farman', 'royal-orchid', 'shahi-farman', 'rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
               const effectiveTheme = (
                 (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
                 json.themeId ||
@@ -206,7 +206,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
             const mappedTplSlug = site.template_id ? TEMPLATE_UUID_TO_SLUG[site.template_id] : null;
             const contentTheme = (site.content as any)?.theme;
             const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
-            const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+            const validThemes = ['shubh-lagna', 'shubh-vivah', 'rose-farman', 'royal-orchid', 'shahi-farman', 'rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
             const fetchedTheme = (
               (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
               (contentTheme && validThemes.includes(contentTheme) ? contentTheme : null) ||
@@ -239,7 +239,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         const localResolved = resolveInvitationState(targetSlug);
         if (localResolved && isMounted) {
           const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
-          const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+          const validThemes = ['shubh-lagna', 'shubh-vivah', 'rose-farman', 'royal-orchid', 'shahi-farman', 'rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
           const effectiveTheme = (
             (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
             localResolved.theme ||
@@ -274,8 +274,8 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
           slugBride = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
         }
         const qTheme = searchParams?.get('theme') || searchParams?.get('t');
-        const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
-        const fallbackTheme = (qTheme && validThemes.includes(qTheme) ? qTheme : 'darbar') as ThemeId;
+        const validThemes = ['shubh-lagna', 'shubh-vivah', 'rose-farman', 'royal-orchid', 'shahi-farman', 'rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+        const fallbackTheme = (qTheme && validThemes.includes(qTheme) ? qTheme : 'shubh-lagna') as ThemeId;
         setThemeId(fallbackTheme);
         setLoadedState({
           theme: fallbackTheme,
@@ -383,7 +383,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   // Convert raw state into Authoritative Normalized Invitation Model
   const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
-  const validThemes = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+  const validThemes = ['shubh-lagna', 'shubh-vivah', 'rose-farman', 'royal-orchid', 'shahi-farman', 'rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
   const activeTheme = (
     (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) ||
     rawState.theme ||
@@ -392,12 +392,17 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   ) as ThemeId;
   const normalizedData = normalizeInvitationData(rawState, resolvedSlug, siteId || undefined, studioBadge || undefined);
   const templatePathMap: Partial<Record<ThemeId, string>> = {
+    'shubh-lagna': '/templates/shubh-lagna/index.html',
+    'shubh-vivah': '/templates/shubh-vivah/index.html',
+    'rose-farman': '/templates/rose-farman/index.html',
+    'royal-orchid': '/templates/royal-orchid/index.html',
+    'shahi-farman': '/templates/shahi-farman/index.html',
     darbar: '/templates/rajasthan-darbar/index.html',
     chandramahal: '/templates/chandra-mahal/index.html',
     swarnim: '/templates/swarnim-scratch/index.html',
     shahidesk: '/templates/shahi-desk/index.html',
   };
-  const baseTplPath = templatePathMap[activeTheme] || '/templates/rajasthan-darbar/index.html';
+  const baseTplPath = templatePathMap[activeTheme] || '/templates/shubh-lagna/index.html';
   const templateUrl = `${baseTplPath}?slug=${encodeURIComponent(resolvedSlug)}&siteId=${encodeURIComponent(siteId || '')}`;
 
   // ⏰ Universal Live Countdown Timer

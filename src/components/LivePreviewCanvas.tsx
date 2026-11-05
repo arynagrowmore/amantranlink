@@ -100,7 +100,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
     shahidesk: '/templates/shahi-desk/index.html',
   };
 
-  const targetUrl = templateUrls[state.theme] || '/templates/rajasthan-darbar/index.html';
+  const targetUrl = templateUrls[state.theme] || '/templates/shubh-lagna/index.html';
 
   // 🔇 Silence previous iframe audio when switching theme
   useEffect(() => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  ArrowRight, Eye, CheckCircle2, ShieldCheck, 
+  ArrowRight, Eye, Check, CheckCircle2, ShieldCheck, 
   MapPin, Globe, Heart, Star, Sparkles, MessageCircle,
   Menu, X, User, Layers, Smartphone, Users, HelpCircle, ChevronDown
 } from 'lucide-react';
@@ -51,7 +51,78 @@ const THEME_CATALOG: Array<{
   price: number;
   imagePosition?: string;
   isFeatured?: boolean;
-}> = [];
+}> = [
+  {
+    id: 'shubh-lagna',
+    title: 'Shubh Lagna',
+    subtitle: 'Marigold Heritage · Gujarati Vedic Vivah',
+    tagline: 'Traditional Gujarati Vedic wedding with marigold toran & 6-event timeline.',
+    badge: '👑 Flagship Heritage',
+    category: 'traditional',
+    categoryLabel: 'Traditional Gujarati',
+    features: ['Marigold Toran Garland', 'Bilingual Event Itinerary', 'Live Countdown Timer', 'Diya Family Blessings', 'Google Maps Route'],
+    previewImg: '/templates/shubh-lagna/assets/couple-cutout.png',
+    packageType: 'gold',
+    price: 2299,
+    isFeatured: true,
+  },
+  {
+    id: 'shubh-vivah',
+    title: 'Shubh Vivah',
+    subtitle: 'Wax Seal & Gold Scratch · Shubh Vivah',
+    tagline: 'Full-screen sealed wax envelope with floating petals & interactive gold scratch card.',
+    badge: '⭐ Most Popular',
+    category: 'heritage',
+    categoryLabel: 'Imperial Wax Seal',
+    features: ['Full-Screen Wax Seal Cover', 'Gold Scratch-Off Date Card', 'Rotating Mandala Watermark', 'Drifting Petals Animation', '5-Ceremony Timeline'],
+    previewImg: '/templates/shubh-vivah/assets/couple.png',
+    packageType: 'gold',
+    price: 2299,
+    isFeatured: true,
+  },
+  {
+    id: 'rose-farman',
+    title: 'The Rose Farman',
+    subtitle: 'Petal Rain & Scratch Card · Blush Luxury',
+    tagline: 'Royal wax envelope opening, falling rose petal rain physics & 7 ceremony illustrations.',
+    badge: '🌹 Haute Couture',
+    category: 'modern',
+    categoryLabel: 'Blush Luxury',
+    features: ['3D Animated Envelope Flap', 'Falling Rose Petal Rain', 'Gold Heart Scratch Card', '7 Illustrated Ceremony Cards', 'Shehnai Audio Player'],
+    previewImg: '/templates/rose-farman/assets/hero-couple.png',
+    packageType: 'gold',
+    price: 2299,
+    isFeatured: true,
+  },
+  {
+    id: 'royal-orchid',
+    title: 'The Royal Orchid',
+    subtitle: '3D Palace Fort Gate · Udaipur Heritage',
+    tagline: 'Majestic 3D palace fort doors swinging open with Ganesha blessings & Lake Pichola navigation.',
+    badge: '🏰 3D Palace Gate',
+    category: 'heritage',
+    categoryLabel: 'Udaipur Heritage',
+    features: ['3D Fort Doors Opening', 'Floating Gold Petals', 'Parallax Palace Backdrop', 'Interactive Scratch Card', 'Lake Pichola Udaipur Venue'],
+    previewImg: '/templates/royal-orchid/assets/bride-groom.png',
+    packageType: 'gold',
+    price: 2299,
+    isFeatured: true,
+  },
+  {
+    id: 'shahi-farman',
+    title: 'The Shahi Dastavej',
+    subtitle: 'Envelope & Palace Doors · Imperial Storybook',
+    tagline: 'Dual-stage cinematic opening gate: sealed wax envelope + palace doors + 8 royal chapters.',
+    badge: '👑 Royal Masterpiece',
+    category: 'heritage',
+    categoryLabel: 'Imperial Storybook',
+    features: ['Dual-Stage Opening Gate', 'Gold Leaf Scratch Card', '8 Illustrated Ceremony Chapters', 'Live Countdown Timer', 'Shehnai Music Toggle'],
+    previewImg: '/templates/shahi-farman/assets/hero-scene.png',
+    packageType: 'gold',
+    price: 2299,
+    isFeatured: true,
+  },
+];
 
 const TRUST_STRIP_ITEMS = [
   { 
@@ -333,7 +404,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
             <button
               type="button"
-              onClick={() => onEnterStudio('darbar')}
+              onClick={() => onEnterStudio('shubh-lagna')}
               className="px-3 sm:px-5 lg:px-6 h-9 sm:h-10 rounded-full bg-[#6E1020] hover:bg-[#5C0D1A] text-[#FFFDF8] font-manrope font-bold text-[11px] sm:text-xs uppercase tracking-[0.06em] shadow-[0_2px_8px_-2px_rgba(110,16,32,0.25)] hover:shadow-[0_4px_14px_-2px_rgba(110,16,32,0.35)] border border-[#C49A35]/60 hover:brightness-105 active:scale-[0.98] transition-all duration-150 cursor-pointer whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5"
             >
               <span className="hidden sm:inline">+ Create Invitation</span>
@@ -456,7 +527,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 type="button"
                 onClick={() => {
                   setIsMobileNavOpen(false);
-                  onEnterStudio('darbar');
+                  onEnterStudio('shubh-lagna');
                 }}
                 className="w-full py-3 rounded-xl bg-[#6E1020] text-[#FFFDF8] text-center font-manrope font-semibold uppercase tracking-wider block border border-[#C49A35] min-h-[44px]"
               >
@@ -500,7 +571,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-2">
               <button
                 type="button"
-                onClick={() => onEnterStudio('darbar')}
+                onClick={() => onEnterStudio('shubh-lagna')}
                 className="px-8 py-4 rounded-2xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-sans font-semibold text-xs sm:text-sm tracking-wider uppercase shadow-[0_10px_28px_-6px_rgba(110,16,32,0.3)] border border-[#C49A35]/60 flex items-center justify-center gap-3 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Create Your Royal Invitation</span>
@@ -542,7 +613,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="lg:col-span-6 flex justify-center relative">
             <InteractiveHeroGate
               state={state}
-              onOpenStudio={() => onEnterStudio('darbar')}
+              onOpenStudio={() => onEnterStudio('shubh-lagna')}
             />
           </div>
 
@@ -593,13 +664,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* ========================================================================= */}
       {/* 📊 3.5. TRADITIONAL PAPER VS ROYAL DIGITAL COMPARISON                     */}
       {/* ========================================================================= */}
-      <ComparisonSection onEnterStudio={() => onEnterStudio('darbar')} />
+      <ComparisonSection onEnterStudio={() => onEnterStudio('shubh-lagna')} />
 
       {/* ========================================================================= */}
       {/* 📜 4. ROYAL INVITATION EXPERIENCE (THE ART OF A ROYAL INVITATION)        */}
       {/* ========================================================================= */}
       <div id="experience">
-        <ArtOfRoyalInvitation onEnterStudio={() => onEnterStudio('darbar')} />
+        <ArtOfRoyalInvitation onEnterStudio={() => onEnterStudio('shubh-lagna')} />
       </div>
 
       {/* ========================================================================= */}
@@ -618,21 +689,116 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </h2>
 
           <p className="text-base sm:text-lg text-[#6E1020] font-bold max-w-2xl mx-auto leading-relaxed drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]">
-            This space has been completely cleared and prepared for the next flagship royal collection. New designs will be unveiled here shortly.
+            Every motif is engineered as a complete interactive product — featuring 3D gate openings, wax seals, scratch cards, and immersive music.
           </p>
+
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap justify-center gap-2 pt-2">
+            {[
+              { id: 'all', label: 'All 5 Flagship Themes' },
+              { id: 'heritage', label: 'Palace Heritage' },
+              { id: 'traditional', label: 'Traditional Gujarati' },
+              { id: 'modern', label: 'Blush & Modern' },
+            ].map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setSelectedCategory(cat.id as any)}
+                className={`px-4 py-2 rounded-full text-xs font-sans font-bold transition-all cursor-pointer ${
+                  selectedCategory === cat.id
+                    ? 'bg-[#6E1020] text-[#FFFDF8] shadow-md border-2 border-[#C49A35]'
+                    : 'bg-white text-[#75675C] border border-[#E8D5AD] hover:bg-[#FAF6EE] hover:text-[#6E1020]'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Clean Empty Placeholder State - Completely Pristine */}
-        <div className="max-w-2xl mx-auto p-12 sm:p-16 rounded-3xl bg-[#FAF6EE]/90 border-2 border-dashed border-[#E8D5AD] text-center space-y-4 shadow-sm">
-          <div className="w-16 h-16 mx-auto rounded-full bg-[#6E1020]/10 border border-[#C49A35]/30 flex items-center justify-center text-[#6E1020]">
-            <Sparkles className="w-7 h-7 text-[#C49A35]" />
-          </div>
-          <h3 className="font-serif font-bold text-2xl sm:text-3xl text-[#6E1020]">
-            New Royal Collection In Preparation
-          </h3>
-          <p className="text-xs sm:text-sm text-[#75675C] max-w-md mx-auto leading-relaxed">
-            All previous templates have been cleared out. We are awaiting the next suite of royal wedding designs to be added here soon.
-          </p>
+        {/* 3-Column Theme Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredThemes.map((theme) => (
+            <div
+              key={theme.id}
+              className="group rounded-3xl bg-white border border-[#E8D5AD] shadow-[0_4px_20px_-4px_rgba(67,9,20,0.06)] hover:shadow-[0_16px_36px_-6px_rgba(67,9,20,0.12)] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col justify-between"
+            >
+              <div>
+                {/* 16:10 Preview Container */}
+                <div className="relative aspect-[16/10] bg-[#1A0508] overflow-hidden border-b border-[#E8D5AD]/60">
+                  <img
+                    src={theme.previewImg}
+                    alt={theme.title}
+                    className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/95 backdrop-blur-sm border border-[#E8DCC8] text-[10px] font-bold text-[#6E1020] uppercase tracking-wider shadow-xs">
+                    {theme.badge}
+                  </div>
+                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-[#6E1020] text-[#FFFDF8] text-[10px] font-bold uppercase tracking-wider">
+                    {theme.categoryLabel}
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6 space-y-4">
+                  <div>
+                    <h3 className="font-serif font-bold text-2xl text-[#6E1020] group-hover:text-[#8E6725] transition-colors">
+                      {theme.title}
+                    </h3>
+                    <p className="text-xs font-serif font-bold text-[#8E6725] mt-0.5">
+                      {theme.subtitle}
+                    </p>
+                    <p className="text-xs text-[#75675C] mt-2 leading-relaxed">
+                      {theme.tagline}
+                    </p>
+                  </div>
+
+                  {/* Feature Pills */}
+                  <div className="space-y-1.5 pt-1 border-t border-[#E8DCC8]/60">
+                    {theme.features.slice(0, 3).map((feat, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-xs text-[#430914] font-medium">
+                        <Check className="w-3.5 h-3.5 text-[#167A5A] shrink-0" />
+                        <span>{feat}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions Footer */}
+              <div className="p-6 pt-0 space-y-3">
+                <div className="flex items-center justify-between border-t border-[#E8DCC8] pt-4">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-[#75675C] font-semibold block">Pricing</span>
+                    <span className="text-base font-bold text-[#6E1020]">Included in Gold</span>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-[#8E6725] bg-[#FAF6EE] px-2.5 py-1 rounded-md border border-[#E8D5AD]">
+                    Full Experience
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onPreviewTheme(theme.id)}
+                    className="py-2.5 rounded-xl border border-[#E8D5AD] bg-[#FAF6EE] hover:bg-white text-[#6E1020] font-sans font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                  >
+                    <Eye className="w-3.5 h-3.5 text-[#8E6725]" />
+                    <span>Live Demo</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onEnterStudio(theme.id)}
+                    className="py-2.5 rounded-xl bg-[#6E1020] hover:bg-[#5C0D1A] text-[#FFFDF8] font-sans font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm border border-[#C49A35]/60 hover:brightness-105"
+                  >
+                    <span>Customize</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#F4D06F]" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -653,13 +819,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* 💌 8. LIVE RSVP COMMAND CENTER (DEEP WINE SECTION)                       */}
       {/* ========================================================================= */}
       <div id="rsvp">
-        <RsvpShowcase onEnterStudio={() => onEnterStudio('darbar')} />
+        <RsvpShowcase onEnterStudio={() => onEnterStudio('shubh-lagna')} />
       </div>
 
       {/* ========================================================================= */}
       {/* 📜 9. YOUR ROYAL KANKOTRI IN 5 SIMPLE STEPS (HOW IT WORKS)               */}
       {/* ========================================================================= */}
-      <RoyalJourneyWorkflow onEnterStudio={() => onEnterStudio('darbar')} />
+      <RoyalJourneyWorkflow onEnterStudio={() => onEnterStudio('shubh-lagna')} />
 
       {/* ========================================================================= */}
       {/* 💌 10. REAL COUPLES / TESTIMONIALS                                       */}
@@ -752,7 +918,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="pt-4 flex flex-col sm:flex-row gap-3.5 justify-center">
               <button
                 type="button"
-                onClick={() => onEnterStudio('darbar')}
+                onClick={() => onEnterStudio('shubh-lagna')}
                 className="px-8 py-4 rounded-2xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] font-sans font-semibold text-xs sm:text-sm uppercase tracking-wider shadow-md border border-[#C49A35] transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <span>Create My Royal Kankotri</span>

@@ -13,6 +13,46 @@ export { getApiBaseUrl, resolveApiUrl };
 
 // 🏷️ Template Catalog with Official Authoritative Pricing (Single Source of Truth)
 export const TEMPLATES_CATALOG: Record<ThemeId, TemplateConfig> = {
+  'shubh-lagna': {
+    templateId: 'shubh-lagna',
+    name: 'Shubh Lagna · Marigold Heritage',
+    previewImage: '/templates/shubh-lagna/assets/couple-cutout.png',
+    priceInr: 2299,
+    reEditFeeInr: 0,
+    category: 'traditional',
+  },
+  'shubh-vivah': {
+    templateId: 'shubh-vivah',
+    name: 'Shubh Vivah · Wax Seal & Gold Scratch',
+    previewImage: '/templates/shubh-vivah/assets/couple.png',
+    priceInr: 2299,
+    reEditFeeInr: 0,
+    category: 'heritage',
+  },
+  'rose-farman': {
+    templateId: 'rose-farman',
+    name: 'The Rose Farman · Petal Rain & Scratch Card',
+    previewImage: '/templates/rose-farman/assets/hero-couple.png',
+    priceInr: 2299,
+    reEditFeeInr: 0,
+    category: 'modern',
+  },
+  'royal-orchid': {
+    templateId: 'royal-orchid',
+    name: 'The Royal Orchid · 3D Palace Gate',
+    previewImage: '/templates/royal-orchid/assets/bride-groom.png',
+    priceInr: 2299,
+    reEditFeeInr: 0,
+    category: 'heritage',
+  },
+  'shahi-farman': {
+    templateId: 'shahi-farman',
+    name: 'The Shahi Dastavej · Golden Envelope & Doors',
+    previewImage: '/templates/shahi-farman/assets/hero-scene.png',
+    priceInr: 2299,
+    reEditFeeInr: 0,
+    category: 'heritage',
+  },
   rajmahal: {
     templateId: 'rajmahal',
     name: 'The Rajmahal 3D Palace',
@@ -150,7 +190,7 @@ export const isUserVipAdmin = (uid?: string, email?: string): boolean => {
   return false;
 };
 
-const ALL_TEMPLATES_ARRAY: ThemeId[] = ['rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+const ALL_TEMPLATES_ARRAY: ThemeId[] = ['shubh-lagna', 'shubh-vivah', 'rose-farman', 'royal-orchid', 'shahi-farman', 'rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
 
 export const getUserPurchases = (uid?: string): Record<string, Purchase> => {
   if (typeof window === 'undefined') return {};
