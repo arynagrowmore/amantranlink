@@ -22,7 +22,7 @@ export const extractPublicSlugFromUrl = (): string | null => {
   const pathname = window.location.pathname;
 
   // 1. Path format: /i/:slug, /invite/:slug, /wedding/:slug
-  const iMatch = pathname.match(/^\/(?:i|invite|wedding)\/([^/?#]+)/i);
+  const iMatch = pathname.match(/^\/(?:i|invite|invitation|wedding|demo)\/([^/?#]+)/i);
   if (iMatch && iMatch[1]) {
     return decodeURIComponent(iMatch[1]).trim().toLowerCase();
   }
@@ -74,8 +74,13 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   const [themeId, setThemeId] = useState<ThemeId>(() => {
     if (typeof window !== 'undefined') {
       const qTheme = new URLSearchParams(window.location.search).get('theme') || new URLSearchParams(window.location.search).get('t');
-      if (qTheme && ['shubh-lagna', 'shubh-vivah', 'rose-farman', 'royal-orchid', 'shahi-farman', 'rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'].includes(qTheme)) {
+      const validThemes = ['shubh-lagna', 'shubh-vivah', 'rose-farman', 'royal-orchid', 'shahi-farman', 'rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+      if (qTheme && validThemes.includes(qTheme)) {
         return qTheme as ThemeId;
+      }
+      const slug = extractPublicSlugFromUrl();
+      if (slug && validThemes.includes(slug)) {
+        return slug as ThemeId;
       }
     }
     return initialState?.theme || 'shubh-lagna';
@@ -147,7 +152,57 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
             } as any);
           }
         }
+      }      const validThemes = ['shubh-lagna', 'shubh-vivah', 'rose-farman', 'royal-orchid', 'shahi-farman', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'rajmahal', 'royaldawn', 'royalring', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
+      const isTargetSlugTheme = validThemes.includes(targetSlug);
+      const urlTheme = searchParams?.get('theme') || searchParams?.get('t');
+      const directThemeToUse = (urlTheme && validThemes.includes(urlTheme) ? urlTheme : null) || (isTargetSlugTheme ? targetSlug : null);
+
+      if (isTargetSlugTheme && isMounted) {
+        const themeToRender = directThemeToUse as ThemeId;
+        setThemeId(themeToRender);
+        setLoadedState({
+          theme: themeToRender,
+          viewMode: 'desktop',
+          previewZoom: 1,
+          language: 'en',
+          couple: {
+            groomEn: 'Dhruv',
+            groomHi: 'ध्रुव',
+            groomGu: 'ધ્રુવ',
+            brideEn: 'Shreya',
+            brideHi: 'श्रेया',
+            brideGu: 'શ્રેયા',
+            mark: 'D · S',
+            hashtag: '#DhruvKiShreya',
+            weddingDate: '14 February 2027 · 07:00 PM',
+            muhuratTime: '07:00 PM',
+            venueName: 'The Royal Palace Heritage, Udaipur',
+            venueAddress: 'Palace Road, Lake Pichola, Udaipur',
+            mapUrl: 'https://maps.google.com',
+          },
+          events: [
+            { id: '1', name: '💛 Ganesh Sthapana & Haldi', date: '12 February 2027', time: '10:00 AM', venue: 'Royal Palace Heritage', color: 'gold' },
+            { id: '2', name: '🌿 Mehndi & Sangeet', date: '13 February 2027', time: '07:00 PM', venue: 'Royal Palace Heritage', color: 'purple' },
+            { id: '3', name: '💍 Shubh Vivah (Hast Melap)', date: '14 February 2027', time: '07:00 PM', venue: 'Lake Pichola Palace Mandap', color: 'red' },
+            { id: '4', name: '🥂 Grand Royal Reception', date: '15 February 2027', time: '08:00 PM', venue: 'The Grand Ballroom', color: 'gold' },
+          ],
+          family: {
+            groomParentsEn: 'Patel Royal Family',
+            brideParentsEn: 'Shah Royal Family',
+            rsvp1Name: 'Dhruv Patel',
+            rsvp1Phone: '+91 9409360336',
+            rsvp2Name: 'Shreya Shah',
+            rsvp2Phone: '+91 9409360336',
+          },
+          media: {
+            audioName: 'RoyalShehnai.mp3',
+            photoSlots: {},
+          },
+        } as any);
+        setIsLoading(false);
+        return;
       }
+
 
       // Attempt 1: Fetch from Serverless API /api/public/wedding/:slug (Bypasses Browser RLS, Single Source of Truth)
       if (targetSlug) {

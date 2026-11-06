@@ -139,10 +139,11 @@ export function resolveApplicationRoute(customLocation?: { pathname?: string; se
     return { view: 'pay', isStandalone: false };
   }
 
-  // 1. Standalone Couple / Guest Public Invitation View (/i/:slug, /invite/:slug, /wedding/:slug, ?invite=, #i/)
+  // 1. Standalone Couple / Guest Public Invitation View (/i/:slug, /invite/:slug, /invitation/:slug, /wedding/:slug, /demo/:slug, ?invite=, #i/)
   if (
-    /^\/(?:i|invite|wedding)\/[^/?#]+/i.test(rawPathname) ||
-    urlParams.has('invite') || urlParams.has('d') || urlParams.has('data') || urlParams.has('slug') ||
+    /^\/(?:i|invite|invitation|wedding|demo)\/[^/?#]+/i.test(rawPathname) ||
+    pathname.startsWith('/invitation') || pathname.startsWith('/demo/') ||
+    urlParams.has('invite') || urlParams.has('d') || urlParams.has('data') || urlParams.has('slug') || urlParams.has('theme') ||
     hash.startsWith('i/') || hash.startsWith('invite/') || hash.startsWith('invite-')
   ) {
     return { view: 'landing', isStandalone: true };

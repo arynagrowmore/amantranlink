@@ -19,6 +19,7 @@ const DEMO_THEMES: Array<any> = [
     badge: '👑 Flagship Heritage',
     subtitle: 'Marigold Heritage · Gujarati Vedic Vivah',
     previewUrl: '/templates/shubh-lagna/index.html?preview=mobile&noaudio=true&mute=1',
+    previewImg: '/templates/shubh-lagna/assets/couple-cutout.png',
     description: 'Traditional Gujarati Vedic wedding invitation with marigold toran, corner mandalas, golden Ganesha Vandana, couple cutout, and 6-ceremony itinerary.',
     features: ['Marigold Toran Garland', 'Bilingual Event Itinerary', 'Live Countdown Timer', 'Diya Family Blessings', 'Google Maps Route'],
     accentColor: '#3B0D11',
@@ -29,6 +30,7 @@ const DEMO_THEMES: Array<any> = [
     badge: '⭐ Most Popular',
     subtitle: 'Wax Seal & Gold Scratch · Shubh Vivah',
     previewUrl: '/templates/shubh-vivah/index.html?preview=mobile&noaudio=true&mute=1',
+    previewImg: '/templates/shubh-vivah/assets/couple.png',
     description: 'Full-screen sealed wax envelope with floating petals, interactive gold scratch card revealing wedding date and 5 sacred ceremonies.',
     features: ['Full-Screen Wax Seal Cover', 'Gold Scratch-Off Date Card', 'Rotating Mandala Watermark', 'Drifting Petals Animation', '5-Ceremony Timeline'],
     accentColor: '#4A0E17',
@@ -39,6 +41,7 @@ const DEMO_THEMES: Array<any> = [
     badge: '🌹 Haute Couture',
     subtitle: 'Petal Rain & Scratch Card · Blush Luxury',
     previewUrl: '/templates/rose-farman/index.html?preview=mobile&noaudio=true&mute=1',
+    previewImg: '/templates/rose-farman/assets/hero-couple.png',
     description: 'Royal wax envelope opening, falling rose petal rain physics, interactive gold scratch card and 7 ceremony illustrations.',
     features: ['3D Animated Envelope Flap', 'Falling Rose Petal Rain', 'Gold Heart Scratch Card', '7 Illustrated Ceremony Cards', 'Shehnai Audio Player'],
     accentColor: '#9F1239',
@@ -49,6 +52,7 @@ const DEMO_THEMES: Array<any> = [
     badge: '🏰 3D Palace Gate',
     subtitle: '3D Palace Fort Gate · Udaipur Heritage',
     previewUrl: '/templates/royal-orchid/index.html?preview=mobile&noaudio=true&mute=1',
+    previewImg: '/templates/royal-orchid/assets/bride-groom.png',
     description: 'Majestic 3D palace fort doors swinging open with Ganesha blessings, floating golden petals, scratch card and Lake Pichola Udaipur navigation.',
     features: ['3D Fort Doors Opening', 'Floating Gold Petals', 'Parallax Palace Backdrop', 'Interactive Scratch Card', 'Lake Pichola Udaipur Venue'],
     accentColor: '#4A0E17',
@@ -59,6 +63,7 @@ const DEMO_THEMES: Array<any> = [
     badge: '👑 Royal Masterpiece',
     subtitle: 'Envelope & Palace Doors · Imperial Storybook',
     previewUrl: '/templates/shahi-farman/index.html?preview=mobile&noaudio=true&mute=1',
+    previewImg: '/templates/shahi-farman/assets/hero-scene.png',
     description: 'Dual-stage cinematic opening gate: sealed wax golden envelope lifts, ornate palace doors slide apart, gold leaf scratch card & 8 royal chapters.',
     features: ['Dual-Stage Opening Gate', 'Gold Leaf Scratch Card', '8 Illustrated Ceremony Chapters', 'Live Countdown Timer', 'Shehnai Music Toggle'],
     accentColor: '#2D080E',
@@ -197,56 +202,26 @@ export const RoyalLiveDemo: React.FC<RoyalLiveDemoProps> = ({
         <div className="lg:col-span-6 flex justify-center py-2">
           <div className="scale-[0.80] sm:scale-[0.88] lg:scale-[0.92] origin-top sm:origin-center drop-shadow-[0_25px_50px_rgba(43,9,20,0.18)]">
             <IPhoneHardwareFrame>
-              <div className="w-full h-full relative overflow-hidden bg-black flex flex-col justify-between">
-                
-                {/* Active Theme Preview Image */}
-                <img
-                  src={current.previewImg}
-                  alt={current.name}
-                  className="w-full h-full object-cover object-center transition-all duration-500"
+              <div className="w-full h-full relative overflow-hidden bg-[#1A0508]">
+                {/* Live Interactive Template Frame */}
+                <iframe
+                  key={current.id}
+                  src={current.previewUrl}
+                  title={`Live Demo of ${current.name}`}
+                  className="w-full h-full border-0 block"
+                  allow="autoplay; clipboard-write"
                 />
 
-                {/* Top Overlay Badge Inside iPhone Display */}
-                <div className="absolute top-14 inset-x-4 flex items-center justify-between text-[#FFFDF8] z-10">
-                  <span className="text-[10px] font-sans font-semibold uppercase tracking-wider bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10 shadow-xs">
+                {/* Top Subtle Overlay Badge */}
+                <div className="absolute top-12 inset-x-4 flex items-center justify-between pointer-events-none z-10">
+                  <span className="text-[10px] font-sans font-bold uppercase tracking-wider bg-black/75 backdrop-blur-md text-[#F4D06F] px-2.5 py-1 rounded-full border border-[#C49A35]/30 shadow-md">
                     {current.name}
                   </span>
-                  <span className="text-[10px] font-sans font-medium text-[#FAF6EE] bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/10 shadow-xs">
-                    <Volume2 className="w-3 h-3 text-[#C49A35]" />
-                    <span>Shehnai On</span>
+                  <span className="text-[10px] font-sans font-semibold text-emerald-300 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1 shadow-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Live 3D</span>
                   </span>
                 </div>
-
-                {/* Bottom Interactive Floating Control Card Inside iPhone */}
-                <div className="absolute bottom-6 inset-x-4 bg-[#140D0B]/85 backdrop-blur-md p-3.5 rounded-2xl border border-[#C49A35]/40 text-[#FFFDF8] space-y-2 z-10 shadow-2xl">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-serif font-bold text-base text-[#FAF6EE]">
-                      Dhruv &amp; Shreya
-                    </span>
-                    <span className="text-[10px] font-sans font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                      Live Preview
-                    </span>
-                  </div>
-
-                  <div className="flex gap-2 pt-0.5">
-                    <button
-                      type="button"
-                      onClick={() => onPreviewTheme(current.id)}
-                      className="flex-1 py-2 rounded-xl bg-[#6E1020] hover:bg-[#430914] text-[#FFFDF8] text-[11px] font-sans font-semibold flex items-center justify-center gap-1.5 cursor-pointer shadow-md border border-[#C49A35]/50 transition-all hover:scale-[1.02]"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-[#C49A35]" />
-                      <span>Open 3D Preview</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onEnterStudio(current.id)}
-                      className="py-2 px-3.5 rounded-xl bg-[#FAF6EE] hover:bg-[#FFFFFF] text-[#6E1020] text-[11px] font-sans font-semibold cursor-pointer border border-[#E8DCC8] transition-all hover:scale-[1.02]"
-                    >
-                      Customise
-                    </button>
-                  </div>
-                </div>
-
               </div>
             </IPhoneHardwareFrame>
           </div>

@@ -781,8 +781,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
-                    onClick={() => onPreviewTheme(theme.id)}
-                    className="py-2.5 rounded-xl border border-[#E8D5AD] bg-[#FAF6EE] hover:bg-white text-[#6E1020] font-sans font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.open('/invitation/' + theme.id, '_blank');
+                      }
+                    }}
+                    className="py-2.5 rounded-xl border border-[#C49A35]/60 bg-[#FAF6EE] hover:bg-white text-[#6E1020] font-sans font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                    title="Open Full Screen Live Demo in New Tab"
                   >
                     <Eye className="w-3.5 h-3.5 text-[#8E6725]" />
                     <span>Live Demo</span>
