@@ -1,13 +1,10 @@
-// 👑 THE ROYAL GATEWAY · IMPERIAL PEACOCK PALACE TEMPLATE ENGINE
+// 👑 THE ROYAL GATEWAY · 1:1 PERFECT CLONE ENGINE
 (function() {
   'use strict';
 
   var audioEl = document.getElementById('bgAudio');
   var musicToggle = document.getElementById('musicToggle');
   var gateOverlay = document.getElementById('gateOverlay');
-  var gateTrigger = document.getElementById('gateOpenTrigger');
-  var tapButtonWrap = document.getElementById('tapButtonWrap');
-  var lightBeam = document.getElementById('lightBeam');
   var targetTimestamp = new Date("2026-12-21T19:00:00+05:30").getTime();
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -22,36 +19,50 @@
     }
   });
 
-  // 1. 🚪 3D Palace Gate Opening
+  // 1. 🚪 3D Palace Gate Opening Animation
   function initGateOpening() {
-    if (!gateOverlay || (!gateTrigger && !tapButtonWrap)) return;
+    if (!gateOverlay) return;
 
     var opened = false;
-    function openGate() {
+    function triggerOpen(e) {
       if (opened) return;
       opened = true;
 
-      // Expand light beam
-      if (lightBeam) {
-        lightBeam.style.opacity = '1';
-        lightBeam.style.transform = 'translateX(-50%) scaleY(1)';
+      // Find the doors
+      var leftDoor = gateOverlay.querySelector('img[src*="peacock-left"]');
+      var rightDoor = gateOverlay.querySelector('img[src*="peacock-right"]');
+      var gateFrame = gateOverlay.querySelector('.will-change-transform') || gateOverlay.querySelector('div[style*="aspect-ratio"]');
+
+      if (leftDoor) {
+        leftDoor.style.transition = 'transform 1.1s cubic-bezier(0.25, 1, 0.5, 1)';
+        leftDoor.style.transform = 'rotateY(-85deg) scaleX(0.15)';
+      }
+      if (rightDoor) {
+        rightDoor.style.transition = 'transform 1.1s cubic-bezier(0.25, 1, 0.5, 1)';
+        rightDoor.style.transform = 'rotateY(85deg) scaleX(0.15)';
+      }
+      if (gateFrame) {
+        gateFrame.style.transition = 'transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease';
+        gateFrame.style.transform = 'translateX(-50%) translateY(-50%) scale(4.5)';
       }
 
-      // Add opened class to swing doors & zoom
-      gateOverlay.classList.add('gate-opened');
+      gateOverlay.style.transition = 'opacity 1.1s ease';
+      gateOverlay.style.opacity = '0';
+      gateOverlay.style.pointerEvents = 'none';
 
       playAudio();
 
       setTimeout(function() {
         gateOverlay.style.display = 'none';
-      }, 1250);
+      }, 1150);
     }
 
-    if (gateTrigger) gateTrigger.addEventListener('click', openGate);
-    if (tapButtonWrap) tapButtonWrap.addEventListener('click', openGate);
+    // Attach click to any button or anywhere on gateOverlay
+    gateOverlay.addEventListener('click', triggerOpen);
+    gateOverlay.addEventListener('touchstart', triggerOpen, { passive: true });
   }
 
-  // 2. 🎶 Audio Player
+  // 2. 🎶 Shehnai Audio Player
   function playAudio() {
     if (!audioEl || window.LIVE_AUDIO_DISABLED) return;
     audioEl.play().then(function() {
@@ -89,45 +100,46 @@
       var mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       var secs = Math.floor((diff % (1000 * 60)) / 1000);
 
-      var dEl = document.getElementById('days') || document.querySelector('.countdown-days');
-      var hEl = document.getElementById('hours') || document.querySelector('.countdown-hours');
-      var mEl = document.getElementById('mins') || document.querySelector('.countdown-mins');
-      var sEl = document.getElementById('secs') || document.querySelector('.countdown-secs');
+      var dEls = document.querySelectorAll('#days, .countdown-days, [data-unit="days"]');
+      var hEls = document.querySelectorAll('#hours, .countdown-hours, [data-unit="hours"]');
+      var mEls = document.querySelectorAll('#mins, .countdown-mins, [data-unit="mins"]');
+      var sEls = document.querySelectorAll('#secs, .countdown-secs, [data-unit="secs"]');
 
-      if (dEl) dEl.textContent = String(days).padStart(2, '0');
-      if (hEl) hEl.textContent = String(hours).padStart(2, '0');
-      if (mEl) mEl.textContent = String(mins).padStart(2, '0');
-      if (sEl) sEl.textContent = String(secs).padStart(2, '0');
+      dEls.forEach(function(el) { el.textContent = String(days).padStart(2, '0'); });
+      hEls.forEach(function(el) { el.textContent = String(hours).padStart(2, '0'); });
+      mEls.forEach(function(el) { el.textContent = String(mins).padStart(2, '0'); });
+      sEls.forEach(function(el) { el.textContent = String(secs).padStart(2, '0'); });
     }
 
     update();
     setInterval(update, 1000);
   }
 
-  // 4. 🪙 Interactive Gold Scratch Card
+  // 4. 🪙 Gold Scratch Card
   function initScratchCard() {
     var canvas = document.getElementById('scratchCanvas');
-    if (!canvas) {
-      // Find scratch container in Section 3
-      var scratchArea = document.querySelector('section.text-center .relative.aspect-\\[4\\/3\\], section .aspect-\\[4\\/3\\]');
-      if (scratchArea) {
-        canvas = document.createElement('canvas');
-        canvas.id = 'scratchCanvas';
-        canvas.className = 'absolute inset-0 w-full h-full cursor-pointer z-20 rounded-2xl touch-none';
-        scratchArea.appendChild(canvas);
-      } else {
-        return;
-      }
+    var targetArea = document.querySelector('.aspect-\\[4\\/3\\]') || document.querySelector('[class*="aspect-[4/3]"]');
+    
+    if (!canvas && targetArea) {
+      canvas = document.createElement('canvas');
+      canvas.id = 'scratchCanvas';
+      canvas.className = 'absolute inset-0 w-full h-full cursor-pointer z-30 rounded-2xl touch-none';
+      targetArea.appendChild(canvas);
     }
+    if (!canvas) return;
 
     var rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) {
+      setTimeout(initScratchCard, 300);
+      return;
+    }
+
     canvas.width = rect.width * (window.devicePixelRatio || 1);
     canvas.height = rect.height * (window.devicePixelRatio || 1);
 
     var ctx = canvas.getContext('2d');
     ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
 
-    // Draw Gold Foil
     var w = rect.width;
     var h = rect.height;
 
@@ -140,19 +152,13 @@
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
 
-    // Gold Shimmer Pattern
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-    for (var i = 0; i < w; i += 20) {
-      ctx.fillRect(i, 0, 10, h);
-    }
-
     // Text on card
-    ctx.font = 'bold 14px "Cinzel Decorative", serif';
+    ctx.font = 'bold 15px "Cinzel Decorative", serif';
     ctx.fillStyle = '#39150F';
     ctx.textAlign = 'center';
     ctx.fillText('✨ RUB OR SCRATCH HERE ✨', w / 2, h / 2 - 10);
     ctx.font = '11px sans-serif';
-    ctx.fillText('To Reveal Sacred Vivah Muhurat', w / 2, h / 2 + 15);
+    ctx.fillText('To Reveal Sacred Wedding Muhurat', w / 2, h / 2 + 15);
 
     var isDrawing = false;
     function scratch(e) {
@@ -165,7 +171,7 @@
 
       ctx.globalCompositeOperation = 'destination-out';
       ctx.beginPath();
-      ctx.arc(x, y, 22, 0, Math.PI * 2, false);
+      ctx.arc(x, y, 24, 0, Math.PI * 2, false);
       ctx.fill();
     }
 
@@ -178,7 +184,7 @@
     window.addEventListener('touchend', function() { isDrawing = false; });
   }
 
-  // 5. 🔄 Dynamic Data Bridge
+  // 5. 🔄 Live Data Updates
   function applyWeddingData(data) {
     if (!data) return;
 
@@ -187,17 +193,11 @@
     var dateStr = (data.couple && data.couple.weddingDate) || '21 December 2026';
     var venue = (data.couple && data.couple.venueName) || 'Shubh Vivah Banquet Hall';
 
-    // Update names
     document.querySelectorAll('.groom-name').forEach(function(el) { el.textContent = groom; });
     document.querySelectorAll('.bride-name').forEach(function(el) { el.textContent = bride; });
-
-    // Update date
     document.querySelectorAll('.wedding-date').forEach(function(el) { el.textContent = dateStr; });
-
-    // Update venue
     document.querySelectorAll('.venue-name').forEach(function(el) { el.textContent = venue; });
 
-    // Parse date for countdown
     try {
       var parsed = Date.parse(dateStr);
       if (!isNaN(parsed)) {
