@@ -86,7 +86,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
   const lastSecondRef = useRef<string>('');
 
   const templateUrls: Record<string, string> = {
-    'shubh-lagna': '/templates/shubh-lagna/index.html',
+    'shubh-lagna': '/templates/shubh-vivah/index.html',
     'shubh-vivah': '/templates/shubh-vivah/index.html',
     'rose-farman': '/templates/rose-farman/index.html',
     'royal-orchid': '/templates/royal-orchid/index.html',
@@ -105,7 +105,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
     shahidesk: '/templates/shahi-desk/index.html',
   };
 
-  const targetUrl = templateUrls[state.theme] || '/templates/shubh-lagna/index.html';
+  const targetUrl = templateUrls[state.theme] || '/templates/shubh-vivah/index.html';
 
   // 🔇 Silence previous iframe audio when switching theme
   useEffect(() => {

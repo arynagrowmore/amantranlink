@@ -218,7 +218,7 @@ function MainApp() {
 
   const isMobileClient = typeof window !== 'undefined' && window.innerWidth < 1024;
   const defaultStudioState: WeddingProjectState = {
-    theme: 'darbar',
+    theme: 'shubh-vivah',
     viewMode: isMobileClient ? 'mobile' : 'desktop',
     previewZoom: isMobileClient ? 1 : 0.9,
     language: 'en',
@@ -789,7 +789,7 @@ function MainApp() {
             if (themeId) {
               setState((prev) => ({ ...prev, theme: themeId }));
             }
-            handleEnterStudio(themeId || 'darbar');
+            handleEnterStudio(themeId || 'shubh-vivah');
           }}
         />
         <RoyalPaymentModal

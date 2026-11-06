@@ -14,95 +14,97 @@ export interface PackagePricingConfig {
 export const OFFICIAL_PACKAGES: Record<PackageType, PackagePricingConfig> = {
   silver: {
     id: 'silver',
-    name: 'Shahi Silver',
-    priceInr: 999,
-    amountInPaise: 99900,
-    badge: 'Popular for Single Theme (₹999)',
-    subtitle: 'Classic Royal Invitation for 1 Selected Theme',
+    name: 'Shahi Silver (Shubh Vivah)',
+    priceInr: 499,
+    amountInPaise: 49900,
+    badge: 'Super Affordable (₹499)',
+    subtitle: 'Wax Seal Envelope, Gold Scratch Card & 5 Sacred Ceremonies',
     features: [
-      '1 Chosen Royal Theme',
-      'Background Shehnai Audio Player',
-      '1-Tap Google Maps GPS Route',
-      'Unlimited Guest RSVPs & Wishes',
-      'Full Hindi, Gujarati & English Scripts',
-      'Permanent Cloud Hosting',
+      'Shubh Vivah Theme Included',
+      'Real Wax Seal Envelope Opening',
+      'Interactive Rub & Reveal Gold Scratch Card',
+      'Drifting Petals & Sacred Mandalas Animation',
+      'Background Shehnai & Sangeet Audio Player',
+      '1-Tap Google Maps GPS Route to Mandap',
+      'Unlimited Guest RSVPs & Family Wishes',
+      'Permanent Lifetime Cloud Hosting',
     ],
   },
   gold: {
     id: 'gold',
-    name: 'Shahi Gold Royal',
-    priceInr: 1299,
-    amountInPaise: 129900,
-    badge: '👑 Most Chosen for Royal Weddings (₹1,299)',
-    subtitle: 'All 8 Royal Themes Included with 3D Palace Gates & Scratch Cards',
+    name: 'Shahi Gold Royal (Rose Farman & All Themes)',
+    priceInr: 699,
+    amountInPaise: 69900,
+    badge: '⭐ Most Popular Choice (₹699)',
+    subtitle: '3D Envelope Flap, Rose Petal Rain Physics & 7 Illustrated Chapters',
     features: [
-      'All 8 Royal Themes Included',
-      '3D Animated Palace Gates & Parallax',
-      'Gold Scratch-Heart Blessing Card',
+      'Both Shubh Vivah & Rose Farman Themes Included',
+      '3D Animated Letter Envelope Sliding Flap',
+      'Continuous Rose Petal Rain Physics Engine',
+      'Gold Heart Rub & Reveal Scratch Card',
+      '7 Illustrated Ceremony Chapter Cards',
       'Trilingual Vivah Engine (EN, HI, GU)',
-      'Lossless Shehnai & Audio Uploads',
-      'Guest Hospitality & RSVP Directory',
-      'Live RSVP Analytics & Excel Download',
+      'Lossless Shehnai & Custom Audio Uploads',
+      'Guest Hospitality & RSVP Management Portal',
     ],
   },
   platinum: {
     id: 'platinum',
-    name: 'Rajmahal Platinum VIP',
-    priceInr: 2499,
-    amountInPaise: 249900,
-    badge: '⭐ Bespoke White-Glove VIP Suite (₹2,499)',
-    subtitle: 'Full Custom Designer Build, Dedicated Concierge & .com Domain',
+    name: 'Rajmahal Platinum VIP (All Themes + VIP)',
+    priceInr: 999,
+    amountInPaise: 99900,
+    badge: '👑 Royal VIP Suite (₹999)',
+    subtitle: 'All Royal Themes + Priority Fast Hosting & White-Glove Support',
     features: [
-      'Dedicated Royal Design Director',
-      'Custom .com Domain Setup',
-      'All 8 Royal Themes Included',
-      '24K Gold Acrylic Keepsake QR Plaque',
-      'Guest RSVP Concierge Support',
-      'Priority Global CDN & High-Speed Servers',
+      'All Themes Included (Shubh Vivah, Rose Farman & Future Themes)',
+      'Priority Cloud CDN & High-Speed Loading',
+      'Custom Monogram & Typography Presets',
+      'WhatsApp Bespoke Guest Invitation Links',
+      'Dedicated VIP WhatsApp Support',
     ],
   },
 };
 
 // 🏛️ Which Package is automatically associated with each Theme
 export const THEME_PACKAGE_MAP: Record<ThemeId, PackageType> = {
-  'shubh-lagna': 'gold',
-  'shubh-vivah': 'gold',
-  'rose-farman': 'gold',
-  'royal-orchid': 'gold',
-  'shahi-farman': 'gold',
-  rajmahal: 'gold',     // 3D Palace Heritage -> Gold Royal (₹1,299)
-  royaldawn: 'gold',    // Lakefront & Scratch Card -> Gold Royal (₹1,299)
-  royalring: 'gold',    // 3D Floating Diamond Engagement -> Gold Royal (₹1,299)
-  darbar: 'gold',       // The Rajasthani Darbar -> Gold Royal (₹1,299)
-  chandramahal: 'gold', // The Chandra Mahal -> Gold Royal (₹1,299)
-  swarnim: 'gold',      // Swarnim Farman & Scratch -> Gold Royal (₹1,299)
-  shahidesk: 'gold',    // The Shahi Dastavej Desk -> Gold Royal (₹1,299)
-  jharokha: 'silver',   // Rajasthani Arch -> Silver (₹999)
-  mayura: 'silver',     // Peacock Teal -> Silver (₹999)
-  jodi: 'silver',       // Sacred Thaali -> Silver (₹999)
-  dak: 'silver',        // Royal Postal Telegram -> Silver (₹999)
-  ivory: 'silver',      // Haute Couture Minimalist -> Silver (₹999)
+  'shubh-lagna': 'silver',   // ₹499 Entry
+  'shubh-vivah': 'gold',     // ₹699 Popular
+  'rose-farman': 'gold',     // ₹699 Popular
+  'royal-orchid': 'platinum',// ₹999 Masterpiece
+  'shahi-farman': 'platinum',// ₹999 Masterpiece
+  rajmahal: 'platinum',
+  royaldawn: 'gold',
+  royalring: 'platinum',
+  darbar: 'platinum',
+  chandramahal: 'platinum',
+  swarnim: 'gold',
+  shahidesk: 'platinum',
+  jharokha: 'silver',
+  mayura: 'silver',
+  jodi: 'silver',
+  dak: 'silver',
+  ivory: 'silver',
 };
 
 // 🏷️ Official Theme Pricing Catalog (Matches Package Map)
 export const THEME_PRICING_CATALOG: Record<ThemeId, { priceInr: number; amountInPaise: number; packageId: PackageType; name: string }> = {
-  'shubh-lagna': { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'Shubh Lagna · Marigold Heritage' },
-  'shubh-vivah': { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'Shubh Vivah · Wax Seal & Gold Scratch' },
-  'rose-farman': { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Rose Farman · Petal Rain & Scratch Card' },
-  'royal-orchid': { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Royal Orchid · 3D Palace Gate' },
-  'shahi-farman': { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Shahi Dastavej · Golden Envelope & Doors' },
-  rajmahal: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Rajmahal 3D Palace' },
-  royaldawn: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Royal Dawn (Lakefront & Scratch Card)' },
-  royalring: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Royal Ring (3D Diamond Engagement)' },
-  darbar: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Rajasthani Darbar (Silk Curtain & Scratch)' },
-  chandramahal: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Chandra Mahal (3D Gate & Peacocks)' },
-  swarnim: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'Swarnim Farman & Scratch Card' },
-  shahidesk: { priceInr: 1299, amountInPaise: 129900, packageId: 'gold', name: 'The Shahi Dastavej Desk (Scrapbook & Sangeet)' },
-  jharokha: { priceInr: 999, amountInPaise: 99900, packageId: 'silver', name: 'The Jharokha Mandap' },
-  mayura: { priceInr: 999, amountInPaise: 99900, packageId: 'silver', name: 'The Mayura Peacock' },
-  jodi: { priceInr: 999, amountInPaise: 99900, packageId: 'silver', name: 'The Shubh Jodi' },
-  dak: { priceInr: 999, amountInPaise: 99900, packageId: 'silver', name: 'The Shahi Dâk' },
-  ivory: { priceInr: 999, amountInPaise: 99900, packageId: 'silver', name: 'The Ivory Minimalist' },
+  'shubh-lagna': { priceInr: 499, amountInPaise: 49900, packageId: 'silver', name: 'Shubh Lagna · Marigold Heritage' },
+  'shubh-vivah': { priceInr: 699, amountInPaise: 69900, packageId: 'gold', name: 'Shubh Vivah · Wax Seal & Gold Scratch' },
+  'rose-farman': { priceInr: 699, amountInPaise: 69900, packageId: 'gold', name: 'The Rose Farman · Petal Rain & Scratch Card' },
+  'royal-orchid': { priceInr: 999, amountInPaise: 99900, packageId: 'platinum', name: 'The Royal Orchid · 3D Palace Gate' },
+  'shahi-farman': { priceInr: 999, amountInPaise: 99900, packageId: 'platinum', name: 'The Shahi Dastavej · Golden Envelope & Doors' },
+  rajmahal: { priceInr: 999, amountInPaise: 99900, packageId: 'platinum', name: 'The Rajmahal 3D Palace' },
+  royaldawn: { priceInr: 699, amountInPaise: 69900, packageId: 'gold', name: 'The Royal Dawn (Lakefront & Scratch Card)' },
+  royalring: { priceInr: 999, amountInPaise: 99900, packageId: 'platinum', name: 'The Royal Ring (3D Diamond Engagement)' },
+  darbar: { priceInr: 999, amountInPaise: 99900, packageId: 'platinum', name: 'The Rajasthani Darbar (Silk Curtain & Scratch)' },
+  chandramahal: { priceInr: 999, amountInPaise: 99900, packageId: 'platinum', name: 'The Chandra Mahal (3D Gate & Peacocks)' },
+  swarnim: { priceInr: 699, amountInPaise: 69900, packageId: 'gold', name: 'Swarnim Farman & Scratch Card' },
+  shahidesk: { priceInr: 999, amountInPaise: 99900, packageId: 'platinum', name: 'The Shahi Dastavej Desk (Scrapbook & Sangeet)' },
+  jharokha: { priceInr: 499, amountInPaise: 49900, packageId: 'silver', name: 'The Jharokha Mandap' },
+  mayura: { priceInr: 499, amountInPaise: 49900, packageId: 'silver', name: 'The Mayura Peacock' },
+  jodi: { priceInr: 499, amountInPaise: 49900, packageId: 'silver', name: 'The Shubh Jodi' },
+  dak: { priceInr: 499, amountInPaise: 49900, packageId: 'silver', name: 'The Shahi Dâk' },
+  ivory: { priceInr: 499, amountInPaise: 49900, packageId: 'silver', name: 'The Ivory Minimalist' },
 };
 
 // 👑 Two-Role Commercial Role Identifiers
@@ -127,27 +129,27 @@ export interface PartnerPackagePricingConfig {
 export const PARTNER_PACKAGES: Record<PackageType, PartnerPackagePricingConfig> = {
   silver: {
     packageId: 'silver',
-    name: 'Shahi Silver (Partner Rate)',
+    name: 'Shahi Silver (Studio Rate)',
+    retailPriceInr: 499,
+    partnerPriceInr: 349,
+    commissionInr: 150,
+    partnerAmountInPaise: 34900,
+  },
+  gold: {
+    packageId: 'gold',
+    name: 'Shahi Gold Royal (Studio Rate)',
+    retailPriceInr: 699,
+    partnerPriceInr: 499,
+    commissionInr: 200,
+    partnerAmountInPaise: 49900,
+  },
+  platinum: {
+    packageId: 'platinum',
+    name: 'Rajmahal Platinum VIP (Studio Rate)',
     retailPriceInr: 999,
     partnerPriceInr: 699,
     commissionInr: 300,
     partnerAmountInPaise: 69900,
-  },
-  gold: {
-    packageId: 'gold',
-    name: 'Shahi Gold Royal (Partner Rate)',
-    retailPriceInr: 1299,
-    partnerPriceInr: 899,
-    commissionInr: 400,
-    partnerAmountInPaise: 89900,
-  },
-  platinum: {
-    packageId: 'platinum',
-    name: 'Rajmahal Platinum VIP (Partner Rate)',
-    retailPriceInr: 2499,
-    partnerPriceInr: 1699,
-    commissionInr: 800,
-    partnerAmountInPaise: 169900,
   },
 };
 

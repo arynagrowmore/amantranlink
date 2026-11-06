@@ -83,7 +83,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         return slug as ThemeId;
       }
     }
-    return initialState?.theme || 'shubh-lagna';
+    return initialState?.theme || 'shubh-vivah';
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const countdownIntervalRef = useRef<any>(null);
@@ -330,7 +330,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
         }
         const qTheme = searchParams?.get('theme') || searchParams?.get('t');
         const validThemes = ['shubh-lagna', 'shubh-vivah', 'rose-farman', 'royal-orchid', 'shahi-farman', 'rajmahal', 'royaldawn', 'royalring', 'darbar', 'chandramahal', 'swarnim', 'shahidesk', 'jharokha', 'mayura', 'jodi', 'dak', 'ivory'];
-        const fallbackTheme = (qTheme && validThemes.includes(qTheme) ? qTheme : 'shubh-lagna') as ThemeId;
+        const fallbackTheme = (qTheme && validThemes.includes(qTheme) ? qTheme : 'shubh-vivah') as ThemeId;
         setThemeId(fallbackTheme);
         setLoadedState({
           theme: fallbackTheme,
@@ -447,7 +447,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   ) as ThemeId;
   const normalizedData = normalizeInvitationData(rawState, resolvedSlug, siteId || undefined, studioBadge || undefined);
   const templatePathMap: Partial<Record<ThemeId, string>> = {
-    'shubh-lagna': '/templates/shubh-lagna/index.html',
+    'shubh-lagna': '/templates/shubh-vivah/index.html',
     'shubh-vivah': '/templates/shubh-vivah/index.html',
     'rose-farman': '/templates/rose-farman/index.html',
     'royal-orchid': '/templates/royal-orchid/index.html',
@@ -457,7 +457,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
     swarnim: '/templates/swarnim-scratch/index.html',
     shahidesk: '/templates/shahi-desk/index.html',
   };
-  const baseTplPath = templatePathMap[activeTheme] || '/templates/shubh-lagna/index.html';
+  const baseTplPath = templatePathMap[activeTheme] || '/templates/shubh-vivah/index.html';
   const templateUrl = `${baseTplPath}?slug=${encodeURIComponent(resolvedSlug)}&siteId=${encodeURIComponent(siteId || '')}`;
 
   // ⏰ Universal Live Countdown Timer

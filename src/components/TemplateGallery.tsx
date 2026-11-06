@@ -31,8 +31,9 @@ export interface RoyalTemplateItem {
   category: 'heritage' | 'traditional' | 'royal' | 'modern' | 'engagement';
   categoryLabel: string;
   badge?: string;
-  packageType: 'silver' | 'gold';
+  packageType: 'silver' | 'gold' | 'platinum';
   priceInr: number;
+  originalPriceInr?: number;
   imagePosition?: string;
   features: string[];
   isFeatured?: boolean;
@@ -40,83 +41,37 @@ export interface RoyalTemplateItem {
 
 export const ROYAL_7_TEMPLATES: RoyalTemplateItem[] = [
   {
-    id: 'shubh-lagna',
-    slug: 'shubh-lagna',
-    name: 'Shubh Lagna · Marigold Heritage',
-    subtitle: 'Vedic Gujarati Royal Vivah',
-    tagline: 'Marigold Toran, Ganesha Vandana & 6-Event Itinerary',
-    description: 'Traditional Gujarati Vedic wedding invitation featuring hanging marigold torans, corner mandalas, golden Ganesha Vandana, couple cutout, and bilingual itinerary.',
-    previewImg: '/templates/shubh-lagna/assets/couple-cutout.png',
-    category: 'traditional',
-    categoryLabel: 'Traditional Gujarati',
-    badge: '👑 Flagship Heritage',
-    packageType: 'gold',
-    priceInr: 2299,
-    features: ['Marigold Toran Garland', 'Bilingual Event Itinerary', 'Live Countdown Timer', 'Diya Family Blessings', 'Google Maps Route'],
-    isFeatured: true,
-  },
-  {
     id: 'shubh-vivah',
     slug: 'shubh-vivah',
-    name: 'Shubh Vivah · Wax Seal & Scratch Card',
-    subtitle: 'Interactive Sealed Envelope Invitation',
-    tagline: 'Tap-to-Open Wax Seal, Floating Petals & Gold Scratch Date',
-    description: 'A full-screen royal envelope sealed with animated wax emblem that opens with shehnai music, featuring drifting marigolds and an interactive rub-and-reveal scratch card.',
+    name: 'Shubh Vivah · Wax Seal & Scratch',
+    subtitle: 'Wax Seal Envelope & Gold Scratch Foil',
+    tagline: 'Wax Seal, Falling Petals & Rub-to-Reveal Card',
+    description: 'Full-screen royal envelope sealed with animated wax emblem that opens with shehnai music, featuring drifting marigolds and an interactive rub-and-reveal scratch card.',
     previewImg: '/templates/shubh-vivah/assets/couple.png',
-    category: 'heritage',
-    categoryLabel: 'Imperial Wax Seal',
-    badge: '⭐ Most Popular',
-    packageType: 'gold',
-    priceInr: 2299,
+    category: 'royal',
+    categoryLabel: 'Wax Seal & Scratch',
+    badge: '👑 Flagship Heritage',
+    packageType: 'silver',
+    priceInr: 499,
+    originalPriceInr: 1499,
     features: ['Full-Screen Wax Seal Cover', 'Gold Scratch-Off Date Card', 'Rotating Mandala Watermark', 'Drifting Petals Animation', '5-Ceremony Timeline'],
     isFeatured: true,
   },
   {
     id: 'rose-farman',
     slug: 'rose-farman',
-    name: 'The Rose Farman · Petal Rain & Scratch',
-    subtitle: 'Blush Velvet & Rose Petal Rain',
-    tagline: '3D Envelope Flap, Petal Rain Physics & Illustrated Chapters',
+    name: 'The Rose Farman · Blush Luxury',
+    subtitle: 'Falling Petals & Gold Heart Scratch',
+    tagline: '3D Envelope Flap, Petal Rain & 7 Chapters',
     description: 'Blush-toned luxury invitation with a 3D letter sliding out of a sealed envelope, continuous rose petal rain physics, interactive gold scratch card, and 7 ceremony illustrations.',
     previewImg: '/templates/rose-farman/assets/hero-couple.png',
     category: 'modern',
-    categoryLabel: 'Blush Luxury',
+    categoryLabel: 'Blush & Petal Rain',
     badge: '🌹 Haute Couture',
     packageType: 'gold',
-    priceInr: 2299,
+    priceInr: 699,
+    originalPriceInr: 1999,
     features: ['3D Animated Envelope Flap', 'Falling Rose Petal Rain', 'Gold Heart Scratch Card', '7 Illustrated Ceremony Cards', 'Shehnai Audio Player'],
-    isFeatured: true,
-  },
-  {
-    id: 'royal-orchid',
-    slug: 'royal-orchid',
-    name: 'The Royal Orchid · 3D Palace Gate',
-    subtitle: 'Majestic Udaipur Fort Entrance',
-    tagline: '3D Palace Doors Swinging Open, Golden Petals & Lake Pichola',
-    description: 'Step into an imperial palace celebration with massive 3D carved fort gates swinging open, Ganesha Vandana, floating gold sparkles, interactive scratch card, and Lake Pichola directions.',
-    previewImg: '/templates/royal-orchid/assets/bride-groom.png',
-    category: 'heritage',
-    categoryLabel: 'Udaipur Heritage',
-    badge: '🏰 3D Palace Gate',
-    packageType: 'gold',
-    priceInr: 2299,
-    features: ['3D Fort Doors Opening', 'Floating Gold Petals', 'Parallax Palace Backdrop', 'Interactive Scratch Card', 'Lake Pichola Udaipur Venue'],
-    isFeatured: true,
-  },
-  {
-    id: 'shahi-farman',
-    slug: 'shahi-farman',
-    name: 'The Shahi Dastavej · Golden Envelope & Doors',
-    subtitle: 'Imperial Two-Stage Cinematic Unveiling',
-    tagline: 'Wax Seal Envelope + Sliding Fort Doors + 8 Royal Chapters',
-    description: 'The pinnacle of royal digital invitations: an envelope lifts up, then grand palace doors slide open with a golden light beam, revealing an interactive storybook of eight illustrated ceremonies.',
-    previewImg: '/templates/shahi-farman/assets/hero-scene.png',
-    category: 'heritage',
-    categoryLabel: 'Imperial Storybook',
-    badge: '👑 Royal Masterpiece',
-    packageType: 'gold',
-    priceInr: 2299,
-    features: ['Dual-Stage Opening Gate', 'Gold Leaf Scratch Card', '8 Illustrated Ceremony Chapters', 'Live Countdown Timer', 'Shehnai Music Toggle'],
     isFeatured: true,
   },
 ];
@@ -207,7 +162,7 @@ export const StandardizedTemplateCard: React.FC<{
             </span>
           ) : (
             <span className="text-[8.5px] font-mono font-bold tracking-wider bg-black/75 backdrop-blur-md text-[#E8D5AD] px-2.5 py-0.5 rounded-full border border-[#C49A35]/40 shadow-xs uppercase">
-              {template.packageType === 'gold' ? 'ALL THEMES INCLUDED' : 'SINGLE THEME ACCESS'}
+              {template.packageType === 'platinum' ? 'PLATINUM VIP ACCESS' : template.packageType === 'gold' ? 'ALL THEMES INCLUDED' : 'SINGLE THEME ACCESS'}
             </span>
           )}
         </div>
@@ -237,7 +192,7 @@ export const StandardizedTemplateCard: React.FC<{
               {template.categoryLabel}
             </span>
             <span className="text-[#75675C] font-semibold">
-              {template.packageType === 'gold' ? 'ROYAL GOLD' : 'ROYAL SILVER'}
+              {template.packageType === 'platinum' ? 'ROYAL PLATINUM' : template.packageType === 'gold' ? 'ROYAL GOLD' : 'ROYAL SILVER'}
             </span>
           </div>
 
@@ -304,7 +259,7 @@ export const StandardizedTemplateCard: React.FC<{
           )}
 
           <span className="text-[9px] font-mono text-[#8E6725] bg-[#FFFDF8] border border-[#E8D5AD] px-2.5 py-1 rounded-full uppercase font-bold tracking-wider shadow-2xs">
-            {template.packageType === 'gold' ? 'GOLD BUNDLE' : 'SILVER ACCESS'}
+            {template.packageType === 'platinum' ? 'PLATINUM VIP' : template.packageType === 'gold' ? 'GOLD BUNDLE' : 'SILVER ACCESS'}
           </span>
         </div>
 
