@@ -41,6 +41,23 @@ export interface RoyalTemplateItem {
 
 export const ROYAL_7_TEMPLATES: RoyalTemplateItem[] = [
   {
+    id: 'royal-gateway',
+    slug: 'royal-gateway',
+    name: 'The Royal Gateway · Peacock Palace',
+    subtitle: 'Carved Peacock Doors & Velvet Scrolls',
+    tagline: 'Peacock Gate Swings Open + Sunset Palace + Scratch Card',
+    description: 'Jewel-toned Rajasthani palace invitation that opens through a carved peacock gateway with golden light, sunset palace hero, painted jharokha portrait frames, velvet scrolls, and interactive scratch card.',
+    previewImg: '/templates/royal-gateway/assets/gate/peacock.webp',
+    category: 'royal',
+    categoryLabel: 'Peacock Palace Gate',
+    badge: '🦚 Jewel Royal Gateway',
+    packageType: 'gold',
+    priceInr: 699,
+    originalPriceInr: 1999,
+    features: ['3D Carved Peacock Doors', 'Sunset Palace & Spinning Rosette', 'Velvet Unrolling Ceremony Scrolls', 'Gold Rub & Reveal Scratch Card', 'Royal Photo Gallery & Jharokhas'],
+    isFeatured: true,
+  },
+  {
     id: 'shubh-vivah',
     slug: 'shubh-vivah',
     name: 'Shubh Vivah · Wax Seal & Scratch',

@@ -9,6 +9,14 @@ import {
 
 // 🏷️ Template Catalog with Pricing
 export const TEMPLATES_CATALOG: Record<ThemeId, TemplateConfig> = {
+  'royal-gateway': {
+    templateId: 'royal-gateway',
+    name: 'The Royal Gateway · Peacock Palace',
+    previewImage: '/templates/royal-gateway/assets/gate/peacock.webp',
+    priceInr: 699,
+    reEditFeeInr: 0,
+    category: 'royal',
+  },
   'shubh-lagna': {
     templateId: 'shubh-lagna',
     name: 'Shubh Lagna · Marigold Heritage',

@@ -14,6 +14,21 @@ interface ThemeSelectorProps {
 
 export const ROYAL_THEMES: Array<WeddingTheme & { previewImg: string; taglineShort: string; tags: string }> = [
   {
+    id: 'royal-gateway',
+    name: 'THE ROYAL GATEWAY',
+    tagline: 'Jewel-toned Rajasthani peacock palace gate opening with shehnai, velvet scrolls & scratch card.',
+    taglineShort: 'Peacock Gate · Velvet Scroll · Scratch',
+    tags: 'Carved Peacock Doors · Grand Palace Hero · Velvet Ceremonies',
+    price: 699,
+    icon: '🦚',
+    badge: 'Peacock Palace Gate',
+    bgGradient: 'from-[#080E2C] via-[#9E141E] to-[#FFE4B3]',
+    accentColor: '#DEA645',
+    description: 'Step into an imperial palace celebration with majestic carved peacock doors swinging open with shehnai music, grand sunset palace, velvet unrolling ceremony scrolls, and interactive scratch card.',
+    url: '/templates/royal-gateway/index.html',
+    previewImg: '/templates/royal-gateway/assets/gate/peacock.webp',
+  },
+  {
     id: 'shubh-vivah',
     name: 'SHUBH VIVAH',
     tagline: 'Full-screen sealed wax envelope with floating petals & interactive gold scratch card.',

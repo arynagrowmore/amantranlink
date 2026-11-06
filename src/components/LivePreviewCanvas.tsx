@@ -86,6 +86,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
   const lastSecondRef = useRef<string>('');
 
   const templateUrls: Record<string, string> = {
+    'royal-gateway': '/templates/royal-gateway/index.html',
     'shubh-lagna': '/templates/shubh-vivah/index.html',
     'shubh-vivah': '/templates/shubh-vivah/index.html',
     'rose-farman': '/templates/rose-farman/index.html',

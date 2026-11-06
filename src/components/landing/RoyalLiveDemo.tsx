@@ -14,6 +14,17 @@ interface RoyalLiveDemoProps {
 
 const DEMO_THEMES: Array<any> = [
   {
+    id: 'royal-gateway',
+    name: 'The Royal Gateway',
+    badge: '🦚 Peacock Palace Gate',
+    subtitle: 'Carved Peacock Doors · Rajasthani Grandeur',
+    previewUrl: '/templates/royal-gateway/index.html?preview=mobile&noaudio=true&mute=1',
+    previewImg: '/templates/royal-gateway/assets/gate/peacock.webp',
+    description: 'Jewel-toned carved peacock palace doors swing open with shehnai music, grand sunset palace, velvet unrolling scrolls, and interactive scratch card.',
+    features: ['3D Carved Peacock Doors', 'Sunset Palace & Spinning Rosette', 'Velvet Unrolling Ceremony Scrolls', 'Gold Scratch-Off Date Card', 'Live Countdown & RSVP'],
+    accentColor: '#9E141E',
+  },
+  {
     id: 'shubh-vivah',
     name: 'Shubh Vivah',
     badge: '👑 Flagship Heritage',

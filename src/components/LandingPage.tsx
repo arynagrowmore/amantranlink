@@ -54,6 +54,21 @@ const THEME_CATALOG: Array<{
   isFeatured?: boolean;
 }> = [
   {
+    id: 'royal-gateway',
+    title: 'The Royal Gateway',
+    subtitle: 'Peacock Palace Gate · Rajasthani Grandeur',
+    tagline: 'Jewel-toned carved peacock doors swinging open with golden light, sunset palace & velvet scrolls.',
+    badge: '🦚 Imperial Masterpiece',
+    category: 'royal',
+    categoryLabel: 'Peacock Palace Gate',
+    features: ['3D Carved Peacock Doors', 'Sunset Palace & Spinning Rosette', 'Velvet Unrolling Ceremony Scrolls', 'Gold Scratch-Off Date Card', 'Live Countdown & RSVP'],
+    previewImg: '/templates/royal-gateway/assets/gate/peacock.webp',
+    packageType: 'gold',
+    price: 699,
+    originalPrice: 1999,
+    isFeatured: true,
+  },
+  {
     id: 'shubh-vivah',
     title: 'Shubh Vivah',
     subtitle: 'Wax Seal & Gold Scratch · Shubh Vivah',

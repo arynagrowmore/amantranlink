@@ -67,6 +67,7 @@ export const OFFICIAL_PACKAGES: Record<PackageType, PackagePricingConfig> = {
 
 // 🏛️ Which Package is automatically associated with each Theme
 export const THEME_PACKAGE_MAP: Record<ThemeId, PackageType> = {
+  'royal-gateway': 'gold',
   'shubh-lagna': 'silver',   // ₹499 Entry
   'shubh-vivah': 'gold',     // ₹699 Popular
   'rose-farman': 'gold',     // ₹699 Popular
@@ -88,6 +89,7 @@ export const THEME_PACKAGE_MAP: Record<ThemeId, PackageType> = {
 
 // 🏷️ Official Theme Pricing Catalog (Matches Package Map)
 export const THEME_PRICING_CATALOG: Record<ThemeId, { priceInr: number; amountInPaise: number; packageId: PackageType; name: string }> = {
+  'royal-gateway': { priceInr: 699, amountInPaise: 69900, packageId: 'gold', name: 'The Royal Gateway · Peacock Palace' },
   'shubh-lagna': { priceInr: 499, amountInPaise: 49900, packageId: 'silver', name: 'Shubh Lagna · Marigold Heritage' },
   'shubh-vivah': { priceInr: 699, amountInPaise: 69900, packageId: 'gold', name: 'Shubh Vivah · Wax Seal & Gold Scratch' },
   'rose-farman': { priceInr: 699, amountInPaise: 69900, packageId: 'gold', name: 'The Rose Farman · Petal Rain & Scratch Card' },
