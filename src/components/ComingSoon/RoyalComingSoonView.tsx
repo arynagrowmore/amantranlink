@@ -11,7 +11,7 @@ interface RoyalComingSoonViewProps {
   onBypassToStudio?: () => void;
 }
 
-export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = () => {
+export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = ({ onAdminClick }) => {
   const [config, setConfig] = useState<ComingSoonConfig>(fetchComingSoonConfig());
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
     days: 14,
@@ -67,6 +67,12 @@ export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = () => {
         registered_at: new Date().toISOString()
       });
       localStorage.setItem('amantranlink_early_access_subscribers', JSON.stringify(existing));
+
+      fetch('/api/public/early-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), contact: contact.trim() })
+      }).catch(() => {});
     } catch (e) {}
 
     setSubmitted(true);
@@ -229,14 +235,25 @@ export const RoyalComingSoonView: React.FC<RoyalComingSoonViewProps> = () => {
 
       </main>
 
-      {/* Royal Clean Footer - Zero Admin Mentions */}
+      {/* Royal Clean Footer */}
       <footer className="relative z-10 max-w-5xl w-full mx-auto px-6 py-6 border-t border-[#E8DFD1] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#8C7A7E]">
         <div className="flex items-center gap-2">
           <span>© 2026 AmantranLink · Shahi Vivah Suite</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <span>Inquiries: {config.contactPhone || '+91 94093 60336'}</span>
+          <button 
+            type="button"
+            onClick={() => {
+              if (onAdminClick) onAdminClick();
+              else window.location.href = '/admin';
+            }}
+            className="flex items-center gap-1 text-[11px] text-[#A68A56] hover:text-[#5B1019] transition-colors underline decoration-dotted cursor-pointer"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Admin Portal</span>
+          </button>
         </div>
       </footer>
 

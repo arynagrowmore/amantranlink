@@ -35,7 +35,8 @@ import { ClientReviewView } from './components/ClientReviewView';
 import { AdminControlCenter } from './components/Admin/AdminControlCenter';
 import { AdminSuperControlCenter } from './components/Admin/SuperControlCenter/AdminSuperControlCenter';
 import { RoyalComingSoonView } from './components/ComingSoon/RoyalComingSoonView';
-import { fetchComingSoonConfig } from './services/adminSuperCenterService';
+import { fetchComingSoonConfig, fetchComingSoonConfigAsync, isAdminVaultAuthenticated } from './services/adminSuperCenterService';
+import { supabase } from './lib/supabase';
 import { ComingSoonConfig } from './types/adminSuperCenter';
 import { RoyalDownloadHubModal } from './components/DownloadHub/RoyalDownloadHubModal';
 import { FirstTimeCoupleOnboardingModal } from './components/Onboarding/FirstTimeCoupleOnboardingModal';
@@ -169,13 +170,54 @@ function MainApp() {
   const [comingSoonConfig, setComingSoonConfig] = useState<ComingSoonConfig>(() => fetchComingSoonConfig());
   const [bypassComingSoon, setBypassComingSoon] = useState<boolean>(false);
 
-  // 🚀 Listen for real-time Coming Soon Mode updates from Admin
+  // 🚀 Real-time Multi-Device Coming Soon Mode Sync (Supabase + Local Events + Polling)
   useEffect(() => {
+    // 1. Initial async fetch directly from Supabase platform_settings
+    fetchComingSoonConfigAsync().then((remoteConfig) => {
+      setComingSoonConfig(remoteConfig);
+    });
+
+    // 2. Local custom event listener (immediate intra-tab / same-origin updates)
     const handleCsChange = (e: any) => {
       if (e.detail) setComingSoonConfig(e.detail);
     };
     window.addEventListener('coming-soon-config-changed', handleCsChange);
-    return () => window.removeEventListener('coming-soon-config-changed', handleCsChange);
+
+    // 3. Supabase Realtime channel subscription for instant multi-device sync
+    const channel = supabase
+      .channel('public:platform_settings:coming_soon')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'platform_settings', filter: 'setting_key=eq.coming_soon_config' },
+        (payload: any) => {
+          if (payload.new && payload.new.setting_value) {
+            const newConfig = payload.new.setting_value as ComingSoonConfig;
+            setComingSoonConfig(newConfig);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('amantranlink_coming_soon_config', JSON.stringify(newConfig));
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    // 4. Polling fallback every 15 seconds (ensures mobile devices receive updates even if WebSocket sleeps)
+    const pollInterval = setInterval(() => {
+      fetchComingSoonConfigAsync().then((remoteConfig) => {
+        setComingSoonConfig(prev => {
+          if (prev.isEnabled !== remoteConfig.isEnabled || prev.launchDate !== remoteConfig.launchDate) {
+            return remoteConfig;
+          }
+          return prev;
+        });
+      });
+    }, 15000);
+
+    return () => {
+      window.removeEventListener('coming-soon-config-changed', handleCsChange);
+      supabase.removeChannel(channel);
+      clearInterval(pollInterval);
+    };
   }, []);
 
   // 🧭 Synchronous Route Listener for Instant Browser Back / Forward & Navigation Updates
@@ -650,8 +692,18 @@ function MainApp() {
   }
 
   // 🚀 If Coming Soon Mode is ENABLED and not bypassed by admin, render the Royal Coming Soon Page!
-  if (comingSoonConfig.isEnabled && !bypassComingSoon) {
-    return <RoyalComingSoonView />;
+  const isVaultAuthed = isAdminVaultAuthenticated();
+  const shouldBypass = isVaultAuthed || bypassComingSoon;
+
+  if (comingSoonConfig.isEnabled && !shouldBypass) {
+    return (
+      <RoyalComingSoonView 
+        onAdminClick={() => {
+          setBypassComingSoon(true);
+          navigateToRoute('/admin');
+        }} 
+      />
+    );
   }
 
   // 📸 If on Photographer Partner Hub View, render the Multi-Client Studio Workspace!

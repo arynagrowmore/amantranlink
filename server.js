@@ -3715,6 +3715,69 @@ app.post('/api/admin/feature-flags/toggle', requireAdminAuth, async (req, res) =
   }
 });
 
+// 4. Platform Settings & Coming Soon Public API (Cross-Device Global Sync)
+app.get('/api/public/platform-settings', async (req, res) => {
+  try {
+    const { data } = await supabase.from('platform_settings').select('*');
+    const settingsMap = {};
+    (data || []).forEach(row => {
+      settingsMap[row.setting_key] = row.setting_value;
+    });
+    return res.json({ success: true, settings: settingsMap });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/public/coming-soon', async (req, res) => {
+  try {
+    const { data } = await supabase
+      .from('platform_settings')
+      .select('setting_value')
+      .eq('setting_key', 'coming_soon_config')
+      .maybeSingle();
+
+    const config = data?.setting_value || { isEnabled: false };
+    return res.json({ success: true, isEnabled: Boolean(config.isEnabled), config });
+  } catch (err) {
+    return res.status(500).json({ success: false, isEnabled: false, error: err.message });
+  }
+});
+
+app.post('/api/admin/coming-soon', requireAdminAuth, async (req, res) => {
+  try {
+    const { config, adminEmail } = req.body;
+    if (!config || typeof config.isEnabled !== 'boolean') {
+      return res.status(400).json({ success: false, error: 'Valid config with boolean isEnabled is required' });
+    }
+
+    await supabase.from('platform_settings').upsert({
+      setting_key: 'coming_soon_config',
+      setting_value: config,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'setting_key' });
+
+    await supabase.from('admin_feature_flags').update({
+      is_enabled: config.isEnabled,
+      updated_at: new Date().toISOString()
+    }).eq('flag_key', 'coming_soon_mode');
+
+    await supabase.from('admin_security_audit_logs').insert([{
+      actor_email: adminEmail || 'admin@amantranlink.com',
+      actor_role: 'admin',
+      action: config.isEnabled ? 'COMING_SOON_ENABLED' : 'COMING_SOON_DISABLED',
+      entity_type: 'platform_mode',
+      entity_id: 'public_landing',
+      reason: `Admin set Coming Soon Mode to ${config.isEnabled ? 'ACTIVE' : 'INACTIVE'} via API`,
+      created_at: new Date().toISOString()
+    }]);
+
+    return res.json({ success: true, config });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // =========================================================================
 // 🔔 AMANTRANLINK AUTOMATION & NOTIFICATION ENGINE API (PHASE 11)
 // =========================================================================

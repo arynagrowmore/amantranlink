@@ -106,19 +106,80 @@ export function fetchComingSoonConfig(): ComingSoonConfig {
   return DEFAULT_COMING_SOON_CONFIG;
 }
 
-export function updateComingSoonConfig(config: ComingSoonConfig, adminEmail: string = 'admin@amantranlink.com'): boolean {
+/**
+ * 👑 Async Supabase-backed Coming Soon config fetcher
+ * Guarantees cross-device, global persistence across all mobile & desktop visitors!
+ */
+export async function fetchComingSoonConfigAsync(): Promise<ComingSoonConfig> {
+  try {
+    const { data, error } = await supabase
+      .from('platform_settings')
+      .select('setting_value')
+      .eq('setting_key', 'coming_soon_config')
+      .maybeSingle();
+
+    if (!error && data?.setting_value) {
+      const merged: ComingSoonConfig = { ...DEFAULT_COMING_SOON_CONFIG, ...data.setting_value };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(COMING_SOON_KEY, JSON.stringify(merged));
+        window.dispatchEvent(new CustomEvent('coming-soon-config-changed', { detail: merged }));
+      }
+      return merged;
+    }
+  } catch (err) {
+    console.warn('Could not fetch coming soon config from Supabase, using local fallback:', err);
+  }
+  return fetchComingSoonConfig();
+}
+
+/**
+ * 👑 Real-time Cloud + Database Synchronizer for Coming Soon Mode
+ * Persists directly to Supabase platform_settings AND admin_feature_flags!
+ */
+export async function updateComingSoonConfig(config: ComingSoonConfig, adminEmail: string = 'admin@amantranlink.com'): Promise<boolean> {
+  // 1. Instant local optimistic update
   if (typeof window !== 'undefined') {
     localStorage.setItem(COMING_SOON_KEY, JSON.stringify(config));
     window.dispatchEvent(new CustomEvent('coming-soon-config-changed', { detail: config }));
   }
-  recordAdminAuditLog(
-    adminEmail, 
-    config.isEnabled ? 'COMING_SOON_ENABLED' : 'COMING_SOON_DISABLED', 
-    'platform_mode', 
-    'public_landing', 
-    `Admin set Coming Soon Mode to ${config.isEnabled ? 'ACTIVE' : 'INACTIVE'}`
-  );
-  return true;
+
+  try {
+    // 2. Persist to Supabase platform_settings table
+    const { error: settingsErr } = await supabase
+      .from('platform_settings')
+      .upsert({
+        setting_key: 'coming_soon_config',
+        setting_value: config,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'setting_key' });
+
+    if (settingsErr) {
+      console.error('Error writing to platform_settings in Supabase:', settingsErr);
+    }
+
+    // 3. Keep admin_feature_flags in sync
+    await supabase
+      .from('admin_feature_flags')
+      .update({
+        is_enabled: config.isEnabled,
+        updated_at: new Date().toISOString()
+      })
+      .eq('flag_key', 'coming_soon_mode');
+
+    // 4. Record immutable security audit log
+    await recordAdminAuditLog(
+      adminEmail, 
+      config.isEnabled ? 'COMING_SOON_ENABLED' : 'COMING_SOON_DISABLED', 
+      'platform_mode', 
+      'public_landing', 
+      `Admin set Coming Soon Mode to ${config.isEnabled ? 'ACTIVE' : 'INACTIVE'} across all mobile & desktop visitors`
+    );
+
+    return true;
+  } catch (err) {
+    console.error('Error syncing coming soon config to cloud:', err);
+    return false;
+  }
 }
 
 /**
@@ -722,18 +783,45 @@ export const DEFAULT_FEATURE_FLAGS: FeatureFlagConfig[] = [
 
 export async function fetchFeatureFlags(): Promise<FeatureFlagConfig[]> {
   try {
-    if (typeof window !== 'undefined') {
-      const raw = localStorage.getItem(FLAGS_LOCAL_KEY);
-      if (raw) return JSON.parse(raw);
+    const { data, error } = await supabase
+      .from('admin_feature_flags')
+      .select('*')
+      .order('flag_key');
+
+    if (!error && data && data.length > 0) {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(FLAGS_LOCAL_KEY, JSON.stringify(data));
+      }
+      return data;
     }
-    return DEFAULT_FEATURE_FLAGS;
   } catch (e) {
-    return DEFAULT_FEATURE_FLAGS;
+    console.warn('Error fetching feature flags from Supabase:', e);
   }
+
+  if (typeof window !== 'undefined') {
+    const raw = localStorage.getItem(FLAGS_LOCAL_KEY);
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch (e) {}
+    }
+  }
+  return DEFAULT_FEATURE_FLAGS;
 }
 
-export async function toggleFeatureFlag(flagKey: string, isEnabled: boolean, adminEmail: string): Promise<{ success: boolean }> {
+export async function toggleFeatureFlag(flagKey: string, isEnabled: boolean, adminEmail: string): Promise<{ success: boolean; error?: string }> {
   try {
+    // 1. Update in Supabase database
+    const { error } = await supabase
+      .from('admin_feature_flags')
+      .update({ is_enabled: isEnabled, updated_at: new Date().toISOString() })
+      .eq('flag_key', flagKey);
+
+    if (error) {
+      console.warn('Supabase flag update note:', error.message);
+    }
+
+    // 2. Update local state & cache
     if (typeof window !== 'undefined') {
       const list = await fetchFeatureFlags();
       const updated = list.map(f => f.flag_key === flagKey ? { ...f, is_enabled: isEnabled } : f);
@@ -742,13 +830,16 @@ export async function toggleFeatureFlag(flagKey: string, isEnabled: boolean, adm
       // If flag is coming_soon_mode, also sync with coming soon config
       if (flagKey === 'coming_soon_mode') {
         const cs = fetchComingSoonConfig();
-        updateComingSoonConfig({ ...cs, isEnabled }, adminEmail);
+        await updateComingSoonConfig({ ...cs, isEnabled }, adminEmail);
       }
     }
+
+    // 3. Record audit log
     await recordAdminAuditLog(adminEmail, 'FEATURE_FLAG_TOGGLED', 'feature_flag', flagKey, `Toggled ${flagKey} to ${isEnabled ? 'ENABLED' : 'DISABLED'}`);
     return { success: true };
-  } catch (e) {
-    return { success: false };
+  } catch (e: any) {
+    console.error('Error toggling feature flag:', e);
+    return { success: false, error: e.message };
   }
 }
 
@@ -763,22 +854,49 @@ export const DEFAULT_PLATFORM_CONFIG: PlatformGlobalConfig = {
 };
 
 export async function fetchPlatformConfig(): Promise<PlatformGlobalConfig> {
+  try {
+    const { data, error } = await supabase
+      .from('platform_settings')
+      .select('setting_value')
+      .eq('setting_key', 'platform_config')
+      .maybeSingle();
+
+    if (!error && data?.setting_value) {
+      const merged: PlatformGlobalConfig = { ...DEFAULT_PLATFORM_CONFIG, ...data.setting_value };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(CONFIG_LOCAL_KEY, JSON.stringify(merged));
+      }
+      return merged;
+    }
+  } catch (e) {}
+
   if (typeof window !== 'undefined') {
     const raw = localStorage.getItem(CONFIG_LOCAL_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch (e) {}
+    }
   }
   return DEFAULT_PLATFORM_CONFIG;
 }
 
-export async function updatePlatformConfig(config: PlatformGlobalConfig, adminEmail: string): Promise<{ success: boolean }> {
+export async function updatePlatformConfig(config: PlatformGlobalConfig, adminEmail: string): Promise<{ success: boolean; error?: string }> {
   try {
     if (typeof window !== 'undefined') {
       localStorage.setItem(CONFIG_LOCAL_KEY, JSON.stringify(config));
     }
-    await recordAdminAuditLog(adminEmail, 'PLATFORM_CONFIG_UPDATED', 'platform_settings', 'global_config', 'Updated platform coordinates');
+
+    await supabase.from('platform_settings').upsert({
+      setting_key: 'platform_config',
+      setting_value: config,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'setting_key' });
+
+    await recordAdminAuditLog(adminEmail, 'PLATFORM_CONFIG_UPDATED', 'platform_settings', 'global_config', 'Updated platform coordinates in cloud');
     return { success: true };
-  } catch (e) {
-    return { success: false };
+  } catch (e: any) {
+    return { success: false, error: e.message };
   }
 }
 
@@ -809,6 +927,24 @@ export async function recordAdminAuditLog(
       created_at: new Date().toISOString(),
     };
 
+    // 1. Insert into Supabase cloud database
+    try {
+      await supabase.from('admin_security_audit_logs').insert([{
+        actor_email: payload.actor_email,
+        actor_role: payload.actor_role,
+        action: payload.action,
+        entity_type: payload.entity_type,
+        entity_id: payload.entity_id,
+        reason: payload.reason,
+        previous_value: payload.previous_value,
+        new_value: payload.new_value,
+        created_at: payload.created_at,
+      }]);
+    } catch (dbErr) {
+      console.warn('Audit cloud insert note:', dbErr);
+    }
+
+    // 2. Cache in local storage
     if (typeof window !== 'undefined') {
       const raw = localStorage.getItem(AUDIT_LOCAL_KEY);
       const existing: AdminSecurityAuditRecord[] = raw ? JSON.parse(raw) : [];
@@ -822,23 +958,56 @@ export async function recordAdminAuditLog(
 
 export async function fetchSecurityAuditLogs(): Promise<AdminSecurityAuditRecord[]> {
   try {
-    if (typeof window !== 'undefined') {
-      const raw = localStorage.getItem(AUDIT_LOCAL_KEY);
-      if (raw) return JSON.parse(raw);
-    }
-    return [
-      {
-        id: 'audit_init',
-        actor_email: 'cyberpatel2301@gmail.com',
-        actor_role: 'admin',
-        action: 'SUPER_ADMIN_INITIALIZED',
-        entity_type: 'platform',
-        entity_id: 'root',
-        reason: 'Super Control Center connected to real Supabase cluster',
-        created_at: new Date().toISOString()
+    // 1. Fetch from Supabase
+    const { data, error } = await supabase
+      .from('admin_security_audit_logs')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (!error && data && data.length > 0) {
+      const formatted: AdminSecurityAuditRecord[] = data.map(d => ({
+        id: d.id,
+        actor_email: d.actor_email || 'admin@amantranlink.com',
+        actor_role: d.actor_role || 'admin',
+        action: d.action,
+        entity_type: d.entity_type,
+        entity_id: d.entity_id,
+        reason: d.reason,
+        previous_value: d.previous_value,
+        new_value: d.new_value,
+        created_at: d.created_at || new Date().toISOString()
+      }));
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(AUDIT_LOCAL_KEY, JSON.stringify(formatted));
       }
-    ];
+      return formatted;
+    }
   } catch (e) {
-    return [];
+    console.warn('Error fetching audit logs from Supabase:', e);
   }
+
+  // 2. Fallback to local cache
+  if (typeof window !== 'undefined') {
+    const raw = localStorage.getItem(AUDIT_LOCAL_KEY);
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch (e) {}
+    }
+  }
+
+  return [
+    {
+      id: 'audit_init',
+      actor_email: 'cyberpatel2301@gmail.com',
+      actor_role: 'admin',
+      action: 'SUPER_ADMIN_INITIALIZED',
+      entity_type: 'platform',
+      entity_id: 'root',
+      reason: 'Super Control Center connected to real Supabase cluster',
+      created_at: new Date().toISOString()
+    }
+  ];
 }

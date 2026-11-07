@@ -52,6 +52,7 @@ import {
   getAdminMasterPasscode,
   setAdminMasterPasscode,
   fetchComingSoonConfig,
+  fetchComingSoonConfigAsync,
   updateComingSoonConfig,
   toggleLockWeddingSite,
   toggleSuspendWeddingSite,
@@ -178,7 +179,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
 
   const loadAllAdminData = async () => {
     setLoading(true);
-    const [met, uData, wList, sList, rev, adopt, hlth, sigs, flags, logs] = await Promise.all([
+    const [met, uData, wList, sList, rev, adopt, hlth, sigs, flags, logs, csConfig] = await Promise.all([
       fetchSuperCenterMetrics(timeRange),
       fetchAdminUserDirectory({ search: userSearch, role: userRoleFilter, status: userStatusFilter }),
       fetchAdminWeddingProjects(),
@@ -189,6 +190,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
       fetchOperationalSignals(),
       fetchFeatureFlags(),
       fetchSecurityAuditLogs(),
+      fetchComingSoonConfigAsync(),
     ]);
 
     setMetrics(met);
@@ -203,7 +205,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
     setSignals(sigs);
     setFeatureFlags(flags);
     setAuditLogs(logs);
-    setComingSoonConfig(fetchComingSoonConfig());
+    setComingSoonConfig(csConfig);
     setLoading(false);
   };
 
@@ -221,18 +223,18 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
   };
 
   // Toggle Coming Soon Mode
-  const handleToggleComingSoon = () => {
+  const handleToggleComingSoon = async () => {
     const nextState = !comingSoonConfig.isEnabled;
     const updated: ComingSoonConfig = { ...comingSoonConfig, isEnabled: nextState };
-    updateComingSoonConfig(updated, 'admin@amantranlink.com');
     setComingSoonConfig(updated);
     showToast(nextState 
-      ? '🔴 Coming Soon Mode is now ACTIVE on public website!' 
-      : '🟢 Live Production Mode is now ACTIVE! Public website restored.'
+      ? '🔴 Coming Soon Mode is now ACTIVE globally across all mobile & desktop visitors!' 
+      : '🟢 Live Production Mode is now ACTIVE! Public website restored for all visitors.'
     );
+    await updateComingSoonConfig(updated, 'admin@amantranlink.com');
   };
 
-  const handleSaveComingSoonSettings = (e: React.FormEvent) => {
+  const handleSaveComingSoonSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     const updated: ComingSoonConfig = {
       ...comingSoonConfig,
@@ -242,10 +244,10 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
       contactPhone: csFormPhone,
       announcementBadge: csFormBadge,
     };
-    updateComingSoonConfig(updated, 'admin@amantranlink.com');
     setComingSoonConfig(updated);
     setIsComingSoonModalOpen(false);
-    showToast('👑 Coming Soon Page settings saved & published!');
+    showToast('👑 Coming Soon Page settings saved & published globally!');
+    await updateComingSoonConfig(updated, 'admin@amantranlink.com');
   };
 
   // 1-Click Lock / Unlock Wedding in Database
@@ -357,9 +359,12 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
     if (res.success) {
       setFeatureFlags(prev => prev.map(f => f.flag_key === flag.flag_key ? { ...f, is_enabled: nextState } : f));
       if (flag.flag_key === 'coming_soon_mode') {
-        setComingSoonConfig(fetchComingSoonConfig());
+        const cs = await fetchComingSoonConfigAsync();
+        setComingSoonConfig(cs);
       }
-      showToast(`Feature flag ${flag.name} ${nextState ? 'ENABLED' : 'DISABLED'}.`);
+      showToast(`Feature flag ${flag.name} ${nextState ? 'ENABLED' : 'DISABLED'} globally in cloud database.`);
+    } else {
+      showToast(`Error toggling flag: ${res.error}`);
     }
   };
 
