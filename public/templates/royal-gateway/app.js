@@ -1,4 +1,5 @@
-// 👑 THE ROYAL GATEWAY · 1:1 MASTER INTERACTIVE ENGINE (INVITIMA CLONE)
+// 👑 THE ROYAL GATEWAY · 1:1 PERFECT INVITIMA MASTER ENGINE
+// Reverse-engineered directly from Invitima Next.js source code (chunk 3631 & module 81525)
 (function() {
   'use strict';
 
@@ -15,15 +16,28 @@
     phone: '919876543210'
   };
 
+  // Exact Invitima Gate Choreography Timings:
+  // O = { swingAt: 0.9, swing: 2.6, pushAt: 1.5, push: 3.0, floodAt: 3.3, done: 4.6 }
+  var GATE_TIMINGS = {
+    swingAt: 900,
+    swing: 2600,
+    pushAt: 1500,
+    push: 3000,
+    floodAt: 3300,
+    done: 4600
+  };
+
   document.addEventListener('DOMContentLoaded', function() {
     initGateOpening();
     initAudio();
     initCountdown();
     initScratchCard();
+    initJharokhaShutters();
+    initVelvetScrolls();
+    initTimelineScroll();
     initGalleryCarousel();
     initRSVPForm();
     initPetals();
-    initTimelineScroll();
     initMessageListener();
 
     if (window.WEDDING_CONFIG) {
@@ -35,68 +49,101 @@
   });
 
   // ========================================================
-  // 1. 🚪 3D PALACE GATE OPENING CEREMONY
+  // 1. 🚪 3D PALACE GATE OPENING CEREMONY (EXACT INVITIMA CHOREOGRAPHY)
   // ========================================================
   function initGateOpening() {
     if (!gateOverlay) return;
 
     var opened = false;
+    var leftDoor = gateOverlay.querySelector('img[src*="peacock-left"]');
+    var rightDoor = gateOverlay.querySelector('img[src*="peacock-right"]');
+    var gateFrame = gateOverlay.querySelector('.will-change-transform') || gateOverlay.querySelector('div[style*="aspect-ratio"]');
+    var centerBeam = gateOverlay.querySelector('div[style*="scaleY"]') || gateOverlay.querySelector('.bg-white.blur-\\[2px\\]');
+    var tapButton = gateOverlay.querySelector('.rgw-breathe') ? gateOverlay.querySelector('.rgw-breathe').closest('.pointer-events-none') : null;
+    var bottomText = gateOverlay.querySelector('.bg-gradient-to-t');
+
+    // Create amber flood overlay exactly like Invitima's { background: '#ffe4b3', duration: 1.2s, delay: floodAt }
+    var amberFlood = document.getElementById('amberFloodOverlay');
+    if (!amberFlood) {
+      amberFlood = document.createElement('div');
+      amberFlood.id = 'amberFloodOverlay';
+      amberFlood.className = 'pointer-events-none absolute inset-0 z-40 bg-[#ffe4b3] opacity-0';
+      gateOverlay.appendChild(amberFlood);
+    }
+
     function triggerOpen(e) {
       if (opened) return;
       opened = true;
 
-      // Find gate elements
-      var leftDoor = gateOverlay.querySelector('img[src*="peacock-left"]');
-      var rightDoor = gateOverlay.querySelector('img[src*="peacock-right"]');
-      var gateFrame = gateOverlay.querySelector('.will-change-transform') || gateOverlay.querySelector('div[style*="aspect-ratio"]');
-      var centerBeam = gateOverlay.querySelector('div[style*="scaleY"]');
-      var openBtn = gateOverlay.querySelector('.pointer-events-none.absolute.flex.flex-col') || gateOverlay.querySelector('.rgw-breathe');
+      // Start royal background music on first tap
+      playAudio();
 
-      // 1. Center golden seam flash
+      // Step 1: Center vertical golden light beam lights up & shines (0s - 0.9s)
       if (centerBeam) {
-        centerBeam.style.transition = 'transform 0.4s ease-out, opacity 0.4s ease-out';
+        centerBeam.style.transition = 'transform 0.9s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.9s ease-out';
         centerBeam.style.opacity = '1';
         centerBeam.style.transform = 'translateX(-50%) scaleY(1)';
       }
 
-      // 2. Button fade
-      if (openBtn) {
-        openBtn.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        openBtn.style.opacity = '0';
-        openBtn.style.transform = 'translateX(-50%) translateY(-50%) scale(0.7)';
+      // Step 2: "TAP TO OPEN" pulsating gold seal shrinks and fades out (0s - 0.4s)
+      if (tapButton) {
+        tapButton.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+        tapButton.style.opacity = '0';
+        tapButton.style.transform = 'translateX(-50%) translateY(-50%) scale(0.6)';
       }
 
-      // 3. 3D Doors swing open on Y axis with perspective
+      // Step 3: Bottom title ("THE WEDDING OF Rahul & Priya") slides down gracefully (0s - 0.6s)
+      if (bottomText) {
+        bottomText.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
+        bottomText.style.opacity = '0';
+        bottomText.style.transform = 'translateY(40px)';
+      }
+
+      // Step 4: AT 0.9s (O.swingAt) -> Doors swing backward in 3D perspective over 2.6s (O.swing)
       setTimeout(function() {
         if (leftDoor) {
-          leftDoor.style.transition = 'transform 1.25s cubic-bezier(0.25, 1, 0.5, 1)';
+          leftDoor.style.transition = 'transform 2.6s cubic-bezier(0.65, 0, 0.35, 1), filter 2.6s ease';
           leftDoor.style.transformOrigin = 'left center';
-          leftDoor.style.transform = 'rotateY(-85deg) scaleX(0.15)';
+          leftDoor.style.transform = 'rotateY(86deg)';
+          leftDoor.style.filter = 'brightness(0.5)';
         }
         if (rightDoor) {
-          rightDoor.style.transition = 'transform 1.25s cubic-bezier(0.25, 1, 0.5, 1)';
+          rightDoor.style.transition = 'transform 2.6s cubic-bezier(0.65, 0, 0.35, 1), filter 2.6s ease';
           rightDoor.style.transformOrigin = 'right center';
-          rightDoor.style.transform = 'rotateY(85deg) scaleX(0.15)';
+          rightDoor.style.transform = 'rotateY(-86deg)';
+          rightDoor.style.filter = 'brightness(0.5)';
         }
-      }, 50);
+      }, GATE_TIMINGS.swingAt);
 
-      // 4. Camera zooms forward into the grand palace sunrise
+      // Step 5: AT 1.5s (O.pushAt) -> Gate zooms forward towards camera (scale 1.1 -> 7) over 3.0s (O.push)
       setTimeout(function() {
         if (gateFrame) {
-          gateFrame.style.transition = 'transform 1.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease-in';
-          gateFrame.style.transform = 'translateX(-50%) translateY(-50%) scale(4.5)';
-          gateFrame.style.opacity = '0';
+          gateFrame.style.transition = 'transform 3.0s cubic-bezier(0.7, 0, 0.3, 1)';
+          gateFrame.style.transformOrigin = '50.12% 69.18%';
+          gateFrame.style.transform = 'translateX(-50%) translateY(-50%) scale(7)';
         }
-        gateOverlay.style.transition = 'opacity 1.2s ease-in';
+      }, GATE_TIMINGS.pushAt);
+
+      // Step 6: AT 3.3s (O.floodAt) -> Amber morning sunlight floods the scene
+      setTimeout(function() {
+        if (amberFlood) {
+          amberFlood.style.transition = 'opacity 1.2s ease-in';
+          amberFlood.style.opacity = '1';
+        }
+      }, GATE_TIMINGS.floodAt);
+
+      // Step 7: AT 4.6s (O.done) -> Gate overlay fades out, revealing the grand palace hero!
+      setTimeout(function() {
+        gateOverlay.style.transition = 'opacity 1.1s ease-out';
         gateOverlay.style.opacity = '0';
         gateOverlay.style.pointerEvents = 'none';
-      }, 100);
 
-      playAudio();
+        triggerHeroEntrance();
 
-      setTimeout(function() {
-        gateOverlay.style.display = 'none';
-      }, 1250);
+        setTimeout(function() {
+          gateOverlay.style.display = 'none';
+        }, 1100);
+      }, GATE_TIMINGS.done);
     }
 
     gateOverlay.addEventListener('click', triggerOpen);
@@ -104,7 +151,53 @@
   }
 
   // ========================================================
-  // 2. 🎶 LIVE SHEHNAI AUDIO PLAYER & EQUALIZER
+  // 2. 🏰 HERO SECTION CINEMATIC ENTRANCE
+  // ========================================================
+  function triggerHeroEntrance() {
+    var heroSection = document.querySelector('section');
+    if (!heroSection) return;
+
+    var shubhVivah = heroSection.querySelector('.font-great-vibes.text-3xl');
+    var groomH1 = heroSection.querySelector('h1:first-of-type');
+    var ampP = heroSection.querySelector('.font-great-vibes.text-5xl');
+    var brideH1 = heroSection.querySelectorAll('h1')[1];
+    var grandPalace = heroSection.querySelector('img[src*="grand-palace"]');
+
+    if (shubhVivah) {
+      shubhVivah.style.opacity = '0';
+      shubhVivah.style.transform = 'translateY(-20px)';
+      shubhVivah.style.transition = 'opacity 1s ease, transform 1s ease';
+      setTimeout(function() { shubhVivah.style.opacity = '1'; shubhVivah.style.transform = 'translateY(0)'; }, 300);
+    }
+    if (groomH1) {
+      groomH1.style.opacity = '0';
+      groomH1.style.transform = 'translateY(14px)';
+      groomH1.style.transition = 'opacity 1.2s ease, transform 1.2s ease';
+      setTimeout(function() { groomH1.style.opacity = '1'; groomH1.style.transform = 'translateY(0)'; }, 100);
+    }
+    if (ampP) {
+      ampP.style.opacity = '0';
+      ampP.style.transform = 'scale(0.5)';
+      ampP.style.transition = 'opacity 1s ease, transform 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      setTimeout(function() { ampP.style.opacity = '1'; ampP.style.transform = 'scale(1)'; }, 800);
+    }
+    if (brideH1) {
+      brideH1.style.opacity = '0';
+      brideH1.style.transform = 'translateY(14px)';
+      brideH1.style.transition = 'opacity 1.2s ease, transform 1.2s ease';
+      setTimeout(function() { brideH1.style.opacity = '1'; brideH1.style.transform = 'translateY(0)'; }, 400);
+    }
+    if (grandPalace && grandPalace.parentElement) {
+      var palaceWrapper = grandPalace.parentElement;
+      palaceWrapper.style.opacity = '0';
+      palaceWrapper.style.transform = 'translateY(80px) scale(1.05)';
+      palaceWrapper.style.transition = 'opacity 2.4s ease, transform 2.4s cubic-bezier(0.16, 1, 0.3, 1)';
+      setTimeout(function() { palaceWrapper.style.opacity = '1'; palaceWrapper.style.transform = 'translateY(0) scale(1)'; }, 200);
+    }
+  }
+
+  // ========================================================
+  // 3. 🎶 LIVE SHEHNAI AUDIO PLAYER & EQUALIZER
   // ========================================================
   function playAudio() {
     if (!audioEl || window.LIVE_AUDIO_DISABLED) return;
@@ -132,7 +225,7 @@
   }
 
   // ========================================================
-  // 3. ⏳ LIVE COUNTDOWN TIMER
+  // 4. ⏳ LIVE COUNTDOWN TIMER
   // ========================================================
   function initCountdown() {
     function update() {
@@ -168,7 +261,7 @@
   }
 
   // ========================================================
-  // 4. 🪙 SACRED MUHURAT GOLD FOIL SCRATCH CARD
+  // 5. 🪙 SACRED MUHURAT GOLD FOIL SCRATCH CARD
   // ========================================================
   function initScratchCard() {
     var canvas = document.getElementById('scratchCanvas');
@@ -204,7 +297,6 @@
     function drawGoldFoil() {
       ctx.globalCompositeOperation = 'source-over';
 
-      // Metallic multi-stop gold gradient
       var grad = ctx.createLinearGradient(0, 0, w, h);
       grad.addColorStop(0, '#C99738');
       grad.addColorStop(0.25, '#FFF1B8');
@@ -214,14 +306,12 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
-      // Radial shimmer highlight
       var rad = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, w / 2);
       rad.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
       rad.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
       ctx.fillStyle = rad;
       ctx.fillRect(0, 0, w, h);
 
-      // Gilded filigree border
       ctx.strokeStyle = 'rgba(255, 241, 184, 0.85)';
       ctx.lineWidth = 2;
       ctx.strokeRect(8, 8, w - 16, h - 16);
@@ -230,7 +320,6 @@
       ctx.lineWidth = 1;
       ctx.strokeRect(12, 12, w - 24, h - 24);
 
-      // Card Title Text
       ctx.fillStyle = '#39150F';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -352,7 +441,6 @@
       lastY = 0;
     });
 
-    // Instant reveal button
     var revealBtn = document.getElementById('revealMuhuratBtn');
     if (revealBtn) {
       revealBtn.addEventListener('click', revealFullMuhurat);
@@ -360,7 +448,90 @@
   }
 
   // ========================================================
-  // 5. 🖼️ 3D ROYAL PHOTO GALLERY CAROUSEL
+  // 6. 🪟 JHAROKHA SHUTTERS SCROLL-REVEAL (COUPLE SECTION)
+  // ========================================================
+  function initJharokhaShutters() {
+    var shutters = document.querySelectorAll('[style*="translateX(-101%)"], [style*="translateX(101%)"]');
+    if (!shutters.length) return;
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          shutters.forEach(function(shutter) {
+            shutter.style.transition = 'transform 1.4s cubic-bezier(0.16, 1, 0.3, 1)';
+            if (shutter.style.transform.includes('-101%')) {
+              shutter.style.transform = 'translateX(-101%)';
+            } else {
+              shutter.style.transform = 'translateX(101%)';
+            }
+          });
+        }
+      });
+    }, { threshold: 0.2 });
+
+    var coupleSection = document.getElementById('rgw-clip-r13')?.closest('section') || document.querySelector('section:nth-of-type(3)');
+    if (coupleSection) observer.observe(coupleSection);
+  }
+
+  // ========================================================
+  // 7. 📜 VELVET CEREMONIES FARMAN UNROLLING ( Haldi -> Vivah )
+  // ========================================================
+  function initVelvetScrolls() {
+    var articles = document.querySelectorAll('article');
+    if (!articles.length) return;
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var article = entry.target;
+          var bottomRod = article.querySelector('img[src*="scroll/bottom.webp"]');
+          var body = article.querySelector('div[style*="top: 11.7188%"]') || article.querySelector('.absolute.inset-x-0');
+
+          if (bottomRod) {
+            bottomRod.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+            bottomRod.style.transform = 'translateY(0%) rotate(0deg)';
+          }
+          if (body) {
+            body.style.clipPath = 'none';
+          }
+        }
+      });
+    }, { threshold: 0.15 });
+
+    articles.forEach(function(art) { observer.observe(art); });
+  }
+
+  // ========================================================
+  // 8. 🚗 TIMELINE CAR SCROLL-DRIVE ANIMATION
+  // ========================================================
+  function initTimelineScroll() {
+    var car = document.getElementById('timelineCarTracker');
+    var timelineContainer = document.querySelector('.relative.mx-auto.max-w-6xl');
+    if (!car || !timelineContainer) return;
+
+    var goldLine = timelineContainer.querySelector('.rgw-bg-gold-grad.h-full');
+
+    function onScroll() {
+      var rect = timelineContainer.getBoundingClientRect();
+      var windowH = window.innerHeight;
+      
+      var totalDistance = rect.height - 200;
+      var scrolled = (windowH * 0.5) - rect.top;
+      var progress = Math.max(0, Math.min(1, scrolled / totalDistance));
+
+      var percent = progress * 100;
+      car.style.transform = 'translateY(' + percent + '%)';
+      if (goldLine) {
+        goldLine.style.transform = 'translateX(-1px) scaleY(' + Math.max(0.02, progress) + ')';
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  // ========================================================
+  // 9. 🖼️ 3D ROYAL PHOTO GALLERY CAROUSEL
   // ========================================================
   function initGalleryCarousel() {
     var cards = document.querySelectorAll('.absolute.left-1\\/2.top-10');
@@ -408,7 +579,6 @@
         }
       });
 
-      // Update thumbnail borders
       thumbBtns.forEach(function(btn, bIdx) {
         if (bIdx === currentIndex) {
           btn.classList.add('border-[#d4a23a]', 'border-2', 'h-12', 'w-8');
@@ -450,14 +620,13 @@
   }
 
   // ========================================================
-  // 6. 💌 INTERACTIVE RSVP FORM & WHATSAPP SENDER
+  // 10. 💌 INTERACTIVE RSVP FORM & WHATSAPP SENDER
   // ========================================================
   function initRSVPForm() {
     var guestCount = 2;
     var isAttending = 'Yes';
     var selectedDiet = 'Vegetarian';
 
-    // Counter buttons
     var decBtn = document.getElementById('rsvpDecGuests');
     var incBtn = document.getElementById('rsvpIncGuests');
     var countDisplay = document.getElementById('rsvpGuestCountDisplay');
@@ -482,7 +651,6 @@
       });
     }
 
-    // Attendance buttons
     var acceptBtn = document.getElementById('rsvpAcceptBtn');
     var declineBtn = document.getElementById('rsvpDeclineBtn');
     if (acceptBtn && declineBtn) {
@@ -498,7 +666,6 @@
       });
     }
 
-    // Submit button
     var sendBtn = document.getElementById('sendRsvpBtn') || document.querySelector('button[type="submit"]');
     if (sendBtn) {
       sendBtn.addEventListener('click', function(e) {
@@ -533,7 +700,7 @@
   }
 
   // ========================================================
-  // 7. 🌸 FALLING ROSE PETALS AMBIANCE
+  // 11. 🌸 FALLING ROSE PETALS AMBIANCE
   // ========================================================
   function initPetals() {
     var container = document.querySelector('.petal-container');
@@ -567,7 +734,7 @@
   }
 
   // ========================================================
-  // 8. 🔄 DYNAMIC DATA BINDING
+  // 12. 🔄 DYNAMIC DATA BINDING
   // ========================================================
   function applyWeddingData(data) {
     if (!data) return;
@@ -611,37 +778,6 @@
         applyWeddingData(event.data.payload);
       }
     });
-  }
-
-  
-  // ========================================================
-  // 9. 🚗 TIMELINE CAR SCROLL-DRIVE ANIMATION
-  // ========================================================
-  function initTimelineScroll() {
-    var car = document.getElementById('timelineCarTracker');
-    var timelineContainer = document.querySelector('.relative.mx-auto.max-w-6xl');
-    if (!car || !timelineContainer) return;
-
-    var goldLine = timelineContainer.querySelector('.rgw-bg-gold-grad.h-full');
-
-    function onScroll() {
-      var rect = timelineContainer.getBoundingClientRect();
-      var windowH = window.innerHeight;
-      
-      // When top of timeline hits middle of screen, start moving car
-      var totalDistance = rect.height - 200;
-      var scrolled = (windowH * 0.5) - rect.top;
-      var progress = Math.max(0, Math.min(1, scrolled / totalDistance));
-
-      var percent = progress * 100;
-      car.style.transform = 'translateY(' + percent + '%)';
-      if (goldLine) {
-        goldLine.style.transform = 'translateX(-1px) scaleY(' + Math.max(0.02, progress) + ')';
-      }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
   }
 
   window.applyWeddingData = applyWeddingData;
