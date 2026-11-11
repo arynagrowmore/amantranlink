@@ -23,6 +23,7 @@
     initGalleryCarousel();
     initRSVPForm();
     initPetals();
+    initTimelineScroll();
     initMessageListener();
 
     if (window.WEDDING_CONFIG) {
@@ -610,6 +611,37 @@
         applyWeddingData(event.data.payload);
       }
     });
+  }
+
+  
+  // ========================================================
+  // 9. 🚗 TIMELINE CAR SCROLL-DRIVE ANIMATION
+  // ========================================================
+  function initTimelineScroll() {
+    var car = document.getElementById('timelineCarTracker');
+    var timelineContainer = document.querySelector('.relative.mx-auto.max-w-6xl');
+    if (!car || !timelineContainer) return;
+
+    var goldLine = timelineContainer.querySelector('.rgw-bg-gold-grad.h-full');
+
+    function onScroll() {
+      var rect = timelineContainer.getBoundingClientRect();
+      var windowH = window.innerHeight;
+      
+      // When top of timeline hits middle of screen, start moving car
+      var totalDistance = rect.height - 200;
+      var scrolled = (windowH * 0.5) - rect.top;
+      var progress = Math.max(0, Math.min(1, scrolled / totalDistance));
+
+      var percent = progress * 100;
+      car.style.transform = 'translateY(' + percent + '%)';
+      if (goldLine) {
+        goldLine.style.transform = 'translateX(-1px) scaleY(' + Math.max(0.02, progress) + ')';
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   }
 
   window.applyWeddingData = applyWeddingData;
