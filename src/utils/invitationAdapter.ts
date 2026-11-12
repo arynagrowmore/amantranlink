@@ -472,7 +472,9 @@ export const sweepStaticTemplateTextNodes = (
 
       let modified = false;
       replacements.forEach(([pattern, replacement]) => {
+        pattern.lastIndex = 0;
         if (pattern.test(text!)) {
+          pattern.lastIndex = 0;
           text = text!.replace(pattern, replacement);
           modified = true;
         }

@@ -347,7 +347,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({ state, ref
 
       // 3. Couple Names in Headings Everywhere
       if (state.theme === 'ivory') {
-        const h1s = doc.querySelectorAll('section#top h1.g-serif, h1');
+        const h1s = doc.querySelectorAll('section#top h1.g-serif');
         if (h1s.length >= 2) {
           h1s[0].textContent = displayGroom;
           h1s[1].textContent = displayBride;
