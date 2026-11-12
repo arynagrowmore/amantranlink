@@ -19,13 +19,27 @@
     if (window.WEDDING_CONFIG) {
       applyWeddingData(window.WEDDING_CONFIG);
     }
+
+    if (window.parent && window.parent !== window) {
+      try {
+        window.parent.postMessage({ type: 'TEMPLATE_READY', theme: 'shubh-vivah' }, '*');
+        window.parent.postMessage({ type: 'REQUEST_INITIAL_STATE' }, '*');
+      } catch (e) {}
+    }
   });
 
   // 1. 💌 Wax Seal Cover Overlay
   function initCoverOverlay() {
     if (!coverOverlay || !waxSealBtn) return;
 
-    function openCover() {
+    var opened = false;
+    function openCover(e) {
+      if (e) {
+        try { e.preventDefault(); e.stopPropagation(); } catch (err) {}
+      }
+      if (opened) return;
+      opened = true;
+
       coverOverlay.style.transition = 'all 0.85s cubic-bezier(0.16, 1, 0.3, 1)';
       coverOverlay.style.opacity = '0';
       coverOverlay.style.transform = 'scale(1.08)';
@@ -39,6 +53,7 @@
     }
 
     waxSealBtn.addEventListener('click', openCover);
+    waxSealBtn.addEventListener('touchend', openCover, { passive: false });
   }
 
   // 2. 🎶 Audio Player

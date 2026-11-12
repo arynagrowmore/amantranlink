@@ -361,6 +361,8 @@ export const sweepStaticTemplateTextNodes = (
       [/Aarav\s*(?:&|&amp;|and|एवं|અને)\s*Riya/gi, `${groomName} & ${brideName}`],
       [/Aarav\s*(?:&|&amp;|and|एवं|અને)\s*Anaya/gi, `${groomName} & ${brideName}`],
       [/Kabir\s*(?:&|&amp;|and|एवं|અને)\s*Meera/gi, `${groomName} & ${brideName}`],
+      [/Uraj\s*(?:&|&amp;|and|एवं|અને)\s*Romil/gi, `${brideName} & ${groomName}`],
+      [/Romil\s*(?:&|&amp;|and|एवं|અને)\s*Uraj/gi, `${groomName} & ${brideName}`],
       
       // Individual Groom Names
       [/Rudra/gi, groomName],
@@ -368,6 +370,7 @@ export const sweepStaticTemplateTextNodes = (
       [/Dhruv/gi, groomName],
       [/Aarav/gi, groomName],
       [/Kabir/gi, groomName],
+      [/Romil/gi, groomName],
       [/रुद्र/gi, groom.nameHi || groomName],
       [/ध्रुव/gi, groom.nameHi || groomName],
       [/आरव/gi, groom.nameHi || groomName],
@@ -385,6 +388,7 @@ export const sweepStaticTemplateTextNodes = (
       [/Riya/gi, brideName],
       [/Anaya/gi, brideName],
       [/Meera/gi, brideName],
+      [/Uraj/gi, brideName],
       [/ईशानी/gi, bride.nameHi || brideName],
       [/श्रेया/gi, bride.nameHi || brideName],
       [/रिया/gi, bride.nameHi || brideName],
@@ -557,13 +561,15 @@ export const applyInvitationDataToTemplateDOM = (
       setMultilingualText(el, brideEn, brideHi, brideGu, lang);
     });
 
-    // Special Ivory template top heading
-    const ivoryH1s = doc.querySelectorAll('section#top h1.g-serif, h1');
-    if (ivoryH1s.length >= 2) {
-      ivoryH1s[0].textContent = displayGroom;
-      ivoryH1s[1].textContent = displayBride;
-    } else if (ivoryH1s.length === 1 && !ivoryH1s[0].classList.contains('couple-names')) {
-      ivoryH1s[0].innerHTML = `<span>${displayGroom}</span> <span class="italic font-serif">&amp;</span> <span>${displayBride}</span>`;
+    // Special Ivory template top heading (strictly scoped to ivory template)
+    if (normalized.themeId === 'ivory') {
+      const ivoryH1s = doc.querySelectorAll('section#top h1.g-serif');
+      if (ivoryH1s.length >= 2) {
+        ivoryH1s[0].textContent = displayGroom;
+        ivoryH1s[1].textContent = displayBride;
+      } else if (ivoryH1s.length === 1 && !ivoryH1s[0].classList.contains('couple-names')) {
+        ivoryH1s[0].innerHTML = `<span>${displayGroom}</span> <span class="italic font-serif">&amp;</span> <span>${displayBride}</span>`;
+      }
     }
 
     const nameSelectors = [

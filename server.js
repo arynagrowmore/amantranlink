@@ -1794,6 +1794,7 @@ async function deployToVercel({ slug, groomName, brideName, weddingDate, venue, 
     html, body {
       width: 100%;
       height: 100%;
+      min-height: 100vh;
       min-height: 100dvh;
       overflow: hidden;
       background: #140508;
@@ -1810,7 +1811,7 @@ async function deployToVercel({ slug, groomName, brideName, weddingDate, venue, 
       align-items: center;
       justify-content: center;
       z-index: 9999;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.6s ease;
       text-align: center;
       padding: 20px;
     }
@@ -1847,9 +1848,10 @@ async function deployToVercel({ slug, groomName, brideName, weddingDate, venue, 
       border: 0;
       width: 100%;
       height: 100%;
+      min-height: 100vh;
       min-height: 100dvh;
       display: block;
-      background: #FDF6EB;
+      background: #140508;
     }
   </style>
 </head>
@@ -1867,8 +1869,24 @@ async function deployToVercel({ slug, groomName, brideName, weddingDate, venue, 
     title="${pageTitle}"
     allow="autoplay; clipboard-write; fullscreen"
     loading="eager"
-    onload="setTimeout(function(){ var l = document.getElementById('loader'); if(l){ l.style.opacity = '0'; setTimeout(function(){ l.style.display = 'none'; }, 500); } }, 400);"
+    onload="setTimeout(dismissLoader, 800);"
   ></iframe>
+
+  <script>
+    function dismissLoader() {
+      var l = document.getElementById('loader');
+      if (l && l.style.display !== 'none') {
+        l.style.opacity = '0';
+        setTimeout(function(){ l.style.display = 'none'; }, 600);
+      }
+    }
+    window.addEventListener('message', function(e) {
+      if (e.data && (e.data.type === 'INVITATION_LOADED' || e.data.type === 'TEMPLATE_READY')) {
+        dismissLoader();
+      }
+    });
+    setTimeout(dismissLoader, 3500);
+  </script>
 </body>
 </html>`;
 

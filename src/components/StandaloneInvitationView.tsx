@@ -446,13 +446,21 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
     'rajmahal'
   ) as ThemeId;
   const normalizedData = normalizeInvitationData(rawState, resolvedSlug, siteId || undefined, studioBadge || undefined);
-  const templatePathMap: Partial<Record<ThemeId, string>> = {
+  const templatePathMap: Record<ThemeId, string> = {
     'royal-gateway': '/templates/royal-gateway/index.html',
-    'shubh-lagna': '/templates/shubh-vivah/index.html',
+    'shubh-lagna': '/templates/shubh-lagna/index.html',
     'shubh-vivah': '/templates/shubh-vivah/index.html',
     'rose-farman': '/templates/rose-farman/index.html',
     'royal-orchid': '/templates/royal-orchid/index.html',
     'shahi-farman': '/templates/shahi-farman/index.html',
+    rajmahal: '/templates/rajmahal-template/index.html',
+    jharokha: '/templates/jharokha-template/index.html',
+    mayura: '/templates/mayura-template/index.html',
+    jodi: '/templates/jodi-template/index.html',
+    dak: '/templates/dak-template/index.html',
+    ivory: '/templates/ivory-template/index.html',
+    royaldawn: '/templates/royaldawn-template/index.html',
+    royalring: '/templates/royalring-template/index.html',
     darbar: '/templates/rajasthan-darbar/index.html',
     chandramahal: '/templates/chandra-mahal/index.html',
     swarnim: '/templates/swarnim-scratch/index.html',
@@ -560,16 +568,28 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
       }
 
       // 👑 Send broadcast update to template scripts (supporting royaldawn, jharokha, mayura, etc.)
-      win.postMessage({
+      const syncPayload = {
         type: 'UPDATE_STATE',
         state: rawState,
         data: rawState,
         config: normalizedData,
-      }, '*');
+        invitation: rawState,
+      };
+      win.postMessage(syncPayload, '*');
+      win.postMessage({ ...syncPayload, type: 'UPDATE_WEDDING_STATE' }, '*');
+      win.postMessage({ ...syncPayload, type: 'UPDATE_INVITATION_STATE' }, '*');
+      win.postMessage({ ...syncPayload, type: 'WEDDING_DATA' }, '*');
 
       if (typeof win.applyWeddingData === 'function') {
         try { win.applyWeddingData(win.WEDDING_CONFIG || rawState); } catch (e) {}
       }
+
+      // Notify top/parent wrapper that invitation is loaded
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'INVITATION_LOADED', slug: resolvedSlug }, '*');
+        }
+      } catch (postErr) {}
 
       startUniversalCountdown();
     } catch (e) {
@@ -639,7 +659,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   }
 
   return (
-    <div className="fixed inset-0 w-full h-[100dvh] min-h-[100dvh] overflow-hidden bg-[#1A0B0E] flex items-center justify-center z-50">
+    <div className="fixed inset-0 w-full h-full min-h-screen min-h-[100dvh] overflow-hidden bg-[#1A0B0E] flex items-center justify-center z-50">
       {isLoading ? (
         <div className="w-full h-full flex flex-col items-center justify-center bg-[#1A0B0E] text-[#FDF6EB] space-y-4">
           <div className="w-14 h-14 rounded-2xl bg-[#6E1020] border-2 border-[#C08F3F] flex items-center justify-center text-[#C08F3F] animate-pulse shadow-2xl">
@@ -656,7 +676,7 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
           </p>
         </div>
       ) : (
-        <div className="w-full h-full relative flex flex-col overflow-y-auto bg-[#FDF6EB]" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="w-full h-full min-h-full relative flex flex-col overflow-y-auto bg-[#1A0B0E]" style={{ WebkitOverflowScrolling: 'touch', minHeight: '100%' }}>
           {/* 👑 Floating Personalized Guest Banner (if opened via ?guest=token) */}
           {guest && (
             <PersonalizedGuestBanner
@@ -669,15 +689,16 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
             ref={iframeRef}
             src={templateUrl}
             title={`${normalizedData.groom.name} & ${normalizedData.bride.name} Royal Wedding Invitation`}
-            className="w-full h-full border-0 block bg-[#FDF6EB]"
-            style={{ width: '100%', height: '100%', minHeight: '100dvh', WebkitOverflowScrolling: 'touch' }}
+            className="w-full h-full border-0 block bg-[#1A0B0E]"
+            style={{ width: '100%', height: '100%', minHeight: '100vh', WebkitOverflowScrolling: 'touch' }}
             allow="autoplay; clipboard-write"
             scrolling="yes"
             onLoad={() => {
               performMasterSync();
-              setTimeout(performMasterSync, 200);
-              setTimeout(performMasterSync, 600);
-              setTimeout(performMasterSync, 1200);
+              setTimeout(performMasterSync, 150);
+              setTimeout(performMasterSync, 400);
+              setTimeout(performMasterSync, 900);
+              setTimeout(performMasterSync, 1800);
             }}
           />
 
