@@ -20,6 +20,21 @@
       applyWeddingData(window.WEDDING_CONFIG);
     }
 
+    try {
+      var urlParams = new URLSearchParams(window.location.search);
+      var slugParam = urlParams.get('slug');
+      if (slugParam) {
+        fetch('/api/public/wedding/' + encodeURIComponent(slugParam))
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data && data.success && data.content) {
+              applyWeddingData(data.content);
+            }
+          })
+          .catch(function() {});
+      }
+    } catch(e) {}
+
     if (window.parent && window.parent !== window) {
       try {
         window.parent.postMessage({ type: 'TEMPLATE_READY', theme: 'shubh-vivah' }, '*');

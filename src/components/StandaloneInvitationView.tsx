@@ -598,6 +598,19 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
   };
 
   useEffect(() => {
+    // ⚡ Eager instant sync: poll every 100ms for first 4s so DOM gets bound immediately
+    let pollCount = 0;
+    const pollInterval = setInterval(() => {
+      pollCount++;
+      const iframe = iframeRef.current;
+      if (iframe && iframe.contentDocument && iframe.contentDocument.body) {
+        performMasterSync();
+      }
+      if (pollCount >= 40) {
+        clearInterval(pollInterval);
+      }
+    }, 100);
+
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'TEMPLATE_READY' || event.data?.type === 'REQUEST_INITIAL_STATE') {
         performMasterSync();
@@ -629,8 +642,11 @@ export const StandaloneInvitationView: React.FC<StandaloneInvitationViewProps> =
       }
     };
     window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [normalizedData, resolvedSlug, siteId, guest]);
+    return () => {
+      clearInterval(pollInterval);
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [normalizedData, resolvedSlug, siteId, guest, isLoading]);
 
   // Luxury Error Screen for Invalid/Unpublished Invitation
   if (isNotFound) {
