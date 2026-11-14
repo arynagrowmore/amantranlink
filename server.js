@@ -3916,6 +3916,171 @@ app.post('/api/admin/coming-soon', requireAdminAuth, async (req, res) => {
 });
 
 // =========================================================================
+// 👑 DYNAMIC TEMPLATE CMS & SOURCE CODE INGESTION ENGINE (ADMIN PANEL)
+// =========================================================================
+
+// 1. Fetch all templates with active/hide status
+app.get('/api/admin/templates', async (req, res) => {
+  try {
+    const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
+    if (!fs.existsSync(registryPath)) {
+      return res.json({ success: true, templates: [] });
+    }
+    const data = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+    return res.json({ success: true, templates: data });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 2. Public active templates for Studio & Landing Page
+app.get('/api/templates/active', async (req, res) => {
+  try {
+    const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
+    if (!fs.existsSync(registryPath)) {
+      return res.json({ success: true, templates: [] });
+    }
+    const data = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+    const activeTemplates = data.filter(t => t.active !== false);
+    return res.json({ success: true, templates: activeTemplates });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 3. Toggle Template Active / Hide-Show
+app.post('/api/admin/templates/toggle', async (req, res) => {
+  try {
+    const { templateId, active, passcode } = req.body;
+    if (passcode && passcode !== 'Aryan_patel_2301' && passcode !== process.env.ADMIN_PASSCODE) {
+      return res.status(403).json({ success: false, error: 'Unauthorized admin passcode' });
+    }
+    const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
+    if (!fs.existsSync(registryPath)) {
+      return res.status(404).json({ success: false, error: 'Registry not found' });
+    }
+    let data = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+    const tpl = data.find(t => t.id === templateId);
+    if (!tpl) {
+      return res.status(404).json({ success: false, error: `Template ${templateId} not found` });
+    }
+    tpl.active = Boolean(active);
+    fs.writeFileSync(registryPath, JSON.stringify(data, null, 2), 'utf8');
+    console.log(`👑 [Admin CMS] Toggled template ${templateId} active: ${tpl.active}`);
+    return res.json({ success: true, template: tpl });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 4. Create / Ingest Custom Template via Source Code
+app.post('/api/admin/templates/create', async (req, res) => {
+  try {
+    const {
+      id,
+      name,
+      tagline,
+      category,
+      price,
+      previewImg,
+      htmlSource,
+      cssSource,
+      jsSource,
+      passcode
+    } = req.body;
+
+    if (!id || !name || !htmlSource) {
+      return res.status(400).json({ success: false, error: 'Template ID (slug), Name, and HTML Source are required.' });
+    }
+
+    if (passcode && passcode !== 'Aryan_patel_2301' && passcode !== process.env.ADMIN_PASSCODE) {
+      return res.status(403).json({ success: false, error: 'Invalid admin passcode.' });
+    }
+
+    const cleanSlug = id.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    const templateDir = path.join(__dirname, 'public', 'templates', cleanSlug);
+    if (!fs.existsSync(templateDir)) {
+      fs.mkdirSync(templateDir, { recursive: true });
+    }
+
+    // Write index.html
+    fs.writeFileSync(path.join(templateDir, 'index.html'), htmlSource, 'utf8');
+
+    // Optional style.css
+    if (cssSource && cssSource.trim()) {
+      fs.writeFileSync(path.join(templateDir, 'style.css'), cssSource, 'utf8');
+    }
+
+    // Optional app.js
+    if (jsSource && jsSource.trim()) {
+      fs.writeFileSync(path.join(templateDir, 'app.js'), jsSource, 'utf8');
+    }
+
+    // Update registry.json
+    const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
+    let registry = [];
+    if (fs.existsSync(registryPath)) {
+      try {
+        registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+      } catch (e) {
+        registry = [];
+      }
+    }
+
+    const existingIndex = registry.findIndex(t => t.id === cleanSlug);
+    const newTemplateEntry = {
+      id: cleanSlug,
+      name: name.toUpperCase(),
+      tagline: tagline || `${name} Luxury Royal Wedding Invitation`,
+      taglineShort: `${name} · Luxury Invitation`,
+      tags: 'Custom Template · Admin Ingested · Interactive',
+      price: Number(price) || 699,
+      icon: '👑',
+      badge: 'Custom Imperial',
+      bgGradient: 'from-[#4A0E17] via-[#2D080E] to-[#FAF6EE]',
+      accentColor: '#DEA645',
+      category: category === 'modern' ? 'modern' : 'royal',
+      description: tagline || `Exclusive royal wedding invitation template added via AmantranLink Admin CMS.`,
+      url: `/templates/${cleanSlug}/index.html`,
+      previewImg: previewImg || `/templates/${cleanSlug}/preview.jpg`,
+      active: true,
+      featured: true,
+      isCustom: true,
+      displayOrder: registry.length + 1,
+      createdAt: new Date().toISOString()
+    };
+
+    if (existingIndex >= 0) {
+      registry[existingIndex] = { ...registry[existingIndex], ...newTemplateEntry };
+    } else {
+      registry.unshift(newTemplateEntry);
+    }
+
+    fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2), 'utf8');
+
+    // Optional sync to Supabase templates table
+    try {
+      await supabase.from('templates').upsert({
+        id: crypto.randomUUID(),
+        slug: cleanSlug,
+        name: newTemplateEntry.name,
+        price: (newTemplateEntry.price || 699) * 100,
+        category: newTemplateEntry.category,
+        preview_image: newTemplateEntry.previewImg
+      }, { onConflict: 'slug' }).catch(() => {});
+    } catch (dbErr) {
+      console.warn('Supabase templates upsert note:', dbErr.message);
+    }
+
+    console.log(`👑 [Admin CMS] Successfully added/updated custom template: ${cleanSlug}`);
+    return res.json({ success: true, template: newTemplateEntry });
+  } catch (err) {
+    console.error('Error creating template:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// =========================================================================
 // 🔔 AMANTRANLINK AUTOMATION & NOTIFICATION ENGINE API (PHASE 11)
 // =========================================================================
 

@@ -43,6 +43,7 @@ import {
   fetchAdminPartners,
   fetchAdminTemplates,
   updateTemplateMetadata,
+  createCustomTemplate,
   fetchAdminPricingTiers,
   updatePricingTier,
   updateInvitationSuspension,
@@ -97,6 +98,70 @@ export const AdminControlCenter: React.FC<AdminControlCenterProps> = ({
   const [pricingTiers, setPricingTiers] = useState<AdminPricingTier[]>([]);
   const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // 👑 Add Custom Template State (Admin Source Code Ingestion)
+  const [isAddTemplateOpen, setIsAddTemplateOpen] = useState<boolean>(false);
+  const [newTemplate, setNewTemplate] = useState({
+    name: '',
+    id: '',
+    tagline: '',
+    category: 'royal',
+    price: 699,
+    previewImg: '',
+    htmlSource: '',
+    cssSource: '',
+    jsSource: '',
+    passcode: 'Aryan_patel_2301'
+  });
+  const [isSubmittingTemplate, setIsSubmittingTemplate] = useState<boolean>(false);
+
+  const handleSaveCustomTemplate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTemplate.name.trim() || !newTemplate.id.trim() || !newTemplate.htmlSource.trim()) {
+      showToast('Template Name, ID (Slug), and HTML Source Code are required.', 'error');
+      return;
+    }
+
+    try {
+      setIsSubmittingTemplate(true);
+      const res = await createCustomTemplate({
+        id: newTemplate.id.trim(),
+        name: newTemplate.name.trim(),
+        tagline: newTemplate.tagline.trim(),
+        category: newTemplate.category,
+        price: Number(newTemplate.price) || 699,
+        previewImg: newTemplate.previewImg.trim(),
+        htmlSource: newTemplate.htmlSource,
+        cssSource: newTemplate.cssSource,
+        jsSource: newTemplate.jsSource,
+        passcode: newTemplate.passcode
+      });
+
+      if (res.success) {
+        showToast(`👑 Template "${newTemplate.name}" successfully created and activated!`, 'success');
+        setIsAddTemplateOpen(false);
+        setNewTemplate({
+          name: '',
+          id: '',
+          tagline: '',
+          category: 'royal',
+          price: 699,
+          previewImg: '',
+          htmlSource: '',
+          cssSource: '',
+          jsSource: '',
+          passcode: 'Aryan_patel_2301'
+        });
+        await loadAdminData();
+      } else {
+        showToast(res.error || 'Failed to create template', 'error');
+      }
+    } catch (err: any) {
+      showToast(err.message, 'error');
+    } finally {
+      setIsSubmittingTemplate(false);
+    }
+  };
 
   // Filters & Search State
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -693,47 +758,91 @@ export const AdminControlCenter: React.FC<AdminControlCenterProps> = ({
             TAB 6: 5. TEMPLATE MANAGEMENT CMS
            ══════════════════════════════════════════════════════════════════ */}
         {activeTab === 'templates' && (
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-cormorant font-bold text-2xl text-white">7 Royal Themes CMS Layer</h3>
-              <p className="text-xs text-[#94A3B8]">Configure template metadata, pricing overrides, and featured visibility.</p>
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#1E293B] p-5 rounded-2xl border border-gray-700">
+              <div>
+                <h3 className="font-cormorant font-bold text-2xl text-white flex items-center gap-2">
+                  <Crown className="w-6 h-6 text-[#DEA645]" />
+                  <span>Universal Template Engine &amp; Source Code CMS</span>
+                </h3>
+                <p className="text-xs text-[#94A3B8] mt-1">
+                  Toggle templates active/inactive (Hide / Show in Studio), set retail pricing, or paste full HTML source code to deploy new themes instantly.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsAddTemplateOpen(true)}
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#DEA645] to-[#B16F23] hover:from-[#E3B44C] hover:to-[#C98A00] text-[#1E090F] font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4 stroke-[3]" />
+                <span>+ Add Custom Template (Source Code)</span>
+              </button>
             </div>
 
+            {/* Template Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {templatesList.map((t) => (
-                <div key={t.templateId} className="bg-[#1E293B] rounded-2xl border border-gray-700 p-5 space-y-3">
+                <div key={t.templateId} className="bg-[#1E293B] rounded-2xl border border-gray-700 p-5 space-y-4 hover:border-gray-500 transition-colors">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase font-mono text-[#38BDF8]">{t.category}</span>
-                    <label className="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-gray-300">
+                    <span className="text-[10px] font-bold uppercase font-mono px-2 py-0.5 rounded bg-sky-950 text-[#38BDF8] border border-sky-800">
+                      {t.category}
+                    </span>
+                    
+                    {/* Active Toggle Switch */}
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <span className={`text-[10px] font-bold uppercase font-mono px-2 py-0.5 rounded ${
+                        t.active ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-red-950 text-red-400 border border-red-800'
+                      }`}>
+                        {t.active ? '● LIVE IN STUDIO' : '○ HIDDEN'}
+                      </span>
                       <input
                         type="checkbox"
                         checked={t.active}
                         onChange={async (e) => {
-                          await updateTemplateMetadata(t.templateId, { active: e.target.checked }, user.uid);
+                          const newStatus = e.target.checked;
+                          await updateTemplateMetadata(t.templateId, { active: newStatus }, user.uid);
                           await loadAdminData();
-                          showToast(`${t.name} ${e.target.checked ? 'activated' : 'deactivated'}`);
+                          showToast(`${t.name} is now ${newStatus ? 'LIVE in Studio' : 'HIDDEN from users'}`);
                         }}
-                        className="rounded accent-emerald-500"
+                        className="w-4 h-4 rounded accent-emerald-500 cursor-pointer"
                       />
-                      <span>Active</span>
                     </label>
                   </div>
 
-                  <h4 className="font-cormorant font-bold text-xl text-white">{t.name}</h4>
+                  <div>
+                    <h4 className="font-cormorant font-bold text-xl text-white tracking-wide">{t.name}</h4>
+                    <span className="text-[11px] font-mono text-gray-400 block mt-0.5">ID: {t.templateId}</span>
+                  </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-xs bg-[#0F172A] p-3 rounded-xl">
+                  {t.previewImage && (
+                    <div className="w-full h-28 rounded-xl overflow-hidden bg-black/40 border border-gray-700">
+                      <img src={t.previewImage} alt={t.name} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2 text-xs bg-[#0F172A] p-3 rounded-xl border border-gray-800">
                     <div>
-                      <span className="text-[10px] text-gray-400 block">Retail Price:</span>
-                      <strong className="text-emerald-400">₹{t.retailPrice}</strong>
+                      <span className="text-[10px] text-gray-400 block font-mono">Retail Price:</span>
+                      <strong className="text-emerald-400 text-sm font-mono">₹{t.retailPrice}</strong>
                     </div>
                     <div>
-                      <span className="text-[10px] text-gray-400 block">Partner Price:</span>
-                      <strong className="text-sky-400">₹{t.partnerPrice}</strong>
+                      <span className="text-[10px] text-gray-400 block font-mono">Partner Price:</span>
+                      <strong className="text-sky-400 text-sm font-mono">₹{t.partnerPrice}</strong>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs pt-1">
-                    <span className="text-amber-300 font-bold">Commission: ₹{t.partnerCommission}</span>
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-gray-800">
+                    <a
+                      href={`/templates/${t.templateId}/index.html`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-[#DEA645] hover:text-[#F3D489] font-bold flex items-center gap-1 transition-colors"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Preview Live</span>
+                    </a>
+
                     <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-gray-300">
                       <input
                         type="checkbox"
@@ -745,7 +854,7 @@ export const AdminControlCenter: React.FC<AdminControlCenterProps> = ({
                         }}
                         className="rounded accent-[#38BDF8]"
                       />
-                      <span>Featured</span>
+                      <span className="text-[11px]">Featured</span>
                     </label>
                   </div>
                 </div>

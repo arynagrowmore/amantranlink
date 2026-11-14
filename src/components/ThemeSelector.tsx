@@ -72,8 +72,27 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
 }) => {
   const { user } = useAuth();
   const [activeCategory, setActiveCategory] = useState<'royal' | 'modern'>('royal');
+  const [allThemes, setAllThemes] = useState<any[]>(ROYAL_THEMES);
 
-  const displayedThemes = ROYAL_THEMES;
+  // 🔄 Dynamic Template Ingestion Sync (Fetches Active Templates from Admin CMS)
+  React.useEffect(() => {
+    fetch('/api/templates/active')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.templates && data.templates.length > 0) {
+          setAllThemes(data.templates);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const displayedThemes = allThemes.filter((t) => {
+    if (t.active === false) return false;
+    if (activeCategory === 'modern') {
+      return t.category === 'modern';
+    }
+    return t.category !== 'modern';
+  });
 
   return (
     <div className="flex flex-col h-full space-y-5 font-manrope">
