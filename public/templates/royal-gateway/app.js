@@ -68,6 +68,12 @@
       // Start royal music
       playAudio();
 
+      // Step 0: Camera frame immediately starts gentle forward movement towards gate arch
+      if (gateCamera) {
+        gateCamera.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
+        gateCamera.style.transform = 'translateX(-50%) translateY(-50%) scale(1.1)';
+      }
+
       // Step 1: Tap seal scales up and fades out (0s - 0.5s)
       if (tapSeal) {
         tapSeal.style.transition = 'transform 0.5s cubic-bezier(0.2, 0, 0, 1), opacity 0.5s ease-out';

@@ -33,11 +33,11 @@
   <!-- 🚪 1. EXACT MATHEMATICAL PALACE GATE OVERLAY (INVITIMA MODULE 81525) -->
   <div id="gateOverlay">
     <div class="fixed inset-0 z-50 overflow-hidden bg-[#080e2c] [container-type:size]">
-      <div id="gateCameraFrame" class="absolute left-1/2 top-1/2 will-change-transform" style="width: max(100cqw, 177.683cqh); aspect-ratio: 1.77683 / 1; transform-origin: 50.12% 69.18%; perspective: 1400px; perspective-origin: 50.12% 69.18%; opacity: 1; transform: translateX(-50%) translateY(-50%) scale(1.09221);">
+      <div id="gateCameraFrame" class="absolute left-1/2 top-1/2 will-change-transform" style="width: max(100cqw, 177.683cqh); aspect-ratio: 1.77683 / 1; transform-origin: 50.12% 69.18%; perspective: 1400px; perspective-origin: 50.12% 69.18%; transform-style: preserve-3d; opacity: 1; transform: translateX(-50%) translateY(-50%) scale(1.09221);">
         <img src="./assets/gate/peacock.webp" alt="Palace gate" class="absolute inset-0 h-full w-full">
         <div class="absolute" style="left:42.105%;top:46.759%;height:44.846%;width:calc(8.014% + 8.014%);mask-image:url(./assets/gate/peacock-opening.png);mask-size:100% 100%;-webkit-mask-image:url(./assets/gate/peacock-opening.png);-webkit-mask-size:100% 100%;background:radial-gradient(ellipse at 50% 60%, var(--rgw-background, #080e2c) 55%, var(--rgw-gold, #dea645) 115%)"></div>
-        <img id="doorLeft" src="./assets/gate/peacock-left.webp" alt="" class="absolute max-w-none" style="left: 42.105%; width: 8.014%; top: 46.759%; height: 44.846%; transform-origin: left center; filter: brightness(1); transform: none;">
-        <img id="doorRight" src="./assets/gate/peacock-right.webp" alt="" class="absolute max-w-none" style="left: 50.12%; width: 8.014%; top: 46.759%; height: 44.846%; transform-origin: right center; filter: brightness(1); transform: none;">
+        <img id="doorLeft" src="./assets/gate/peacock-left.webp" alt="" class="absolute max-w-none door-left-swing" style="left: 42.105%; width: 8.014%; top: 46.759%; height: 44.846%; transform-origin: left center; filter: brightness(1); transform: none; backface-visibility: hidden; transform-style: preserve-3d; will-change: transform;">
+        <img id="doorRight" src="./assets/gate/peacock-right.webp" alt="" class="absolute max-w-none door-right-swing" style="left: 50.12%; width: 8.014%; top: 46.759%; height: 44.846%; transform-origin: right center; filter: brightness(1); transform: none; backface-visibility: hidden; transform-style: preserve-3d; will-change: transform;">
         
         <!-- Breathing Tap To Open Button -->
         <div id="tapSeal" aria-hidden="true" class="pointer-events-none absolute flex flex-col items-center gap-2" style="left:50.12%;top:69.18%;opacity:1;transform:translateX(-50%) translateY(-50%) scale(1)">

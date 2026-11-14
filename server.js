@@ -1740,6 +1740,120 @@ app.post('/api/invitations/save', async (req, res) => {
 // In-Memory Fast Cache for Instant Reliability
 const PUBLISHED_SITES_CACHE = new Map();
 
+// 🏛️ UNIVERSAL TEMPLATE DIRECTORY MAP FOR NATIVE DEPLOYMENTS
+const THEME_TO_TEMPLATE_FOLDER = {
+  'royal-gateway': 'royal-gateway',
+  'shubh-vivah': 'shubh-vivah',
+  'shubh-lagna': 'shubh-vivah',
+  'rose-farman': 'rose-farman',
+  'royal-orchid': 'royal-orchid',
+  'shahi-farman': 'shahi-farman',
+  'rajmahal': 'rajmahal-template',
+  'jharokha': 'jharokha-template',
+  'mayura': 'mayura-template',
+  'jodi': 'jodi-template',
+  'dak': 'dak-template',
+  'ivory': 'ivory-template',
+  'royaldawn': 'royaldawn-template',
+  'royalring': 'royalring-template',
+  'darbar': 'rajasthan-darbar',
+  'chandramahal': 'chandra-mahal',
+  'swarnim': 'swarnim-scratch',
+  'shahidesk': 'shahi-desk'
+};
+
+/**
+ * 👑 Compiles a 100% self-contained native invitation HTML for Vercel deployment.
+ * Eliminates double-nested cross-origin iframes that cause blank white screens on iOS Safari and mobile Chrome.
+ */
+function buildStandaloneHtml({ slug, groomName, brideName, weddingDate, venue, theme, heroImage, isEngagement }) {
+  try {
+    const safeSlug = (slug || 'royal-wedding').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'royal-wedding';
+    const effectiveTheme = theme || 'shubh-vivah';
+    const tplFolder = THEME_TO_TEMPLATE_FOLDER[effectiveTheme] || 'shubh-vivah';
+    const templatePath = path.join(__dirname, 'public', 'templates', tplFolder, 'index.html');
+
+    if (!fs.existsSync(templatePath)) {
+      return null;
+    }
+
+    let html = fs.readFileSync(templatePath, 'utf8');
+    const baseAssetUrl = `https://amantranlink-web.vercel.app/templates/${tplFolder}`;
+
+    // 1. Convert relative assets to absolute HTTPS URLs
+    html = html.replace(/\.\/assets\//g, `${baseAssetUrl}/assets/`);
+    html = html.replace(/\.\/style\.css/g, `${baseAssetUrl}/style.css`);
+
+    // 2. Inline app.js if present
+    const appJsPath = path.join(__dirname, 'public', 'templates', tplFolder, 'app.js');
+    if (fs.existsSync(appJsPath)) {
+      let js = fs.readFileSync(appJsPath, 'utf8');
+      js = js.replace(/\.\/assets\//g, `${baseAssetUrl}/assets/`);
+      html = html.replace('<script src="./app.js"></script>', `<script>\n${js}\n</script>`);
+    }
+
+    // 3. Page title & description
+    const pageTitle = isEngagement 
+      ? `💍 ${groomName} & ${brideName} — Shahi Sagai Nimantran`
+      : `👑 ${groomName} & ${brideName} — Shahi Vivah Nimantran`;
+    const pageDesc = `॥ श्री गणेशाय नमः ॥ You are cordially invited to celebrate the royal wedding of ${groomName} & ${brideName} on ${weddingDate} at ${venue}.`;
+
+    html = html.replace(/<title[^>]*>.*?<\/title>/i, `<title>${pageTitle}</title>`);
+    html = html.replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/i, `<meta name="description" content="${pageDesc}" />`);
+
+    // 4. Template-specific groom & bride name injections
+    if (tplFolder === 'shubh-vivah') {
+      html = html.replace(
+        /<h1 class="mt-2 font-display text-5xl leading-tight text-gold-gradient">[\s\S]*?<\/h1>/,
+        `<h1 class="mt-2 font-display text-5xl leading-tight text-gold-gradient"><span class="groom-name">${groomName}</span> <span class="mx-3 inline-block font-display text-4xl text-saffron">&amp;</span> <span class="bride-name">${brideName}</span></h1>`
+      );
+      html = html.replace(
+        /<h1 class="mt-2 font-display text-5xl leading-tight text-gold-gradient sm:text-7xl md:text-8xl">[\s\S]*?<\/h1>/,
+        `<h1 class="mt-2 font-display text-5xl leading-tight text-gold-gradient sm:text-7xl md:text-8xl"><span class="groom-name">${groomName}</span> <span class="mx-3 inline-block animate-sway font-display text-4xl text-saffron sm:text-5xl">&amp;</span> <span class="bride-name">${brideName}</span></h1>`
+      );
+      html = html.replace(/\bUraj\b/g, brideName);
+      html = html.replace(/\bRomil\b/g, groomName);
+    } else if (tplFolder === 'royal-gateway') {
+      html = html.replace(/\bRahul\b/g, groomName);
+      html = html.replace(/\bPriya\b/g, brideName);
+    }
+
+    // 5. Inject Live Hydration Script
+    const hydrationScript = `
+  <script>
+    window.WEDDING_CONFIG = {
+      slug: ${JSON.stringify(safeSlug)},
+      groom: ${JSON.stringify(groomName)},
+      bride: ${JSON.stringify(brideName)},
+      date: ${JSON.stringify(weddingDate)},
+      venue: ${JSON.stringify(venue)},
+      theme: ${JSON.stringify(effectiveTheme)}
+    };
+    (function() {
+      fetch('https://amantranlink-web.vercel.app/api/sites/' + encodeURIComponent(${JSON.stringify(safeSlug)}))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data && data.content && window.applyWeddingData) {
+            window.applyWeddingData(data.content);
+          }
+        }).catch(function(){});
+    })();
+  </script>
+    `;
+
+    if (html.includes('</body>')) {
+      html = html.replace('</body>', `${hydrationScript}\n</body>`);
+    } else {
+      html += hydrationScript;
+    }
+
+    return html;
+  } catch (err) {
+    console.warn('⚠️ Standalone HTML compilation warning:', err.message);
+    return null;
+  }
+}
+
 // 🚀 Vercel REST API Automated Deployment Engine
 async function deployToVercel({ slug, groomName, brideName, weddingDate, venue, theme, heroImage, isEngagement }) {
   const token = process.env.VERCEL_AUTH_TOKEN;
@@ -1761,7 +1875,10 @@ async function deployToVercel({ slug, groomName, brideName, weddingDate, venue, 
   const canonicalUrl = `https://amantranlink-web.vercel.app/i/${encodeURIComponent(safeSlug)}?theme=${encodeURIComponent(theme || 'rajmahal')}`;
   const previewImg = heroImage || 'https://owziiqdxbvynrprugvwk.supabase.co/storage/v1/object/public/wedding-media/previews/theme-rajmahal.webp';
 
-  const htmlContent = `<!DOCTYPE html>
+  // 1. Compile 100% Native Standalone HTML to prevent mobile white screen
+  const standalone = buildStandaloneHtml({ slug: safeSlug, groomName, brideName, weddingDate, venue, theme, heroImage, isEngagement });
+
+  const fallbackHtml = `<!DOCTYPE html>
 <html lang="hi">
 <head>
   <meta charset="UTF-8">
@@ -1889,6 +2006,8 @@ async function deployToVercel({ slug, groomName, brideName, weddingDate, venue, 
   </script>
 </body>
 </html>`;
+
+  const htmlContent = standalone || fallbackHtml;
 
   try {
     const payload = {
