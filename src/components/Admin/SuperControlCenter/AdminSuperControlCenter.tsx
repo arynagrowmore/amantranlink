@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ShieldCheck, Users, Camera, Sparkles, Search, Filter, 
   DollarSign, Wallet, BarChart3, FileText, Settings, Layers, 
@@ -6,8 +6,14 @@ import {
   ArrowRight, Copy, Check, ExternalLink, RefreshCw, TrendingUp, 
   Eye, EyeOff, Edit3, UserX, UserCheck, Plus, History, Crown, X, 
   Activity, Globe, Server, ToggleLeft, ToggleRight, Radio, 
-  SlidersHorizontal, Download, ChevronRight, AlertTriangle, Trash2, KeyRound, Clock
+  SlidersHorizontal, Download, ChevronRight, AlertTriangle, Trash2, KeyRound, Clock,
+  UploadCloud, FolderUp, FileArchive, FolderArchive, Package, FileCode, CheckCircle
 } from 'lucide-react';
+import { 
+  extractTemplateFromZip, 
+  extractTemplateFromFiles, 
+  ExtractedTemplatePackage 
+} from '../../../utils/templatePackageParser';
 import { 
   PlatformOverviewMetrics, 
   AdminUserManagementItem, 
@@ -130,6 +136,16 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
   const [templateCategoryFilter, setTemplateCategoryFilter] = useState<'all' | 'royal' | 'modern' | 'live' | 'hidden'>('all');
   const [isAddTemplateModalOpen, setIsAddTemplateModalOpen] = useState<boolean>(false);
   const [isDeployingTemplate, setIsDeployingTemplate] = useState<boolean>(false);
+  const [uploadedPackage, setUploadedPackage] = useState<ExtractedTemplatePackage | null>(null);
+  const [isExtractingZip, setIsExtractingZip] = useState<boolean>(false);
+  const [zipExtractionError, setZipExtractionError] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState<boolean>(false);
+  const [showCodePreview, setShowCodePreview] = useState<boolean>(false);
+
+  // Hidden File Inputs Refs
+  const zipFileInputRef = useRef<HTMLInputElement | null>(null);
+  const folderInputRef = useRef<HTMLInputElement | null>(null);
+
   const [newTemplateForm, setNewTemplateForm] = useState({
     name: '',
     id: '',
@@ -262,11 +278,69 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
     }
   };
 
-  // 🚀 Deploy New Custom Template via Source Code
+  // 📦 Process ZIP or HTML Archive
+  const handleZipFileSelected = async (file: File) => {
+    setIsExtractingZip(true);
+    setZipExtractionError(null);
+    try {
+      let pkg: ExtractedTemplatePackage;
+      if (file.name.toLowerCase().endsWith('.zip')) {
+        pkg = await extractTemplateFromZip(file);
+      } else if (file.name.toLowerCase().endsWith('.html') || file.name.toLowerCase().endsWith('.htm')) {
+        pkg = await extractTemplateFromFiles([file]);
+      } else {
+        throw new Error('Please select a valid .ZIP archive or an .HTML file.');
+      }
+      setUploadedPackage(pkg);
+      setNewTemplateForm(prev => ({
+        ...prev,
+        name: pkg.name || prev.name,
+        id: pkg.slug || prev.id,
+        tagline: pkg.tagline || prev.tagline,
+        previewImg: pkg.previewImageUrl || prev.previewImg,
+        htmlSource: pkg.htmlContent,
+        cssSource: pkg.cssContent,
+        jsSource: pkg.jsContent
+      }));
+    } catch (err: any) {
+      console.error('Error unpacking template archive:', err);
+      setZipExtractionError(err.message || 'Failed to extract template package.');
+    } finally {
+      setIsExtractingZip(false);
+    }
+  };
+
+  // 📁 Process Folder of Template Files
+  const handleFolderSelected = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setIsExtractingZip(true);
+    setZipExtractionError(null);
+    try {
+      const pkg = await extractTemplateFromFiles(files);
+      setUploadedPackage(pkg);
+      setNewTemplateForm(prev => ({
+        ...prev,
+        name: pkg.name || prev.name,
+        id: pkg.slug || prev.id,
+        tagline: pkg.tagline || prev.tagline,
+        previewImg: pkg.previewImageUrl || prev.previewImg,
+        htmlSource: pkg.htmlContent,
+        cssSource: pkg.cssContent,
+        jsSource: pkg.jsContent
+      }));
+    } catch (err: any) {
+      console.error('Error unpacking template folder:', err);
+      setZipExtractionError(err.message || 'Failed to extract template folder.');
+    } finally {
+      setIsExtractingZip(false);
+    }
+  };
+
+  // 🚀 Deploy New Custom Template via ZIP / Folder or Source Package
   const handleCreateTemplateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTemplateForm.name.trim() || !newTemplateForm.id.trim() || !newTemplateForm.htmlSource.trim()) {
-      alert('Please fill in Template Name, Slug ID, and paste the HTML Source Code.');
+      alert('Please upload a ZIP file, Folder, or HTML file containing the template before deploying.');
       return;
     }
     setIsDeployingTemplate(true);
@@ -275,6 +349,8 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
     if (res.success && res.template) {
       setTemplatesList(prev => [res.template!, ...prev.filter(t => t.id !== res.template!.id)]);
       setIsAddTemplateModalOpen(false);
+      setUploadedPackage(null);
+      setZipExtractionError(null);
       setNewTemplateForm({
         name: '',
         id: '',
@@ -902,7 +978,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
                       Royal Templates CMS &amp; Hide / Show Control
                     </h2>
                     <p className="text-xs text-stone-300 max-w-2xl leading-relaxed">
-                      Control which templates are live in the Studio, preview interactive 3D gates &amp; wax seal animations, or ingest brand new templates by pasting full HTML/CSS/JS source code from any device.
+                      Control which templates are live in the Studio, preview interactive 3D gates &amp; wax seal animations, or upload brand new templates via ZIP file or folder from any device.
                     </p>
                   </div>
 
@@ -913,7 +989,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
                       className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#F4D06F] to-[#DEA645] hover:from-[#FFE494] hover:to-[#E5B558] text-[#120306] font-bold text-xs flex items-center gap-2 shadow-lg hover:shadow-xl transition-all cursor-pointer whitespace-nowrap"
                     >
                       <Plus className="w-4 h-4 stroke-[3]" />
-                      <span>+ Add Custom Template (Source Code)</span>
+                      <span>+ Add Template (Upload ZIP / Folder)</span>
                     </button>
                   </div>
                 </div>
@@ -1120,7 +1196,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
                     </div>
                     <h4 className="font-cormorant font-bold text-xl text-[#20181A]">No Templates Registered Yet</h4>
                     <p className="text-xs text-[#736567] max-w-sm mx-auto">
-                      Click "+ Add Custom Template" to deploy your first interactive wedding invitation template via source code.
+                      Click "+ Add Template" to upload a ZIP archive or folder containing your template assets.
                     </p>
                   </div>
                 )}
@@ -1617,35 +1693,194 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
       </main>
 
       {/* ========================================================================= */}
-      {/* 👑 MODAL: + ADD CUSTOM TEMPLATE VIA SOURCE CODE                          */}
+      {/* 👑 MODAL: + ADD CUSTOM TEMPLATE (UPLOAD ZIP, FOLDER OR FILE)             */}
       {/* ========================================================================= */}
       {isAddTemplateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-xs font-manrope animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-sm font-manrope animate-fadeIn">
           <div className="max-w-3xl w-full bg-[#1A060B] border border-[#F4D06F]/40 rounded-3xl p-6 shadow-2xl text-white space-y-4 max-h-[92vh] flex flex-col">
+            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-stone-800 pb-3 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-2xl bg-[#F4D06F]/20 flex items-center justify-center text-[#F4D06F]">
-                  <Sparkles className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-2xl bg-[#F4D06F]/20 flex items-center justify-center text-[#F4D06F]">
+                  <UploadCloud className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-cormorant text-2xl font-bold text-white">
-                    Deploy Custom Template (Source Code)
+                    Deploy Wedding Template (Upload ZIP / Folder)
                   </h3>
                   <p className="text-[11px] text-stone-400">
-                    Paste raw HTML, CSS &amp; JS. It is compiled and deployed directly to the Studio from any device.
+                    Upload a .ZIP archive, select an entire folder, or choose an HTML file. CSS, JS, and image assets are automatically unpacked and compiled.
                   </p>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => setIsAddTemplateModalOpen(false)}
+                onClick={() => {
+                  setIsAddTemplateModalOpen(false);
+                  setUploadedPackage(null);
+                  setZipExtractionError(null);
+                }}
                 className="text-stone-400 hover:text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
+            {/* Hidden File Inputs */}
+            <input
+              ref={zipFileInputRef}
+              type="file"
+              accept=".zip,.html,.htm"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleZipFileSelected(file);
+                e.target.value = '';
+              }}
+            />
+            <input
+              ref={folderInputRef}
+              type="file"
+              {...({ webkitdirectory: '', directory: '' } as any)}
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                handleFolderSelected(e.target.files);
+                e.target.value = '';
+              }}
+            />
+
             <form onSubmit={handleCreateTemplateSubmit} className="space-y-4 text-xs overflow-y-auto pr-1 flex-1">
+              {/* 📂 Drag & Drop Upload Zone */}
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(true);
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(false);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(false);
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) {
+                    handleZipFileSelected(file);
+                  }
+                }}
+                className={`relative p-6 sm:p-7 rounded-2xl border-2 border-dashed transition-all text-center flex flex-col items-center justify-center gap-3 ${
+                  isDragOver
+                    ? 'border-[#F4D06F] bg-[#F4D06F]/10 scale-[1.01]'
+                    : uploadedPackage
+                    ? 'border-emerald-500/50 bg-emerald-950/20'
+                    : 'border-stone-700 hover:border-[#F4D06F]/60 bg-black/30'
+                }`}
+              >
+                {isExtractingZip ? (
+                  <div className="py-4 flex flex-col items-center gap-3 text-center">
+                    <div className="w-10 h-10 border-3 border-[#F4D06F] border-t-transparent rounded-full animate-spin" />
+                    <p className="text-sm font-bold text-white">Unpacking &amp; Inlining Template Package...</p>
+                    <p className="text-[11px] text-stone-400">
+                      Extracting index.html, bundling stylesheets &amp; scripts, and encoding media assets...
+                    </p>
+                  </div>
+                ) : uploadedPackage ? (
+                  <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0 overflow-hidden">
+                        {uploadedPackage.previewImageUrl ? (
+                          <img
+                            src={uploadedPackage.previewImageUrl}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Package className="w-7 h-7 text-emerald-400" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3" /> Ready To Deploy
+                          </span>
+                          <span className="text-[10px] text-stone-400 font-mono">
+                            {(uploadedPackage.totalSize / 1024).toFixed(1)} KB • {uploadedPackage.extractedFilesCount} file(s)
+                          </span>
+                        </div>
+                        <h4 className="font-cormorant font-bold text-lg text-white mt-0.5">
+                          {uploadedPackage.name}
+                        </h4>
+                        <p className="text-[11px] text-stone-300">
+                          Slug: <code className="text-[#F4D06F] font-mono">{newTemplateForm.id}</code>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => zipFileInputRef.current?.click()}
+                        className="px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-semibold cursor-pointer transition-colors"
+                      >
+                        Change File
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => folderInputRef.current?.click()}
+                        className="px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-semibold cursor-pointer transition-colors"
+                      >
+                        Change Folder
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="w-14 h-14 rounded-2xl bg-[#F4D06F]/10 border border-[#F4D06F]/30 flex items-center justify-center text-[#F4D06F]">
+                      <UploadCloud className="w-7 h-7" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-cormorant font-bold text-xl text-white">
+                        Drag &amp; Drop Template ZIP or HTML File
+                      </h4>
+                      <p className="text-xs text-stone-400 max-w-md">
+                        Drop your ready-made HTML/CSS/JS template as a single <strong>.ZIP archive</strong> or select your <strong>template folder</strong> directly.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 pt-2 flex-wrap justify-center">
+                      <button
+                        type="button"
+                        onClick={() => zipFileInputRef.current?.click()}
+                        className="px-4 py-2.5 rounded-xl bg-[#F4D06F] hover:bg-[#FFE494] text-[#120306] font-bold text-xs flex items-center gap-2 shadow cursor-pointer transition-all"
+                      >
+                        <FileArchive className="w-4 h-4" />
+                        <span>Choose .ZIP / .HTML</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => folderInputRef.current?.click()}
+                        className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 border border-stone-600 text-white font-semibold text-xs flex items-center gap-2 shadow cursor-pointer transition-all"
+                      >
+                        <FolderUp className="w-4 h-4 text-[#F4D06F]" />
+                        <span>Choose Template Folder</span>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Extraction Error Notice */}
+              {zipExtractionError && (
+                <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 text-xs flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <strong className="font-semibold block text-red-300">Package Processing Error</strong>
+                    <span>{zipExtractionError}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Form Metadata Fields (Auto-filled & Fully Editable) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
                   <label className="block text-[11px] font-semibold text-stone-300 mb-1">
@@ -1735,65 +1970,57 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
                 />
               </div>
 
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-[11px] font-semibold text-stone-300">
-                    HTML Source Code (Complete Standalone Page) *
-                  </label>
-                  <span className="text-[10px] font-mono text-[#F4D06F]">
-                    Supports Full HTML5, inline CSS, JS, audio tags
-                  </span>
-                </div>
-                <textarea
-                  rows={8}
-                  required
-                  value={newTemplateForm.htmlSource}
-                  onChange={(e) => setNewTemplateForm(prev => ({ ...prev, htmlSource: e.target.value }))}
-                  placeholder={`<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Royal Invitation</title>\n</head>\n<body>\n  <!-- Your Royal Template Code -->\n</body>\n</html>`}
-                  className="w-full p-3 bg-black/60 border border-stone-700 rounded-xl text-xs font-mono text-stone-200 focus:outline-none focus:border-[#F4D06F] leading-relaxed resize-y"
-                />
-              </div>
+              {/* Collapsible Inspector for Bundled HTML Code */}
+              {newTemplateForm.htmlSource && (
+                <div className="border border-stone-800 rounded-2xl bg-black/40 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setShowCodePreview(!showCodePreview)}
+                    className="w-full px-4 py-2.5 flex items-center justify-between text-left text-stone-300 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2 text-[11px] font-semibold">
+                      <FileCode className="w-4 h-4 text-[#F4D06F]" />
+                      <span>Bundled Standalone HTML Source ({Math.round(newTemplateForm.htmlSource.length / 1024)} KB)</span>
+                    </span>
+                    <span className="text-[10px] text-[#F4D06F] underline">
+                      {showCodePreview ? 'Hide Source' : 'View Source'}
+                    </span>
+                  </button>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">
-                    Custom CSS (Optional)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={newTemplateForm.cssSource}
-                    onChange={(e) => setNewTemplateForm(prev => ({ ...prev, cssSource: e.target.value }))}
-                    placeholder="/* Custom animations, fonts, or keyframes */"
-                    className="w-full p-2.5 bg-black/60 border border-stone-700 rounded-xl text-xs font-mono text-stone-300 focus:outline-none focus:border-[#F4D06F] resize-y"
-                  />
+                  {showCodePreview && (
+                    <div className="p-3 border-t border-stone-800 bg-black/60">
+                      <textarea
+                        rows={6}
+                        value={newTemplateForm.htmlSource}
+                        onChange={(e) => setNewTemplateForm(prev => ({ ...prev, htmlSource: e.target.value }))}
+                        className="w-full p-2.5 bg-black/80 border border-stone-700 rounded-xl text-[11px] font-mono text-stone-300 focus:outline-none focus:border-[#F4D06F] resize-y"
+                      />
+                    </div>
+                  )}
                 </div>
+              )}
 
-                <div>
-                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">
-                    Custom JS (Optional)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={newTemplateForm.jsSource}
-                    onChange={(e) => setNewTemplateForm(prev => ({ ...prev, jsSource: e.target.value }))}
-                    placeholder="// Interactive audio playback, confetti, or scratch card handlers"
-                    className="w-full p-2.5 bg-black/60 border border-stone-700 rounded-xl text-xs font-mono text-stone-300 focus:outline-none focus:border-[#F4D06F] resize-y"
-                  />
-                </div>
-              </div>
-
+              {/* Action Buttons */}
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-800 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setIsAddTemplateModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl bg-stone-800 text-stone-300 text-xs font-semibold cursor-pointer hover:bg-stone-700"
+                  onClick={() => {
+                    setIsAddTemplateModalOpen(false);
+                    setUploadedPackage(null);
+                    setZipExtractionError(null);
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-stone-800 text-stone-300 text-xs font-semibold cursor-pointer hover:bg-stone-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={isDeployingTemplate}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#F4D06F] to-[#DEA645] hover:from-[#FFE494] hover:to-[#E5B558] text-[#120306] text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg cursor-pointer"
+                  disabled={isDeployingTemplate || !newTemplateForm.htmlSource.trim()}
+                  className={`px-6 py-2.5 rounded-xl font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg transition-all text-xs ${
+                    isDeployingTemplate || !newTemplateForm.htmlSource.trim()
+                      ? 'bg-stone-700 text-stone-400 cursor-not-allowed opacity-60'
+                      : 'bg-gradient-to-r from-[#F4D06F] to-[#DEA645] hover:from-[#FFE494] hover:to-[#E5B558] text-[#120306] cursor-pointer hover:shadow-xl'
+                  }`}
                 >
                   {isDeployingTemplate ? (
                     <>
