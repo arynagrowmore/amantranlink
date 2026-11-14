@@ -15,6 +15,7 @@ import {
   PlatformGlobalConfig, 
   ComingSoonConfig,
   AdminSecurityAuditRecord, 
+  AdminTemplateItem,
   TimeRangeFilter, 
   UserRole, 
   UserAccountStatus 
@@ -1011,3 +1012,388 @@ export async function fetchSecurityAuditLogs(): Promise<AdminSecurityAuditRecord
     }
   ];
 }
+
+// =========================================================================
+// 👑 DYNAMIC TEMPLATE CMS & INGESTION SERVICES (SUPABASE + SERVERLESS PROOF)
+// =========================================================================
+
+export const TEMPLATE_REGISTRY_SETTING_KEY = 'template_registry';
+
+export const DEFAULT_SUPER_TEMPLATES: AdminTemplateItem[] = [
+  {
+    id: 'royal-gateway',
+    name: 'THE ROYAL GATEWAY',
+    tagline: 'Jewel-toned Rajasthani peacock palace gate opening with shehnai, velvet scrolls & scratch card.',
+    taglineShort: 'Peacock Gate · Velvet Scroll · Scratch',
+    tags: 'Carved Peacock Doors · Grand Palace Hero · Velvet Ceremonies',
+    price: 699,
+    icon: '🦚',
+    badge: 'Peacock Palace Gate',
+    bgGradient: 'from-[#080E2C] via-[#9E141E] to-[#FFE4B3]',
+    accentColor: '#DEA645',
+    category: 'royal',
+    description: 'Step into an imperial palace celebration with majestic carved peacock doors swinging open with shehnai music, grand sunset palace, velvet unrolling ceremony scrolls, and interactive scratch card.',
+    url: '/templates/royal-gateway/index.html',
+    previewImg: '/templates/royal-gateway/assets/gate/peacock.webp',
+    active: true,
+    featured: true,
+    displayOrder: 1,
+  },
+  {
+    id: 'shubh-vivah',
+    name: 'SHUBH VIVAH',
+    tagline: 'Full-screen sealed wax envelope with floating petals & interactive gold scratch card.',
+    taglineShort: 'Interactive · Wax Seal · Scratch',
+    tags: 'Wax Seal Envelope · Gold Scratch Foil · Drifting Petals',
+    price: 499,
+    icon: '💌',
+    badge: 'Wax Seal Envelope',
+    bgGradient: 'from-[#4A0E17] via-[#2D080E] to-[#FAF6EE]',
+    accentColor: '#E07A16',
+    category: 'royal',
+    description: 'A full-screen royal envelope sealed with animated wax emblem that opens with shehnai music, featuring drifting marigolds and an interactive rub-and-reveal scratch card.',
+    url: '/templates/shubh-vivah/index.html',
+    previewImg: '/templates/shubh-vivah/assets/couple.png',
+    active: true,
+    featured: true,
+    displayOrder: 2,
+  },
+  {
+    id: 'rose-farman',
+    name: 'THE ROSE FARMAN',
+    tagline: 'Royal wax envelope opening, falling rose petal rain physics & 7 illustrated ceremony chapters.',
+    taglineShort: 'Blush · Petal Rain · 3D Flap',
+    tags: 'Rose Petal Rain · 3D Flap · Illustrated Timeline',
+    price: 699,
+    icon: '🌹',
+    badge: 'Rose Petal Rain',
+    bgGradient: 'from-[#9F1239] via-[#881337] to-[#FFF5F7]',
+    accentColor: '#F43F5E',
+    category: 'royal',
+    description: 'Blush-toned luxury invitation with a 3D letter sliding out of a sealed envelope, continuous rose petal rain physics, interactive gold scratch card, and 7 ceremony illustrations.',
+    url: '/templates/rose-farman/index.html',
+    previewImg: '/templates/rose-farman/assets/hero-couple.png',
+    active: true,
+    featured: true,
+    displayOrder: 3,
+  },
+  {
+    id: 'royal-orchid',
+    name: 'THE ROYAL ORCHID',
+    tagline: 'Regal 3D Palace Gate with Orchid Royal Flourishes & Auspicious Aarti.',
+    taglineShort: '3D Gate · Royal Orchid',
+    tags: 'Palace Gate · Orchid Flourishes · Shehnai',
+    price: 999,
+    icon: '🌺',
+    badge: 'Imperial Gate',
+    bgGradient: 'from-[#3B0764] via-[#581C87] to-[#FAF5FF]',
+    accentColor: '#A855F7',
+    category: 'royal',
+    description: 'Imperial purple and gold celebration with 3D ornamental doors and traditional ceremonial music.',
+    url: '/templates/royal-orchid/index.html',
+    previewImg: '/templates/royal-orchid/assets/bride-groom.png',
+    active: true,
+    featured: false,
+    displayOrder: 4,
+  },
+  {
+    id: 'shahi-farman',
+    name: 'THE SHAHI FARMAN',
+    tagline: 'Golden Imperial Envelope with Unrolling Royal Dastavej.',
+    taglineShort: 'Gold Envelope · Dastavej',
+    tags: 'Gold Envelope · Royal Farman · Sitar & Shehnai',
+    price: 999,
+    icon: '📜',
+    badge: 'Golden Farman',
+    bgGradient: 'from-[#713F12] via-[#854D0E] to-[#FEFCE8]',
+    accentColor: '#EAB308',
+    category: 'royal',
+    description: 'Exquisite golden manuscript invitation unrolling with authentic royal court aesthetics.',
+    url: '/templates/shahi-farman/index.html',
+    previewImg: '/templates/shahi-farman/assets/hero-scene.png',
+    active: true,
+    featured: false,
+    displayOrder: 5,
+  },
+  {
+    id: 'rajmahal',
+    name: 'THE RAJMAHAL',
+    tagline: '3D Grand Palace Gateway with Shehnai & Auspicious Blessings.',
+    taglineShort: '3D Palace · Heritage Shehnai',
+    tags: '3D Palace Gateway · Shehnai Audio · Royal Blessings',
+    price: 1299,
+    icon: '🏰',
+    badge: 'Grand Heritage',
+    bgGradient: 'from-[#540D1E] via-[#350811] to-[#FAF6EE]',
+    accentColor: '#D97706',
+    category: 'royal',
+    description: 'Flagship 3D architectural palace entrance opening into a grand royal wedding courtyard.',
+    url: '/templates/rajmahal/index.html',
+    previewImg: '/previews/theme-rajmahal.webp',
+    active: true,
+    featured: false,
+    displayOrder: 6,
+  },
+  {
+    id: 'ivory',
+    name: 'THE IVORY MINIMALIST',
+    tagline: 'Modern Editorial Typography, Gold Foil Flourishes & Clean Minimalist Elegance.',
+    taglineShort: 'Modern Editorial · Gold Accents',
+    tags: 'Clean Modern · Serif Typography · Minimalist Luxury',
+    price: 499,
+    icon: '✨',
+    badge: 'Modern Luxury',
+    bgGradient: 'from-[#1C1917] via-[#292524] to-[#FAF8F5]',
+    accentColor: '#CA8A04',
+    category: 'modern',
+    description: 'Subtle cream and champagne editorial layouts with gold accents and smooth scroll chapters.',
+    url: '/templates/ivory-template/index.html',
+    previewImg: '/templates/ivory-template/preview.jpg',
+    active: true,
+    featured: false,
+    displayOrder: 7,
+  },
+];
+
+/**
+ * Fetch all templates (with Supabase platform_settings as cloud authority)
+ */
+export async function fetchAdminTemplatesAsync(): Promise<AdminTemplateItem[]> {
+  try {
+    // 1. Try Supabase platform_settings first for cloud persistence
+    const { data: setting, error } = await supabase
+      .from('platform_settings')
+      .select('setting_value')
+      .eq('setting_key', TEMPLATE_REGISTRY_SETTING_KEY)
+      .maybeSingle();
+
+    if (!error && setting?.setting_value && Array.isArray(setting.setting_value) && setting.setting_value.length > 0) {
+      // Ensure all default templates are present in case new ones were added
+      const cloudList: AdminTemplateItem[] = setting.setting_value;
+      const merged = [...cloudList];
+      for (const def of DEFAULT_SUPER_TEMPLATES) {
+        if (!merged.some(t => t.id === def.id)) {
+          merged.push(def);
+        }
+      }
+      return merged;
+    }
+
+    // 2. Fallback: try local server API endpoint
+    try {
+      const res = await fetch(resolveApiUrl('/api/admin/templates'));
+      if (res.ok) {
+        const json = await res.json();
+        if (json.templates && Array.isArray(json.templates) && json.templates.length > 0) {
+          // Seed Supabase platform_settings for future serverless reads
+          try {
+            await supabase.from('platform_settings').upsert({
+              setting_key: TEMPLATE_REGISTRY_SETTING_KEY,
+              setting_value: json.templates,
+              updated_at: new Date().toISOString()
+            });
+          } catch (e) {}
+          return json.templates;
+        }
+      }
+    } catch (apiErr) {}
+
+    // 3. Fallback: seed Supabase with default templates
+    try {
+      await supabase.from('platform_settings').upsert({
+        setting_key: TEMPLATE_REGISTRY_SETTING_KEY,
+        setting_value: DEFAULT_SUPER_TEMPLATES,
+        updated_at: new Date().toISOString()
+      });
+    } catch (e) {}
+
+    return DEFAULT_SUPER_TEMPLATES;
+  } catch (err) {
+    console.warn('[AdminSuperCenter] fetchAdminTemplatesAsync note:', err);
+    return DEFAULT_SUPER_TEMPLATES;
+  }
+}
+
+/**
+ * Toggle template active (Hide/Show) in Supabase & Server
+ */
+export async function toggleAdminTemplateAsync(
+  templateId: string,
+  active: boolean,
+  actorEmail: string = 'admin@amantranlink.com'
+): Promise<{ success: boolean; active?: boolean; error?: string }> {
+  try {
+    // Fetch current templates from Supabase
+    const templates = await fetchAdminTemplatesAsync();
+    const target = templates.find(t => t.id === templateId);
+    if (!target) {
+      return { success: false, error: `Template ${templateId} not found.` };
+    }
+
+    target.active = Boolean(active);
+
+    // 1. Update Supabase platform_settings (works everywhere!)
+    const { error: sbError } = await supabase.from('platform_settings').upsert({
+      setting_key: TEMPLATE_REGISTRY_SETTING_KEY,
+      setting_value: templates,
+      updated_at: new Date().toISOString()
+    });
+
+    if (sbError) {
+      console.warn('Supabase toggle note:', sbError.message);
+    }
+
+    // 2. Also notify server endpoint if running
+    try {
+      await fetch(resolveApiUrl('/api/admin/templates/toggle'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          templateId,
+          active,
+          passcode: getAdminMasterPasscode()
+        })
+      });
+    } catch (e) {}
+
+    // 3. Record security audit log
+    await recordAdminAuditLog(
+      actorEmail,
+      'TEMPLATE_VISIBILITY_TOGGLED',
+      'template',
+      templateId,
+      `Template "${target.name}" changed to ${active ? 'LIVE IN STUDIO' : 'HIDDEN'}`,
+      !active,
+      active
+    );
+
+    return { success: true, active };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Failed to toggle template' };
+  }
+}
+
+/**
+ * Ingest/Create new custom template via raw source code (HTML/CSS/JS)
+ */
+export async function createAdminCustomTemplateAsync(
+  templateData: {
+    name: string;
+    id: string;
+    tagline?: string;
+    category: 'royal' | 'modern';
+    price: number;
+    previewImg?: string;
+    htmlSource: string;
+    cssSource?: string;
+    jsSource?: string;
+  },
+  actorEmail: string = 'admin@amantranlink.com'
+): Promise<{ success: boolean; template?: AdminTemplateItem; error?: string }> {
+  try {
+    const { name, id, tagline, category, price, previewImg, htmlSource, cssSource, jsSource } = templateData;
+    if (!name || !id || !htmlSource) {
+      return { success: false, error: 'Template Name, Identifier (slug), and HTML Source Code are required.' };
+    }
+
+    const cleanSlug = id.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    const newEntry: AdminTemplateItem = {
+      id: cleanSlug,
+      name: name.toUpperCase(),
+      tagline: tagline || `${name} Luxury Royal Wedding Invitation`,
+      taglineShort: `${name} · Luxury Invitation`,
+      tags: 'Custom Ingested · Interactive · Studio Ready',
+      price: Number(price) || 699,
+      icon: '👑',
+      badge: 'Custom Ingested',
+      bgGradient: category === 'modern' ? 'from-[#1C1917] via-[#292524] to-[#FAF8F5]' : 'from-[#4A0E17] via-[#2D080E] to-[#FAF6EE]',
+      accentColor: category === 'modern' ? '#CA8A04' : '#DEA645',
+      category: category === 'modern' ? 'modern' : 'royal',
+      description: tagline || `Exclusive royal wedding invitation template added via AmantranLink Admin CMS.`,
+      url: `/templates/${cleanSlug}/index.html`,
+      previewImg: previewImg || `/templates/royal-gateway/assets/gate/peacock.webp`,
+      active: true,
+      featured: true,
+      isCustom: true,
+      htmlSource,
+      cssSource: cssSource || '',
+      jsSource: jsSource || '',
+      displayOrder: 99,
+      createdAt: new Date().toISOString()
+    };
+
+    // 1. Update Supabase platform_settings
+    const currentTemplates = await fetchAdminTemplatesAsync();
+    const existingIndex = currentTemplates.findIndex(t => t.id === cleanSlug);
+    if (existingIndex >= 0) {
+      currentTemplates[existingIndex] = { ...currentTemplates[existingIndex], ...newEntry };
+    } else {
+      currentTemplates.unshift(newEntry);
+    }
+
+    await supabase.from('platform_settings').upsert({
+      setting_key: TEMPLATE_REGISTRY_SETTING_KEY,
+      setting_value: currentTemplates,
+      updated_at: new Date().toISOString()
+    });
+
+    // 2. Also forward to server backend to write physical files if disk is writable
+    try {
+      await fetch(resolveApiUrl('/api/admin/templates/create'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...newEntry,
+          passcode: getAdminMasterPasscode()
+        })
+      });
+    } catch (e) {}
+
+    // 3. Record audit log
+    await recordAdminAuditLog(
+      actorEmail,
+      'TEMPLATE_INGESTED_VIA_SOURCE_CODE',
+      'template',
+      cleanSlug,
+      `Custom template "${name}" added via Admin Panel with full HTML source code.`,
+      null,
+      { name, slug: cleanSlug, category, price }
+    );
+
+    return { success: true, template: newEntry };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Failed to ingest template' };
+  }
+}
+
+/**
+ * Delete a custom template
+ */
+export async function deleteAdminCustomTemplateAsync(
+  templateId: string,
+  actorEmail: string = 'admin@amantranlink.com'
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const currentTemplates = await fetchAdminTemplatesAsync();
+    const updated = currentTemplates.filter(t => t.id !== templateId);
+
+    await supabase.from('platform_settings').upsert({
+      setting_key: TEMPLATE_REGISTRY_SETTING_KEY,
+      setting_value: updated,
+      updated_at: new Date().toISOString()
+    });
+
+    await recordAdminAuditLog(
+      actorEmail,
+      'CUSTOM_TEMPLATE_DELETED',
+      'template',
+      templateId,
+      `Template ${templateId} deleted from registry.`
+    );
+
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Failed to delete template' };
+  }
+}
+

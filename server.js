@@ -3919,15 +3919,71 @@ app.post('/api/admin/coming-soon', requireAdminAuth, async (req, res) => {
 // 👑 DYNAMIC TEMPLATE CMS & SOURCE CODE INGESTION ENGINE (ADMIN PANEL)
 // =========================================================================
 
-// 1. Fetch all templates with active/hide status
+// 0. Dynamic Custom Template HTML Serve (Supports templates stored in Supabase & cloud)
+app.get(['/templates/:slug/index.html', '/api/templates/:slug/html'], async (req, res, next) => {
+  const { slug } = req.params;
+  const localFile = path.join(__dirname, 'public', 'templates', slug, 'index.html');
+  if (fs.existsSync(localFile)) {
+    return res.sendFile(localFile);
+  }
+
+  // If not on disk (dynamic custom template stored in Supabase platform_settings)
+  try {
+    const { data: setting } = await supabase
+      .from('platform_settings')
+      .select('setting_value')
+      .eq('setting_key', 'template_registry')
+      .maybeSingle();
+
+    if (setting && Array.isArray(setting.setting_value)) {
+      const match = setting.setting_value.find(t => t.id === slug);
+      if (match && match.htmlSource) {
+        let finalHtml = match.htmlSource;
+        if (match.cssSource && !finalHtml.includes(match.cssSource)) {
+          finalHtml = finalHtml.replace('</head>', `<style>${match.cssSource}</style></head>`);
+        }
+        if (match.jsSource && !finalHtml.includes(match.jsSource)) {
+          finalHtml = finalHtml.replace('</body>', `<script>${match.jsSource}</script></body>`);
+        }
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.send(finalHtml);
+      }
+    }
+  } catch (err) {
+    console.warn(`[Dynamic Template Serve] Note for ${slug}:`, err.message);
+  }
+
+  return res.status(404).send('Template not found');
+});
+
+// 1. Fetch all templates with active/hide status (Supabase cloud first, registry.json fallback)
 app.get('/api/admin/templates', async (req, res) => {
   try {
-    const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
-    if (!fs.existsSync(registryPath)) {
-      return res.json({ success: true, templates: [] });
+    // 1. Try Supabase cloud platform_settings first
+    const { data: setting, error } = await supabase
+      .from('platform_settings')
+      .select('setting_value')
+      .eq('setting_key', 'template_registry')
+      .maybeSingle();
+
+    if (!error && setting?.setting_value && Array.isArray(setting.setting_value) && setting.setting_value.length > 0) {
+      return res.json({ success: true, templates: setting.setting_value });
     }
-    const data = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-    return res.json({ success: true, templates: data });
+
+    // 2. Fallback to disk registry.json
+    const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
+    if (fs.existsSync(registryPath)) {
+      const data = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+      // Seed to Supabase for cloud persistence
+      await supabase.from('platform_settings').upsert({
+        setting_key: 'template_registry',
+        setting_value: data,
+        updated_at: new Date().toISOString()
+      }).catch(() => {});
+      return res.json({ success: true, templates: data });
+    }
+
+    return res.json({ success: true, templates: [] });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
@@ -3936,36 +3992,81 @@ app.get('/api/admin/templates', async (req, res) => {
 // 2. Public active templates for Studio & Landing Page
 app.get('/api/templates/active', async (req, res) => {
   try {
-    const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
-    if (!fs.existsSync(registryPath)) {
-      return res.json({ success: true, templates: [] });
+    // 1. Try Supabase cloud platform_settings first
+    const { data: setting, error } = await supabase
+      .from('platform_settings')
+      .select('setting_value')
+      .eq('setting_key', 'template_registry')
+      .maybeSingle();
+
+    if (!error && setting?.setting_value && Array.isArray(setting.setting_value) && setting.setting_value.length > 0) {
+      const activeTemplates = setting.setting_value.filter(t => t.active !== false);
+      return res.json({ success: true, templates: activeTemplates });
     }
-    const data = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-    const activeTemplates = data.filter(t => t.active !== false);
-    return res.json({ success: true, templates: activeTemplates });
+
+    // 2. Fallback to disk registry.json
+    const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
+    if (fs.existsSync(registryPath)) {
+      const data = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+      const activeTemplates = data.filter(t => t.active !== false);
+      return res.json({ success: true, templates: activeTemplates });
+    }
+
+    return res.json({ success: true, templates: [] });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// 3. Toggle Template Active / Hide-Show
+// 3. Toggle Template Active / Hide-Show (Both Supabase Cloud and Local File)
 app.post('/api/admin/templates/toggle', async (req, res) => {
   try {
     const { templateId, active, passcode } = req.body;
     if (passcode && passcode !== 'Aryan_patel_2301' && passcode !== process.env.ADMIN_PASSCODE) {
       return res.status(403).json({ success: false, error: 'Unauthorized admin passcode' });
     }
-    const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
-    if (!fs.existsSync(registryPath)) {
-      return res.status(404).json({ success: false, error: 'Registry not found' });
+
+    // 1. Fetch current list from Supabase or disk
+    let currentTemplates = [];
+    const { data: setting } = await supabase
+      .from('platform_settings')
+      .select('setting_value')
+      .eq('setting_key', 'template_registry')
+      .maybeSingle();
+
+    if (setting && Array.isArray(setting.setting_value)) {
+      currentTemplates = setting.setting_value;
+    } else {
+      const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
+      if (fs.existsSync(registryPath)) {
+        currentTemplates = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+      }
     }
-    let data = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-    const tpl = data.find(t => t.id === templateId);
+
+    const tpl = currentTemplates.find(t => t.id === templateId);
     if (!tpl) {
       return res.status(404).json({ success: false, error: `Template ${templateId} not found` });
     }
+
     tpl.active = Boolean(active);
-    fs.writeFileSync(registryPath, JSON.stringify(data, null, 2), 'utf8');
+
+    // 2. Save back to Supabase platform_settings (works in serverless!)
+    await supabase.from('platform_settings').upsert({
+      setting_key: 'template_registry',
+      setting_value: currentTemplates,
+      updated_at: new Date().toISOString()
+    }).catch(() => {});
+
+    // 3. Save to disk if writable
+    try {
+      const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
+      if (fs.existsSync(registryPath)) {
+        fs.writeFileSync(registryPath, JSON.stringify(currentTemplates, null, 2), 'utf8');
+      }
+    } catch (fsErr) {
+      // Ignored if read-only filesystem on Vercel
+    }
+
     console.log(`👑 [Admin CMS] Toggled template ${templateId} active: ${tpl.active}`);
     return res.json({ success: true, template: tpl });
   } catch (err) {
@@ -3998,67 +4099,85 @@ app.post('/api/admin/templates/create', async (req, res) => {
     }
 
     const cleanSlug = id.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-    const templateDir = path.join(__dirname, 'public', 'templates', cleanSlug);
-    if (!fs.existsSync(templateDir)) {
-      fs.mkdirSync(templateDir, { recursive: true });
-    }
 
-    // Write index.html
-    fs.writeFileSync(path.join(templateDir, 'index.html'), htmlSource, 'utf8');
-
-    // Optional style.css
-    if (cssSource && cssSource.trim()) {
-      fs.writeFileSync(path.join(templateDir, 'style.css'), cssSource, 'utf8');
-    }
-
-    // Optional app.js
-    if (jsSource && jsSource.trim()) {
-      fs.writeFileSync(path.join(templateDir, 'app.js'), jsSource, 'utf8');
-    }
-
-    // Update registry.json
-    const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
-    let registry = [];
-    if (fs.existsSync(registryPath)) {
-      try {
-        registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-      } catch (e) {
-        registry = [];
-      }
-    }
-
-    const existingIndex = registry.findIndex(t => t.id === cleanSlug);
+    // Construct full template entry
     const newTemplateEntry = {
       id: cleanSlug,
       name: name.toUpperCase(),
       tagline: tagline || `${name} Luxury Royal Wedding Invitation`,
       taglineShort: `${name} · Luxury Invitation`,
-      tags: 'Custom Template · Admin Ingested · Interactive',
+      tags: 'Custom Ingested · Interactive · Studio Ready',
       price: Number(price) || 699,
       icon: '👑',
-      badge: 'Custom Imperial',
-      bgGradient: 'from-[#4A0E17] via-[#2D080E] to-[#FAF6EE]',
-      accentColor: '#DEA645',
+      badge: 'Custom Ingested',
+      bgGradient: category === 'modern' ? 'from-[#1C1917] via-[#292524] to-[#FAF8F5]' : 'from-[#4A0E17] via-[#2D080E] to-[#FAF6EE]',
+      accentColor: category === 'modern' ? '#CA8A04' : '#DEA645',
       category: category === 'modern' ? 'modern' : 'royal',
       description: tagline || `Exclusive royal wedding invitation template added via AmantranLink Admin CMS.`,
       url: `/templates/${cleanSlug}/index.html`,
-      previewImg: previewImg || `/templates/${cleanSlug}/preview.jpg`,
+      previewImg: previewImg || `/templates/royal-gateway/assets/gate/peacock.webp`,
       active: true,
       featured: true,
       isCustom: true,
-      displayOrder: registry.length + 1,
+      htmlSource,
+      cssSource: cssSource || '',
+      jsSource: jsSource || '',
+      displayOrder: 99,
       createdAt: new Date().toISOString()
     };
 
-    if (existingIndex >= 0) {
-      registry[existingIndex] = { ...registry[existingIndex], ...newTemplateEntry };
+    // 1. Update Supabase platform_settings cloud registry
+    let currentTemplates = [];
+    const { data: setting } = await supabase
+      .from('platform_settings')
+      .select('setting_value')
+      .eq('setting_key', 'template_registry')
+      .maybeSingle();
+
+    if (setting && Array.isArray(setting.setting_value)) {
+      currentTemplates = setting.setting_value;
     } else {
-      registry.unshift(newTemplateEntry);
+      const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
+      if (fs.existsSync(registryPath)) {
+        try {
+          currentTemplates = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+        } catch (e) {}
+      }
     }
 
-    fs.writeFileSync(registryPath, JSON.stringify(registry, null, 2), 'utf8');
+    const existingIdx = currentTemplates.findIndex(t => t.id === cleanSlug);
+    if (existingIdx >= 0) {
+      currentTemplates[existingIdx] = { ...currentTemplates[existingIdx], ...newTemplateEntry };
+    } else {
+      currentTemplates.unshift(newTemplateEntry);
+    }
 
-    // Optional sync to Supabase templates table
+    await supabase.from('platform_settings').upsert({
+      setting_key: 'template_registry',
+      setting_value: currentTemplates,
+      updated_at: new Date().toISOString()
+    }).catch(() => {});
+
+    // 2. Try writing physical files to disk if writable
+    try {
+      const templateDir = path.join(__dirname, 'public', 'templates', cleanSlug);
+      if (!fs.existsSync(templateDir)) {
+        fs.mkdirSync(templateDir, { recursive: true });
+      }
+      fs.writeFileSync(path.join(templateDir, 'index.html'), htmlSource, 'utf8');
+      if (cssSource && cssSource.trim()) {
+        fs.writeFileSync(path.join(templateDir, 'style.css'), cssSource, 'utf8');
+      }
+      if (jsSource && jsSource.trim()) {
+        fs.writeFileSync(path.join(templateDir, 'app.js'), jsSource, 'utf8');
+      }
+      const registryPath = path.join(__dirname, 'public', 'templates', 'registry.json');
+      fs.writeFileSync(registryPath, JSON.stringify(currentTemplates, null, 2), 'utf8');
+    } catch (fsErr) {
+      // Ignored if read-only filesystem
+    }
+
+    // 3. Sync to Supabase templates table
     try {
       await supabase.from('templates').upsert({
         id: crypto.randomUUID(),

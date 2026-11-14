@@ -22,6 +22,7 @@ import {
   PlatformGlobalConfig, 
   ComingSoonConfig,
   AdminSecurityAuditRecord, 
+  AdminTemplateItem,
   TimeRangeFilter, 
   UserRole, 
   UserAccountStatus 
@@ -56,7 +57,12 @@ import {
   updateComingSoonConfig,
   toggleLockWeddingSite,
   toggleSuspendWeddingSite,
-  deleteAdminWeddingSite
+  deleteAdminWeddingSite,
+  // 👑 Dynamic Template CMS & Ingestion Services
+  fetchAdminTemplatesAsync,
+  toggleAdminTemplateAsync,
+  createAdminCustomTemplateAsync,
+  deleteAdminCustomTemplateAsync
 } from '../../../services/adminSuperCenterService';
 
 interface AdminSuperControlCenterProps {
@@ -66,6 +72,7 @@ interface AdminSuperControlCenterProps {
 
 type AdminSuperSection = 
   | 'overview' 
+  | 'templates'
   | 'users' 
   | 'weddings' 
   | 'studios' 
@@ -116,6 +123,24 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
   const [csFormLaunchDate, setCsFormLaunchDate] = useState<string>(comingSoonConfig.launchDate.split('T')[0] || '2026-12-15');
   const [csFormPhone, setCsFormPhone] = useState<string>(comingSoonConfig.contactPhone);
   const [csFormBadge, setCsFormBadge] = useState<string>(comingSoonConfig.announcementBadge);
+
+  // 👑 Dynamic Template CMS & Ingestion State
+  const [templatesList, setTemplatesList] = useState<AdminTemplateItem[]>([]);
+  const [templateSearch, setTemplateSearch] = useState<string>('');
+  const [templateCategoryFilter, setTemplateCategoryFilter] = useState<'all' | 'royal' | 'modern' | 'live' | 'hidden'>('all');
+  const [isAddTemplateModalOpen, setIsAddTemplateModalOpen] = useState<boolean>(false);
+  const [isDeployingTemplate, setIsDeployingTemplate] = useState<boolean>(false);
+  const [newTemplateForm, setNewTemplateForm] = useState({
+    name: '',
+    id: '',
+    tagline: '',
+    category: 'royal' as 'royal' | 'modern',
+    price: 699,
+    previewImg: '',
+    htmlSource: '',
+    cssSource: '',
+    jsSource: ''
+  });
 
   // User Filter & Action Modals
   const [userSearch, setUserSearch] = useState<string>('');
@@ -179,7 +204,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
 
   const loadAllAdminData = async () => {
     setLoading(true);
-    const [met, uData, wList, sList, rev, adopt, hlth, sigs, flags, logs, csConfig] = await Promise.all([
+    const [met, uData, wList, sList, rev, adopt, hlth, sigs, flags, logs, csConfig, tpls] = await Promise.all([
       fetchSuperCenterMetrics(timeRange),
       fetchAdminUserDirectory({ search: userSearch, role: userRoleFilter, status: userStatusFilter }),
       fetchAdminWeddingProjects(),
@@ -191,6 +216,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
       fetchFeatureFlags(),
       fetchSecurityAuditLogs(),
       fetchComingSoonConfigAsync(),
+      fetchAdminTemplatesAsync(),
     ]);
 
     setMetrics(met);
@@ -206,6 +232,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
     setFeatureFlags(flags);
     setAuditLogs(logs);
     setComingSoonConfig(csConfig);
+    setTemplatesList(tpls || []);
     setLoading(false);
   };
 
@@ -220,6 +247,63 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
     await loadAllAdminData();
     setRefreshing(false);
     showToast('Platform metrics & real Supabase records refreshed.');
+  };
+
+  // 👑 Toggle Template Active / Hidden (Hide & Show CMS)
+  const handleToggleTemplateStatus = async (tpl: AdminTemplateItem) => {
+    const nextStatus = !tpl.active;
+    setTemplatesList(prev => prev.map(t => t.id === tpl.id ? { ...t, active: nextStatus } : t));
+    showToast(`Template "${tpl.name}" is now ${nextStatus ? '🟢 LIVE IN STUDIO' : '🔴 HIDDEN FROM USERS'}`);
+    
+    const res = await toggleAdminTemplateAsync(tpl.id, nextStatus, 'admin@amantranlink.com');
+    if (!res.success) {
+      showToast(`Error updating template status: ${res.error}`);
+      setTemplatesList(prev => prev.map(t => t.id === tpl.id ? { ...t, active: !nextStatus } : t));
+    }
+  };
+
+  // 🚀 Deploy New Custom Template via Source Code
+  const handleCreateTemplateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTemplateForm.name.trim() || !newTemplateForm.id.trim() || !newTemplateForm.htmlSource.trim()) {
+      alert('Please fill in Template Name, Slug ID, and paste the HTML Source Code.');
+      return;
+    }
+    setIsDeployingTemplate(true);
+    const res = await createAdminCustomTemplateAsync(newTemplateForm, 'admin@amantranlink.com');
+    setIsDeployingTemplate(false);
+    if (res.success && res.template) {
+      setTemplatesList(prev => [res.template!, ...prev.filter(t => t.id !== res.template!.id)]);
+      setIsAddTemplateModalOpen(false);
+      setNewTemplateForm({
+        name: '',
+        id: '',
+        tagline: '',
+        category: 'royal',
+        price: 699,
+        previewImg: '',
+        htmlSource: '',
+        cssSource: '',
+        jsSource: ''
+      });
+      showToast(`👑 Template "${res.template.name}" deployed and activated live in Studio!`);
+    } else {
+      alert(`Error deploying template: ${res.error}`);
+    }
+  };
+
+  // 🗑️ Delete Custom Template
+  const handleDeleteTemplate = async (tpl: AdminTemplateItem) => {
+    if (!window.confirm(`Are you sure you want to remove template "${tpl.name}" (${tpl.id}) from the registry?`)) {
+      return;
+    }
+    const res = await deleteAdminCustomTemplateAsync(tpl.id, 'admin@amantranlink.com');
+    if (res.success) {
+      setTemplatesList(prev => prev.filter(t => t.id !== tpl.id));
+      showToast(`Template "${tpl.name}" removed from registry.`);
+    } else {
+      showToast(`Error deleting template: ${res.error}`);
+    }
   };
 
   // Toggle Coming Soon Mode
@@ -573,6 +657,7 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
       <nav className="bg-[#240A10] border-b border-stone-800 px-6 py-2 flex items-center gap-1 overflow-x-auto scrollbar-none text-xs font-bold select-none">
         {[
           { id: 'overview', label: 'Executive Overview', icon: Crown },
+          { id: 'templates', label: `Templates (${templatesList.length})`, icon: Sparkles },
           { id: 'users', label: `Users (${totalUsersCount})`, icon: Users },
           { id: 'weddings', label: `Weddings (${weddings.length})`, icon: FileText },
           { id: 'studios', label: `Studios (${studios.length})`, icon: Camera },
@@ -794,6 +879,251 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
                     </p>
                   </div>
                 </div>
+
+              </div>
+            )}
+
+            {/* ========================================================================= */}
+            {/* 👑 DYNAMIC TEMPLATE CMS & SOURCE CODE INGESTION ENGINE                    */}
+            {/* ========================================================================= */}
+            {activeSection === 'templates' && (
+              <div className="space-y-6 animate-fadeIn">
+                
+                {/* 👑 Top Action Banner */}
+                <div className="p-6 rounded-3xl bg-gradient-to-r from-[#240A10] via-[#350811] to-[#120306] border border-[#F4D06F]/40 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 text-white">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#F4D06F] animate-pulse" />
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#F4D06F] font-bold">
+                        Authoritative Template Registry &amp; Ingestion Engine
+                      </span>
+                    </div>
+                    <h2 className="font-cormorant font-bold text-2xl sm:text-3xl text-white">
+                      Royal Templates CMS &amp; Hide / Show Control
+                    </h2>
+                    <p className="text-xs text-stone-300 max-w-2xl leading-relaxed">
+                      Control which templates are live in the Studio, preview interactive 3D gates &amp; wax seal animations, or ingest brand new templates by pasting full HTML/CSS/JS source code from any device.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddTemplateModalOpen(true)}
+                      className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#F4D06F] to-[#DEA645] hover:from-[#FFE494] hover:to-[#E5B558] text-[#120306] font-bold text-xs flex items-center gap-2 shadow-lg hover:shadow-xl transition-all cursor-pointer whitespace-nowrap"
+                    >
+                      <Plus className="w-4 h-4 stroke-[3]" />
+                      <span>+ Add Custom Template (Source Code)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 📊 Real-time Template Counters */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-2xl bg-white border border-[#E8DFD1] shadow-2xs space-y-1">
+                    <span className="text-[10px] font-mono uppercase text-[#736567] font-bold block">Total Registered</span>
+                    <strong className="text-2xl font-cormorant font-bold text-[#540D1E]">{templatesList.length}</strong>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-white border border-[#BCE3D1] shadow-2xs space-y-1">
+                    <span className="text-[10px] font-mono uppercase text-[#167A5A] font-bold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      Live In Studio
+                    </span>
+                    <strong className="text-2xl font-cormorant font-bold text-[#136A4E]">
+                      {templatesList.filter(t => t.active !== false).length}
+                    </strong>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-white border border-[#F0D5D8] shadow-2xs space-y-1">
+                    <span className="text-[10px] font-mono uppercase text-[#961C2C] font-bold block">Hidden / Disabled</span>
+                    <strong className="text-2xl font-cormorant font-bold text-[#961C2C]">
+                      {templatesList.filter(t => t.active === false).length}
+                    </strong>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-white border border-[#E8DFD1] shadow-2xs space-y-1">
+                    <span className="text-[10px] font-mono uppercase text-[#736567] font-bold block">Custom Ingested</span>
+                    <strong className="text-2xl font-cormorant font-bold text-[#540D1E]">
+                      {templatesList.filter(t => t.isCustom).length}
+                    </strong>
+                  </div>
+                </div>
+
+                {/* 🔍 Filter & Search Bar */}
+                <div className="bg-white p-4 rounded-2xl border border-[#E8DFD1] flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="relative flex-1 max-w-md">
+                    <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={templateSearch}
+                      onChange={(e) => setTemplateSearch(e.target.value)}
+                      placeholder="Search templates by title, slug, or tags..."
+                      className="w-full pl-9 pr-4 py-2 bg-[#FAF8F5] border border-[#E8DFD1] rounded-xl text-xs text-[#20181A] focus:outline-none focus:border-[#540D1E]"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 md:pb-0 text-xs font-semibold">
+                    {[
+                      { id: 'all', label: 'All Templates' },
+                      { id: 'live', label: '● Live Only' },
+                      { id: 'hidden', label: '○ Hidden Only' },
+                      { id: 'royal', label: '👑 Royal Heritage' },
+                      { id: 'modern', label: '✨ Modern Classics' }
+                    ].map(f => (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => setTemplateCategoryFilter(f.id as any)}
+                        className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer whitespace-nowrap text-xs ${
+                          templateCategoryFilter === f.id
+                            ? 'bg-[#540D1E] text-white font-bold shadow-xs'
+                            : 'bg-[#FAF8F5] text-[#736567] hover:text-[#20181A] border border-[#E8DFD1]'
+                        }`}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 🏛️ Templates Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {templatesList
+                    .filter(t => {
+                      if (templateSearch.trim()) {
+                        const q = templateSearch.toLowerCase();
+                        const matchName = t.name.toLowerCase().includes(q);
+                        const matchId = t.id.toLowerCase().includes(q);
+                        const matchTag = (t.tagline || '').toLowerCase().includes(q);
+                        if (!matchName && !matchId && !matchTag) return false;
+                      }
+                      if (templateCategoryFilter === 'live') return t.active !== false;
+                      if (templateCategoryFilter === 'hidden') return t.active === false;
+                      if (templateCategoryFilter === 'royal') return t.category === 'royal';
+                      if (templateCategoryFilter === 'modern') return t.category === 'modern';
+                      return true;
+                    })
+                    .map((tpl) => (
+                      <div
+                        key={tpl.id}
+                        className={`rounded-3xl border bg-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden ${
+                          tpl.active !== false ? 'border-[#E8DFD1]' : 'border-stone-300 opacity-75'
+                        }`}
+                      >
+                        {/* Preview Image Banner */}
+                        <div className="relative w-full h-44 bg-stone-900 overflow-hidden group">
+                          <img
+                            src={tpl.previewImg || '/templates/royal-gateway/assets/gate/peacock.webp'}
+                            alt={tpl.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                          
+                          <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                            <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-xs text-white text-[10px] font-mono font-bold uppercase tracking-wider border border-white/20">
+                              {tpl.badge || tpl.category.toUpperCase()}
+                            </span>
+                            {tpl.isCustom && (
+                              <span className="px-2.5 py-1 rounded-full bg-[#F4D06F] text-[#120306] text-[10px] font-mono font-bold uppercase tracking-wider shadow-sm">
+                                👑 Custom Ingested
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white">
+                            <div>
+                              <h4 className="font-cormorant font-bold text-xl text-[#FFFDF8] leading-tight drop-shadow-md">
+                                {tpl.name}
+                              </h4>
+                              <span className="font-mono text-[10px] text-stone-300 block">
+                                slug: /{tpl.id}
+                              </span>
+                            </div>
+                            <span className="text-xs font-bold text-[#F4D06F] bg-black/50 px-2 py-0.5 rounded-md font-mono">
+                              ₹{tpl.price}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Card Body */}
+                        <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                          <p className="text-xs text-[#554749] leading-relaxed line-clamp-2">
+                            {tpl.tagline || tpl.description || 'Exclusive luxury Indian wedding invitation.'}
+                          </p>
+
+                          {/* Live/Hidden Toggle Switch */}
+                          <div className={`p-3.5 rounded-2xl border flex items-center justify-between transition-all ${
+                            tpl.active !== false
+                              ? 'bg-[#EDF7F2] border-[#BCE3D1]'
+                              : 'bg-[#FDF2F3] border-[#F0D5D8]'
+                          }`}>
+                            <div className="flex items-center gap-2">
+                              <span className={`w-2.5 h-2.5 rounded-full ${
+                                tpl.active !== false ? 'bg-[#136A4E] animate-pulse' : 'bg-[#961C2C]'
+                              }`} />
+                              <div>
+                                <strong className={`text-xs block font-bold ${
+                                  tpl.active !== false ? 'text-[#136A4E]' : 'text-[#961C2C]'
+                                }`}>
+                                  {tpl.active !== false ? '● LIVE IN STUDIO' : '○ HIDDEN FROM USERS'}
+                                </strong>
+                                <span className="text-[10px] text-[#736567] block">
+                                  {tpl.active !== false ? 'Couples can select & customize' : 'Hidden from studio & landing page'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleToggleTemplateStatus(tpl)}
+                              className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all shadow-xs cursor-pointer ${
+                                tpl.active !== false
+                                  ? 'bg-white hover:bg-stone-100 text-[#961C2C] border border-[#F0D5D8]'
+                                  : 'bg-[#136A4E] hover:bg-[#167A5A] text-white'
+                              }`}
+                            >
+                              {tpl.active !== false ? 'Hide' : 'Make Live'}
+                            </button>
+                          </div>
+
+                          {/* Card Footer Actions */}
+                          <div className="flex items-center justify-between pt-3 border-t border-[#E8DFD1] text-xs">
+                            <a
+                              href={tpl.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#540D1E] hover:text-[#7A132B] font-bold flex items-center gap-1.5 transition-colors"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>Preview Live</span>
+                              <ExternalLink className="w-3 h-3 opacity-60" />
+                            </a>
+
+                            {tpl.isCustom && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteTemplate(tpl)}
+                                className="text-red-600 hover:text-red-800 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Delete</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {templatesList.length === 0 && (
+                  <div className="py-16 text-center space-y-3 bg-white rounded-3xl border border-[#E8DFD1]">
+                    <div className="w-12 h-12 rounded-2xl bg-[#540D1E]/10 flex items-center justify-center text-[#540D1E] mx-auto">
+                      <Sparkles className="w-6 h-6" />
+                    </div>
+                    <h4 className="font-cormorant font-bold text-xl text-[#20181A]">No Templates Registered Yet</h4>
+                    <p className="text-xs text-[#736567] max-w-sm mx-auto">
+                      Click "+ Add Custom Template" to deploy your first interactive wedding invitation template via source code.
+                    </p>
+                  </div>
+                )}
 
               </div>
             )}
@@ -1285,6 +1615,203 @@ export const AdminSuperControlCenter: React.FC<AdminSuperControlCenterProps> = (
           </>
         )}
       </main>
+
+      {/* ========================================================================= */}
+      {/* 👑 MODAL: + ADD CUSTOM TEMPLATE VIA SOURCE CODE                          */}
+      {/* ========================================================================= */}
+      {isAddTemplateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-xs font-manrope animate-fadeIn">
+          <div className="max-w-3xl w-full bg-[#1A060B] border border-[#F4D06F]/40 rounded-3xl p-6 shadow-2xl text-white space-y-4 max-h-[92vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-stone-800 pb-3 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-[#F4D06F]/20 flex items-center justify-center text-[#F4D06F]">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-cormorant text-2xl font-bold text-white">
+                    Deploy Custom Template (Source Code)
+                  </h3>
+                  <p className="text-[11px] text-stone-400">
+                    Paste raw HTML, CSS &amp; JS. It is compiled and deployed directly to the Studio from any device.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddTemplateModalOpen(false)}
+                className="text-stone-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateTemplateSubmit} className="space-y-4 text-xs overflow-y-auto pr-1 flex-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                    Template Display Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newTemplateForm.name}
+                    onChange={(e) => {
+                      const name = e.target.value;
+                      const slug = name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+                      setNewTemplateForm(prev => ({ ...prev, name, id: prev.id || slug }));
+                    }}
+                    placeholder="e.g. The Royal Peacock Gateway"
+                    className="w-full p-2.5 bg-black/40 border border-stone-700 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-[#F4D06F]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                    Template Slug / Identifier *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newTemplateForm.id}
+                    onChange={(e) => setNewTemplateForm(prev => ({ ...prev, id: e.target.value }))}
+                    placeholder="e.g. royal-peacock-gateway"
+                    className="w-full p-2.5 bg-black/40 border border-stone-700 rounded-xl text-xs font-mono text-[#F4D06F] focus:outline-none focus:border-[#F4D06F]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                    Category *
+                  </label>
+                  <select
+                    value={newTemplateForm.category}
+                    onChange={(e) => setNewTemplateForm(prev => ({ ...prev, category: e.target.value as any }))}
+                    className="w-full p-2.5 bg-black/40 border border-stone-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#F4D06F]"
+                  >
+                    <option value="royal">👑 Royal Heritage</option>
+                    <option value="modern">✨ Modern Classic</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                    Retail Price (₹) *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={newTemplateForm.price}
+                    onChange={(e) => setNewTemplateForm(prev => ({ ...prev, price: Number(e.target.value) }))}
+                    className="w-full p-2.5 bg-black/40 border border-stone-700 rounded-xl text-xs font-mono text-emerald-400 focus:outline-none focus:border-[#F4D06F]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                    Preview Image URL
+                  </label>
+                  <input
+                    type="text"
+                    value={newTemplateForm.previewImg}
+                    onChange={(e) => setNewTemplateForm(prev => ({ ...prev, previewImg: e.target.value }))}
+                    placeholder="/templates/royal-gateway/assets/gate/peacock.webp"
+                    className="w-full p-2.5 bg-black/40 border border-stone-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#F4D06F]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                  Tagline / Auspicious Short Description
+                </label>
+                <input
+                  type="text"
+                  value={newTemplateForm.tagline}
+                  onChange={(e) => setNewTemplateForm(prev => ({ ...prev, tagline: e.target.value }))}
+                  placeholder="e.g. Imperial palace doors opening with live shehnai & gold scratch card"
+                  className="w-full p-2.5 bg-black/40 border border-stone-700 rounded-xl text-xs text-white focus:outline-none focus:border-[#F4D06F]"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] font-semibold text-stone-300">
+                    HTML Source Code (Complete Standalone Page) *
+                  </label>
+                  <span className="text-[10px] font-mono text-[#F4D06F]">
+                    Supports Full HTML5, inline CSS, JS, audio tags
+                  </span>
+                </div>
+                <textarea
+                  rows={8}
+                  required
+                  value={newTemplateForm.htmlSource}
+                  onChange={(e) => setNewTemplateForm(prev => ({ ...prev, htmlSource: e.target.value }))}
+                  placeholder={`<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Royal Invitation</title>\n</head>\n<body>\n  <!-- Your Royal Template Code -->\n</body>\n</html>`}
+                  className="w-full p-3 bg-black/60 border border-stone-700 rounded-xl text-xs font-mono text-stone-200 focus:outline-none focus:border-[#F4D06F] leading-relaxed resize-y"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                    Custom CSS (Optional)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={newTemplateForm.cssSource}
+                    onChange={(e) => setNewTemplateForm(prev => ({ ...prev, cssSource: e.target.value }))}
+                    placeholder="/* Custom animations, fonts, or keyframes */"
+                    className="w-full p-2.5 bg-black/60 border border-stone-700 rounded-xl text-xs font-mono text-stone-300 focus:outline-none focus:border-[#F4D06F] resize-y"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">
+                    Custom JS (Optional)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={newTemplateForm.jsSource}
+                    onChange={(e) => setNewTemplateForm(prev => ({ ...prev, jsSource: e.target.value }))}
+                    placeholder="// Interactive audio playback, confetti, or scratch card handlers"
+                    className="w-full p-2.5 bg-black/60 border border-stone-700 rounded-xl text-xs font-mono text-stone-300 focus:outline-none focus:border-[#F4D06F] resize-y"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-800 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsAddTemplateModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-stone-800 text-stone-300 text-xs font-semibold cursor-pointer hover:bg-stone-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isDeployingTemplate}
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#F4D06F] to-[#DEA645] hover:from-[#FFE494] hover:to-[#E5B558] text-[#120306] text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg cursor-pointer"
+                >
+                  {isDeployingTemplate ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-[#120306] border-t-transparent rounded-full animate-spin" />
+                      <span>Deploying to Studio...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Deploy &amp; Activate in Studio</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ========================================================================= */}
       {/* 🛠️ MODAL: CUSTOMIZE COMING SOON PAGE                                      */}

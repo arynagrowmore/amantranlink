@@ -4,6 +4,7 @@ import { ThemeId, WeddingTheme } from '../types/wedding';
 import { useAuth } from '../context/AuthContext';
 import { isTemplateUnlockedForUser } from '../services/razorpayClient';
 import { calculatePaymentDetails } from '../config/pricing';
+import { supabase } from '../lib/supabase';
 
 interface ThemeSelectorProps {
   selectedTheme: ThemeId;
@@ -74,16 +75,39 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   const [activeCategory, setActiveCategory] = useState<'royal' | 'modern'>('royal');
   const [allThemes, setAllThemes] = useState<any[]>(ROYAL_THEMES);
 
-  // 🔄 Dynamic Template Ingestion Sync (Fetches Active Templates from Admin CMS)
+  // 🔄 Dynamic Template Ingestion Sync (Fetches Active Templates from Admin CMS & Supabase)
   React.useEffect(() => {
-    fetch('/api/templates/active')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.templates && data.templates.length > 0) {
-          setAllThemes(data.templates);
+    let isMounted = true;
+    const loadActiveThemes = async () => {
+      // 1. Try local or Vercel server API
+      try {
+        const res = await fetch('/api/templates/active');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.templates && data.templates.length > 0 && isMounted) {
+            setAllThemes(data.templates);
+            return;
+          }
         }
-      })
-      .catch(() => {});
+      } catch (e) {}
+
+      // 2. Direct Supabase platform_settings fallback (100% resilient)
+      try {
+        const { data: setting } = await supabase
+          .from('platform_settings')
+          .select('setting_value')
+          .eq('setting_key', 'template_registry')
+          .maybeSingle();
+
+        if (setting && Array.isArray(setting.setting_value) && setting.setting_value.length > 0 && isMounted) {
+          const activeTemplates = setting.setting_value.filter((t: any) => t.active !== false);
+          setAllThemes(activeTemplates);
+        }
+      } catch (dbErr) {}
+    };
+
+    loadActiveThemes();
+    return () => { isMounted = false; };
   }, []);
 
   const displayedThemes = allThemes.filter((t) => {

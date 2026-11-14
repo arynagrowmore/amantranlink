@@ -228,3 +228,29 @@ export interface AdminSecurityAuditRecord {
   new_value?: any;
   created_at: string;
 }
+
+export interface AdminTemplateItem {
+  id: string;
+  name: string;
+  tagline?: string;
+  taglineShort?: string;
+  tags?: string;
+  price: number;
+  icon?: string;
+  badge?: string;
+  bgGradient?: string;
+  accentColor?: string;
+  category: 'royal' | 'modern';
+  description?: string;
+  url: string;
+  previewImg: string;
+  active: boolean;
+  featured?: boolean;
+  isCustom?: boolean;
+  htmlSource?: string;
+  cssSource?: string;
+  jsSource?: string;
+  displayOrder?: number;
+  createdAt?: string;
+}
+
